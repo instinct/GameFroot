@@ -1,0 +1,18 @@
+//
+// Prefix header for all source files of the 'GameFroot' target in the 'GameFroot' project
+//
+
+#ifdef __OBJC__
+	#import <Foundation/Foundation.h>
+	#import <UIKit/UIKit.h>
+
+	// My extensions to cocos2d and cocoa framework
+	#import "CCNode+HideShow.h"
+	#import "CCMenu+Reset.h"
+	#import "CCArray+Extension.h"
+	#import "CCLabelBMFont+AddToBatchNode.h"
+	#import "CCDrawingPrimitives+Extension.h"
+	#import "CCSpriteBatchNode+FastChildren.h"
+	#import "CCTextureAtlas+Dirty.h"
+
+#endif

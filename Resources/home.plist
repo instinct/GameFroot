@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>frames</key>
+	<dict>
+		<key>about_button_06.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{2, 2}, {114, 39}}</string>
+			<key>offset</key>
+			<string>{0, -0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{6, 8}, {114, 39}}</string>
+			<key>sourceSize</key>
+			<string>{126, 55}</string>
+		</dict>
+		<key>about_button_highlighted_06.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{2, 52}, {126, 55}}</string>
+			<key>offset</key>
+			<string>{0, -0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {126, 55}}</string>
+			<key>sourceSize</key>
+			<string>{126, 55}</string>
+		</dict>
+		<key>blue_background_06.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{2, 390}, {320, 480}}</string>
+			<key>offset</key>
+			<string>{0, -0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {320, 480}}</string>
+			<key>sourceSize</key>
+			<string>{320, 480}</string>
+		</dict>
+		<key>doublehappy_big_logo_06.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{2, 114}, {315, 86}}</string>
+			<key>offset</key>
+			<string>{0, -0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{1, 0}, {315, 86}}</string>
+			<key>sourceSize</key>
+			<string>{317, 86}</string>
+		</dict>
+		<key>help_button_06.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{118, 2}, {99, 45}}</string>
+			<key>offset</key>
+			<string>{1, -1}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{8, 8}, {99, 45}}</string>
+			<key>sourceSize</key>
+			<string>{113, 59}</string>
+		</dict>
+		<key>help_button_highlighted_06.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{130, 52}, {113, 59}}</string>
+			<key>offset</key>
+			<string>{0, -0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {113, 59}}</string>
+			<key>sourceSize</key>
+			<string>{113, 59}</string>
+		</dict>
+		<key>jungle_footer_06.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{2, 202}, {320, 186}}</string>
+			<key>offset</key>
+			<string>{0, -0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {320, 186}}</string>
+			<key>sourceSize</key>
+			<string>{320, 186}</string>
+		</dict>
+		<key>play_button_06.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{219, 2}, {213, 48}}</string>
+			<key>offset</key>
+			<string>{0, -0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{7, 6}, {213, 48}}</string>
+			<key>sourceSize</key>
+			<string>{227, 60}</string>
+		</dict>
+		<key>play_button_highlighted_06.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{245, 52}, {227, 60}}</string>
+			<key>offset</key>
+			<string>{0, -0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {227, 60}}</string>
+			<key>sourceSize</key>
+			<string>{227, 60}</string>
+		</dict>
+	</dict>
+	<key>metadata</key>
+	<dict>
+		<key>format</key>
+		<integer>2</integer>
+		<key>size</key>
+		<string>{512, 1024}</string>
+	</dict>
+</dict>
+</plist>
