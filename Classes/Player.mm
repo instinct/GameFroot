@@ -1229,7 +1229,7 @@
 	
 	if ((fabsf(roundf(current.y)) == 0) || ignoreGravity) {
 		
-		if ((fabsf(roundf(current.x)) == 0) && (action != PRONE) && (action != CROUCH)) {
+		if ((fabsf(roundf(current.x)) == 0) && (action != PRONE) && (action != CROUCH) && (!jumping)) {
 			[self setState:STAND];
 		}
 		

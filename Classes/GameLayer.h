@@ -61,6 +61,7 @@
 	
 	// Box2D
 	b2World * world;
+	b2Vec2 gravity;
 	GLESDebugDraw * debugDraw;
 	b2Body *groundBody;
 	Player *player;

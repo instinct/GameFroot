@@ -67,7 +67,7 @@ GameLayer *instance;
 
 -(void) setupWorld {
 	// Setup world
-	b2Vec2 gravity = b2Vec2(0.0f, -15.0f);
+	gravity = b2Vec2(0.0f, -15.0f);
 	world = new b2World(gravity);
 	
 	contactListener = new ContactListener();
@@ -149,10 +149,7 @@ GameLayer *instance;
 			sprite.position = ccp(b->GetPosition().x * PTM_RATIO, b->GetPosition().y * PTM_RATIO);
 			sprite.rotation =  -1 * CC_RADIANS_TO_DEGREES(b->GetAngle());
 			
-			if ((sprite.type == kGameObjectBullet) || (sprite.type == kGameObjectBulletEnemy)) {
-				b->ApplyForce(b->GetMass() * 1.03f * -world->GetGravity(), b->GetWorldCenter());
-				
-			} else if (sprite.type == kGameObjectEnemy) {
+			if (sprite.type == kGameObjectEnemy) {
 				[(Enemy *)sprite update:dt];
 			
 			} else if (sprite.type == kGameObjectRobot) {
@@ -827,6 +824,7 @@ GameLayer *instance;
 		for(uint i = 0; i < [itemElements count]; i++)
 		{
 			NSMutableDictionary *itemData = [[NSMutableDictionary alloc] init];
+			//CCLOG(@"Item data: %@", [[itemElements objectAtIndex:i] description]);
 			
 			int engineId = [[[itemElements objectAtIndex:i] objectForKey:@"engine_id"] intValue];
 			int tileNum = [[[itemElements objectAtIndex:i] objectForKey:@"num"] intValue];
@@ -1539,7 +1537,8 @@ GameLayer *instance;
 				// Override other functionality
 				Robot *item = [Robot spriteWithBatchNode:itemsSpriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 				[item setPosition:pos];
-				[item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH/2, MAP_TILE_HEIGHT/2)];
+				BOOL isSolid = NO;
+				[item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT) solid:isSolid];
 				[item setupRobot:robot];
 				[itemsSpriteSheet addChild:item z:zorder];
 				
@@ -1557,7 +1556,7 @@ GameLayer *instance;
 				// Tile sprite
 				Collectable *item = [Collectable spriteWithBatchNode:itemsSpriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 				[item setPosition:pos];
-				[item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH/2, MAP_TILE_HEIGHT/2)];
+				[item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
 				[item setType:kGameObjectCollectable];
 				[itemsSpriteSheet addChild:item z:zorder];
 				

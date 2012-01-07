@@ -137,13 +137,15 @@
 	//bulletBodyDef.bullet = true;
 	
 	// If bullet is kinematic, it won't collide with static objects (platforms)
-	// If bullet is dynamic, it will fall with gravity 
+	// If bullet is dynamic, it will fall with gravity, so ignore gravity for this kind
 	//bulletBodyDef.type = b2_kinematicBody;
 	bulletBodyDef.type = b2_dynamicBody;
 	
 	bulletBodyDef.position = b2Vec2((self.position.x/PTM_RATIO), self.position.y/PTM_RATIO);
 	bulletBodyDef.userData = self;
 	body = world->CreateBody(&bulletBodyDef);
+	
+	body->SetGravityScale(0.0f);
 	
 	b2PolygonShape shape;
 	shape.SetAsBox((32.0f/6.0f)/PTM_RATIO, (20.0f/6.0f)/PTM_RATIO);

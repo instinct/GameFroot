@@ -25,27 +25,52 @@
     return self;
 }
 
--(void) createBox2dObject:(b2World*)world size:(CGSize)_size
+-(void) _recreateBody
 {
-	size = _size;
-	
 	b2BodyDef playerBodyDef;
 	playerBodyDef.allowSleep = true;
 	playerBodyDef.fixedRotation = true;
-	playerBodyDef.type = b2_kinematicBody;
+	
+	// Try to use dynamic bodies, but ignoring gravity
+	//playerBodyDef.type = b2_kinematicBody;
+	playerBodyDef.type = b2_dynamicBody;
+	
 	playerBodyDef.position.Set(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO);
 	playerBodyDef.userData = self;
-	body = world->CreateBody(&playerBodyDef);
+	body = [GameLayer getInstance].world->CreateBody(&playerBodyDef);
 	
-	b2PolygonShape shape;
-	shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0f)/PTM_RATIO);
-	b2FixtureDef fixtureDef;
-	fixtureDef.shape = &shape;
-	fixtureDef.density = 1.0;
-	fixtureDef.friction = 0.0;
-	fixtureDef.restitution = 0.0; // bouncing
-	fixtureDef.isSensor = true;
-	body->CreateFixture(&fixtureDef);
+	body->SetGravityScale(0.0f);
+	
+	if (solid) {
+		b2PolygonShape shape;
+		shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0f)/PTM_RATIO);
+		b2FixtureDef fixtureDef;
+		fixtureDef.shape = &shape;
+		fixtureDef.density = 1.0;
+		fixtureDef.friction = 0.0;
+		fixtureDef.restitution = 0.0; // bouncing
+		fixtureDef.isSensor = false;
+		body->CreateFixture(&fixtureDef);
+		
+	} else {
+		b2PolygonShape shape;
+		shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0f)/PTM_RATIO);
+		b2FixtureDef fixtureDef;
+		fixtureDef.shape = &shape;
+		fixtureDef.density = 1.0;
+		fixtureDef.friction = 0.0;
+		fixtureDef.restitution = 0.0; // bouncing
+		fixtureDef.isSensor = true;
+		body->CreateFixture(&fixtureDef);
+	}
+}
+
+-(void) createBox2dObject:(b2World*)world size:(CGSize)_size solid:(BOOL)_solid
+{
+	size = _size;
+	solid = _solid;
+	
+	[self _recreateBody];
 	
 	removed = NO;
 }
@@ -53,7 +78,7 @@
 -(void) setupRobot:(NSArray *)array
 {
 	behavior = [array retain];
-	//CCLOG(@"Robot.setupRobot: %@", behavior);
+	CCLOG(@"Robot.setupRobot: %@", behavior);
 	
 	health = 100;	
 	facingLeft = YES;
@@ -365,40 +390,6 @@
 	[self runAction:action];
 
 	return solid;
-}
-
--(void) _recreateBody
-{
-	b2BodyDef playerBodyDef;
-	playerBodyDef.allowSleep = true;
-	playerBodyDef.fixedRotation = true;
-	playerBodyDef.type = b2_kinematicBody;
-	playerBodyDef.position.Set(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO);
-	playerBodyDef.userData = self;
-	body = [GameLayer getInstance].world->CreateBody(&playerBodyDef);
-	
-	if (solid) {
-		b2PolygonShape shape;
-		shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0f)/PTM_RATIO);
-		b2FixtureDef fixtureDef;
-		fixtureDef.shape = &shape;
-		fixtureDef.density = 1.0;
-		fixtureDef.friction = 0.0;
-		fixtureDef.restitution = 0.0; // bouncing
-		fixtureDef.isSensor = false;
-		body->CreateFixture(&fixtureDef);
-		
-	} else {
-		b2PolygonShape shape;
-		shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0f)/PTM_RATIO);
-		b2FixtureDef fixtureDef;
-		fixtureDef.shape = &shape;
-		fixtureDef.density = 1.0;
-		fixtureDef.friction = 0.0;
-		fixtureDef.restitution = 0.0; // bouncing
-		fixtureDef.isSensor = true;
-		body->CreateFixture(&fixtureDef);
-	}	
 }
 
 -(void) _changeBody
@@ -1283,6 +1274,10 @@
 
 -(void) touched:(id)sender
 {
+	// Be sure we reset forces once touched, otherwise it will move as it has gravity 0
+	body->SetLinearVelocity(b2Vec2(0,0));
+	body->SetAngularVelocity(0);
+	
 	//CCLOG(@"Robot.touched: %@", behavior);
 	if (!onTouchStart) {
 		[self execute:@"onTouchStart" type:kGameObjectPlayer];
@@ -1294,6 +1289,10 @@
 {
 	//CCLOG(@"Robot.finished: %@", behavior);
 	onTouchStart = NO;
+	
+	// Be sure we reset forces once touched, otherwise it will move as it has gravity 0
+	body->SetLinearVelocity(b2Vec2(0,0));
+	body->SetAngularVelocity(0);
 }
 
 #pragma mark -

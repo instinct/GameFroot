@@ -41,6 +41,8 @@
 	CGRect mapRect;
 }
 
+-(void) createBox2dObject:(b2World*)world size:(CGSize)_size solid:(BOOL)_solid;
+
 -(void) setupRobot:(NSArray *)array;
 -(void) update:(ccTime)dt;
 
