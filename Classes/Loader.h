@@ -12,10 +12,11 @@
 	
 }
 
-
 +(void) showAsynchronousLoader;
++(void) showAsynchronousLoaderAtPoint:(CGPoint)pos;
 +(void) hideAsynchronousLoader;
 +(void) showAsynchronousLoaderWithDelayedAction:(float)delay target:(id)target selector:(SEL)func;
++(void) showAsynchronousLoaderWithDelayedActionAtPoint:(CGPoint)pos delay:(float)delay target:(id)target selector:(SEL)func;
 
 /*
 +(void) openWebView: (NSString *)url;

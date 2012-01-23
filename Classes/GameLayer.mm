@@ -75,7 +75,7 @@ GameLayer *instance;
 }
 
 -(void) setupDebugDraw {
-	debugDraw = new GLESDebugDraw(PTM_RATIO * [[CCDirector sharedDirector] contentScaleFactor] * REDUCE_FACTOR);
+	debugDraw = new GLESDebugDraw(PTM_RATIO * REDUCE_FACTOR);
 	world->SetDebugDraw(debugDraw);
 	debugDraw->SetFlags(b2Draw::e_shapeBit);
 }
@@ -146,60 +146,11 @@ GameLayer *instance;
 		if (b->GetUserData() != NULL) {
 			//Synchronize the AtlasSprites position and rotation with the corresponding body
 			GameObject *sprite = (GameObject*)b->GetUserData();
-			sprite.position = ccp(b->GetPosition().x * PTM_RATIO, b->GetPosition().y * PTM_RATIO);
-			sprite.rotation =  -1 * CC_RADIANS_TO_DEGREES(b->GetAngle());
-			
-			if (sprite.type == kGameObjectEnemy) {
-				[(Enemy *)sprite update:dt];
-			
-			} else if (sprite.type == kGameObjectRobot) {
-				[(Robot *)sprite update:dt];
-				
-			} else if (sprite.type == kGameObjectMovingPlatform) {
-				[(MovingPlatform *)sprite update:dt];
-			}
+			[sprite update:dt];
 		}
 	}
 	
 	[player update:dt];
-	
-	/*
-	 Enemy *enemy; CCARRAY_FOREACH(enemies, enemy) {
-	 [enemy update:dt];
-	 }
-	 
-	 MovingPlatform *platform; CCARRAY_FOREACH(movingPlatforms, platform) {
-	 [platform update:dt];
-	 }
-	 */
-	
-	/*
-	 // SneakyJoystick controls
-	 if ([leftJoystick dpadDirection] == DPAD_RIGHT) {
-	 [player moveRight];
-	 
-	 } else if ([leftJoystick dpadDirection] == DPAD_LEFT) {
-	 [player moveLeft];
-	 
-	 } else if ([leftJoystick dpadDirection] == DPAD_UP) {
-	 [player jump];
-	 
-	 } else if([leftJoystick dpadDirection] == DPAD_DOWN) {
-	 //[player crouch];
-	 [player prone];
-	 
-	 } else {
-	 [player stop];
-	 }
-	 
-	 if (leftButton.active == YES) {
-	 //[player shoot];
-	 }
-	 
-	 if (rightButton.active == YES) {
-	 [player jump];
-	 }
-	 */
 }
 
 -(void) timer:(ccTime)dt {
@@ -245,12 +196,30 @@ GameLayer *instance;
 		
 		instance = self;
 		
+		// Check if we need to download the level data or use cache
+		ignoreCache = YES;		
+		NSFileManager *fileManager = [NSFileManager defaultManager];
+		NSArray *paths = NSSearchPathForDirectoriesInDomains(SAVE_FOLDER, NSUserDomainMask, YES);
+		NSString *documentsDirectory = [paths objectAtIndex:0];
+		NSString *resource = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"cachedLevel%i",[Shared getLevel]]];
+		//CCLOG(@"Find if level cache is expired: %@", resource);
+		if ([fileManager fileExistsAtPath:resource]) {
+			NSString *cachedDate = [NSString stringWithContentsOfFile:resource encoding:NSASCIIStringEncoding error:nil];
+			//CCLOG(@"%@ == %@ ? %i", cachedDate, [Shared getLevelDate], [cachedDate isEqualToString:[Shared getLevelDate]]);
+			if ([cachedDate isEqualToString:[Shared getLevelDate]]) {
+				// Level not changed since last download, so use cached contents
+				ignoreCache = NO;
+			}
+		}
+		
+		// Initialise properties dictionary
 		NSString *mainBundlePath = [[NSBundle mainBundle] bundlePath];
 		NSString *plistPath = [mainBundlePath stringByAppendingPathComponent:@"properties.plist"];
 		properties = [[[NSDictionary alloc] initWithContentsOfFile:plistPath] retain];
 		
 		// Tiles ids
-		NSString *tilesIdsPath = [mainBundlePath stringByAppendingPathComponent:@"iphone_tiles.json"];
+		//NSString *tilesIdsPath = [mainBundlePath stringByAppendingPathComponent:@"iphone_tiles.json"];
+		NSString *tilesIdsPath = [mainBundlePath stringByAppendingPathComponent:@"tiles.json"];
 		NSString *dataTilesIds = [NSString stringWithContentsOfFile:tilesIdsPath encoding:NSASCIIStringEncoding error:nil];
 		NSData *rawTilesData = [dataTilesIds dataUsingEncoding:NSUTF8StringEncoding];
 		NSArray *arrayTilesIds = [[CJSONDeserializer deserializer] deserializeAsArray:rawTilesData error:nil];
@@ -258,12 +227,13 @@ GameLayer *instance;
 		tilesIds = [[NSMutableDictionary dictionaryWithCapacity:countTiles] retain];
 		for (int i=0; i < countTiles; i++) {
 			NSDictionary *values = (NSDictionary *)[arrayTilesIds objectAtIndex:i];
-			//CCLOG(@"tile id %@ map to %@", [values objectForKey:@"id"], [values objectForKey:@"draw_id"]);
-			[tilesIds setObject:[values objectForKey:@"draw_id"] forKey:[values objectForKey:@"id"]];
+			//CCLOG(@"tile id %@ map to %@", [values objectForKey:@"id"], [values objectForKey:@"sprite_id"]);
+			[tilesIds setObject:[values objectForKey:@"sprite_id"] forKey:[values objectForKey:@"id"]];
 		}
 		
 		// Items ids
-		NSString *itemsIdsPath = [mainBundlePath stringByAppendingPathComponent:@"iphone_items.json"];
+		//NSString *itemsIdsPath = [mainBundlePath stringByAppendingPathComponent:@"iphone_items.json"];
+		NSString *itemsIdsPath = [mainBundlePath stringByAppendingPathComponent:@"items.json"];
 		NSString *dataItemsIds = [NSString stringWithContentsOfFile:itemsIdsPath encoding:NSASCIIStringEncoding error:nil];
 		NSData *rawItemsData = [dataItemsIds dataUsingEncoding:NSUTF8StringEncoding];
 		NSArray *arrayItemsIds = [[CJSONDeserializer deserializer] deserializeAsArray:rawItemsData error:nil];
@@ -271,16 +241,18 @@ GameLayer *instance;
 		itemsIds = [[NSMutableDictionary dictionaryWithCapacity:countItems] retain];
 		for (int i=0; i < countItems; i++) {
 			NSDictionary *values = (NSDictionary *)[arrayItemsIds objectAtIndex:i];
-			//CCLOG(@"item id %@ map to %@", [values objectForKey:@"id"], [values objectForKey:@"draw_id"]);
-			[itemsIds setObject:[values objectForKey:@"draw_id"] forKey:[values objectForKey:@"id"]];
+			//CCLOG(@"item id %@ map to %@", [values objectForKey:@"id"], [values objectForKey:@"sprite_id"]);
+			int spriteId = [[values objectForKey:@"sprite_id"] intValue] + (SPRITESHEETS_TILE_WIDTH * 5);
+			[itemsIds setObject:[NSNumber numberWithInt:spriteId] forKey:[values objectForKey:@"id"]];
 		}
 		
 		CGSize size = [[CCDirector sharedDirector] winSize];
 		
-		self.isTouchEnabled = YES;
+		self.isTouchEnabled = NO;
 		self.isAccelerometerEnabled = NO;
 		
 		enemies = [[CCArray array] retain];
+		items = [[CCArray array] retain];
 		movingPlatforms = [[CCArray array] retain];
 		robots = [[CCArray array] retain];
 		switches = [[NSMutableDictionary dictionary] retain];
@@ -304,15 +276,20 @@ GameLayer *instance;
 		[scene addChild:hud z:3 parallaxRatio:ccp(0.0f, 0.0f) positionOffset:CGPointZero];
 		
 		pauseCover = [CCLayerColor layerWithColor:ccc4(0,0,0,200)];
-		[hud addChild:pauseCover z:50];
+		[hud addChild:pauseCover z:1000];
 		[pauseCover hide];
 		
-		CCMenuItemSprite *resumeButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-resume.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-resume.png"] target:self selector:@selector(pauseGame)];
-		CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-main-menu.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-main-menu.png"] target:self selector:@selector(quitGame)];
+		CCMenuItemSprite *resumeButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-resume.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-resume-off.png"] target:self selector:@selector(pauseGame)];
+		CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-main-menu.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-main-menu-off.png"] target:self selector:@selector(quitGame)];
 		
 		musicButton = [CCMenuItemToggle itemWithTarget:self selector:@selector(music:) items:
 					   [CCMenuItemImage itemFromNormalImage:@"btn-music-on.png" selectedImage:@"btn-music-on.png"],
 					   [CCMenuItemImage itemFromNormalImage:@"btn-music-off.png" selectedImage:@"btn-music-off.png"],
+					   nil];
+		
+		dpadButton = [CCMenuItemToggle itemWithTarget:self selector:@selector(dpad:) items:
+					   [CCMenuItemImage itemFromNormalImage:@"btn-dpad-off.png" selectedImage:@"btn-dpad-off.png"],
+					   [CCMenuItemImage itemFromNormalImage:@"btn-dpad-on.png" selectedImage:@"btn-dpad-on.png"],
 					   nil];
 		
 		// Read saved settings
@@ -320,20 +297,17 @@ GameLayer *instance;
 		int musicPref = [prefs integerForKey:@"music"];
 		//if ([Shared isDebugging]) CCLOG(@"Music preference: %i", musicPref);
 		[musicButton setSelectedIndex: musicPref];
+		int dpadPref = [prefs integerForKey:@"dpad"];
+		//if ([Shared isDebugging]) CCLOG(@"DPad preference: %i", dpadPref);
+		[dpadButton setSelectedIndex: dpadPref];
+		useDPad = dpadPref == 1;
 		
-		CCMenu *menuPause = [CCMenu menuWithItems:resumeButton, backButton, musicButton, nil];
+		CCMenu *menuPause = [CCMenu menuWithItems:resumeButton, backButton, musicButton, dpadButton, nil];
 		//menuPause.scale = 0.75;
 		menuPause.position = ccp(size.width*menuPause.scaleX*0.5, size.height*menuPause.scaleY*0.5);
 		[menuPause alignItemsVertically];
 		[pauseCover addChild:menuPause];
-		
-		/*
-		 CCMenuItemSprite *returnBtn = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"return.png"] selectedSprite:[CCSprite spriteWithFile:@"return-sel.png"] target:self selector:@selector(quitGame)];
-		 returnBtn.scale = 0.5f;
-		 CCMenu *menu = [CCMenu menuWithItems:returnBtn, nil];
-		 [menu setPosition:ccp(size.width - 15, size.height - 15)];
-		 [hud addChild:menu z:255];
-		 */
+		[pauseCover setScale:CC_CONTENT_SCALE_FACTOR()];
 		
 		//
 		seconds = 180;
@@ -349,7 +323,7 @@ GameLayer *instance;
 		CCMenu *menu = [CCMenu menuWithItems:pauseBtn, nil];
 		//[menu setPosition:ccp(size.width - pauseBtn.contentSize.width/2, size.height - pauseBtn.contentSize.height*2)];
 		[menu setPosition:ccp(size.width/2 + pauseBtn.contentSize.width + 20.0f, size.height - pauseBtn.contentSize.height + 5.0f)];
-		[hud addChild:menu z:100];
+		[hud addChild:menu z:1001];
 		
 		livesLabel = [CCLabelBMFont labelWithString:@"3xHP" fntFile:@"hud.fnt"];
 		[livesLabel setPosition: ccp(livesLabel.contentSize.width/2 + 5, size.height - livesLabel.contentSize.height/2)];
@@ -372,6 +346,10 @@ GameLayer *instance;
 		hudSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"hud_spritesheet.png"];
 		[hudSpriteSheet.textureAtlas.texture setAliasTexParameters];
 		[hud addChild:hudSpriteSheet z:10];
+		
+		dpadSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"dpad_buttons.png"];
+		[dpadSpriteSheet.textureAtlas.texture setAliasTexParameters];
+		[hud addChild:dpadSpriteSheet z:500];
 		
 		//
 		barBGLeft = [CCSprite spriteWithSpriteFrameName:@"FatBarBGLeft.png"];
@@ -436,7 +414,7 @@ GameLayer *instance;
 		
 		// Init Box2D
 		[self setupWorld];
-		//[self setupDebugDraw];
+		if (DEBUG_WORLD) [self setupDebugDraw];
 		
 	}
 	return self;
@@ -457,6 +435,21 @@ GameLayer *instance;
 			if ([values count] > 0) [[SimpleAudioEngine sharedEngine] playBackgroundMusic:[values lastObject] loop:YES];
 		}
 	}
+}
+
+-(void)dpad: (id)sender {
+	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+	[prefs setInteger:[sender selectedIndex] forKey:@"dpad"];
+	[prefs synchronize];
+	
+	if ([sender selectedIndex] == 1) {
+		useDPad = YES;
+		
+	} else {
+		useDPad = NO;
+	}
+	
+	dpadSpriteSheet.visible = useDPad;
 }
 
 -(void) setAmmo:(int)_ammo
@@ -614,23 +607,27 @@ GameLayer *instance;
 	[self addChild:loading z:1000];
 	
 	CCSprite *bg = [CCSprite spriteWithFile:@"loading-bg.png"];
+	[bg setScale:CC_CONTENT_SCALE_FACTOR()];
 	[bg setPosition:ccp(size.width*0.5,size.height*0.5)];
 	[loading addChild:bg];
 	
 	CCSprite *title = [CCSprite spriteWithFile:@"loading-title.png"];
+	[title setScale:CC_CONTENT_SCALE_FACTOR()];
 	[title setPosition:ccp(size.width*0.5,size.height*0.546875)];
 	[loading addChild:title];
 	
 	CCSprite *progressbarBack = [CCSprite spriteWithFile:@"loading-bar-bg.png"];
+	[progressbarBack setScale:CC_CONTENT_SCALE_FACTOR()];
 	[progressbarBack setPosition:ccp(size.width*0.5,size.height*0.4)];
 	[loading addChild:progressbarBack];
 	
 	progressbar = [CCSprite spriteWithFile:@"loading-bar-overlay.png"];
+	[progressbar setScale:CC_CONTENT_SCALE_FACTOR()];
 	[progressbar setPosition:ccp(size.width*0.225,size.height*0.4075)];
 	[progressbar setAnchorPoint:ccp(0,0.5)];
 	[loading addChild:progressbar z:10];
 	
-	parts = 9;
+	parts = 8;
 	partsLoaded = 0;
 	[self setProgressBar:0.0f];
 	
@@ -644,7 +641,7 @@ GameLayer *instance;
 
 -(void) setProgressBar:(float)percent
 {
-	[progressbar setTextureRect:CGRectMake(0,0,263*(float)(percent / 100.0f),18)];
+	[progressbar setTextureRect:CGRectMake(0,0,263*(float)(percent / 100.0f),18/CC_CONTENT_SCALE_FACTOR())];
 }
 
 -(void) startLoading
@@ -665,26 +662,22 @@ GameLayer *instance;
 			break;
 			
 		case 3:
-			[self loadItemsLevel];
-			break;
-			
-		case 4:
 			[self createMapTiles];
 			break;
 			
-		case 5:
+		case 4:
 			[self createMapItems];
 			break;
 			
-		case 6:
+		case 5:
 			[self createMapNPCSs];
 			break;
 			
-		case 7:
+		case 6:
 			[self loadPlayer];
 			break;
 			
-		case 8:
+		case 7:
 			[self loadEnemies];
 			break;
 	}
@@ -699,7 +692,7 @@ GameLayer *instance;
 		// Init game
 		[self removeLoadingScreen];
 		
-		//[self initControls];
+		[self initControls];
 		[self initGame];
 		
 	} else {
@@ -715,9 +708,9 @@ GameLayer *instance;
 	[data setObject:[NSNumber numberWithInt:gameID] forKey:@"gameID"];
 	
 	NSString *gameURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=json&map_id=%d", [properties objectForKey:@"server_json"], gameID];
-	CCLOG(@"Load level: %@",gameURL);
+	CCLOG(@"Load level: %@, ignore cache: %i", gameURL, ignoreCache);
 	
-	NSString *stringData = [Shared stringWithContentsOfURL:gameURL ignoreCache:YES];
+	NSString *stringData = [Shared stringWithContentsOfURL:gameURL ignoreCache:ignoreCache];
 	NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
 	NSDictionary *jsonData = [[CJSONDeserializer deserializer] deserializeAsDictionary:rawData error:nil];
 	
@@ -726,7 +719,7 @@ GameLayer *instance;
 		return;
 	}
 	
-	//CCLOG(@"%@", [jsonData description]);
+	CCLOG(@"%@", [jsonData description]);
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Load Header Data
@@ -734,57 +727,70 @@ GameLayer *instance;
 	NSDictionary *headerData = [jsonData objectForKey:@"meta"];
 	if(headerData)
 	{
-		NSString *title		= [headerData objectForKey:@"title"];
-		NSString *author	= [headerData objectForKey:@"author"];
-		NSString *version	= [headerData objectForKey:@"version"];
+		NSArray *bgMusics = [[headerData objectForKey:@"background"] objectForKey:@"music"];
+		if ((bgMusics != nil) && [bgMusics isKindOfClass:[NSArray class]] && [bgMusics count] > 0) {
+			NSString *trackURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_music_url&id=%d", [properties objectForKey:@"server_json"], [[bgMusics objectAtIndex:0] intValue]];
+			//CCLOG(@"Level music url '%@'", trackURL);
+			NSString *track = [Shared stringWithContentsOfURL:trackURL ignoreCache:ignoreCache];
+			[data setObject:track forKey:@"bgmusic"];
+			
+		} else {
+			[data setObject:@"" forKey:@"bgmusic"];
+		}
 		
-		[data setObject:[title copy] forKey:@"title"];
-		[data setObject:[author copy] forKey:@"author"];
-		[data setObject:[version copy] forKey:@"version"];
+		CCLOG(@"Level music '%@'", [data objectForKey:@"bgmusic"]);
 		
-		CCLOG(@"Level title '%@'", title);
+		int width = [[headerData objectForKey:@"width"] intValue];
+		int height = [[headerData objectForKey:@"height"] intValue];
+		
+		NSString *backgroundFilename = [[headerData objectForKey:@"background"] objectForKey:@"image"];
+		if ((backgroundFilename == nil) || [backgroundFilename isMemberOfClass:[NSNull class]]) {
+			backgroundFilename = @"back0";
+		}
+		[data setObject:backgroundFilename forKey:@"mapBackground"];
+		[data setObject:[NSNumber numberWithInt:width] forKey:@"mapWidth"];
+		[data setObject:[NSNumber numberWithInt:height] forKey:@"mapHeight"];
+		
+		// Set map limits
+		mapWidth = (int)[[data objectForKey:@"mapWidth"] intValue];
+		mapHeight = (int)[[data objectForKey:@"mapHeight"] intValue];
+		
+		CCLOG(@"Map Size: %d, %d", mapWidth, mapHeight);
+		
+		// Add four walls to our screen
+		[self createGround:CGSizeMake(mapWidth*MAP_TILE_WIDTH, mapHeight*MAP_TILE_HEIGHT)];
+		
 	}
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Load animations
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	NSArray *arrayAnimationIds = [[jsonData objectForKey:@"sprites"] objectForKey:@"animations"];
+	int countAnimations = [arrayAnimationIds count];
+	animationsIds = [[NSMutableDictionary dictionaryWithCapacity:countAnimations] retain];
+	for (int i=0; i < countAnimations; i++) {
+		NSDictionary *values = (NSDictionary *)[arrayAnimationIds objectAtIndex:i];
+		//CCLOG(@"animation id %@ map to %@", [values objectForKey:@"id"], [values objectForKey:@"sprite_id"]);
+		[animationsIds setObject:[values objectForKey:@"sprite_id"] forKey:[values objectForKey:@"id"]];
+		[animationsIds setObject:[values objectForKey:@"frame_count"] forKey:[NSString stringWithFormat:@"f_%@",[values objectForKey:@"id"]]];
+	}
+	//CCLOG(@"Animations: %@", [animationsIds description]);
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Load Player
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	NSDictionary *levelData = [jsonData objectForKey:@"leveldata"];
-	NSDictionary *playerDataNode = [levelData objectForKey:@"player"];
-	
-	id check = [[playerDataNode objectForKey:@"position"] objectForKey:@"type"];
-	if ([check isMemberOfClass:[NSNull class]]) {
-		CCLOG(@"Error loading!!");
-		[self unschedule:@selector(startLoading)];
-		[self quitGame];
-		return;
-	}
-	
 	NSMutableDictionary *playerData = [[NSMutableDictionary alloc] init];
-	[playerData setObject:[NSNumber numberWithInt:[[[playerDataNode objectForKey:@"position"] objectForKey:@"type"] intValue]] forKey:@"type"];
-	[playerData setObject:[NSNumber numberWithInt:[[[playerDataNode objectForKey:@"position"] objectForKey:@"x"] intValue]] forKey:@"positionX"];
-	[playerData setObject:[NSNumber numberWithInt:[[[playerDataNode objectForKey:@"position"] objectForKey:@"y"] intValue]] forKey:@"positionY"];
+	[playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"num"] intValue]] forKey:@"type"];
+	[playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"xpos"] intValue]] forKey:@"positionX"];
+	[playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"ypos"] intValue]] forKey:@"positionY"];
 	[data setObject:playerData forKey:@"player"];
 	//CCLOG(@"Player: %@", [playerData description]);
 	
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Load musics
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	NSArray *bgMusics = [levelData objectForKey:@"bgmusics"];
-	if ([bgMusics count] > 0) {
-		NSString *trackURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_music_url&id=%d", [properties objectForKey:@"server_json"], [[bgMusics objectAtIndex:0] intValue]];
-		//CCLOG(@"Level music url '%@'", trackURL);
-		NSString *track = [Shared stringWithContentsOfURL:trackURL ignoreCache:YES];
-		[data setObject:track forKey:@"bgmusic"];
-		
-	} else {
-		[data setObject:@"" forKey:@"bgmusic"];
-	}
-	CCLOG(@"Level music '%@'", [data objectForKey:@"bgmusic"]);
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Load Characters
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	NSArray *characterElements = [levelData objectForKey:@"characters"];
+	NSArray *characterElements = [[jsonData objectForKey:@"map"] objectForKey:@"characters"];
 	if(characterElements)
 	{
 		NSMutableArray *characters = [[NSMutableArray alloc] init];
@@ -805,7 +811,7 @@ GameLayer *instance;
 			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"multi_shot_delay"] intValue]] forKey:@"multiShotDelay"];
 			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"collide_take"] intValue]] forKey:@"collideTakeDamage"];
 			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"collide_give"] intValue]] forKey:@"collideGiveDamage"];
-			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"my_type"] intValue]] forKey:@"behavior"];
+			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"enemy_type"] intValue]] forKey:@"behaviour"];
 			
 			[characters addObject:characterData];
 		}
@@ -816,7 +822,7 @@ GameLayer *instance;
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Load Level Items
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	NSArray *itemElements = [levelData objectForKey:@"items"];
+	NSArray *itemElements = [[jsonData objectForKey:@"map"] objectForKey:@"items"];
 	if(itemElements)
 	{
 		NSMutableArray *itemTiles = [[NSMutableArray alloc] init];
@@ -826,14 +832,14 @@ GameLayer *instance;
 			NSMutableDictionary *itemData = [[NSMutableDictionary alloc] init];
 			//CCLOG(@"Item data: %@", [[itemElements objectAtIndex:i] description]);
 			
-			int engineId = [[[itemElements objectAtIndex:i] objectForKey:@"engine_id"] intValue];
+			int animationId = [[[itemElements objectAtIndex:i] objectForKey:@"animation_id"] intValue];
 			int tileNum = [[[itemElements objectAtIndex:i] objectForKey:@"num"] intValue];
-			BOOL isEmbedded = [itemsIds objectForKey:[NSString stringWithFormat:@"%i",tileNum]] != nil;
+			BOOL isEmbedded = [itemsIds objectForKey:[NSNumber numberWithInt:tileNum]] != nil;
 			
-			if (!isEmbedded) customItems = YES;
+			if (!isEmbedded) customTiles = YES;
 			
 			// Get tile id on the level spritesheet
-			[itemData setObject:[NSNumber numberWithInt:engineId] forKey:@"engineId"];
+			[itemData setObject:[NSNumber numberWithInt:animationId] forKey:@"animationId"];
 			
 			// Get tile id on global embedded spritesheet
 			[itemData setObject:[NSNumber numberWithInt:tileNum] forKey:@"tileNum"];
@@ -845,28 +851,27 @@ GameLayer *instance;
 			[itemTiles addObject:itemData];
 			
 			// Get behaviour
-			NSArray *positions = [[itemElements objectAtIndex:i] objectForKey:@"behavior"];
-			//CCLOG(@"Item behaviour: %@", [positions description]);
+			NSArray *behaviour = [[itemElements objectAtIndex:i] objectForKey:@"behaviour"];
+			//CCLOG(@"Item behaviour: %@", [behaviour description]);
 			
-			// Check frame animations
-			NSArray *frames = [[itemElements objectAtIndex:i] objectForKey:@"frame"];
-			[itemData setObject:[NSNumber numberWithInt:[frames count] + 1] forKey:@"frames"];
+			[itemData setObject:[[behaviour objectAtIndex:0] objectForKey:@"type"] forKey:@"type"];
+			[itemData setObject:[[behaviour objectAtIndex:0] objectForKey:@"amount"] forKey:@"value"];
 			
-			int type = [[[[positions objectAtIndex:0] objectAtIndex:0] objectAtIndex:0] intValue];
-			[itemData setObject:[NSNumber numberWithInt:type] forKey:@"type"];
-			
-			int value = [[[[positions objectAtIndex:0] objectAtIndex:0] objectAtIndex:1] intValue];
-			[itemData setObject:[NSNumber numberWithInt:value] forKey:@"value"];
-			
+			/*
 			NSString *subtype = [[positions objectAtIndex:1] objectAtIndex:0];
 			[itemData setObject:subtype forKey:@"subtype"];
+			*/
+			
+			// Check frame animations
+			int frames = [[animationsIds objectForKey:[NSString stringWithFormat:@"f_%i", animationId]] intValue];
+			[itemData setObject:[NSNumber numberWithInt:frames] forKey:@"frames"];
 			
 			// Is robot?
-			NSArray *robot = [[itemElements objectAtIndex:i] objectForKey:@"robot_id"];
+			NSDictionary *robot = [[itemElements objectAtIndex:i] objectForKey:@"robot_id"];
 			if ((robot == nil) || ([robot isMemberOfClass:[NSNull class]])) {
-				[itemData setObject:[NSArray array] forKey:@"robot"];
+				[itemData setObject:[NSDictionary dictionary] forKey:@"robot"];
 				
-			} else {
+			} else if ([robot isKindOfClass:[NSDictionary class]]) {
 				[itemData setObject:robot forKey:@"robot"];
 			}
 			
@@ -875,10 +880,11 @@ GameLayer *instance;
 		//CCLOG(@"Item Tiles: %@", [itemTiles description]);
 	}
 	
+	/*
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Load Level NPCS
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	NSArray *npcsElements = [levelData objectForKey:@"npcs"];
+	NSArray *npcsElements = [jsonData objectForKey:@"npcs"];
 	if(npcsElements)
 	{
 		NSMutableArray *npcsTiles = [[NSMutableArray alloc] init];
@@ -921,107 +927,83 @@ GameLayer *instance;
 		[data setObject:npcsTiles forKey:@"npcsTiles"];		
 		//CCLOG(@"NPCS Tiles: %@", [npcsTiles description]);
 	}
-	
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Load Level Data
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	int width = [[levelData objectForKey:@"width"] intValue];
-	int height = [[levelData objectForKey:@"height"] intValue];
-	NSString *backgroundFilename = [levelData objectForKey:@"background"];
-	if ((backgroundFilename == nil) || [backgroundFilename isMemberOfClass:[NSNull class]]) {
-		backgroundFilename = @"back0.png";
-	}
-	[data setObject:backgroundFilename forKey:@"mapBackground"];
-	[data setObject:[NSNumber numberWithInt:width] forKey:@"mapWidth"];
-	[data setObject:[NSNumber numberWithInt:height] forKey:@"mapHeight"];
-	
-	// Set map limits
-	mapWidth = (int)[[data objectForKey:@"mapWidth"] intValue];
-	mapHeight = (int)[[data objectForKey:@"mapHeight"] intValue];
-	
-	CCLOG(@"Map Size: %d, %d", mapWidth, mapHeight);
-	
-	// Add four walls to our screen
-	[self createGround:CGSizeMake(mapWidth*MAP_TILE_WIDTH, mapHeight*MAP_TILE_HEIGHT)];
+	*/
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Load Level Tiles
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	NSMutableArray *mapTiles = [[NSMutableArray alloc] init];
-	
-	NSArray *tiles = [levelData objectForKey:@"tiles"];
+	NSArray *tiles = [[jsonData  objectForKey:@"map"] objectForKey:@"terrain"];
 	for(uint i = 0; i < [tiles count]; i++)
 	{
-		//int tileID = [[[[tiles objectAtIndex:i] nodeForXPath:@"./id" error:nil] stringValue] intValue];
-		if([[[[tiles objectAtIndex:i] objectForKey:@"empty"] stringValue] intValue] != 1)
-		{
-			NSMutableDictionary *tileData = [[NSMutableDictionary alloc] init];
-			//CCLOG(@"tile: %@", [[tiles objectAtIndex:i] description]);
+		NSMutableDictionary *tileData = [[NSMutableDictionary alloc] init];
+		//CCLOG(@"tile: %@", [[tiles objectAtIndex:i] description]);
+		
+		int animationId = [[[tiles objectAtIndex:i] objectForKey:@"animation_id"] intValue];
+		int tileNum = [[[tiles objectAtIndex:i] objectForKey:@"num"] intValue];
+		BOOL isEmbedded = [tilesIds objectForKey:[NSNumber numberWithInt:tileNum]] != nil;
+		
+		if (!isEmbedded) customTiles = YES;
+		
+		// Get tile id on the level spritesheet
+		[tileData setObject:[NSNumber numberWithInt:animationId] forKey:@"animationId"];
+		
+		// Get tile id on global embedded spritesheet
+		[tileData setObject:[NSNumber numberWithInt:tileNum] forKey:@"tileNum"];
+		
+		// Get behaviour (careful, can be null!)
+		id hasBehaviour = [[tiles objectAtIndex:i] objectForKey:@"behaviour"];
+		if ((hasBehaviour != nil) && (![hasBehaviour isMemberOfClass:[NSNull class]])) {
+			NSString *behaviour = [[tiles objectAtIndex:i] objectForKey:@"behaviour"];
+			[tileData setObject:behaviour forKey:@"behaviour"];
+		} else {
+			[tileData setObject:@"TERRAIN_BACKGROUND" forKey:@"behaviour"];
+		}
+		
+		// Check if tile is moving and if so get end position
+		NSArray *positions = [[tiles objectAtIndex:i] objectForKey:@"mover_array"];
+		
+		if ((positions != nil) && [positions isKindOfClass:[NSArray class]]) {
+			NSDictionary *endPositions = [positions objectAtIndex:1];
+			[tileData setObject:[NSNumber numberWithInt:[[endPositions objectForKey:@"xpos"] intValue]] forKey:@"endPositionX"];
+			[tileData setObject:[NSNumber numberWithInt:[[endPositions objectForKey:@"ypos"] intValue]] forKey:@"endPositionY"];
 			
-			int engineId = [[[tiles objectAtIndex:i] objectForKey:@"engine_id"] intValue];
-			int tileNum = [[[tiles objectAtIndex:i] objectForKey:@"num"] intValue];
-			BOOL isEmbedded = [tilesIds objectForKey:[NSString stringWithFormat:@"%i",tileNum]] != nil;
+			// lever_var: if it is set to false then the moving tile will start off
+			[tileData setObject:[NSNumber numberWithInt:[[[tiles objectAtIndex:i] objectForKey:@"lever_var"] boolValue]] forKey:@"startOn"];
 			
-			if (!isEmbedded) customTiles = YES;
-			
-			// Get tile id on the level spritesheet
-			[tileData setObject:[NSNumber numberWithInt:engineId] forKey:@"engineId"];
-			
-			// Get tile id on global embedded spritesheet
-			[tileData setObject:[NSNumber numberWithInt:tileNum] forKey:@"tileNum"];
-			
-			// Get behavior (careful, can be null!)
-			id behavior = [[tiles objectAtIndex:i] objectForKey:@"behavior"];
-			if ([behavior isMemberOfClass:[NSNull class]]) {
-				[tileData setObject:[NSNumber numberWithInt:1] forKey:@"behavior"]; // If null, set to 1??
-				
-			} else {
-				[tileData setObject:[NSNumber numberWithInt:[[[tiles objectAtIndex:i] objectForKey:@"behavior"] intValue]] forKey:@"behavior"];
-			}
-			
-			// Check if tile is moving and if so get end position
-			BOOL isMover = [[[tiles objectAtIndex:i] objectForKey:@"mover"] boolValue];
-			if (isMover) {	
-				NSArray *positions = [[tiles objectAtIndex:i] objectForKey:@"mover_array"];	
-				NSArray *endPositions = [positions objectAtIndex:1];
-				[tileData setObject:[NSNumber numberWithInt:[[endPositions objectAtIndex:0] intValue]] forKey:@"endPositionX"];
-				[tileData setObject:[NSNumber numberWithInt:[[endPositions objectAtIndex:1] intValue]] forKey:@"endPositionY"];
-				
-				// lever_var: if it is set to false then the moving tile will start off
-				[tileData setObject:[NSNumber numberWithInt:[[[tiles objectAtIndex:i] objectForKey:@"lever_var"] boolValue]] forKey:@"startOn"];
-				
-			} else {
-				[tileData setObject:[NSNumber numberWithInt:[[[tiles objectAtIndex:i] objectForKey:@"xpos"] intValue]] forKey:@"endPositionX"];
-				[tileData setObject:[NSNumber numberWithInt:[[[tiles objectAtIndex:i] objectForKey:@"ypos"] intValue]] forKey:@"endPositionY"];
-			}
-			
-			// Get position (start position on miving tiles)
-			[tileData setObject:[NSNumber numberWithInt:[[[tiles objectAtIndex:i] objectForKey:@"xpos"] intValue]] forKey:@"positionX"];
-			[tileData setObject:[NSNumber numberWithInt:[[[tiles objectAtIndex:i] objectForKey:@"ypos"] intValue]] forKey:@"positionY"];
-			[mapTiles addObject:tileData];
-			
-			// Check zorder
-			[tileData setObject:[NSNumber numberWithInt:[[[tiles objectAtIndex:i] objectForKey:@"zpos"] intValue]] forKey:@"zorder"];
-			
-			// Check frame animations
-			NSArray *frames = [[tiles objectAtIndex:i] objectForKey:@"frame"];
-			[tileData setObject:[NSNumber numberWithInt:[frames count] + 1] forKey:@"frames"];
-			
-			//Check if switch
-			BOOL isSwitch = [[[tiles objectAtIndex:i] objectForKey:@"is_switch"] boolValue];
-			[tileData setObject:[NSNumber numberWithInt:isSwitch] forKey:@"isSwitch"];
-			
-			
-			// _switch: this means that this tile is actually linked to a switch, 
-			// the switch it is liked to is represented by the switch_x and switch_y coordinates!
-			BOOL isSwitchControlled = [[[tiles objectAtIndex:i] objectForKey:@"_switch"] boolValue];
-			[tileData setObject:[NSNumber numberWithInt:isSwitchControlled] forKey:@"isSwitchControlled"];
-			int switchX = [[[tiles objectAtIndex:i] objectForKey:@"switch_x"] intValue];
-			int switchY = [[[tiles objectAtIndex:i] objectForKey:@"switch_y"] intValue];
+		} else {
+			[tileData setObject:[NSNumber numberWithInt:[[[tiles objectAtIndex:i] objectForKey:@"xpos"] intValue]] forKey:@"endPositionX"];
+			[tileData setObject:[NSNumber numberWithInt:[[[tiles objectAtIndex:i] objectForKey:@"ypos"] intValue]] forKey:@"endPositionY"];
+		}
+		
+		// Get position (start position on miving tiles)
+		[tileData setObject:[NSNumber numberWithInt:[[[tiles objectAtIndex:i] objectForKey:@"xpos"] intValue]] forKey:@"positionX"];
+		[tileData setObject:[NSNumber numberWithInt:[[[tiles objectAtIndex:i] objectForKey:@"ypos"] intValue]] forKey:@"positionY"];
+		[mapTiles addObject:tileData];
+		
+		// Check zorder
+		[tileData setObject:[NSNumber numberWithInt:[[[tiles objectAtIndex:i] objectForKey:@"zpos"] intValue]] forKey:@"zorder"];
+		
+		// Check frame animations
+		int frames = [[animationsIds objectForKey:[NSString stringWithFormat:@"f_%i", animationId]] intValue];
+		[tileData setObject:[NSNumber numberWithInt:frames] forKey:@"frames"];
+		
+		// Check if switch
+		BOOL isSwitch = [[[tiles objectAtIndex:i] objectForKey:@"is_switch"] boolValue];
+		[tileData setObject:[NSNumber numberWithInt:isSwitch] forKey:@"isSwitch"];
+		
+		// Check if switch controlled
+		id switchRef = [[tiles objectAtIndex:i] objectForKey:@"switch_ref"];
+		BOOL isSwitchControlled = ((switchRef != nil) && (![switchRef isMemberOfClass:[NSNull class]]));
+		[tileData setObject:[NSNumber numberWithInt:isSwitchControlled] forKey:@"isSwitchControlled"];
+		
+		if (isSwitchControlled) {
+			int switchX = [[[[tiles objectAtIndex:i] objectForKey:@"switch_ref"] objectForKey:@"xpos"] intValue];
+			int switchY = [[[[tiles objectAtIndex:i] objectForKey:@"switch_ref"] objectForKey:@"ypos"] intValue];
 			[tileData setObject:[NSNumber numberWithInt:switchX] forKey:@"switchX"];
 			[tileData setObject:[NSNumber numberWithInt:switchY] forKey:@"switchY"];
-			
 		}
+		
 	}	
 	[data setObject:mapTiles forKey:@"mapTiles"];		
 	//CCLOG(@"Map Tiles: %@", [mapTiles description]);
@@ -1033,17 +1015,18 @@ GameLayer *instance;
 {
 	CGSize size = [[CCDirector sharedDirector] winSize];
 	
+	/*
 	NSString *backgroundFilename = [NSString stringWithFormat:@"%@wp-content/plugins/game_data/backgrounds/full/%@.png", [properties objectForKey:@"server_json"], [data objectForKey:@"mapBackground"]];
 	CCLOG(@"Load background level: %@", backgroundFilename);
 	
 	// Load Background
 	@try
 	{
-		CCSprite *bg = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:backgroundFilename ignoreCache:NO]];
+		CCSprite *bg = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:backgroundFilename ignoreCache:ignoreCache]];
 		[background addChild:bg];
 		
 		// PNG is 768x512
-		bg.scale = 0.625;
+		bg.scale = 0.625 * CC_CONTENT_SCALE_FACTOR();
 		[bg setPosition:ccp(size.width/2, size.height/2)];
 	}
 	@catch (NSException * e)
@@ -1051,6 +1034,19 @@ GameLayer *instance;
 		CCLOG(@"Failed loading background");
 		return;
 	}
+	*/
+	
+	NSString *backgroundFilename = [NSString stringWithFormat:@"%@.png", [data objectForKey:@"mapBackground"]];
+	CCLOG(@"Load background level: %@", backgroundFilename);
+	
+	// Load Background
+	CCSprite *bg = [CCSprite spriteWithFile:backgroundFilename];
+	[background addChild:bg];
+	
+	// PNG is 768x512
+	bg.scale = 0.625 * CC_CONTENT_SCALE_FACTOR();
+	[bg setPosition:ccp(size.width/2, size.height/2)];
+	
 }
 
 -(void) loadTilesLevel
@@ -1060,14 +1056,17 @@ GameLayer *instance;
 	{
 		if (customTiles) {
 			int gameID = (int)[[data objectForKey:@"gameID"] intValue];
-			NSString *tilesFilename = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_tilesheet&id=%d", [properties objectForKey:@"server_json"], gameID];
+			//NSString *tilesFilename = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_tilesheet&id=%d", [properties objectForKey:@"server_json"], gameID];
+			NSString *tilesFilename = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_game_animations&id=%d", [properties objectForKey:@"server_json"], gameID];
 			CCLOG(@"Load spritesheet tiles: %@", tilesFilename);
-			spriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:tilesFilename ignoreCache:YES]];
+			spriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:tilesFilename ignoreCache:ignoreCache]];
 			
 		} else {
 			// Load embedded spritesheet
-			CCLOG(@"Load spritesheet tiles: iphone_tiles.png");
-			spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"iphone_tiles.png"];
+			//CCLOG(@"Load spritesheet tiles: iphone_tiles.png");
+			//spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"iphone_tiles.png"];
+			CCLOG(@"Load spritesheet tiles: tiles.png");
+			spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"tiles.png"];
 		}
 		
 		if (REDUCE_FACTOR != 1.0f) [spriteSheet.textureAtlas.texture setAntiAliasTexParameters];
@@ -1078,34 +1077,6 @@ GameLayer *instance;
 	@catch (NSException * e)
 	{
 		CCLOG(@"Failed loading tiles");
-		return;
-	}
-}
-
--(void) loadItemsLevel
-{	
-	// Load items
-	@try
-	{
-		if (customItems) {
-			int gameID = (int)[[data objectForKey:@"gameID"] intValue];
-			NSString *tilesFilename = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_itemsheet&id=%d", [properties objectForKey:@"server_json"], gameID];					   
-			CCLOG(@"Load spritesheet items: %@", tilesFilename);
-			itemsSpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:tilesFilename ignoreCache:YES]];
-		} else {
-			// Load embedded spritesheet
-			CCLOG(@"Load spritesheet items: iphone_items.png");
-			itemsSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"iphone_items.png"];
-		}
-		
-		if (REDUCE_FACTOR != 1.0f) [itemsSpriteSheet.textureAtlas.texture setAntiAliasTexParameters];
-		else [itemsSpriteSheet.textureAtlas.texture setAliasTexParameters];
-		
-		[objects addChild:itemsSpriteSheet z:LAYER_ITEMS];
-	}
-	@catch (NSException * e)
-	{
-		CCLOG(@"Failed loading items");
 		return;
 	}
 }
@@ -1143,7 +1114,7 @@ GameLayer *instance;
 	NSSortDescriptor *descriptorY = [[NSSortDescriptor alloc] initWithKey:@"positionY" ascending:YES];
     [arTiles sortUsingDescriptors:[NSArray arrayWithObjects:descriptorZOrder, descriptorX, descriptorY, nil]];
 	//CCLOG(@"%@", arTiles);
-	
+		
 	for (int y = 0; y < mapHeight; y++) {
 		NSPredicate *predicate = [NSPredicate predicateWithFormat:@"positionY = %i", y];
 		NSArray *filteredArray = [arTiles filteredArrayUsingPredicate:predicate];
@@ -1161,8 +1132,8 @@ GameLayer *instance;
 			//CCLOG(@"%@", [dict description]);
 			
 			int tileNum;
-			if (customTiles) tileNum = [[dict objectForKey:@"engineId"] intValue];
-			else tileNum = [[tilesIds objectForKey:[NSString stringWithFormat:@"%i",[[dict objectForKey:@"tileNum"] intValue]]] intValue];
+			if (customTiles) tileNum = [[animationsIds objectForKey:[[dict objectForKey:@"animationId"] stringValue]] intValue];
+			else tileNum = [[tilesIds objectForKey:[dict objectForKey:@"tileNum"]] intValue];
 			
 			int dx = [[dict objectForKey:@"positionX"] intValue];
 			int dy = [[dict objectForKey:@"positionY"] intValue];			
@@ -1171,14 +1142,21 @@ GameLayer *instance;
 			int tileY = floor(tileNum/SPRITESHEETS_TILE_WIDTH) * MAP_TILE_HEIGHT;
 			//CCLOG(@"TileID: %d  TileX: %d  TileY: %d", tileNum, tileX, tileY);
 			
-			int behavior = [[dict objectForKey:@"behavior"] intValue];
-			//CCLOG(@"Tile behavior: %i", behavior);
-			// 0: decoration background
-			// 1: solid
-			// 2: clouds
-			// 3: spike (death on touch)
-			// 4: ice
-			// 5: destructable ?
+			NSString *stringBehaviour = [dict objectForKey:@"behaviour"];
+			//CCLOG(@"Tile behaviour: %@", stringBehaviour);
+			// 0: TERRAIN_BACKGROUND
+			// 1: TERRAIN_SOLID
+			// 2: TERRAIN_CLOUD
+			// 3: TERRAIN_SPIKE
+			// 4: TERRAIN_ICE
+			// 5: TERRAIN_DESTRUCTABLE
+			//
+			int behaviour = 0; // TERRAIN_BACKGROUND 
+			if ([stringBehaviour isEqualToString:@"TERRAIN_SOLID"]) behaviour = 1;
+			else if ([stringBehaviour isEqualToString:@"TERRAIN_CLOUD"]) behaviour = 2;
+			else if ([stringBehaviour isEqualToString:@"TERRAIN_SPIKE"]) behaviour = 3;
+			else if ([stringBehaviour isEqualToString:@"TERRAIN_ICE"]) behaviour = 4;
+			else if ([stringBehaviour isEqualToString:@"TERRAIN_DESTRUCTABLE"]) behaviour = 5;
 			
 			int zorder = [[dict objectForKey:@"zorder"] intValue];
 			int frames = [[dict objectForKey:@"frames"] intValue];
@@ -1192,7 +1170,7 @@ GameLayer *instance;
 			int endx = [[dict objectForKey:@"endPositionX"] intValue];
 			int endy = [[dict objectForKey:@"endPositionY"] intValue];
 			
-			//CCLOG(@"x:%i y:%i - type:%i, type before: %i, count:%i", dx, dy, behavior, initialType, countTiles);
+			//CCLOG(@"x:%i y:%i - type:%i, type before: %i, count:%i", dx, dy, behaviour, initialType, countTiles);
 			
 			if (isSwitch) {
 				Switch *switchTile = [Switch spriteWithBatchNode:spriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
@@ -1221,6 +1199,8 @@ GameLayer *instance;
 					}
 				}
 				
+				[items addObject:switchTile];
+				
 			} else if ((endx != dx) || (endy != dy)) {
 				// Moving platforms
 				
@@ -1228,6 +1208,8 @@ GameLayer *instance;
 				[platform setPosition:pos];
 				[platform createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
 				[movingPlatforms addObject:platform];
+				
+				if (behaviour == 3) [platform setType:kGameObjectKiller];
 				
 				if (frames > 1) {
 					// Set animation (if frames)
@@ -1274,10 +1256,21 @@ GameLayer *instance;
 				if (isSwitchControlled) {
 					int switchX = [[dict objectForKey:@"switchX"] intValue];
 					int switchY = [[dict objectForKey:@"switchY"] intValue];
-					[switches setObject:platform forKey:[NSString stringWithFormat:@"%i_%i", switchX, switchY]];
+					
+					id platforms = [switches objectForKey:[NSString stringWithFormat:@"%i_%i", switchX, switchY]];
+					if (platforms != nil) {
+						NSMutableArray *list = (NSMutableArray *)platforms;
+						[list addObject:platform];
+						[switches setObject:list forKey:[NSString stringWithFormat:@"%i_%i", switchX, switchY]];
+						
+					} else {
+						NSMutableArray *list = [NSMutableArray array];
+						[list addObject:platform];
+						[switches setObject:list forKey:[NSString stringWithFormat:@"%i_%i", switchX, switchY]];
+					}
 					
 					BOOL startOn = [[dict objectForKey:@"startOn"] intValue];
-					if (!startOn) [platform togle];
+					if (!startOn) [platform startsOff];
 				}
 				
 				
@@ -1317,11 +1310,11 @@ GameLayer *instance;
 					NSPredicate *predicate = [NSPredicate predicateWithFormat:@"positionX = %i AND positionY = %i AND zorder=1", dx, dy];
 					NSArray *repeatedArray = [arTiles filteredArrayUsingPredicate:predicate];
 					//CCLOG(@"%@", repeatedArray);
-					if ([repeatedArray count] > 0) behavior = 100 + dx;
+					if ([repeatedArray count] > 0) behaviour = 100 + dx;
 				}
 				
 				
-				if (behavior != initialType) {
+				if (behaviour != initialType) {
 					// Detected a change on tile type
 					
 					if (countTiles > 0) {
@@ -1366,7 +1359,7 @@ GameLayer *instance;
 					}
 					
 					initialPos = ccp(pos.x, pos.y);
-					initialType = behavior;
+					initialType = behaviour;
 					countTiles = 1;
 					//CCLOG(@"Save inital pos: %f, %f for type:%i", pos.x, pos.y, initialType);
 					
@@ -1418,7 +1411,7 @@ GameLayer *instance;
 					}
 					
 					initialPos = ccp(pos.x, pos.y);
-					initialType = behavior;
+					initialType = behaviour;
 					countTiles = 1;
 					//CCLOG(@"Save inital pos: %f, %f for type:%i", pos.x, pos.y, initialType);
 				}
@@ -1475,7 +1468,7 @@ GameLayer *instance;
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Add items to map
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	[itemsSpriteSheet removeAllChildrenWithCleanup:true];
+	
 	NSArray *arItemTiles = [data objectForKey:@"itemTiles"];
 	for(uint i = 0; i < [arItemTiles count]; i++)
 	{
@@ -1483,8 +1476,8 @@ GameLayer *instance;
 		//CCLOG(@"%@", [dict description]);
 		
 		int tileNum;
-		if (customItems) tileNum = [[dict objectForKey:@"engineId"] intValue];
-		else tileNum = [[itemsIds objectForKey:[NSString stringWithFormat:@"%i",[[dict objectForKey:@"tileNum"] intValue]]] intValue];
+		if (customTiles) tileNum = [[animationsIds objectForKey:[[dict objectForKey:@"animationId"] stringValue]] intValue];
+		else tileNum = [[itemsIds objectForKey:[dict objectForKey:@"tileNum"]] intValue];
 		
 		int dx = [[dict objectForKey:@"positionX"] intValue];
 		int dy = [[dict objectForKey:@"positionY"] intValue];			
@@ -1495,7 +1488,7 @@ GameLayer *instance;
 		int type = [[dict objectForKey:@"type"] intValue];
 		int value = [[dict objectForKey:@"value"] intValue];
 		NSString *subtype = [dict objectForKey:@"subtype"];
-		NSArray *robot = [dict objectForKey:@"robot"];
+		NSDictionary *robot = [dict objectForKey:@"robot"];
 		
 		int frames = [[dict objectForKey:@"frames"] intValue];
 		int zorder  = 1;
@@ -1524,7 +1517,7 @@ GameLayer *instance;
 						int nextTileX = ((tileNum+i) - floor((tileNum+i)/SPRITESHEETS_ITEM_WIDTH)*SPRITESHEETS_ITEM_WIDTH) * MAP_TILE_WIDTH;
 						int nextTileY = floor((tileNum+i)/SPRITESHEETS_ITEM_WIDTH) * MAP_TILE_HEIGHT;
 						
-						CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:itemsSpriteSheet.textureAtlas.texture rect:CGRectMake(nextTileX,nextTileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+						CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:spriteSheet.textureAtlas.texture rect:CGRectMake(nextTileX,nextTileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 						[frameList addObject:frame];
 					}
 					animation = [CCAnimation animationWithFrames:frameList delay:speed];
@@ -1535,30 +1528,29 @@ GameLayer *instance;
 			
 			if ([robot count] > 0) {
 				// Override other functionality
-				Robot *item = [Robot spriteWithBatchNode:itemsSpriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+				Robot *item = [Robot spriteWithBatchNode:spriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 				[item setPosition:pos];
-				BOOL isSolid = NO;
-				[item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT) solid:isSolid];
 				[item setupRobot:robot];
-				[itemsSpriteSheet addChild:item z:zorder];
+				[item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
+				[spriteSheet addChild:item z:zorder];
 				
 				[robots addObject:item];
 				
 			} else if (type == 7) {
 				// Check point
-				CheckPoint *checkPoint = [CheckPoint spriteWithBatchNode:itemsSpriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+				CheckPoint *checkPoint = [CheckPoint spriteWithBatchNode:spriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 				[checkPoint setPosition:pos];
 				[checkPoint createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
 				[checkPoint setupCheckPointWithX:dx andY:dy tileId:tileNum frames:frames];
-				[itemsSpriteSheet addChild:checkPoint z:zorder];
+				[spriteSheet addChild:checkPoint z:zorder];
 				
 			} else {
 				// Tile sprite
-				Collectable *item = [Collectable spriteWithBatchNode:itemsSpriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+				Collectable *item = [Collectable spriteWithBatchNode:spriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 				[item setPosition:pos];
 				[item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
 				[item setType:kGameObjectCollectable];
-				[itemsSpriteSheet addChild:item z:zorder];
+				[spriteSheet addChild:item z:zorder];
 				
 				if (type == 0) {
 					item.itemType = kCollectableMoney;
@@ -1579,6 +1571,8 @@ GameLayer *instance;
 					CCRepeatForever *repeatAction = [CCRepeatForever actionWithAction:action];
 					[item runAction:repeatAction];
 				}
+				
+				[items addObject:item];
 			}
 			
 		}
@@ -1651,14 +1645,15 @@ GameLayer *instance;
 	int playerID = [[dict objectForKey:@"type"] intValue];
 	int dx = [[dict objectForKey:@"positionX"] intValue];
 	int dy = [[dict objectForKey:@"positionY"] intValue];			
-	CCLOG(@"Player initial position: %i,%i", dx, dy);
+	CCLOG(@"Player id: %i, initial position: %i,%i", playerID, dx, dy);
 	
+	CCSpriteBatchNode *playerSpriteSheet;
 	BOOL custom = NO;
 	NSString *playerFilename;
-	if (playerID > 100) {
+	if (playerID > 10) {
 		playerFilename = [NSString stringWithFormat:@"%@wp-content/characters/character%d.png", [properties objectForKey:@"server_json"], playerID];
 		
-		custom = YES; // will force download
+		custom = ignoreCache;
 		if ([cached objectForKey:playerFilename] != nil) {
 			custom = NO; // cached on previous steps
 			
@@ -1666,20 +1661,22 @@ GameLayer *instance;
 			[cached setObject:@"YES" forKey:playerFilename];
 		}
 		
-	} else {
-		playerFilename = [NSString stringWithFormat:@"%@wp-content/characters/player_%d.png", [properties objectForKey:@"server_json"], playerID];
-	}
-	
-	CCLOG(@"Player Spritesheet url: %@", playerFilename);
-	
-	CCSpriteBatchNode *playerSpriteSheet;
-	@try {
-		playerSpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:playerFilename ignoreCache:custom]];
+		CCLOG(@"Player spritesheet url: %@", playerFilename);
+		@try {
+			playerSpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:playerFilename ignoreCache:custom]];
+			
+		} @catch (NSException * e) {
+			CCLOG(@"Player spritesheet not found or error, use default one");
+			playerSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"player_%i.png", arc4random()%11]];
+		}	
 		
-	} @catch (NSException * e) {
-		CCLOG(@"Player Spritesheet not found or error, use default one");
-		playerSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"player_%i.png", arc4random()%11]];
-	}	
+	} else {
+		//playerFilename = [NSString stringWithFormat:@"%@wp-content/characters/player_%d.png", [properties objectForKey:@"server_json"], playerID];
+		//playerSpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:playerFilename ignoreCache:custom || ignoreCache]];
+		
+		CCLOG(@"Player spritesheet: %@", [NSString stringWithFormat:@"player_%i.png", playerID]);
+		playerSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"player_%i.png", playerID]];
+	}
 	
 	if (REDUCE_FACTOR != 1.0f) [playerSpriteSheet.textureAtlas.texture setAntiAliasTexParameters];
 	else [playerSpriteSheet.textureAtlas.texture setAliasTexParameters];
@@ -1703,7 +1700,7 @@ GameLayer *instance;
 	[player createBox2dObject:world size:CGSizeMake(spriteWidth/4,spriteHeight - 40)];
 	[playerSpriteSheet addChild:player z:LAYER_PLAYER];
 	
-	[player inmortal];
+	[player immortal];
 }
 
 -(void) loadEnemies
@@ -1717,14 +1714,15 @@ GameLayer *instance;
 		int dx = [[dict objectForKey:@"positionX"] intValue];
 		int dy = [[dict objectForKey:@"positionY"] intValue];
 		int health = [[dict objectForKey:@"health"] intValue];
-		CCLOG(@"Enemy initial position: %i,%i", dx, dy);
+		CCLOG(@"Enemy id: %i, initial position: %i,%i", enemyID, dx, dy);
 		
+		CCSpriteBatchNode *enemySpriteSheet;
 		BOOL custom = NO;
 		NSString *enemyFilename;
-		if (enemyID > 100) {
+		if (enemyID > 10) {
 			enemyFilename = [NSString stringWithFormat:@"%@wp-content/characters/enemy%d.png", [properties objectForKey:@"server_json"], enemyID];
 			
-			custom = YES; // will force download
+			custom = ignoreCache;
 			if ([cached objectForKey:enemyFilename] != nil) {
 				custom = NO; // cached on previous steps
 				
@@ -1732,19 +1730,21 @@ GameLayer *instance;
 				[cached setObject:@"YES" forKey:enemyFilename];
 			}
 			
-		} else {
-			enemyFilename = [NSString stringWithFormat:@"%@wp-content/characters/enemy_sheet%d.png", [properties objectForKey:@"server_json"], enemyID];
-		}
-		
-		CCLOG(@"Enemy Spritesheet url: %@", enemyFilename);
-		
-		CCSpriteBatchNode *enemySpriteSheet;
-		@try {
-			enemySpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:enemyFilename ignoreCache:custom]];
+			CCLOG(@"Enemy spritesheet url: %@", enemyFilename);
+			@try {
+				enemySpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:enemyFilename ignoreCache:custom]];
+				
+			} @catch (NSException * e) {
+				CCLOG(@"Enemy Spritesheet not found or error, use default one");
+				enemySpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"enemy_sheet%i.png", arc4random()%11]];
+			}
 			
-		} @catch (NSException * e) {
-			CCLOG(@"Enemy Spritesheet not found or error, use default one");
-			enemySpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"enemy_sheet%i.png", arc4random()%11]];
+		} else {
+			//enemyFilename = [NSString stringWithFormat:@"%@wp-content/characters/enemy_sheet%d.png", [properties objectForKey:@"server_json"], enemyID];
+			//enemySpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:enemyFilename ignoreCache:custom || ignoreCache]];
+			
+			CCLOG(@"Enemy spritesheet: %@", [NSString stringWithFormat:@"enemy_sheet%i.png", enemyID]);
+			enemySpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"enemy_sheet%i.png", enemyID]];
 		}
 		
 		if (REDUCE_FACTOR != 1.0f) [enemySpriteSheet.textureAtlas.texture setAntiAliasTexParameters];
@@ -1773,7 +1773,7 @@ GameLayer *instance;
 		int multiShotDelay = [[dict objectForKey:@"multiShotDelay"] intValue];
 		int collideTakeDamage = [[dict objectForKey:@"collideTakeDamage"] intValue];
 		int collideGiveDamage = [[dict objectForKey:@"collideGiveDamage"] intValue];
-		int behavior = [[dict objectForKey:@"behavior"] intValue];
+		int behaviour = [[dict objectForKey:@"behaviour"] intValue];
 		
 		enemy.score = score;
 		enemy.shootDamage = shootDamage;
@@ -1784,7 +1784,7 @@ GameLayer *instance;
 		enemy.multiShotDelay = multiShotDelay;
 		enemy.collideTakeDamage = collideTakeDamage;
 		enemy.collideGiveDamage = collideGiveDamage;
-		enemy.behavior = behavior;
+		enemy.behaviour = behaviour;
 		
 		// Call this after the other values have been set
 		[enemy setupEnemy:enemyID initialX:dx initialY:dy health:health player:player];
@@ -1801,38 +1801,52 @@ GameLayer *instance;
 
 -(void) initControls
 {
-	SneakyJoystickSkinnedBase *leftJoy = [[[SneakyJoystickSkinnedBase alloc] init] autorelease];
+	leftJoy = [CCSprite spriteWithSpriteFrameName:@"d_pad_normal.png"];
+	[leftJoy setScale:CC_CONTENT_SCALE_FACTOR()];
+	[leftJoy setOpacity:125];
 	leftJoy.position = ccp(76,66);
-	leftJoy.backgroundSprite = [ColoredCircleSprite circleWithColor:ccc4(255, 255, 255, 128) radius:48];
-	leftJoy.thumbSprite = [ColoredCircleSprite circleWithColor:ccc4(255, 255, 255, 200) radius:28];
 	
-	leftJoy.joystick = [[SneakyJoystick alloc] initWithRect:CGRectMake(0,0,128,128)];
-	leftJoystick = [leftJoy.joystick retain];
-	[hud addChild:leftJoy z:500];
-	
-	leftJoystick.isDPad = true;
-	
-	SneakyButtonSkinnedBase *leftBut = [[[SneakyButtonSkinnedBase alloc] init] autorelease];
+	leftBut = [CCSprite spriteWithSpriteFrameName:@"b_button_up.png"];
+	[leftBut setScale:CC_CONTENT_SCALE_FACTOR()];
+	[leftBut setOpacity:125];
 	leftBut.position = ccp(330,56);
-	leftBut.defaultSprite	= [ColoredCircleSprite circleWithColor:ccc4(255, 255, 255, 128) radius:32];
-	leftBut.activatedSprite	= [ColoredCircleSprite circleWithColor:ccc4(255, 255, 255, 255) radius:32];
-	leftBut.pressSprite		= [ColoredCircleSprite circleWithColor:ccc4(255, 0, 0, 255) radius:32];
-	leftBut.button = [[SneakyButton alloc] initWithRect:CGRectMake(0, 0, 64, 64)];
-	leftButton = [leftBut.button retain];
-	[hud addChild:leftBut z:500];
-	
-	SneakyButtonSkinnedBase *rightBut = [[[SneakyButtonSkinnedBase alloc] init] autorelease];
+
+	rightBut = [CCSprite spriteWithSpriteFrameName:@"a_button_up.png"];
+	[rightBut setScale:CC_CONTENT_SCALE_FACTOR()];
+	[rightBut setOpacity:125];
 	rightBut.position = ccp(424,56);
-	rightBut.defaultSprite		= [ColoredCircleSprite circleWithColor:ccc4(255, 255, 255, 128) radius:32];
-	rightBut.activatedSprite	= [ColoredCircleSprite circleWithColor:ccc4(255, 255, 255, 255) radius:32];
-	rightBut.pressSprite		= [ColoredCircleSprite circleWithColor:ccc4(255, 0, 0, 255) radius:32];
-	rightBut.button = [[SneakyButton alloc] initWithRect:CGRectMake(0, 0, 64, 64)];
-	rightButton = [rightBut.button retain];
-	[hud addChild:rightBut z:500];
+	
+	[dpadSpriteSheet addChild:leftJoy];
+	[dpadSpriteSheet addChild:leftBut];
+	[dpadSpriteSheet addChild:rightBut];
+	
+	dpadSpriteSheet.visible = useDPad;
+	
+	northMoveArea = CGRectMake(5, 141, 140, 70);
+	southMoveArea = CGRectMake(5, 71, 140, 70);
+	eastMoveArea = CGRectMake(76, 141, 70, 140);
+	westMoveArea = CGRectMake(5, 141, 70, 140);
+	
+	northTriangleArea = [Shared getTrianglePoints: northMoveArea direction:@"north"];
+	southTriangleArea = [Shared getTrianglePoints: southMoveArea direction:@"south"];
+	eastTriangleArea = [Shared getTrianglePoints: eastMoveArea direction:@"east"];
+	westTriangleArea = [Shared getTrianglePoints: westMoveArea direction:@"west"];
+	
+	jumpArea = CGRectMake(480 - 100 - 1, 91, 90, 90);
+	shootArea = CGRectMake(480 - 195 - 1, 91, 90, 90);
 }
 
 -(void) initGame
 {
+	// Game loaded, save cached date
+	NSString *published = [Shared getLevelDate];
+	//CCLOG(@"Game published: %@", published);
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(SAVE_FOLDER, NSUserDomainMask, YES);
+	NSString *documentsDirectory = [paths objectAtIndex:0];
+	NSString *resource = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"cachedLevel%i",[Shared getLevel]]];
+	[published writeToFile:resource atomically:YES encoding:NSASCIIStringEncoding error:nil];
+	//CCLOG(@"Write level cache: %@ on: %@", published, resource);
+	
 	// Start updater
 	[self scheduleUpdate];
 	
@@ -1850,6 +1864,8 @@ GameLayer *instance;
 	}
 	
 	[[SimpleAudioEngine sharedEngine] setBackgroundMusicVolume:1.0f];
+	
+	self.isTouchEnabled = YES;
 }
 
 - (void)setViewpointCenter:(CGPoint)point {
@@ -1911,17 +1927,9 @@ GameLayer *instance;
 	}
 }
 
--(void) resetElements {
-	//GameObject *item; CCARRAY_FOREACH(itemsSpriteSheet.children, item) {
-	//	[item resetPosition];
-	//}
-	
-	//Enemy *enemy; CCARRAY_FOREACH(enemies, enemy) {
-	//	[enemy resetPosition];
-	//}
-	
+-(void) resetElements {	
 	MovingPlatform *platform; CCARRAY_FOREACH(movingPlatforms, platform) {
-		[platform resetStatus];
+		[platform resetStatus:false];
 	}
 }
 
@@ -1947,7 +1955,7 @@ GameLayer *instance;
 
 -(void) addOverlay:(CCNode *)node
 {
-	[hud addChild:node z:1000];
+	[hud addChild:node z:1001];
 }
 
 -(void) removeOverlay:(CCNode *)node
@@ -1973,9 +1981,12 @@ GameLayer *instance;
 
 -(void) activateSwitch:(NSString *) key 
 {
-	MovingPlatform *platform = (MovingPlatform *)[switches objectForKey:key];
-	if (platform != nil) {
-		[platform togle];
+	//CCLOG(@"switches: %@", switches);
+	NSMutableArray *list = [switches objectForKey:key];
+	for (MovingPlatform *platform  in list) {
+		if (platform != nil) {
+			[platform togle];
+		}
 	}
 }
 
@@ -2036,6 +2047,69 @@ GameLayer *instance;
 #pragma mark -
 #pragma mark Touch controls
 
+-(BOOL) dpadNorth:(CGPoint) location
+{
+	return [Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:northTriangleArea[0] pointB:northTriangleArea[1] pointC:northTriangleArea[2]];
+}
+
+-(BOOL) dpadSouth:(CGPoint) location
+{
+	return [Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:southTriangleArea[0] pointB:southTriangleArea[1] pointC:southTriangleArea[2]];
+}
+
+-(BOOL) dpadWest:(CGPoint) location
+{
+	return [Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:westTriangleArea[0] pointB:westTriangleArea[1] pointC:westTriangleArea[2]];
+}
+
+-(BOOL) dpadEast:(CGPoint) location
+{
+	return [Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:eastTriangleArea[0] pointB:eastTriangleArea[1] pointC:eastTriangleArea[2]];
+}
+
+-(BOOL) dpadA:(CGPoint) location
+{
+	if ((location.x >= shootArea.origin.x) && (location.x <= shootArea.origin.x + shootArea.size.width) 
+		&& (location.y >= shootArea.origin.y - shootArea.size.height) && (location.y <= shootArea.origin.y)) {
+	
+		return YES;
+		
+	} else {
+		return NO;
+	}
+}
+
+-(BOOL) dpadB:(CGPoint) location
+{
+	if ((location.x >= jumpArea.origin.x) && (location.x <= jumpArea.origin.x + jumpArea.size.width) 
+		&& (location.y >= jumpArea.origin.y - jumpArea.size.height) && (location.y <= jumpArea.origin.y)) {
+		
+		return YES;
+		
+	} else {
+		return NO;
+	}
+}
+
+-(void) resetControls
+{
+	[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_normal.png"]];
+	leftJoy.rotation = 0;
+	
+	[rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_up.png"]];
+	[leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_up.png"]];
+	
+	gestureTouch = nil;
+	gestureStartTime = 0;
+	lastShoot = 0;
+	leftTouch = nil;
+	rightTouch = nil;
+	jumpTouch = nil;
+	shootTouch = nil;
+	dpadTouch = nil;
+}
+
+
 -(void) ccTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
 {
 	if (lock) return;
@@ -2048,7 +2122,7 @@ GameLayer *instance;
 	
 	CGSize size = [[CCDirector sharedDirector] winSize];
 	
-	if (!paused) {
+	if (!useDPad && !paused) {
 		
 		if (location.x < size.width * 0.25f) {
 			
@@ -2058,18 +2132,9 @@ GameLayer *instance;
 				jumpTouch = touch;
 				
 			} else {
-				
-				/*if (([touch tapCount] > 1) && (event.timestamp - lastShoot > player.shootDelay)) {
-				 // Repeated shoot
-				 [player shoot];
-				 lastShoot = event.timestamp;
-				 
-				 } else if ([touch tapCount] == 1) { // Not sure about this one
-				 */
 				// Walk left
 				[player moveLeft];
 				leftTouch = touch;
-				//}
 			}
 			
 		} else if (location.x > size.width - (size.width * 0.25f)) {
@@ -2079,24 +2144,11 @@ GameLayer *instance;
 				jumpTouch = touch;
 				
 			} else {
-				
-				// Repeated shoot
-				/*if (([touch tapCount] > 1) && (event.timestamp - lastShoot > player.shootDelay)) {
-				 [player shoot];
-				 lastShoot = event.timestamp;
-				 
-				 } else if ([touch tapCount] == 1) { // Not sure about this one
-				 */
 				// Walk right
 				[player moveRight];
 				rightTouch = touch;
-				//}
 			}
 			
-			/*} else if (location.y < size.height * 0.20f) {
-			 // Prone
-			 [player prone];
-			 */	
 		} else if (location.y > size.height - (size.height * 0.40f)) {
 			// Jump
 			[player jump];
@@ -2113,6 +2165,59 @@ GameLayer *instance;
 			gestureStartPoint = location;
 			gestureTouch = touch;
 			gestureStartTime = event.timestamp;
+		}
+	}
+	
+	if (useDPad && !paused) {
+		if ([Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:northTriangleArea[0] pointB:northTriangleArea[1] pointC:northTriangleArea[2]]) {
+			[player jump];
+			dpadTouch = touch;
+			jumpTouch = dpadTouch;
+			
+			[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_horizontal.png"]];
+			leftJoy.rotation = -90;
+			
+		} else if ([Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:southTriangleArea[0] pointB:southTriangleArea[1] pointC:southTriangleArea[2]]) {
+			[player prone];
+			dpadTouch = touch;
+			
+			[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_horizontal.png"]];
+			leftJoy.rotation = 90;
+			
+		} else if ([Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:eastTriangleArea[0] pointB:eastTriangleArea[1] pointC:eastTriangleArea[2]]) {
+			[player moveRight];
+			dpadTouch = touch;
+			
+			[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_horizontal.png"]];
+			leftJoy.rotation = 0;
+			
+		} else if ([Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:westTriangleArea[0] pointB:westTriangleArea[1] pointC:westTriangleArea[2]]) {
+			[player moveLeft];
+			dpadTouch = touch;
+			
+			[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_horizontal.png"]];
+			leftJoy.rotation = 180;
+			
+		} else if ((location.x >= jumpArea.origin.x) && (location.x <= jumpArea.origin.x + jumpArea.size.width) 
+				   && (location.y >= jumpArea.origin.y - jumpArea.size.height) && (location.y <= jumpArea.origin.y)) {
+			
+			if ((dpadTouch == nil) || (dpadTouch != jumpTouch)) {
+				[player jump];
+				jumpTouch = touch;
+			
+				[rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_down.png"]];
+			}
+		
+		} else if ((location.x >= shootArea.origin.x) && (location.x <= shootArea.origin.x + shootArea.size.width) 
+				   && (location.y >= shootArea.origin.y - shootArea.size.height) && (location.y <= shootArea.origin.y)) {
+			
+			if (event.timestamp - lastShoot > player.shootDelay) {
+				[player shoot];
+				lastShoot = event.timestamp;
+				shootTouch = touch;
+				
+				[leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_down.png"]];
+			}
 		}
 	}
 }
@@ -2137,7 +2242,7 @@ GameLayer *instance;
 		
 		CGSize size = [[CCDirector sharedDirector] winSize];
 		
-		if (!paused) {
+		if (!useDPad && !paused) {
 			
 			if (touch == leftTouch) {
 				if (rightTouch == nil) [player stop];
@@ -2149,11 +2254,11 @@ GameLayer *instance;
 				
 			} else if (touch == jumpTouch) {
 				[player resetJump];
+				jumpTouch = nil;
 				
 			} else if (touch == gestureTouch) {
 				
 				// Detect swipe
-				//CGFloat diffX = gestureStartPoint.x - location.x;
 				CGFloat diffY = gestureStartPoint.y - location.y;	
 				//CCLOG(@"swipes, diffX:%f, diffY:%f", diffX, diffY);
 				
@@ -2161,10 +2266,39 @@ GameLayer *instance;
 					// swipe down
 					[player prone];
 				}
+				gestureTouch = nil;
 				
 			}
 		}
+		
+		if (useDPad && !paused) {
+			
+			if (touch == dpadTouch) {
+				[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_normal.png"]];
+				leftJoy.rotation = 0;
+				
+				[player stop];
+				
+				if (touch == jumpTouch) {
+					[player resetJump];
+					jumpTouch = nil;
+				}
+				
+				dpadTouch = nil;
+			}
+			
+			if (touch == jumpTouch) {
+				[player resetJump];
+				jumpTouch = nil;
+				[rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_up.png"]];
+				
+			} else if (touch == shootTouch) {
+				shootTouch = nil;
+				[leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_up.png"]];
+			}
+		}
 	}
+	
 }
 
 -(void) ccTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event 
@@ -2179,7 +2313,7 @@ GameLayer *instance;
 	
 	CGSize size = [[CCDirector sharedDirector] winSize];
 	
-	if (!paused) {
+	if (!useDPad && !paused) {
 		
 		if (touch == leftTouch) {
 			
@@ -2216,6 +2350,41 @@ GameLayer *instance;
 			}
 		}
 	}
+	
+	if (useDPad && !paused) {
+		if (touch == dpadTouch) {
+			
+			if (([self dpadNorth:location]) && ((dpadTouch != jumpTouch))) {
+				[player jump];
+				jumpTouch = touch;
+				leftJoy.rotation = -90;
+				
+			} else if ([self dpadSouth:location]) {
+				[player prone];
+				leftJoy.rotation = 90;
+				if (dpadTouch == jumpTouch) {
+					[player resetJump];
+					jumpTouch = nil;
+				}
+				
+			} else if ([self dpadEast:location]) {
+				[player moveRight];
+				leftJoy.rotation = 0;
+				if (dpadTouch == jumpTouch) {
+					[player resetJump];
+					jumpTouch = nil;
+				}
+				
+			} else if ([self dpadWest:location]) {
+				[player moveLeft];
+				leftJoy.rotation = 180;
+				if (dpadTouch == jumpTouch) {
+					[player resetJump];
+					jumpTouch = nil;
+				}
+			}
+		}
+	}
 }
 
 -(void) ccTouchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
@@ -2244,6 +2413,18 @@ GameLayer *instance;
 
 #pragma mark -
 
+/*
+-(void) visit {
+	[super visit];
+	
+	[Shared drawTriangle: northMoveArea direction:@"north"];
+	[Shared drawTriangle: southMoveArea direction:@"south"];
+	[Shared drawTriangle: eastMoveArea direction:@"east"];
+	[Shared drawTriangle: westMoveArea direction:@"west"];
+	[Shared drawCGRect: jumpArea];
+	[Shared drawCGRect: shootArea];
+}
+*/
 
 -(void) quitGame
 {
@@ -2290,7 +2471,7 @@ GameLayer *instance;
 	[self setTimer:seconds];
 	[self disableTimer];
 	
-	GameObject *item; CCARRAY_FOREACH(itemsSpriteSheet.children, item) {
+	GameObject *item; CCARRAY_FOREACH(items, item) {
 		[item resetPosition];
 	}
 	
@@ -2299,10 +2480,12 @@ GameLayer *instance;
 	}
 	
 	MovingPlatform *platform; CCARRAY_FOREACH(movingPlatforms, platform) {
-		[platform resetStatus];
+		[platform resetStatus:true];
 	}
 	
 	[player resetPosition];
+	
+	[self resetControls];
 }
 
 // on "dealloc" you need to release all your retained objects
@@ -2329,11 +2512,13 @@ GameLayer *instance;
 	[scene removeAllChildrenWithCleanup:YES];
 	
 	[enemies release];
+	[items release];
 	[bullets release];
 	[robots release];
 	[movingPlatforms release];
 	[properties release];
 	[tilesIds release];
+	[animationsIds release];
 	[switches release];
 	[cached release];
 	

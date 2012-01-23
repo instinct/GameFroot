@@ -12,6 +12,12 @@
 #import "Bullet.h"
 #import "GB2ShapeCache.h"
 
+#define BAR_LIVE_WIDTH	43
+
+#define BEHAVIOUR_JUMPING	1
+#define BEHAVIOUR_WALKING	2
+#define BEHAVIOUR_SHOOTING	4
+
 @implementation Enemy
 
 @synthesize score;
@@ -22,7 +28,7 @@
 @synthesize multiShotDelay;
 @synthesize collideTakeDamage;
 @synthesize collideGiveDamage;
-@synthesize behavior;
+@synthesize behaviour;
 
 -(void) setupEnemy:(int)_playerID initialX:(int)dx initialY:(int)dy health:(int)_health player:(Player *)_player 
 {
@@ -126,7 +132,7 @@
 	barRight.scaleY = 0.9;
 	
 	barMiddle.anchorPoint = ccp(0.0, 0.5);
-	barMiddle.scaleX = 48;
+	barMiddle.scaleX = BAR_LIVE_WIDTH;
 	[barLeft setPosition:ccp(3, healthBar.contentSize.height/2 + 0.5)];
 	[barMiddle setPosition:ccp(barLeft.position.x + barLeft.contentSize.width/2, barLeft.position.y)];
 	[barRight setPosition:ccp(barMiddle.position.x + barMiddle.contentSize.width * barMiddle.scaleX, barMiddle.position.y)];
@@ -146,6 +152,64 @@
 
 	} else {	
 		weaponID = 0;
+	}
+	
+	switch (weaponID) {
+		case 0: // Pistol
+			
+			shootDamage = 25;
+			shootDelay= 0.5f;
+			bulletOffsetY = -2/CC_CONTENT_SCALE_FACTOR();
+			
+			break;
+			
+		case 1: // Auto shotgun
+			
+			shootDamage = 25;
+			shootDelay = 0.2f;
+			bulletOffsetY = -5/CC_CONTENT_SCALE_FACTOR();
+			
+			break;
+			
+		case 2: // Laser
+			
+			shootDamage = 50;
+			shootDelay = 0.1f;
+			bulletOffsetY = -5/CC_CONTENT_SCALE_FACTOR();
+			
+			break;
+			
+		case 3: // Musket
+			
+			shootDamage = 150;
+			shootDelay = 1.0f;
+			bulletOffsetY = 0;
+			
+			break;
+			
+		case 4: // AK 47
+			
+			shootDamage = 70;
+			shootDelay = 0.05f;
+			bulletOffsetY = -5/CC_CONTENT_SCALE_FACTOR();
+			
+			break;
+			
+		case 5: // M60
+			
+			shootDamage = 120;
+			shootDelay = 0.05f;
+			bulletOffsetY = -5/CC_CONTENT_SCALE_FACTOR();
+			
+			break;
+			
+		case 6: // Rocket Launcher
+			
+			shootDamage = 400;
+			shootDelay = 1.2f;
+			bulletOffsetY = 5/CC_CONTENT_SCALE_FACTOR();
+			
+			break;
 	}
 }
 
@@ -216,7 +280,7 @@
 
 -(void) moveRight
 {
-	if (!dying && !inmortal) {
+	if (!dying && !immortal) {
 		//CCLOG(@"Enemy.moveRight: %i", speed);
 		
 		b2Vec2 current = body->GetLinearVelocity();
@@ -236,7 +300,7 @@
 
 -(void) moveLeft
 {
-	if (!dying && !inmortal) {
+	if (!dying && !immortal) {
 		//CCLOG(@"Enemy.moveLeft: %i", speed);
 		
 		b2Vec2 current = body->GetLinearVelocity();
@@ -263,7 +327,7 @@
 
 -(void) shoot
 {
-	if (!dying && !inmortal && (action != PRONE) && (action != CROUCH)) {
+	if (!dying && !immortal && (action != PRONE) && (action != CROUCH)) {
 		CGPoint bulletOffset = ccp(0,0);
 		
 		/*
@@ -284,8 +348,8 @@
 		}
 		*/
 		
-		if (facingLeft) bulletOffset = ccp(-50, -5);
-		else bulletOffset = ccp(50, -5);
+		if (facingLeft) bulletOffset = ccp(-50/CC_CONTENT_SCALE_FACTOR(), -5/CC_CONTENT_SCALE_FACTOR());
+		else bulletOffset = ccp(50/CC_CONTENT_SCALE_FACTOR(), -5/CC_CONTENT_SCALE_FACTOR());
 		
 		GameObjectDirection bulletDirection;
 		if (facingLeft) bulletDirection = kDirectionLeft;
@@ -314,7 +378,7 @@
 		barMiddle.visible = YES;
 		barRight.visible = YES;
 		
-		barMiddle.scaleX = 48 * health/(float)topHealth;
+		barMiddle.scaleX = BAR_LIVE_WIDTH * health/(float)topHealth;
 		[barMiddle setPosition:ccp(barLeft.position.x + barLeft.contentSize.width/2, barLeft.position.y)];
 		[barRight setPosition:ccp(barMiddle.position.x + barMiddle.contentSize.width * barMiddle.scaleX, barMiddle.position.y)];
 	}
@@ -337,7 +401,7 @@
 
 -(void) die
 {
-	if (!dying && !inmortal) {
+	if (!dying && !immortal) {
 		dying = YES;
 		jumping = NO;
 		removed = YES;
@@ -362,7 +426,7 @@
 
 -(void) faceRight
 {
-	if (!dying && !inmortal) {
+	if (!dying && !immortal) {
 		self.scaleX = 1;
 		direction = kDirectionRight;
 		facingLeft = NO;
@@ -371,7 +435,7 @@
 
 -(void) faceLeft
 {
-	if (!dying && !inmortal) {
+	if (!dying && !immortal) {
 		self.scaleX = -1;
 		direction = kDirectionLeft;
 		facingLeft = YES;
@@ -404,7 +468,7 @@
 		
 		dying = NO;
 		removed = NO;
-		inmortal = NO;
+		immortal = NO;
 		
 		body->SetTransform(b2Vec2(((self.position.x - 30)/PTM_RATIO), (self.position.y - 0)/PTM_RATIO),0);
 		self.visible = YES;
@@ -435,7 +499,7 @@
 	
 	dying = NO;
 	removed = NO;
-	inmortal = NO;
+	immortal = NO;
 	
 	[self createBox2dObject:[GameLayer getInstance].world size:size];
 	body->SetTransform(b2Vec2(((self.position.x - 30)/PTM_RATIO), (self.position.y - 0)/PTM_RATIO),0);
@@ -446,38 +510,67 @@
 {
 	if (removed) return;
 	
+	//CCLOG(@"Enemy visible:%i, awake:%i, active:%i", self.visible, body->IsAwake(), body->IsActive());
+	
 	CGSize winsize = [[CCDirector sharedDirector] winSize];
 	CGPoint pos = [[GameLayer getInstance] convertToMapCoordinates:self.position];
-
+	
+	//CCLOG(@"%f,%f - %f, %f", pos.x, pos.y, self.contentSize.height, winsize.height);
+	
 	if (pos.x + self.contentSize.width < 0) {
-		if (!self.visible) {
+		if (self.visible) {
 			self.visible = NO;
 			[self stop];
+			body->SetActive(false);
 		}
 		return;
 	
 		
 	} else if (pos.x - self.contentSize.width > winsize.width) {
-		if (!self.visible) {
+		if (self.visible) {
 			self.visible = NO;
 			[self stop];
+			body->SetActive(false);
+		}
+		return;
+	
+	} else if (pos.y + self.contentSize.height < 0) {
+		if (self.visible) {
+			self.visible = NO;
+			[self stop];
+			body->SetActive(false);
+		}
+		return;
+		
+		
+	} else if (pos.y - self.contentSize.height > winsize.height) {
+		if (self.visible) {
+			self.visible = NO;
+			[self stop];
+			body->SetActive(false);
 		}
 		return;
 		
 	} else if (!self.visible) {
 		self.visible = YES;
+		body->SetActive(true);
 	}
 	
-	// behavior
+	// behaviour (bitwise flags)
+	// 1 being jumping
+	// 2 being walking
+	// 4 being shooting
+	
+	// OLD
 	// 1: static
 	// 2: static shooting
 	// 3: walking
 	// 4: walking shooting
 	// 5: clever following
 	
-	if (behavior == 1) return;
+	if (behaviour == 0) return;
 	
-	if (behavior == 2) {
+	if (behaviour == BEHAVIOUR_SHOOTING) {
 		if (self.position.x > player.position.x) {
 			if (direction != kDirectionLeft) {
 				//CCLOG(@"Enemy.update: face left");
@@ -491,7 +584,7 @@
 			}
 		}
 		
-	} else if ((behavior == 3) || (behavior == 4)  || (behavior == 5)) {
+	} else if (behaviour & BEHAVIOUR_WALKING > 0) {
 		if (self.position.x > player.position.x + 200.0f) {
 			if (direction != kDirectionLeft) {
 				//CCLOG(@"Enemy.update: move left");
@@ -536,11 +629,11 @@
 		}
 	}
 	
-	if ((behavior == 2) || (behavior == 4)  || (behavior == 5)) {
+	if (behaviour & BEHAVIOUR_SHOOTING > 0) {
 		if (roundf(self.position.y/100) == roundf(player.position.y/100)) {
 			// Enemy and player on same level
 			int rnd = arc4random()%100;
-			if (rnd < 2) {
+			if (rnd < 5) {
 				if (facingLeft) [self shoot];
 				else if (!facingLeft) [self shoot];
 			}
@@ -556,14 +649,15 @@
 	}
 	
 	prevPosition = self.position;
+	
+	[super update:dt];
 }
 
 - (void)setPosition:(CGPoint)point {
 	[super setPosition:point];
-	float spriteHeight = self.batchNode.texture.contentSize.height/2;
-
-	CGPoint posHealth = ccp(self.position.x + [GameLayer getInstance].position.x/REDUCE_FACTOR, self.position.y + spriteHeight/2 + 30 + [GameLayer getInstance].position.y/REDUCE_FACTOR);
-	[healthBar setPosition:ccp(roundf(posHealth.x*REDUCE_FACTOR), roundf(posHealth.y*REDUCE_FACTOR))];
+	float spriteHeight = (self.batchNode.texture.contentSize.height/2) * CC_CONTENT_SCALE_FACTOR();
+	CGPoint posHealth = ccp(self.position.x*REDUCE_FACTOR + [GameLayer getInstance].position.x, self.position.y*REDUCE_FACTOR + spriteHeight/2 + [GameLayer getInstance].position.y);
+	[healthBar setPosition:ccp(roundf(posHealth.x), roundf(posHealth.y))];
 }
 
 - (void) dealloc

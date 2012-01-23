@@ -11,9 +11,13 @@
 #import "GameLayer.h"
 #import "SimpleAudioEngine.h"
 
-#define FLASH_VELOCITY_FACTOR	100.0f
+#define FLASH_VELOCITY_FACTOR	50.0f
+#define DELAY_FACTOR			2000.0f
 
 @implementation Robot
+
+@synthesize solid;
+@synthesize ignoreGravity;
 
 - (id) init
 {
@@ -39,9 +43,9 @@
 	playerBodyDef.userData = self;
 	body = [GameLayer getInstance].world->CreateBody(&playerBodyDef);
 	
-	body->SetGravityScale(0.0f);
+	if (ignoreGravity) body->SetGravityScale(0.0f);
 	
-	if (solid) {
+	//if (solid) {
 		b2PolygonShape shape;
 		shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0f)/PTM_RATIO);
 		b2FixtureDef fixtureDef;
@@ -51,7 +55,7 @@
 		fixtureDef.restitution = 0.0; // bouncing
 		fixtureDef.isSensor = false;
 		body->CreateFixture(&fixtureDef);
-		
+	/*	
 	} else {
 		b2PolygonShape shape;
 		shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0f)/PTM_RATIO);
@@ -62,27 +66,47 @@
 		fixtureDef.restitution = 0.0; // bouncing
 		fixtureDef.isSensor = true;
 		body->CreateFixture(&fixtureDef);
-	}
+	 }
+	 */
 }
 
--(void) createBox2dObject:(b2World*)world size:(CGSize)_size solid:(BOOL)_solid
+-(void) createBox2dObject:(b2World*)world size:(CGSize)_size
 {
 	size = _size;
-	solid = _solid;
 	
 	[self _recreateBody];
 	
 	removed = NO;
 }
 
--(void) setupRobot:(NSArray *)array
+-(void) setupRobot:(NSDictionary *)data
 {
-	behavior = [array retain];
-	CCLOG(@"Robot.setupRobot: %@", behavior);
+	//CCLOG(@"Robot.setupRobot: %@", data);
 	
+	// default values
 	health = 100;	
-	facingLeft = YES;
 	solid = NO;
+	ignoreGravity = YES;
+	immortal = NO;
+	
+	if ([data objectForKey:@"behavior"]) {
+		behavior = [[data objectForKey:@"behavior"] retain];
+	} else {
+		behavior = [[NSArray array] retain];
+	}
+	
+	if ([data objectForKey:@"properties"]) {
+		health = [[[data objectForKey:@"properties"] objectForKey:@"health"] intValue];
+		immortal = [[[data objectForKey:@"properties"] objectForKey:@"immortal"] boolValue];
+		solid = [[[data objectForKey:@"properties"] objectForKey:@"solid"] boolValue];
+		ignoreGravity = ![[[data objectForKey:@"properties"] objectForKey:@"physics"] boolValue];
+		
+		CCLOG(@"Robot.immortal: %i", immortal);
+		CCLOG(@"Robot.solid: %i", solid);
+		CCLOG(@"Robot.ignoreGravity: %i", ignoreGravity);
+	}
+	
+	facingLeft = YES;
 	
 	onMessage = NO;
 	onTouchStart = NO;
@@ -133,7 +157,7 @@
 	}
 	
 	if (pos.x + self.contentSize.width < 0) {
-		if (!self.visible) {
+		if (self.visible) {
 			self.visible = NO;
 			onInShot = NO;
 			[self stopAllActions];
@@ -143,7 +167,25 @@
 		
 		
 	} else if (pos.x - self.contentSize.width > winsize.width) {
-		if (!self.visible) {
+		if (self.visible) {
+			self.visible = NO;
+			onInShot = NO;
+			[self stopAllActions];
+		}
+		return;
+		
+	} else if (pos.y + self.contentSize.height < 0) {
+		if (self.visible) {
+			self.visible = NO;
+			onInShot = NO;
+			[self stopAllActions];
+			
+		}
+		return;
+		
+		
+	} else if (pos.y - self.contentSize.height > winsize.height) {
+		if (self.visible) {
 			self.visible = NO;
 			onInShot = NO;
 			[self stopAllActions];
@@ -181,6 +223,7 @@
 		facingLeft = YES;
 	}
 	
+	[super update:dt];
 }
 
 -(id) runMethod:(NSString *)name withObject:(id)anObject
@@ -328,10 +371,10 @@
 -(NSNumber *) opBooleanAnd: (NSDictionary *)command
 {
 	NSDictionary *operand1 = [command objectForKey:@"operand1"];
-	NSDictionary *operand2 = [command objectForKey:@"operand1"];
+	NSDictionary *operand2 = [command objectForKey:@"operand2"];
 	
 	NSString *token1 = [operand1 objectForKey:@"token"];
-	NSString *token2 = [operand1 objectForKey:@"token"];
+	NSString *token2 = [operand2 objectForKey:@"token"];
 	
 	BOOL op1 = [[self runMethod:token1 withObject:operand1] boolValue];
 	BOOL op2 = [[self runMethod:token2 withObject:operand2] boolValue];
@@ -345,10 +388,10 @@
 -(NSNumber *) opBooleanOr: (NSDictionary *)command
 {
 	NSDictionary *operand1 = [command objectForKey:@"operand1"];
-	NSDictionary *operand2 = [command objectForKey:@"operand1"];
+	NSDictionary *operand2 = [command objectForKey:@"operand2"];
 	
 	NSString *token1 = [operand1 objectForKey:@"token"];
-	NSString *token2 = [operand1 objectForKey:@"token"];
+	NSString *token2 = [operand2 objectForKey:@"token"];
 	
 	BOOL op1 = [[self runMethod:token1 withObject:operand1] boolValue];
 	BOOL op2 = [[self runMethod:token2 withObject:operand2] boolValue];
@@ -368,13 +411,15 @@
 {
 	solid = NO;
 
+	/*
 	id action = [CCSequence actions:
 			 [CCDelayTime actionWithDuration:1.0/60.0],
 			 [CCCallFunc actionWithTarget:self selector:@selector(_changeBody)],
 			 nil];
 
 	[self runAction:action];
-
+	*/
+	
 	return solid;
 }
 
@@ -382,22 +427,26 @@
 {
 	solid = YES;
 	
+	/*
 	id action = [CCSequence actions:
 			 [CCDelayTime actionWithDuration:1.0/60.0],
 			 [CCCallFunc actionWithTarget:self selector:@selector(_changeBody)],
 			 nil];
 
 	[self runAction:action];
-
+	*/
+	
 	return solid;
 }
 
+/*
 -(void) _changeBody
 {
 	[GameLayer getInstance].world->DestroyBody(body);
 	
 	[self _recreateBody];
 }
+*/
 
 -(void) say:(id)obj
 {
@@ -578,7 +627,7 @@
 		[self runCommand:[onDieCommands objectAtIndex:i]];
 	}
 	
-	[self remove];
+	if (!immortal) [self remove];
 }
 
 -(NSNumber *) changeHealth:(NSDictionary *)command 
@@ -596,7 +645,8 @@
 	}
 	
 	if (amount < 0) {
-		[[GameLayer getInstance] decreaseHealth:amount];
+		int changeAmount = amount * -1;
+		health -= changeAmount;
 		
 	} else {
 		health += amount;
@@ -905,7 +955,7 @@
 	}
 	
 	id action = [CCSequence actions:
-				 [CCDelayTime actionWithDuration:delay/1000.0f],
+				 [CCDelayTime actionWithDuration:delay/DELAY_FACTOR],
 				 [CCCallFunc actionWithTarget:self selector:@selector(_delayedMessage)],
 				 nil];
 	
@@ -934,7 +984,7 @@
 	}
 	
 	id action = [CCSequence actions:
-				 [CCDelayTime actionWithDuration:delay/1000.0f],
+				 [CCDelayTime actionWithDuration:delay/DELAY_FACTOR],
 				 [CCCallFunc actionWithTarget:self selector:@selector(_delayedBroadcast)],
 				 nil];
 	
@@ -1274,10 +1324,6 @@
 
 -(void) touched:(id)sender
 {
-	// Be sure we reset forces once touched, otherwise it will move as it has gravity 0
-	body->SetLinearVelocity(b2Vec2(0,0));
-	body->SetAngularVelocity(0);
-	
 	//CCLOG(@"Robot.touched: %@", behavior);
 	if (!onTouchStart) {
 		[self execute:@"onTouchStart" type:kGameObjectPlayer];
@@ -1289,11 +1335,15 @@
 {
 	//CCLOG(@"Robot.finished: %@", behavior);
 	onTouchStart = NO;
-	
-	// Be sure we reset forces once touched, otherwise it will move as it has gravity 0
-	body->SetLinearVelocity(b2Vec2(0,0));
-	body->SetAngularVelocity(0);
 }
+
+-(void) hit:(int)force 
+{
+	health -= force;
+	
+	if (health < 0) [self die:nil];
+}
+
 
 #pragma mark -
 #pragma mark Reset

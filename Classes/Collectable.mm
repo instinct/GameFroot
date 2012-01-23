@@ -53,7 +53,8 @@
 		[super remove];
 		
 	} else if (itemType == kCollectableWeapon) {
-		[[GameLayer getInstance] changeWeapon:itemValue-1];
+		if (itemValue < 8) [[GameLayer getInstance] changeWeapon:itemValue-1];
+		else [[GameLayer getInstance] increaseAmmo:itemValue];
 		[super remove];
 	
 	} else if (itemType == kCollectableJetpack) {

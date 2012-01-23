@@ -35,7 +35,7 @@
 	int initialX, initialY, originalX, originalY;
 	
 	BOOL dying;
-	BOOL inmortal;
+	BOOL immortal;
 	
 	BOOL canJump;
 	BOOL jumping;
@@ -88,7 +88,6 @@
 -(void) setupPlayer:(int)_playerID initialX:(int)dx initialY:(int)dy;
 -(void) changeWeapon:(int)_weaponID;
 -(void) setState:(int) anim;
--(void) update:(ccTime)dt;
 -(void) jump;
 -(void) jumpDirection:(GameObjectDirection)dir;
 -(void) resetJump;
@@ -105,7 +104,7 @@
 -(void) decreaseHealth:(int)amount;
 -(void) increaseLive:(int)amount;
 -(void) decreaseLive:(int)amount;
--(void) inmortal;
+-(void) immortal;
 -(void) hit:(int)force;
 -(void) die;
 -(void) lose;

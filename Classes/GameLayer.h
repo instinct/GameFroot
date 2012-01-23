@@ -9,11 +9,6 @@
 
 // When you import this file, you import all the cocos2d classes
 #import "cocos2d.h"
-#import "SneakyJoystick.h"
-#import "SneakyJoystickSkinnedBase.h"
-#import "SneakyButton.h"
-#import "SneakyButtonSkinnedBase.h"
-#import "ColoredCircleSprite.h"
 #import "Box2D.h"
 #import "GLES-Render.h"
 #import "ContactListener.h"
@@ -29,6 +24,7 @@
 	NSDictionary *properties;
 	NSMutableDictionary *tilesIds;
 	NSMutableDictionary *itemsIds;
+	NSMutableDictionary *animationsIds;
 	NSMutableDictionary *switches;
 	NSMutableDictionary *cached;
 	
@@ -45,14 +41,24 @@
 	int partsLoaded;
 	
 	// Joystick
-	SneakyJoystick *leftJoystick;
-	SneakyButton *leftButton;
-	SneakyButton *rightButton;
+	CCSprite *leftJoy;
+	CCSprite *leftBut;
+	CCSprite *rightBut;
+	CGRect northMoveArea;
+	CGRect southMoveArea;
+	CGRect eastMoveArea;
+	CGRect westMoveArea;
+	CGRect jumpArea;
+	CGRect shootArea;
+	CGPoint *northTriangleArea;
+	CGPoint *southTriangleArea;
+	CGPoint *eastTriangleArea;
+	CGPoint *westTriangleArea;
 	
 	// Spritesheets
 	CCSpriteBatchNode *spriteSheet;
-	CCSpriteBatchNode *itemsSpriteSheet;
 	CCSpriteBatchNode *hudSpriteSheet;
+	CCSpriteBatchNode *dpadSpriteSheet;
 	
 	// Map
 	NSMutableDictionary *data;
@@ -68,6 +74,7 @@
     ContactListener *contactListener;
 	
 	CCArray *enemies;
+	CCArray *items;
 	CCArray *movingPlatforms;
 	CCArray *robots;
 	CCArray *bullets;
@@ -80,6 +87,8 @@
 	UITouch	*leftTouch;
 	UITouch	*rightTouch;
 	UITouch	*jumpTouch;
+	UITouch	*shootTouch;
+	UITouch	*dpadTouch;
 	BOOL paused;
 	
 	// HUD
@@ -108,9 +117,13 @@
 	BOOL lock;
 	
 	CCMenuItemToggle *musicButton;
+	CCMenuItemToggle *dpadButton;
 	
 	BOOL customTiles;
-	BOOL customItems;
+	
+	BOOL useDPad;
+	
+	BOOL ignoreCache;
 }
 
 @property(nonatomic,assign) int points;
@@ -134,7 +147,6 @@
 -(void) loadLevelData:(int)gameID;
 -(void) loadBackgroundLevel;
 -(void) loadTilesLevel;
--(void) loadItemsLevel;
 -(void) createMapTiles;
 -(void) createMapItems;
 -(void) createMapNPCSs;
@@ -188,6 +200,8 @@
 -(void) setLives:(int)_lives;
 -(void) setHealth:(int)_health;
 -(void) increasePoints:(int)_points;
+
+-(void) resetControls;
 
 -(void) loseGame;
 -(void) winGame;

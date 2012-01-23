@@ -29,6 +29,7 @@
 #define IS_SWITCH(x, y)					(x.type == kGameObjectSwitch || y.type == kGameObjectSwitch)
 #define IS_ROBOT(x, y)					(x.type == kGameObjectRobot || y.type == kGameObjectRobot)
 #define ARE_ENEMIES(x, y)				(x.type == kGameObjectEnemy && y.type == kGameObjectEnemy)
+#define ARE_ROBOTS(x, y)				(x.type == kGameObjectRobot && y.type == kGameObjectRobot)
 
 ContactListener::ContactListener() {
 }
@@ -137,8 +138,7 @@ void ContactListener::BeginContact(b2Contact *contact) {
 	
 	} else if (IS_COLLECTABLE(o1, o2) && IS_PLAYER(o1, o2)) {
 		//CCLOG(@"-----> Player made contact with collectable item!");
-		//contact->SetEnabled(false);
-		
+
 		if (o1.type == kGameObjectCollectable) {
 			[o1 remove];
 		} else {
@@ -147,14 +147,73 @@ void ContactListener::BeginContact(b2Contact *contact) {
 	
 	} else if (IS_ROBOT(o1, o2) && IS_PLAYER(o1, o2)) {
 		//CCLOG(@"-----> Player made contact with robot item!");
-		//contact->SetEnabled(false);
 		
+		Robot *robot;
+		Player *player;
 		if (o1.type == kGameObjectRobot) {
-			[(Robot *)o1 touched:o2];
+			robot = (Robot *)o1;
+			player = (Player *)o2;
+			
 		} else {
-			[(Robot *)o2 touched:o1];
+			robot = (Robot *)o2;
+			player = (Player *)o1;
 		}
 		
+		if (!robot.solid) contact->SetEnabled(false);
+		[robot touched:player];
+		
+		if (player.position.y - player.size.height*player.anchorPoint.y >= robot.position.y + robot.size.height/2.0f) {
+			b2Vec2 vel = robot.body->GetLinearVelocity();
+			
+			if (vel.y != 0) {
+				player.ignoreGravity = YES;
+			}
+			
+			[player hitsFloor];
+			
+			if (vel.x != 0) {
+				[player displaceHorizontally:vel.x];
+			}
+			
+		}
+		
+	} else if (IS_BULLET(o1, o2) && IS_ROBOT(o1, o2)) {
+		//CCLOG(@"-----> Bullet made contact with robot!");
+		
+		Robot *robot;
+		Bullet *bullet;
+		if (o1.type == kGameObjectRobot) {
+			robot = (Robot *)o1;
+			bullet  = (Bullet *)o2;
+		} else {
+			robot = (Robot *)o2;
+			bullet  = (Bullet *)o1;
+		}
+		
+		if (robot.solid) {
+			[robot hit:bullet.damage];
+			[bullet die];
+		}
+		
+	} else if (ARE_ROBOTS(o1, o2)) {
+		//CCLOG(@"-----> Robot made contact with another robot!");
+		
+		Robot *robot1;
+		Robot *robot2;
+		if (o1.type == kGameObjectRobot) {
+			robot1 = (Robot *)o1;
+			robot2  = (Robot *)o2;
+		} else {
+			robot1 = (Robot *)o2;
+			robot2  = (Robot *)o1;
+		}
+		
+		if ((!robot1.solid) || (!robot2.solid)) contact->SetEnabled(false);
+		
+	} else if (IS_ROBOT(o1, o2)) {
+		//CCLOG(@"-----> Robot made contact with something!");
+		contact->SetEnabled(false);
+			   
 	} else if (IS_COLLECTABLE(o1, o2) && IS_ENEMY(o1, o2)) {
 		//CCLOG(@"-----> Enemy made contact with collectable item!");
 		
@@ -252,9 +311,6 @@ void ContactListener::BeginContact(b2Contact *contact) {
 				[player displaceHorizontally:vel.x];
 			}
 			
-		//} else if (player.position.y - player.size.height*player.anchorPoint.y < platform.position.y + platform.size.height/2.0f) {
-		//	contact->SetEnabled(false);
-			
 		} else if (player.position.y + player.size.height*(1.0f-player.anchorPoint.y) <= platform.position.y - platform.size.height/2.0f) {
 			//CCLOG(@"Player hits moving platform from below!");
 			b2Vec2 current = platform.body->GetLinearVelocity();
@@ -296,9 +352,10 @@ void ContactListener::BeginContact(b2Contact *contact) {
 	
 	} else if (ARE_ENEMIES(o1, o2)) {
 		//CCLOG(@"-----> Enemy made contact with another enemy!");
+		contact->SetEnabled(false);
 		
-		Enemy *enemy = (Enemy *)o1;
-		[enemy resetForces];
+		//Enemy *enemy = (Enemy *)o1;
+		//[enemy resetForces];
 		
 	} else if (IS_ENEMY(o1, o2)) {
 		//CCLOG(@"-----> Enemy made contact with something, problaby sensor or other tile!");
@@ -408,17 +465,42 @@ void ContactListener::PreSolve(b2Contact *contact, const b2Manifold *oldManifold
 				b2Vec2 vel = platform.body->GetLinearVelocity();
 				[player displaceHorizontally:vel.x];
 			}
-			
-		//} else if (player.position.y - player.size.height*player.anchorPoint.y < platform.position.y + platform.size.height/2.0f) {
-		//	contact->SetEnabled(false);
-		
 		}
 		
 	} else if (ARE_ENEMIES(o1, o2)) {
 		//CCLOG(@"-----> Enemy made contact with another enemy!");
+		contact->SetEnabled(false);
 		
-		Enemy *enemy = (Enemy *)o1;
-		[enemy resetForces];
+		//Enemy *enemy = (Enemy *)o1;
+		//[enemy resetForces];
+		
+		
+	} else if (IS_ROBOT(o1, o2) && IS_PLAYER(o1, o2)) {
+		//CCLOG(@"-----> Player made contact with robot item!");
+		
+		Robot *robot;
+		Player *player;
+		if (o1.type == kGameObjectRobot) {
+			robot = (Robot *)o1;
+			player = (Player *)o2;
+			
+		} else {
+			robot = (Robot *)o2;
+			player = (Player *)o1;
+		}
+		
+		if (!robot.solid) contact->SetEnabled(false);
+		else if (player.position.y - player.size.height*(1.0f-player.anchorPoint.y) >= robot.position.y + robot.size.height/2.0f) {
+			b2Vec2 vel = robot.body->GetLinearVelocity();
+			if (vel.x != 0) {
+				[player displaceHorizontally:vel.x];
+			}
+		}
+		
+	} else if (IS_ROBOT(o1, o2)) {
+		//CCLOG(@"-----> Robot made contact with something!");
+		contact->SetEnabled(false);
+		
 	}
 }
 
@@ -443,20 +525,6 @@ void ContactListener::PostSolve(b2Contact *contact, const b2ContactImpulse *impu
 		
 		if (player.position.y - player.size.height*player.anchorPoint.y < tile.position.y + tile.size.height/2.0f) {
 			contact->SetEnabled(false);
-		}
-		
-	} else if (IS_MOVING_PLATFORM(o1, o2) && IS_PLAYER(o1, o2)) {
-		//CCLOG(@"-----> Player contact with horizontal platform!");
-		
-		Player *player;
-		MovingPlatform *platform;
-		
-		if (o1.type == kGameObjectPlayer) {
-			player = (Player *)o1;
-			platform = (MovingPlatform *)o2;
-		} else {
-			player = (Player *)o2;
-			platform = (MovingPlatform *)o1;
 		}
 		
 	}
@@ -519,11 +587,30 @@ void ContactListener::EndContact(b2Contact *contact) {
 	
 	} else if (IS_ROBOT(o1, o2) && IS_PLAYER(o1, o2)) {
 		//CCLOG(@"-----> Player ended contact with robot item!");
-
+		
+		Robot *robot;
+		Player *player;
 		if (o1.type == kGameObjectRobot) {
-			[(Robot *)o1 finished:o2];
+			robot = (Robot *)o1;
+			player = (Player *)o2;
+			
 		} else {
-			[(Robot *)o2 finished:o1];
+			robot = (Robot *)o2;
+			player = (Player *)o1;
 		}
+	
+		[robot finished:player];
+		
+		b2Vec2 vel = robot.body->GetLinearVelocity();
+		
+		if (vel.y != 0) {
+			player.ignoreGravity = NO;
+		}
+		
+		if (vel.x != 0) {
+			[player displaceHorizontally:0.0f];
+		}
+		
+		[player restartMovement];
 	}
 }

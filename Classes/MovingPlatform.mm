@@ -21,6 +21,7 @@
 		
 		paused = NO;
 		stopped = NO;
+		startedOff = NO;
 	}
 	return self;
 }
@@ -44,7 +45,6 @@
 	fixtureDef.density = 1.0;
 	fixtureDef.friction = 0.0;
 	fixtureDef.restitution = 0.0; // bouncing
-	
 	body->CreateFixture(&fixtureDef);
 	
 	origPosition = body->GetPosition();
@@ -55,7 +55,7 @@
 	[self unschedule:@selector(updatePlatform:)];
 	
 	translationYInPixels = _translationInPixels;
-	duration = _duration;
+	duration = _duration * CC_CONTENT_SCALE_FACTOR();
 	
 	goingForward = YES;
 	
@@ -63,10 +63,7 @@
 	
 	velocity = b2Vec2(0, vel);
 	finalPosition = origPosition + b2Vec2(0, translationYInPixels/PTM_RATIO);
-	
-	posOrig = [[GameLayer getInstance] convertToMapCoordinates:ccp(origPosition.x * PTM_RATIO,origPosition.y * PTM_RATIO)];
-	posFinal = [[GameLayer getInstance] convertToMapCoordinates:ccp(finalPosition.x * PTM_RATIO,finalPosition.y * PTM_RATIO)];
-	
+		
 	body->SetLinearVelocity(velocity);
 	
 	[self schedule:@selector(updatePlatform:) interval:duration];
@@ -77,7 +74,7 @@
 	[self unschedule:@selector(updatePlatform:)];
 	
 	translationXInPixels = _translationInPixels;
-	duration = _duration;
+	duration = _duration * CC_CONTENT_SCALE_FACTOR();
 	
 	goingForward = YES;
 	
@@ -85,10 +82,7 @@
 	
 	velocity = b2Vec2(vel, 0);
 	finalPosition = origPosition + b2Vec2(translationXInPixels/PTM_RATIO, 0);
-	
-	posOrig = [[GameLayer getInstance] convertToMapCoordinates:ccp(origPosition.x * PTM_RATIO,origPosition.y * PTM_RATIO)];
-	posFinal = [[GameLayer getInstance] convertToMapCoordinates:ccp(finalPosition.x * PTM_RATIO,finalPosition.y * PTM_RATIO)];
-	
+		
 	body->SetLinearVelocity(velocity);
 	
 	[self schedule:@selector(updatePlatform:) interval:duration];
@@ -100,7 +94,7 @@
 	translationXInPixels = _pos.x - (origPosition.x *PTM_RATIO);
 	translationYInPixels = _pos.y - (origPosition.y *PTM_RATIO);
 	
-	duration = _duration;
+	duration = _duration * CC_CONTENT_SCALE_FACTOR();
 	
 	goingForward = YES;
 	
@@ -109,10 +103,7 @@
 	
 	velocity = b2Vec2(velX, velY);
 	finalPosition = origPosition + b2Vec2(translationXInPixels/PTM_RATIO, translationYInPixels/PTM_RATIO);
-	
-	posOrig = [[GameLayer getInstance] convertToMapCoordinates:ccp(origPosition.x *PTM_RATIO,origPosition.y *PTM_RATIO)];
-	posFinal = [[GameLayer getInstance] convertToMapCoordinates:ccp(finalPosition.x *PTM_RATIO,finalPosition.y *PTM_RATIO)];
-	
+		
 	body->SetLinearVelocity(velocity);
 	
 	[self schedule:@selector(updatePlatform:) interval:duration];
@@ -197,8 +188,17 @@
 	}
 }
 
--(void) resetStatus {
-	if (!paused) {
+-(void) resetStatus:(BOOL)initial 
+{
+	if (initial && startedOff) {
+		[self unschedule:@selector(updateChangedPlatform:)];
+		[self unschedule:@selector(updatePlatform:)];
+		
+		[self startsOff];
+		body->SetTransform(origPosition, 0);
+		goingForward = YES;
+		
+	} else if (!paused) {
 		[self unschedule:@selector(updateChangedPlatform:)];
 		[self unschedule:@selector(updatePlatform:)];
 		
@@ -248,25 +248,54 @@
 	
 	CGSize winsize = [[CCDirector sharedDirector] winSize];
 	
+	//CCLOG(@"Moving platform visible:%i, paused:%i, awake:%i, active:%i", self.visible, paused, body->IsAwake(), body->IsActive());
+	
+	CGPoint posOrig = [[GameLayer getInstance] convertToMapCoordinates:ccp(origPosition.x *PTM_RATIO,origPosition.y *PTM_RATIO)];
+	CGPoint posFinal = [[GameLayer getInstance] convertToMapCoordinates:ccp(finalPosition.x *PTM_RATIO,finalPosition.y *PTM_RATIO)];
+	
+	//CCLOG(@"%f,%f - %f, %f", posOrig.x, posOrig.y, self.contentSize.width, winsize.width);
+	
 	if ((posOrig.x + self.contentSize.width < 0) && (posFinal.x + self.contentSize.width < 0)) {
-		if (!self.visible) {
+		if (self.visible) {
 			self.visible = NO;
 			[self pause];
+			body->SetActive(false);
 		}
 		return;
 		
 		
 	} else if ((posOrig.x - self.contentSize.width > winsize.width) && (posFinal.x - self.contentSize.width > winsize.width)) {
-		if (!self.visible) {
+		if (self.visible) {
 			self.visible = NO;
 			[self pause];
+			body->SetActive(false);
+		}
+		return;
+	
+	} else if ((posOrig.y + self.contentSize.height < 0) && (posFinal.y + self.contentSize.height < 0)) {
+		if (self.visible) {
+			self.visible = NO;
+			[self pause];
+			body->SetActive(false);
+		}
+		return;
+		
+		
+	} else if ((posOrig.y - self.contentSize.height > winsize.height) && (posFinal.y - self.contentSize.height > winsize.height)) {
+		if (self.visible) {
+			self.visible = NO;
+			[self pause];
+			body->SetActive(false);
 		}
 		return;
 		
 	} else if (!self.visible) {
 		self.visible = YES;
 		[self resume];
+		body->SetActive(true);
 	}
+	
+	[super update:dt];
 }
 
 -(void) resume 
@@ -301,6 +330,13 @@
 		stopped = YES;
 		[self pause];
 	}
+}
+
+-(void) startsOff
+{
+	startedOff = YES;
+	stopped = YES;
+	[self pause];
 }
 
 @end

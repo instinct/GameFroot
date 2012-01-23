@@ -20,11 +20,9 @@
 	float translationYInPixels;
 	float duration;
 	
-	CGPoint posOrig;
-	CGPoint posFinal;
-	
 	BOOL paused;
 	BOOL stopped;
+	BOOL startedOff;
 }
 
 @property (nonatomic, assign) BOOL goingForward;
@@ -34,12 +32,13 @@
 -(void) moveVertically:(float)_translationInPixels duration:(float)_duration;
 -(void) moveHorizontally:(float)_translationInPixels duration:(float)_duration;
 -(void) moveTo:(CGPoint)_pos duration:(float)_duration;
--(void) resetStatus;
+-(void) resetStatus:(BOOL)initial;
 -(void) changeDirection;
 -(void) update:(ccTime)dt;
 
 -(void) pause;
 -(void) resume;
 -(void) togle;
+-(void) startsOff;
 
 @end

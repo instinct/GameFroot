@@ -207,20 +207,26 @@
 {
 	CGSize winsize = [[CCDirector sharedDirector] winSize];
 	CGPoint pos = [[GameLayer getInstance] convertToMapCoordinates:self.position];
-	//CCLOG(@"%f,%f - %f, %f", pos.x, pos.y, self.contentSize.width, size.width);
+	//CCLOG(@"%f,%f - %f, %f", pos.x, pos.y, self.contentSize.width, winsize.width);
 		
 	if (pos.x + self.contentSize.width < 0) {
 		[self die];
+		return;
 		
 	} else if (pos.x - self.contentSize.width > winsize.width) {
 		[self die];
+		return;
 		
 	} else if (pos.y + self.contentSize.height < 0) {
 		[self die];
+		return;
 		
 	} else if (pos.y - self.contentSize.height > winsize.height) {
 		[self die];
+		return;
 	}
+	
+	[super update:dt];
 }
 
 

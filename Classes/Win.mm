@@ -21,13 +21,14 @@
 		CGSize size = [[CCDirector sharedDirector] winSize];
 		
 		CCSprite *bg = [CCSprite spriteWithFile:@"loading-bg.png"];
+		[bg setScale:CC_CONTENT_SCALE_FACTOR()];
 		[bg setPosition:ccp(size.width*0.5,size.height*0.5)];
 		[self addChild:bg];
 		
 		CCSprite *title = [CCSprite spriteWithFile:@"title-you-win.png"];
 		[title setPosition:ccp(size.width*0.5,size.height*0.8)];
 		[title.textureAtlas.texture setAliasTexParameters];
-		title.scale = 0.75;
+		title.scale = 0.75*CC_CONTENT_SCALE_FACTOR();
 		[self addChild:title];
 		
 		CCLabelBMFont *score = [CCLabelBMFont labelWithString:[NSString stringWithFormat:@"Your score: %i out of %i",[GameLayer getInstance].points, [GameLayer getInstance].totalPoints] fntFile:@"Chicago.fnt"];
@@ -38,9 +39,11 @@
 		CCMenuItemSprite *replayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-replay.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-replay.png"] target:self selector:@selector(replayGame:)];
 		CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-main-menu2.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-main-menu2.png"] target:self selector:@selector(backMenu:)];
 		
+		[replayButton setScale:0.75*CC_CONTENT_SCALE_FACTOR()];
+		[backButton setScale:0.75*CC_CONTENT_SCALE_FACTOR()];
+		
 		CCMenu *menu = [CCMenu menuWithItems:replayButton, backButton, nil];
-		menu.scale = 0.75;
-		menu.position = ccp(size.width*menu.scaleX*0.5, size.height*menu.scaleY*0.1);
+		menu.position = ccp(size.width/2, size.height/2 - 80);
 		[menu alignItemsVertically];
 		[self addChild:menu];
 	}

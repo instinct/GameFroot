@@ -28,7 +28,7 @@
 	int multiShotDelay;
 	int collideTakeDamage;
 	int collideGiveDamage;
-	int behavior;
+	int behaviour;
 	
 	CGPoint prevPosition;
 }
@@ -41,7 +41,7 @@
 @property (nonatomic,assign) int multiShotDelay;
 @property (nonatomic,assign) int collideTakeDamage;
 @property (nonatomic,assign) int collideGiveDamage;
-@property (nonatomic,assign) int behavior;
+@property (nonatomic,assign) int behaviour;
 
 -(void) setupEnemy:(int)_enemyID initialX:(int)dx initialY:(int)dy health:(int)_health player:(Player *)_player;
 -(void) faceRight;

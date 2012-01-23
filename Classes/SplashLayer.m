@@ -41,7 +41,7 @@
 		[splash setPosition:ccp(size.width/2, size.height/2)];
 		[self addChild:splash];
 		
-		[Loader showAsynchronousLoaderWithDelayedAction:2.0f target:self selector:@selector(_loadGame)];
+		[Loader showAsynchronousLoaderWithDelayedActionAtPoint:ccp(size.width/2, size.height/2 + 150) delay:2.0f target:self selector:@selector(_loadGame)];
 	}
 	
 	return self;

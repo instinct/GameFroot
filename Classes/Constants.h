@@ -11,8 +11,7 @@
 //Box2D is optimized for objects of 1x1 metre therefore it makes sense
 //to define the ratio so that your most common object type is 1x1 metre.
 
-//#define PTM_RATIO 32
-#define PTM_RATIO ((UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? 100.0 : 50.0)
+#define PTM_RATIO ((UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? 50.0 : CC_CONTENT_SCALE_FACTOR() == 2 ? 25.0 : 50.0)
 
 typedef enum {
     kGameObjectNone,
@@ -44,8 +43,8 @@ typedef enum{
 #define JETPACK_IMPULSE		1.8f
 #define JETPACK_SPEED		0.35f
 
-#define MAP_TILE_WIDTH	48.0f
-#define MAP_TILE_HEIGHT	48.0f
+#define MAP_TILE_WIDTH	48.0f / CC_CONTENT_SCALE_FACTOR()
+#define MAP_TILE_HEIGHT	48.0f / CC_CONTENT_SCALE_FACTOR()
 
 #define SPRITESHEETS_TILE_WIDTH	42
 #define SPRITESHEETS_ITEM_WIDTH	42
@@ -54,6 +53,8 @@ typedef enum{
 #define	LAYER_ITEMS		2
 #define	LAYER_PLAYER	3
 
-#define REDUCE_FACTOR	0.75f
+#define REDUCE_FACTOR	0.75f * CC_CONTENT_SCALE_FACTOR()
 
 #define ADJUSTMENT_COLLISION_X	4.0f
+
+#define DEBUG_WORLD				0

@@ -37,7 +37,9 @@
 	playerBodyDef.type = b2_staticBody;
 	playerBodyDef.position.Set(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO);
 	playerBodyDef.userData = self;
+	
 	body = world->CreateBody(&playerBodyDef);
+	
 	
 	b2PolygonShape shape;
 	shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0f)/PTM_RATIO);
@@ -91,6 +93,14 @@
 	} else {
 		self.position = originalPosition;
 		body->SetTransform(b2Vec2(((self.position.x)/PTM_RATIO), (self.position.y)/PTM_RATIO),0);
+	}
+}
+
+-(void) update:(ccTime)dt
+{
+	if (body->GetType() != b2_staticBody) {
+		self.position = ccp(body->GetPosition().x * PTM_RATIO, body->GetPosition().y * PTM_RATIO);
+		//self.rotation =  -1 * CC_RADIANS_TO_DEGREES(body->GetAngle()); // We don't rotate, so we can save this
 	}
 }
 

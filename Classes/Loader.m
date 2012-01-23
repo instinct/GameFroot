@@ -16,16 +16,36 @@ static UIActivityIndicatorView *activityIndicator = nil;
 
 +(void) showAsynchronousLoader {
 	
+	CGSize size = [[CCDirector sharedDirector] winSize];
+	
 	if (activityIndicator == nil) {
-		CGSize size = [[CCDirector sharedDirector] winSize];	
-		
-		activityIndicator = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+			
+		activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
 		//activityIndicator = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
 		activityIndicator.frame = CGRectMake(size.width/2 - 20,size.height/2 - 20, activityIndicator.frame.size.width,activityIndicator.frame.size.height);
 		activityIndicator.hidesWhenStopped = YES;
 		[[[CCDirector sharedDirector] openGLView] addSubview:activityIndicator];
 		
+	} else {
+		activityIndicator.center = ccp(size.width/2,size.height/2);
 	}
+	[activityIndicator startAnimating];
+}
+
++(void) showAsynchronousLoaderAtPoint:(CGPoint)pos {
+	
+	if (activityIndicator == nil) {
+		
+		activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+		//activityIndicator = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+		activityIndicator.frame = CGRectMake(pos.x - 20,pos.y - 20, activityIndicator.frame.size.width,activityIndicator.frame.size.height);
+		activityIndicator.hidesWhenStopped = YES;
+		[[[CCDirector sharedDirector] openGLView] addSubview:activityIndicator];
+		
+	} else {
+		activityIndicator.center = ccp(pos.x,pos.y);
+	}
+	
 	[activityIndicator startAnimating];
 }
 
@@ -36,6 +56,12 @@ static UIActivityIndicatorView *activityIndicator = nil;
 
 +(void) showAsynchronousLoaderWithDelayedAction:(float)delay target:(id)target selector:(SEL)func {
 	[Loader showAsynchronousLoader];
+	
+	[NSTimer scheduledTimerWithTimeInterval:delay target:target selector:func userInfo:nil repeats:NO];
+}
+
++(void) showAsynchronousLoaderWithDelayedActionAtPoint:(CGPoint)pos delay:(float)delay target:(id)target selector:(SEL)func {
+	[Loader showAsynchronousLoaderAtPoint:pos];
 	
 	[NSTimer scheduledTimerWithTimeInterval:delay target:target selector:func userInfo:nil repeats:NO];
 }

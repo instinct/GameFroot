@@ -127,7 +127,7 @@
 			
 			shootDamage = 25;
 			shootDelay= 0.5f;
-			bulletOffsetY = -2;
+			bulletOffsetY = -2/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
 			
@@ -135,7 +135,7 @@
 			
 			shootDamage = 25;
 			shootDelay = 0.2f;
-			bulletOffsetY = -5;
+			bulletOffsetY = -5/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
 			
@@ -143,7 +143,7 @@
 			
 			shootDamage = 50;
 			shootDelay = 0.1f;
-			bulletOffsetY = -5;
+			bulletOffsetY = -5/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
 			
@@ -159,7 +159,7 @@
 			
 			shootDamage = 70;
 			shootDelay = 0.05f;
-			bulletOffsetY = -5;
+			bulletOffsetY = -5/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
 			
@@ -167,7 +167,7 @@
 			
 			shootDamage = 120;
 			shootDelay = 0.05f;
-			bulletOffsetY = -5;
+			bulletOffsetY = -5/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
 			
@@ -175,7 +175,7 @@
 			
 			shootDamage = 400;
 			shootDelay = 1.2f;
-			bulletOffsetY = 5;
+			bulletOffsetY = 5/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
 	}
@@ -262,7 +262,7 @@
 	
 	//CCLOG(@"Player.setState: %i", anim);
 	
-	if (!inmortal) {
+	if (!immortal) {
 		[self stopAllActions];
 		[weapon stopAllActions];
 		if (jetpackCollected) [jetpack stopAllActions];
@@ -348,7 +348,7 @@
 
 -(void) moveRight
 {
-	if (!dying && !inmortal) {
+	if (!dying && !immortal) {
 		
 		b2Vec2 current = body->GetLinearVelocity();
 		b2Vec2 velocity = b2Vec2(HORIZONTAL_SPEED + horizontalSpeedOffset, current.y);
@@ -374,7 +374,7 @@
 
 -(void) moveLeft
 {
-	if (!dying && !inmortal) {
+	if (!dying && !immortal) {
 		
 		b2Vec2 current = body->GetLinearVelocity();
 		b2Vec2 velocity = b2Vec2(-HORIZONTAL_SPEED + horizontalSpeedOffset, current.y);
@@ -399,7 +399,7 @@
 }
 
 -(void) restartMovement {
-	if (!dying && !inmortal && (moving || jumpingMoving)) {
+	if (!dying && !immortal && (moving || jumpingMoving)) {
 		b2Vec2 current = body->GetLinearVelocity();
 		
 		if (fabsf(roundf(current.x)) == 0) {
@@ -422,13 +422,13 @@
 	
 	b2Vec2 current = body->GetLinearVelocity();
 	//CCLOG(@"Player.jump: %i, %f, %i", canJump, fabsf(roundf(current.y)), ignoreGravity);
-	if (canJump && !dying && !inmortal && ((fabsf(roundf(current.y)) == 0) || ignoreGravity)) {
+	if (canJump && !dying && !immortal && ((fabsf(roundf(current.y)) == 0) || ignoreGravity)) {
 		canJump = NO;
 		jumping = YES;
 		b2Vec2 impulse = b2Vec2(0.0f, VERTICAL_SPEED);
 		body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
 		
-	} else if (jetpackCollected && !jetpackActivated && !dying && !inmortal) {
+	} else if (jetpackCollected && !jetpackActivated && !dying && !immortal) {
 		//b2Vec2 impulse = b2Vec2(0.0f, fabs(current.y) + JETPACK_SPEED);
 		//body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
 		
@@ -446,7 +446,7 @@
 	
 	b2Vec2 current = body->GetLinearVelocity();
 	//CCLOG(@"Player.jumDirection: %i, %i, %f, %i", dir, canJump, fabsf(roundf(current.y)), ignoreGravity);
-	if (canJump && !dying && !inmortal && ((fabsf(roundf(current.y)) == 0) || ignoreGravity)) {
+	if (canJump && !dying && !immortal && ((fabsf(roundf(current.y)) == 0) || ignoreGravity)) {
 		
 		canJump = NO;
 		jumping = YES;
@@ -487,7 +487,7 @@
 		body->SetLinearVelocity(b2Vec2(0.0f, 0.0f)); // reset previous movement
 		body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
 		
-	} else if (jetpackCollected && !jetpackActivated && !dying && !inmortal) {
+	} else if (jetpackCollected && !jetpackActivated && !dying && !immortal) {
 		
 		jetpackActivated = YES;
 		[particle resetSystem];
@@ -527,7 +527,7 @@
 			}
 		}
 		
-	} else if (jumping && !dying && !inmortal) {
+	} else if (jumping && !dying && !immortal) {
 		//CCLOG(@"Player.jumDirection: change direction in the air");
 		if (dir == kDirectionLeft) {
 			body->SetLinearVelocity(b2Vec2(0,current.y));
@@ -568,16 +568,18 @@
 
 -(void) resetJump
 {
-	pressedJump = NO;
-	
-	if (jetpackActivated) {
-		jetpackActivated = NO;
-		[particle stopSystem];
-	}
-	
-	b2Vec2 current = body->GetLinearVelocity();
-	if (current.y > 0) {
-		body->SetLinearVelocity(b2Vec2(current.x,0));
+	if (pressedJump) {
+		pressedJump = NO;
+		
+		if (jetpackActivated) {
+			jetpackActivated = NO;
+			[particle stopSystem];
+		}
+		
+		b2Vec2 current = body->GetLinearVelocity();
+		if (current.y > 0) {
+			body->SetLinearVelocity(b2Vec2(current.x,0));
+		}
 	}
 }
 
@@ -593,7 +595,7 @@
 -(void) crouch
 {
 	b2Vec2 vel = body->GetLinearVelocity();
-	if (!dying && !inmortal && (fabsf(roundf(vel.y)) == 0)) {
+	if (!dying && !immortal && !jetpackActivated && (fabsf(roundf(vel.y)) == 0)) {
 		body->SetLinearVelocity(b2Vec2(0.0f, vel.y));
 		[self setState:CROUCH];
 		moving = NO;
@@ -602,9 +604,9 @@
 }
 
 -(void) prone
-{
+{		
 	b2Vec2 vel = body->GetLinearVelocity();
-	if (!dying && !inmortal && (fabsf(roundf(vel.y)) == 0)) {
+	if (!dying && !immortal && !jetpackActivated && (fabsf(roundf(vel.y)) == 0)) {
 		body->SetLinearVelocity(b2Vec2(0.0f, vel.y));
 		[self setState:PRONE];
 		moving = NO;
@@ -732,9 +734,9 @@
 		particle.endColor=endColor;
 		ccColor4F endColorVar={0.00,0.00,0.00,0.00};
 		particle.endColorVar=endColorVar;
-		particle.startSize=80.00;
+		particle.startSize=80.00/CC_CONTENT_SCALE_FACTOR();
 		particle.startSizeVar=0.00;
-		particle.endSize=50.00;
+		particle.endSize=50.00/CC_CONTENT_SCALE_FACTOR();
 		particle.endSizeVar=0.00;
 		particle.gravity=ccp(0.00,0.00);
 		particle.radialAccel=0.00;
@@ -814,10 +816,11 @@
 
 -(void) shoot
 {
-	if (!dying && !inmortal) {
+	if (!dying && !immortal) {
 		
 		if ((action == PRONE) || (action == CROUCH)) {
-			[self setState:STAND];
+			//[self setState:STAND];
+			return;
 		}
 		
 		if (touchingSwitch != nil) {
@@ -848,8 +851,8 @@
 			 }
 			 */
 			
-			if (facingLeft) bulletOffset = ccp(-50, bulletOffsetY);
-			else bulletOffset = ccp(50, bulletOffsetY);
+			if (facingLeft) bulletOffset = ccp(-50/CC_CONTENT_SCALE_FACTOR(), bulletOffsetY);
+			else bulletOffset = ccp(50/CC_CONTENT_SCALE_FACTOR(), bulletOffsetY);
 			
 			GameObjectDirection bulletDirection;
 			if (facingLeft) bulletDirection = kDirectionLeft;
@@ -864,10 +867,10 @@
 	}
 }
 
--(void) inmortal
+-(void) immortal
 {
-	if (!inmortal) {
-		inmortal = YES;
+	if (!immortal) {
+		immortal = YES;
 		
 		[self stopAllActions];
 		if (type == kGameObjectPlayer) {
@@ -910,7 +913,7 @@
 -(void) restore
 {
 	self.opacity = 255;
-	inmortal = NO;
+	immortal = NO;
 }
 
 -(void) hit:(int)force 
@@ -926,7 +929,7 @@
 
 -(void) die
 {
-	if (!dying && !inmortal) {
+	if (!dying && !immortal) {
 		
 		lives--;
 		[[GameLayer getInstance] setLives:lives];
@@ -1009,12 +1012,14 @@
 		self.visible = NO;
 		direction = kDirectionNone;
 		facingLeft = NO;
+		[self changeWeapon:4]; // Default weapon
 		
 	} else {
 		
 		self.visible = YES;
 		
 		[[GameLayer getInstance] removeBullets];
+		[[GameLayer getInstance] resetControls];
 		
 		float spriteWidth = self.batchNode.texture.contentSize.width / 8;
 		float spriteHeight = self.batchNode.texture.contentSize.height / 2;
@@ -1046,7 +1051,7 @@
 		[[GameLayer getInstance] resume];
 		[[GameLayer getInstance] resetElements];
 		
-		[self inmortal];
+		[self immortal];
 		
 		[[GameLayer getInstance] setHealth:health];
 	}
@@ -1057,7 +1062,7 @@
 	auxX = dx;
 	auxY = dy;
 	
-	inmortal = YES;
+	immortal = YES;
 	
 	[self stopAllActions];
 	if (type == kGameObjectPlayer) {
@@ -1131,7 +1136,7 @@
 	
 	[[GameLayer getInstance] resume];
 	
-	inmortal = NO;
+	immortal = NO;
 }
 
 -(void) changeToPosition:(CGPoint)pos
@@ -1160,7 +1165,7 @@
 	canJump = YES;
 	helpFall = YES;
 	
-	if (fabsf(roundf(current.y)) != 0) {	
+	//if (fabsf(roundf(current.y)) != 0) {	
 		//if (jumping) {
 		
 		//CCLOG(@"Player.hitsFloor, jumping:%i, moving:%i, jumpingMoving:%i, vel:%f,%f", jumping, moving, jumpingMoving, current.x, current.y);
@@ -1175,12 +1180,12 @@
 				body->SetLinearVelocity(b2Vec2(0.0f, current.y));
 			}
 			
-			[self setState:STAND];
+			if ((action != PRONE) && (action != CROUCH)) [self setState:STAND];
 			
 		} else {
 			[self setState:WALK];
 		}
-	}
+	//}
 }
 
 -(void) displaceHorizontally:(float)speed 
@@ -1225,10 +1230,13 @@
 -(void) update:(ccTime)dt
 {
 	b2Vec2 current = body->GetLinearVelocity();
-	//CCLOG(@"%f", current.y);
+	//CCLOG(@"%f, %i", current.y, action);
+	
+	if (ignoreGravity) body->SetGravityScale(0.0f);
+	else body->SetGravityScale(1.0f);
 	
 	if ((fabsf(roundf(current.y)) == 0) || ignoreGravity) {
-		
+		//CCLOG(@"%f, %i, %i", current.y, action, jumping);
 		if ((fabsf(roundf(current.x)) == 0) && (action != PRONE) && (action != CROUCH) && (!jumping)) {
 			[self setState:STAND];
 		}
@@ -1236,10 +1244,10 @@
 	} else {
 		//CCLOG(@"%f", current.y);
 		if ((current.y > 0) && jumping) {
-			[self setState:JUMPING];
+			if (!ignoreGravity) [self setState:JUMPING];
 			
 		} else {
-			[self setState:FALLING];
+			if (!ignoreGravity) [self setState:FALLING];
 			
 			if ((pressedJump && jetpackCollected && !jetpackActivated)
 				&& (self.position.y + self.size.height*(1.0f-self.anchorPoint.y) < ([GameLayer getInstance].mapHeight * MAP_TILE_HEIGHT))) 
@@ -1279,6 +1287,8 @@
 			[self removeJetpack];
 		}
 	}
+	
+	[super update:dt];
 }
 
 - (void)setPosition:(CGPoint)point
@@ -1295,13 +1305,13 @@
 			scrollOnProne += 4;
 			if (scrollOnProne > scrollOnProneMax) scrollOnProne = scrollOnProneMax;
 			
-			[[GameLayer getInstance] setViewpointCenter:ccp(point.x,point.y - scrollOnProne)];
+			[[GameLayer getInstance] setViewpointCenter:ccp(point.x,point.y - scrollOnProne/CC_CONTENT_SCALE_FACTOR())];
 			
 		} else if (scrollOnProne > 0) {
 			scrollOnProne -= 4;
 			if (scrollOnProne < 0) scrollOnProne = 0;
 			
-			[[GameLayer getInstance] setViewpointCenter:ccp(point.x,point.y - scrollOnProne)];
+			[[GameLayer getInstance] setViewpointCenter:ccp(point.x,point.y - scrollOnProne/CC_CONTENT_SCALE_FACTOR())];
 			
 		} else {
 			[[GameLayer getInstance] setViewpointCenter:ccp(point.x,point.y)];
@@ -1310,8 +1320,8 @@
 		
 		if (jetpackCollected) {
 			[jetpack setPosition:point];
-			if (facingLeft) [particle setPosition:ccp(point.x + 40.0f, point.y - 40.0f)];
-			else [particle setPosition:ccp(point.x - 40.0f, point.y - 40.0f)];
+			if (facingLeft) [particle setPosition:ccp(point.x + 40.0f/CC_CONTENT_SCALE_FACTOR(), point.y - 40.0f/CC_CONTENT_SCALE_FACTOR())];
+			else [particle setPosition:ccp(point.x - 40.0f/CC_CONTENT_SCALE_FACTOR(), point.y - 40.0f/CC_CONTENT_SCALE_FACTOR())];
 		}
 	}
 	[super setPosition:point];

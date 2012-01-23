@@ -11,10 +11,10 @@
 #import "Loader.h"
 #import "Shared.h"
 #import "CJSONDeserializer.h"
-//#import "SWScrollView.h"
 #import "GameCell.h"
 #import "SWTableViewCell.h"
-#import "CCLabelBMFontMultiline.h"
+//#import "CCLabelBMFontMultiline.h"
+#import "CCLabelFX.h"
 #import "FilteredMenu.h"
 #import "OnPressMenu.h"
 #import "GameFrootAppDelegate.h"
@@ -51,6 +51,7 @@
 		
 		CGSize size = [[CCDirector sharedDirector] winSize];	
 			
+		// Initialise properties dictionary
 		NSString *mainBundlePath = [[NSBundle mainBundle] bundlePath];
 		NSString *plistPath = [mainBundlePath stringByAppendingPathComponent:@"properties.plist"];
 		properties = [[[NSDictionary alloc] initWithContentsOfFile:plistPath] retain];
@@ -62,12 +63,12 @@
 		
 		CCSprite *logo1 = [CCSprite spriteWithFile:@"gamefroot.png"];
 		[[logo1 texture] setAntiAliasTexParameters];
-		[logo1 setPosition:ccp(size.width/2 + 20, size.height - logo1.contentSize.height + 2)];
+		[logo1 setPosition:ccp(size.width/2 + 15, size.height - logo1.contentSize.height + 2)];
 		[self addChild:logo1 z:2];
 		
 		CCSprite *logo2 = [CCSprite spriteWithFile:@"fruit.png"];
 		[[logo2 texture] setAntiAliasTexParameters];
-		[logo2 setPosition:ccp(logo1.position.x - logo1.contentSize.width/2 - logo2.contentSize.width/2 - 20, logo1.position.y)];
+		[logo2 setPosition:ccp(logo1.position.x - logo1.contentSize.width/2 - logo2.contentSize.width/2 - 5, logo1.position.y)];
 		[self addChild:logo2 z:3];
 		
 		// Containers
@@ -97,9 +98,93 @@
 		myGamesButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"icon2.png"] selectedSprite:[CCSprite spriteWithFile:@"icon2-selected.png"] target:self selector:@selector(myGames:)];
 		moreButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"icon1.png"] selectedSprite:[CCSprite spriteWithFile:@"icon1-selected.png"] target:self selector:@selector(more:)];
 		
+		CCLabelTTF *featuredLabelSelected = [CCLabelTTF labelWithString:@"Featured" dimensions:CGSizeMake(featuredButton.selectedImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+		featuredLabelSelected.anchorPoint = ccp(0,-0.0);
+		featuredLabelSelected.color = ccc3(255,255,255);
+		[featuredButton.selectedImage addChild:featuredLabelSelected];
+		
+		CCLabelTTF *featuredLabelNormal = [CCLabelTTF labelWithString:@"Featured" dimensions:CGSizeMake(featuredButton.normalImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+		featuredLabelNormal.anchorPoint = ccp(0,-0.0);
+		featuredLabelNormal.color = ccc3(200,200,200);
+		[featuredButton.normalImage addChild:featuredLabelNormal];
+		
+		
+		CCLabelTTF *playingLabelSelected = [CCLabelTTF labelWithString:@"Playing" dimensions:CGSizeMake(playingButton.selectedImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+		playingLabelSelected.anchorPoint = ccp(0,-0.0);
+		playingLabelSelected.color = ccc3(255,255,255);
+		[playingButton.selectedImage addChild:playingLabelSelected];
+		
+		CCLabelTTF *playingLabelNormal = [CCLabelTTF labelWithString:@"Playing" dimensions:CGSizeMake(playingButton.normalImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+		playingLabelNormal.anchorPoint = ccp(0,-0.0);
+		playingLabelNormal.color = ccc3(200,200,200);
+		[playingButton.normalImage addChild:playingLabelNormal];
+		
+		CCNode *badge = [CCNode node];
+		CCSprite *badgeLeft = [CCSprite spriteWithFile:@"badge-left.png"];
+		badgeMiddle = [CCSprite spriteWithFile:@"badge-middle.png"];
+		badgeRight = [CCSprite spriteWithFile:@"badge-right.png"];
+		
+		[badgeLeft setAnchorPoint:ccp(0,0)];
+		[badgeMiddle setAnchorPoint:ccp(0,0)];
+		[badgeRight setAnchorPoint:ccp(0,0)];
+		
+		[badgeLeft setPosition:ccp(playingButton.contentSize.width/2, playingButton.contentSize.height - badgeLeft.contentSize.height)];
+		[badgeMiddle setPosition:ccp(badgeLeft.position.x + badgeLeft.contentSize.width, badgeLeft.position.y)];
+		
+		[badge addChild:badgeLeft];
+		[badge addChild:badgeMiddle];
+		[badge addChild:badgeRight];
+		
+		playingLabel = [CCLabelTTF labelWithString:@"" fontName:@"HelveticaNeue-Bold" fontSize:13];
+		playingLabel.anchorPoint = ccp(0,-0.15);
+		playingLabel.color = ccc3(255,255,255);
+		[badge addChild:playingLabel];
+		[playingLabel setPosition:ccp(badgeMiddle.position.x - 3, badgeMiddle.position.y)];
+		
+		[self updatePlayedBadge];
+		
+		[playingButton addChild:badge];
+		
+		
+		CCLabelTTF *browseLabelSelected = [CCLabelTTF labelWithString:@"Browse" dimensions:CGSizeMake(browseButton.selectedImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+		browseLabelSelected.anchorPoint = ccp(0,-0.0);
+		browseLabelSelected.color = ccc3(255,255,255);
+		[browseButton.selectedImage addChild:browseLabelSelected];
+		
+		CCLabelTTF *browseLabelNormal = [CCLabelTTF labelWithString:@"Browse" dimensions:CGSizeMake(browseButton.normalImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+		browseLabelNormal.anchorPoint = ccp(0,-0.0);
+		browseLabelNormal.color = ccc3(200,200,200);
+		[browseButton.normalImage addChild:browseLabelNormal];
+		
+		
+		CCLabelTTF *myGamesLabelSelected = [CCLabelTTF labelWithString:@"My Games" dimensions:CGSizeMake(myGamesButton.selectedImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+		myGamesLabelSelected.anchorPoint = ccp(0,-0.0);
+		myGamesLabelSelected.color = ccc3(255,255,255);
+		[myGamesButton.selectedImage addChild:myGamesLabelSelected];
+		
+		CCLabelTTF *myGamesLabelNormal = [CCLabelTTF labelWithString:@"My Games" dimensions:CGSizeMake(myGamesButton.normalImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+		myGamesLabelNormal.anchorPoint = ccp(0,-0.0);
+		myGamesLabelNormal.color = ccc3(200,200,200);
+		[myGamesButton.normalImage addChild:myGamesLabelNormal];
+		
+		
+		CCLabelTTF *moreLabelSelected = [CCLabelTTF labelWithString:@"More" dimensions:CGSizeMake(moreButton.selectedImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+		moreLabelSelected.anchorPoint = ccp(0,-0.0);
+		moreLabelSelected.color = ccc3(255,255,255);
+		[moreButton.selectedImage addChild:moreLabelSelected];
+		
+		CCLabelTTF *moreLabelNormal = [CCLabelTTF labelWithString:@"More" dimensions:CGSizeMake(moreButton.normalImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+		moreLabelNormal.anchorPoint = ccp(0,-0.1);
+		moreLabelNormal.color = ccc3(200,200,200);
+		[moreButton.normalImage addChild:moreLabelNormal];
+		
+		
 		OnPressMenu *menuBottom = [OnPressMenu menuWithItems:featuredButton, playingButton, browseButton, myGamesButton, moreButton, nil];
 		menuBottom.position = ccp(size.width/2, bottom.contentSize.height/2 - 1);
 		[menuBottom alignItemsHorizontallyWithPadding:2];
+		
+		[menuBottom reorderChild:playingButton z:browseButton.zOrder+1];
+		
 		[self addChild:menuBottom z:11];
 		[featuredButton selected];
 		
@@ -107,6 +192,7 @@
 		jsonDataFeatured = nil;
 		jsonDataBrowse = nil;
 		jsonDataMyGames = nil;
+		userName = nil;
 		
 		NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 		jsonDataPlaying = [[prefs objectForKey:@"favourites"] mutableCopy];
@@ -119,6 +205,7 @@
 		filteredArray = nil;
 		tableData = nil;
 		selectedPage = nil;
+		loading = NO;
 		
 		// Load featured panel
 		[self loadFeatured];
@@ -127,18 +214,26 @@
 	return self;
 }
 
+-(void) updatePlayedBadge {
+	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+	tableData = [[prefs objectForKey:@"favourites"] mutableCopy];
+	unsigned int played = 0;
+	if (tableData) played = [tableData count];
+	
+	[playingLabel setString:[NSString stringWithFormat:@"%i", played]];
+	
+	[badgeMiddle setScaleX:playingLabel.contentSize.width*CC_CONTENT_SCALE_FACTOR() - 6*CC_CONTENT_SCALE_FACTOR()];
+	[badgeRight setPosition:ccp(badgeMiddle.position.x + badgeMiddle.contentSize.width * badgeMiddle.scaleX, badgeMiddle.position.y)];
+	
+}
+
 #pragma mark -
 #pragma mark Event handlers
 
-/*
- -(void) selectedLevel:(CCMenuItemSprite *)sender {
- NSString *value = (NSString *)sender.userData;
- CCLOG(@"HomeLayer.selectedLevel: %i", [value intValue]);
- [Shared setLevel:[value intValue]];
- 
- [[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
- }
- */
+-(void) selectedLevel:(id)sender {	
+	[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
+}
+
 
 // Selected featured buttons
 -(void) featured1:(id)sender {
@@ -151,52 +246,106 @@
 
 // Main navigation
 -(void) featured:(id)sender {
+	if (loading) {
+		if (selectedPage != featured) [featuredButton unselected];
+		return;
+	}
+	
 	[featuredButton selected];
 	[playingButton unselected];
 	[browseButton unselected];
 	[myGamesButton unselected];
 	[moreButton unselected];
 	
+	if (selectedPage != featured) featured.visible = NO;
+	playing.visible = NO;
+	browse.visible = NO;
+	myGames.visible = NO;
+	more.visible = NO;
+	
 	[self loadFeatured];
 }
 
 -(void) playing:(id)sender {
+	if (loading) {
+		if (selectedPage != playing) [playingButton unselected];
+		return;
+	}
+	
 	[featuredButton unselected];
 	[playingButton selected];
 	[browseButton unselected];
 	[myGamesButton unselected];
 	[moreButton unselected];
 	
+	featured.visible = NO;
+	if (selectedPage != playing) playing.visible = NO;
+	browse.visible = NO;
+	myGames.visible = NO;
+	more.visible = NO;
+	
 	[self loadPlaying];
 }
 
 -(void) browse:(id)sender {
+	if (loading) {
+		if (selectedPage != browse) [browseButton unselected];
+		return;
+	}
+	
 	[featuredButton unselected];
 	[playingButton unselected];
 	[browseButton selected];
 	[myGamesButton unselected];
 	[moreButton unselected];
 	
+	featured.visible = NO;
+	playing.visible = NO;
+	if (selectedPage != browse) browse.visible = NO;
+	myGames.visible = NO;
+	more.visible = NO;
+	
 	[self loadBrowse];
 }
 
 -(void) myGames:(id)sender {
+	if (loading) {
+		if (selectedPage != myGames) [myGamesButton unselected];
+		return;
+	}
+	
 	[featuredButton unselected];
 	[playingButton unselected];
 	[browseButton unselected];
 	[myGamesButton selected];
 	[moreButton unselected];
 	
+	featured.visible = NO;
+	playing.visible = NO;
+	browse.visible = NO;
+	if (selectedPage != myGames) myGames.visible = NO;
+	more.visible = NO;
+	
 	[self loadMyGames];
 }
 
 -(void) more:(id)sender {
+	if (loading) {
+		if (selectedPage != more) [moreButton unselected];
+		return;
+	}
+	
 	[featuredButton unselected];
 	[playingButton unselected];
 	[browseButton unselected];
 	[myGamesButton unselected];
 	[moreButton selected];
 	
+	featured.visible = NO;
+	playing.visible = NO;
+	browse.visible = NO;
+	myGames.visible = NO;
+	if (selectedPage != more) more.visible = NO;
 	[self loadMore];
 }
 
@@ -208,6 +357,7 @@
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	selectedPage = featured;
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadFeatured)];
+	loading = YES;
 }
 
 -(void) _loadFeatured {
@@ -241,84 +391,7 @@
 	[featured addChild:menuFeatured z:4];
 	
 	// Featured list
-	
-	/*
-	CCLayerColor *layer = [CCLayerColor layerWithColor:ccc4(49, 49, 49, 255)];
-	SWScrollView *scrollView = [SWScrollView viewWithViewSize:CGSizeZero];
-	scrollView.position = ccp(0, 50);
-	scrollView.maxZoomScale = 1.0f;
-	scrollView.minZoomScale = 1.0f;
-	scrollView.bounces = YES;
-	scrollView.direction = SWScrollViewDirectionVertical;
-	
-	for (uint i=0; i<[jsonDataFeatured count]; i++) {
-		NSDictionary *levelData = [jsonDataFeatured objectAtIndex:i];
-		
-		NSString *title = [levelData objectForKey:@"title"];
-		NSString *background = [levelData objectForKey:@"background"];
-		int levelId = [[levelData objectForKey:@"id"] intValue];
-		//CCLOG(@"Level '%@'", title);
-		
-		// Button row
-		CCSprite *back;
-		if (i%2 == 0) back = [CCSprite spriteWithFile:@"dark-row.png"];
-		else back = [CCSprite spriteWithFile:@"light-row.png"];
-		
-		if (i == 0) {
-			scrollView.contentSize = CGSizeMake(back.contentSize.width, back.contentSize.height*[jsonDataFeatured count]);	
-			scrollView.viewSize = CGSizeMake(back.contentSize.width, 280);
-			layer.contentSize = scrollView.contentSize;
-			[scrollView addChild:layer];
-		}
-		
-		CCLabelBMFontMultiline *label = [CCLabelBMFontMultiline labelWithString:title fntFile:@"Chicago.fnt" width:200 alignment:LeftAlignment];
-		[label.textureAtlas.texture setAliasTexParameters];
-		
-		if (label.contentSize.width > 200) [label setPosition: ccp(label.contentSize.width/2 + 100, back.contentSize.height/2 + label.contentSize.height/2 - 10)]; // Quick nasty hack
-		else [label setPosition: ccp(label.contentSize.width/2 + 100, back.contentSize.height/2)];
-		//CCLOG(@"%f,%f", label.contentSize.width, label.contentSize.height);
-		
-		CCSprite *bg = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:background ignoreCache:NO]];
-		bg.scale = 0.6;
-		[bg setPosition:ccp((16 + bg.contentSize.width*0.6)/2, back.contentSize.height/2)];
-		
-		[back addChild:label z:1];
-		[back addChild:bg z:2];
-		
-		// Button selected row
-		CCSprite *backSelected = [CCSprite spriteWithFile:@"selected-row.png"];
-		
-		CCLabelBMFontMultiline *labelSelected = [CCLabelBMFontMultiline labelWithString:title fntFile:@"Chicago.fnt" width:200 alignment:LeftAlignment];
-		[labelSelected.textureAtlas.texture setAliasTexParameters];
-		[labelSelected setPosition: ccp(labelSelected.contentSize.width/2 + 100, backSelected.contentSize.height/2)];
-		
-		CCSprite *bgSelected = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:background ignoreCache:NO]];
-		bgSelected.scale = 0.6;
-		[bgSelected setPosition:ccp((16 + bgSelected.contentSize.width*0.6)/2, backSelected.contentSize.height/2)];
-		
-		[backSelected addChild:labelSelected z:1];
-		[backSelected addChild:bgSelected z:2];
-		
-		CCMenuItemSprite *button = [CCMenuItemSprite itemFromNormalSprite:back selectedSprite:backSelected target:self selector:@selector(selectedLevel:)];
-		button.anchorPoint = CGPointZero;
-		button.userData = [[NSString stringWithFormat:@"%i",levelId] retain];
-		
-		FilteredMenu *menu = [FilteredMenu menuWithItems:button, nil];
-		menu.anchorPoint = CGPointZero;
-		[scrollView addChild:menu];
-		[menu setPosition:ccp(0, (back.contentSize.height*[jsonDataFeatured count]) - back.contentSize.height*(i+1))];
-		
-		if (i == [jsonDataFeatured count]-1) {
-			[scrollView setContentOffset:ccp(0,280-back.contentSize.height*([jsonDataFeatured count])) animated:NO];
-		}
-		
-	}
-	
-	[featured addChild:scrollView z:5];
-	*/
-	
-	
-	tableData = jsonDataFeatured;
+	tableData = [jsonDataFeatured mutableCopy];
 	
 	loaded = 25;
 	total = [tableData count];
@@ -334,6 +407,9 @@
 	[featured addChild:tableView z:5];
 	[tableView reloadData];
 	
+	loading = NO;
+	featured.visible = YES;
+	
 }
 
 #pragma mark -
@@ -344,6 +420,7 @@
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	selectedPage = playing;
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadPlaying)];
+	loading = YES;
 }
 
 -(void) _loadPlaying {
@@ -351,7 +428,21 @@
 	
 	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	tableData = [[prefs objectForKey:@"favourites"] mutableCopy];
-	if (!tableData) return;
+	if (!tableData) {
+		loading = NO;
+		playing.visible = YES;	
+		return;
+	}
+	
+	if ([tableData count] > 0) {
+		NSMutableDictionary *clearItem = [NSMutableDictionary dictionaryWithCapacity:5];
+		[clearItem setObject:@"" forKey:@"background"];
+		[clearItem setObject:[NSNumber numberWithInt:-1] forKey:@"id"];
+		[clearItem setObject:@"" forKey:@"published"];
+		[clearItem setObject:@"" forKey:@"published_date"];
+		[clearItem setObject:@"Clear recent played list..." forKey:@"title"];
+		[tableData addObject:clearItem];
+	}
 	
 	loaded = 25;
 	total = [tableData count];
@@ -368,6 +459,9 @@
 	
 	[playing addChild:tableView z:5];
 	[tableView reloadData];
+	
+	loading = NO;
+	playing.visible = YES;
 }
 
 #pragma mark -
@@ -378,6 +472,7 @@
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	selectedPage = browse;
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadBrowse)];
+	loading = YES;
 }
 
 -(void) _loadBrowse {
@@ -399,18 +494,25 @@
 	
 	searchField = [CCUIViewWrapper wrapperForUIView:searchTextField];
 	searchField.contentSize = CGSizeMake(size.width - 80, 24);
-	searchField.position = ccp(size.width/2,size.height - 50 - 18);
+	
+	if (CC_CONTENT_SCALE_FACTOR() == 2) searchField.position = ccp(size.width - 40, size.height - 50 - 18 - 12);
+	else searchField.position = ccp(size.width/2, size.height - 50 - 18);
+	
 	[browse addChild:searchField z:7];
 	
 	CCMenuItemSprite *clearButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"clear-search.png"] selectedSprite:[CCSprite spriteWithFile:@"clear-search.png"] target:self selector:@selector(clearSearch:)];
 	CCMenu *menu = [CCMenu menuWithItems:clearButton, nil];
 	menu.position = ccp(size.width - clearButton.contentSize.width - 5, searchBox.position.y);
 	[browse addChild:menu z:8];
+	
+	loading = NO;
+	browse.visible = YES;
 }
 
 -(void) reloadBrowse {
-	[browse removeChild:tableView cleanup:YES];
+	if (tableView) [browse removeChild:tableView cleanup:YES];
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_reloadBrowse)];
+	loading = YES;
 }
 
 -(void) _reloadBrowse {
@@ -439,7 +541,7 @@
 	filteredArray = [[jsonDataBrowse filteredArrayUsingPredicate:predicate] retain];
 	//CCLOG(@"Search results: %@", [filteredArray description]);
 	
-	tableData = filteredArray;
+	tableData = [filteredArray mutableCopy];
 	
 	CGSize size = [[CCDirector sharedDirector] winSize];
 	
@@ -456,6 +558,9 @@
 	
 	[browse addChild:tableView z:5];
 	[tableView reloadData];
+	
+	loading = NO;
+	browse.visible = YES;
 }
 
 -(void)clearSearch: (id)sender {
@@ -480,34 +585,35 @@
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	selectedPage = myGames;
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadMyGames)];
+	loading = YES;
 }
 
 -(void) displayMyGames {
 	[Loader hideAsynchronousLoader];
 	
-	if (jsonDataMyGames != nil) [jsonDataMyGames release];
+	if (tableView != nil) [selectedPage removeChild:tableView cleanup:YES]; // Avoid multiple calls of the facebook request details as it's asyncronous
 	
-	NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_user_levels", [properties objectForKey:@"server_json"]];
-	CCLOG(@"Load levels: %@",levelsURL);
+	if (jsonDataMyGames == nil) {
 	
-	NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
-	NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
-	jsonDataMyGames = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] retain];
-	//CCLOG(@"Levels: %@", [jsonDataMyGames description]);
+		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_user_levels", [properties objectForKey:@"server_json"]];
+		CCLOG(@"Load levels: %@",levelsURL);
+		
+		NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
+		NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
+		jsonDataMyGames = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] retain];
+		//CCLOG(@"Levels: %@", [jsonDataMyGames description]);
+	}
 	
 	if(!jsonDataMyGames)
 	{
+		loading = NO;
+		playing.visible = YES;	
 		return;
 	}
 	
-	tableData = jsonDataMyGames;
+	tableData = [jsonDataMyGames mutableCopy];
 	
 	CGSize size = [[CCDirector sharedDirector] winSize];
-	
-	CCMenuItemSprite *logoutButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"LogoutNormal.png"] selectedSprite:[CCSprite spriteWithFile:@"LogoutPressed.png"] target:self selector:@selector(fbLogout:)];
-	CCMenu *menu = [CCMenu menuWithItems:logoutButton, nil];
-	menu.position = ccp(size.width - logoutButton.contentSize.width/2 - 5, size.height - 45 - logoutButton.contentSize.height/2 - 8);
-	[myGames addChild:menu z:2];
 	
 	loaded = 25;
 	total = [tableData count];
@@ -521,39 +627,76 @@
 	tableView.verticalFillOrder = SWTableViewFillTopDown;
 	
 	[myGames addChild:tableView z:1];
-	[tableView reloadData];	
+	[tableView reloadData];
+	
+	loading = NO;
+	myGames.visible = YES;
 }
 
 -(void) _loadMyGames {
 	[Loader hideAsynchronousLoader];
 	
+	CGSize size = [[CCDirector sharedDirector] winSize];
+	
+	CCSprite *headerBox = [CCSprite spriteWithFile:@"header-box.png"];
+	[myGames addChild:headerBox z:6];
+	headerBox.position = ccp(size.width/2,size.height - 45 - headerBox.contentSize.height/2);
+	
 	GameFrootAppDelegate *app = (GameFrootAppDelegate *)[UIApplication sharedApplication].delegate;
 	
 	if (![[app facebook] isSessionValid]) {
 		
-		CGSize size = [[CCDirector sharedDirector] winSize];
-		
 		CCMenuItemSprite *loginButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"LoginNormal.png"] selectedSprite:[CCSprite spriteWithFile:@"LoginPressed.png"] target:self selector:@selector(fbLogin:)];
 		CCMenu *menu = [CCMenu menuWithItems:loginButton, nil];
 		menu.position = ccp(size.width - loginButton.contentSize.width/2 - 5, size.height - 45 - loginButton.contentSize.height/2 - 8);
-		[myGames addChild:menu z:1 tag:100];
+		[myGames addChild:menu z:100 tag:100];
+		
+		loading = NO;
+		myGames.visible = YES;
 		
 	} else {
 		//CCLOG(@">>>>>>>>>>>> Facebook Connect already connected");
 		
-		[self displayMyGames];	
+		if (userName == nil) {
+			NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+			userName = [defaults objectForKey:@"FBFullName"];
+		}
+		
+		if (userName == nil) {
+			[[app facebook] requestWithGraphPath:@"me" andDelegate:self];
+			[Loader showAsynchronousLoader];
+			
+		} else {
+			[self setupMyGamesHeader];
+			[Loader showAsynchronousLoaderWithDelayedAction:0.1f target:self selector:@selector(displayMyGames)];
+		}
 	}
 }
+
+#pragma mark -
+#pragma mark Facebook Connect
 
 -(void) fbLogin:(id)sender {
 	GameFrootAppDelegate *app = (GameFrootAppDelegate *)[UIApplication sharedApplication].delegate;
 	[app facebook].sessionDelegate = self;
-	[[app facebook] authorize:nil];
+	
+	NSArray *permissions = [[NSArray alloc] initWithObjects:
+							@"user_website", 
+							nil];
+	
+	[[app facebook] authorize:permissions];
+	[permissions release];
+	
+	//loading = YES;
+	myGames.visible = NO;
 }
 
 -(void) fbLogout:(id)sender {
 	GameFrootAppDelegate *app = (GameFrootAppDelegate *)[UIApplication sharedApplication].delegate;
 	[[app facebook] logout:self];
+	
+	loading = YES;
+	myGames.visible = NO;
 }
 
 -(void) fbDidLogin {
@@ -564,15 +707,20 @@
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:[[app facebook] accessToken] forKey:@"FBAccessTokenKey"];
     [defaults setObject:[[app facebook] expirationDate] forKey:@"FBExpirationDateKey"];
+	[defaults setObject:userName forKey:@"FBFullName"];
     [defaults synchronize];
 	
-	[myGames removeChildByTag:100 cleanup:YES]; // remove login button
+	[[app facebook] requestWithGraphPath:@"me" andDelegate:self];
+	[Loader showAsynchronousLoader];
 	
-	[Loader showAsynchronousLoaderWithDelayedAction:0.1f target:self selector:@selector(displayMyGames)];
+	loading = YES;
 }
 
 -(void) fbDidNotLogin:(BOOL)cancelled {
 	//CCLOG(@">>>>>>>>>>>> Facebook Connect logging unsuccesful");
+	
+	loading = NO;
+	myGames.visible = NO;
 }
 
 -(void) fbDidLogout {
@@ -583,10 +731,78 @@
     if ([defaults objectForKey:@"FBAccessTokenKey"]) {
         [defaults removeObjectForKey:@"FBAccessTokenKey"];
         [defaults removeObjectForKey:@"FBExpirationDateKey"];
+		[defaults removeObjectForKey:@"FBFullName"];
         [defaults synchronize];
     }
 	
+	[jsonDataMyGames release];
+	jsonDataMyGames = nil;
+	
+	[userName release];
+	userName = nil;
+	
 	[self featured:nil];
+}
+
+-(void) setupMyGamesHeader {
+	CGSize size = [[CCDirector sharedDirector] winSize];
+	
+	CCLabelFX *nameLabel= [CCLabelFX labelWithString:[NSString stringWithFormat:@"Logged as %@", userName] dimensions:CGSizeMake(size.width - 80, 13) alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue-Bold" fontSize:13
+										shadowOffset:CGSizeMake(-1,1) 
+										  shadowBlur:2.0f 
+										 shadowColor:ccc4(0,0,0,255) 
+										   fillColor:ccc4(200,200,200,255)];
+	nameLabel.anchorPoint = ccp(0,0.5);
+	[nameLabel setPosition: ccp(10, size.height - 50 - 15)];
+	
+	CCMenuItemSprite *logoutButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"LogoutNormal.png"] selectedSprite:[CCSprite spriteWithFile:@"LogoutPressed.png"] target:self selector:@selector(fbLogout:)];
+	CCMenu *menu = [CCMenu menuWithItems:logoutButton, nil];
+	menu.position = ccp(size.width - logoutButton.contentSize.width/2 - 5, size.height - 45 - logoutButton.contentSize.height/2 - 8);
+	[myGames addChild:menu z:100];
+	
+	[myGames removeChildByTag:90 cleanup:YES];
+	[myGames addChild:nameLabel z:90 tag:90];
+	
+	[myGames removeChildByTag:100 cleanup:YES]; // remove login button	
+}
+
+-(void)request:(FBRequest *)request didLoad:(id)result {
+	//CCLOG(@">>>>>>>>>>>> Facebook Connect request succesful: %@", result);
+	
+	if (selectedPage != myGames) return;
+	
+	NSString *email = [result objectForKey:@"email"];
+	NSString *facebookid = [result objectForKey:@"id"];
+	NSString *key = [NSString stringWithFormat:@"%@%@", facebookid, email];
+	NSString *userLoginURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=ios_login&email=%@&code=%@", [properties objectForKey:@"server_json"], email, [Shared md5:key]];
+	//NSString *userLoginURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=fb_login", [properties objectForKey:@"server_json"]];
+	
+	NSString *stringData = [Shared stringWithContentsOfURL:userLoginURL ignoreCache:YES];
+	
+	if ([stringData isEqualToString:@"success"]) {
+		
+		userName = [[result objectForKey:@"name"] retain];
+		[self setupMyGamesHeader];
+		[Loader showAsynchronousLoaderWithDelayedAction:0.1f target:self selector:@selector(displayMyGames)];
+		
+	} else {
+		UIAlertView *alertView = [[[UIAlertView alloc] initWithTitle: @"Facebook Connect" 
+								message: @"There was a problem with your request" 
+								delegate: self 
+								cancelButtonTitle: @"Ok" 
+								otherButtonTitles: nil] autorelease];
+		[alertView show];
+		[Loader hideAsynchronousLoader];
+	}
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+	NSString *title = [alertView buttonTitleAtIndex:buttonIndex];
+	if([title isEqualToString:@"Ok"])
+    {
+		[self fbLogout:nil];
+    }
 }
 
 #pragma mark -
@@ -597,10 +813,14 @@
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	selectedPage = more;
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadMore)];
+	loading = YES;
 }
 
 -(void) _loadMore {
 	[Loader hideAsynchronousLoader];
+	
+	loading = NO;
+	more.visible = YES;
 }
 
 #pragma mark -
@@ -626,8 +846,6 @@
 			CCSprite *back = [CCSprite spriteWithFile:@"light-row.png"];
 			back.anchorPoint = CGPointZero;
 			
-			//if (idx%2 == 0) back = [CCSprite spriteWithFile:@"dark-row.png"];
-			//else back = [CCSprite spriteWithFile:@"light-row.png"];
 			if (idx%2 == 0) back.opacity = 255;
 			else back.opacity = 128;
 			
@@ -637,14 +855,28 @@
 			
 			int load = 25;
 			if (load > total - loaded) load = total - loaded;
-			CCLabelBMFontMultiline *label = [CCLabelBMFontMultiline labelWithString:[NSString stringWithFormat:@"Load %i more...", load] fntFile:@"Chicago.fnt" width:200 alignment:LeftAlignment];
-			[label.textureAtlas.texture setAliasTexParameters];
+			
+			CCLabelFX *label = [CCLabelFX labelWithString:[NSString stringWithFormat:@"Load %i more games...", load] dimensions:CGSizeMake(200,16) alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue-Bold" fontSize:16
+											 shadowOffset:CGSizeMake(-1,1) 
+											   shadowBlur:2.0f 
+											  shadowColor:ccc4(0,0,0,255) 
+												fillColor:ccc4(255,255,255,255)];
+			
 			label.anchorPoint = ccp(0,0.5);
-			[label setPosition: ccp(100, back.contentSize.height/2)];
+			[label setPosition: ccp(60, back.contentSize.height/2)];
+			
+			CCLabelFX *title = [CCLabelFX labelWithString:@"" dimensions:CGSizeMake(200,13) alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue-Bold" fontSize:13
+											 shadowOffset:CGSizeMake(-1,1) 
+											   shadowBlur:2.0f 
+											  shadowColor:ccc4(0,0,0,255) 
+												fillColor:ccc4(200,200,200,255)];
+			title.anchorPoint = ccp(0,0.5);
+			[title setPosition: ccp(60, 45)];
 			
 			[cell addChild:back z:1 tag:1];
 			[cell addChild:backSelected z:2 tag:2];
 			[cell addChild:label z:3 tag:3];
+			[cell addChild:title z:5 tag:5];
 			
 		} else {
 			//CCLOG(@"Replace more cell: %i, %i (%i, %i)", idx, 0, cell.index, cell.levelId);
@@ -657,11 +889,14 @@
 				[cell removeChildByTag:4 cleanup:YES];
 			}
 			
-			CCLabelBMFontMultiline *label = (CCLabelBMFontMultiline*)[cell getChildByTag:3];
+			CCLabelFX *label = (CCLabelFX*)[cell getChildByTag:3];
 			
 			int load = 25;
 			if (load > total - loaded) load = total - loaded;
-			[label setString:[NSString stringWithFormat:@"Load %i more...", load]];
+			[label setString:[NSString stringWithFormat:@"Load %i more games...", load]];
+			
+			CCLabelFX *title = (CCLabelFX*)[cell getChildByTag:5];
+			[title setString:@""];
 			
 			cell.index = idx;
 			cell.levelId = 0;
@@ -690,8 +925,6 @@
 			CCSprite *back = [CCSprite spriteWithFile:@"light-row.png"];
 			back.anchorPoint = CGPointZero;
 			
-			//if (idx%2 == 0) back = [CCSprite spriteWithFile:@"dark-row.png"];
-			//else back = [CCSprite spriteWithFile:@"light-row.png"];
 			if (idx%2 == 0) back.opacity = 255;
 			else back.opacity = 128;
 			
@@ -699,22 +932,59 @@
 			backSelected.anchorPoint = CGPointZero;
 			backSelected.visible = NO;
 			
-			CCLabelBMFontMultiline *label = [CCLabelBMFontMultiline labelWithString:title fntFile:@"Chicago.fnt" width:200 alignment:LeftAlignment];
-			[label.textureAtlas.texture setAliasTexParameters];
+			CCLabelFX *label = [CCLabelFX labelWithString:title dimensions:CGSizeMake(200,16) alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue-Bold" fontSize:16
+											 shadowOffset:CGSizeMake(-1,1) 
+											   shadowBlur:2.0f 
+											  shadowColor:ccc4(0,0,0,255) 
+												fillColor:ccc4(255,255,255,255)];
+			
 			label.anchorPoint = ccp(0,0.5);
+			[label setPosition: ccp(60, back.contentSize.height/2)];
 			
-			if (label.contentSize.width > 200) [label setPosition: ccp(100, back.contentSize.height/2 + label.contentSize.height/2 - 10)]; // Quick nasty hack
-			else [label setPosition: ccp(100, back.contentSize.height/2)];
-			//CCLOG(@"%f,%f", label.contentSize.width, label.contentSize.height);
+			NSString *author = [levelData objectForKey:@"author"];
+			if ((author == nil) || [author isMemberOfClass:[NSNull class]]) {
+				if (selectedPage == myGames) author = [levelData objectForKey:@"published_date"]; //author = userName;
+				else author = @"";
+			}
 			
-			CCSprite *bg = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:background ignoreCache:NO]];
-			bg.scale = 0.6;
-			[bg setPosition:ccp((16 + bg.contentSize.width*0.6)/2, back.contentSize.height/2)];
+			CCLabelFX *title = [CCLabelFX labelWithString:author dimensions:CGSizeMake(200,13) alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue-Bold" fontSize:13
+											 shadowOffset:CGSizeMake(-1,1) 
+											   shadowBlur:2.0f 
+											  shadowColor:ccc4(0,0,0,255) 
+												fillColor:ccc4(200,200,200,255)];
+			title.anchorPoint = ccp(0,0.5);
+			[title setPosition: ccp(60, 45)];
+			
+			CCSprite *bg;
+			if ((background != nil) && ![background isEqualToString:@""]) {
+				//CCLOG(@"Thumb: %@", background);
+				//CCSprite *original = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:background ignoreCache:NO]];
+				//CCSprite *original = [CCSprite spriteWithFile:@"back0_thumb.jpg"];
+				NSArray *values = [background componentsSeparatedByString:@"/"];
+				//CCLOG(@"Thumb: %@", [values lastObject]);
+				CCSprite *original = [CCSprite spriteWithFile:[values lastObject]];
+				
+				[original setScale:CC_CONTENT_SCALE_FACTOR()];
+				CCSprite *mask = [CCSprite spriteWithFile:@"mask.png"];
+				bg = [Shared maskedSpriteWithSprite:original maskSprite:mask];
+				
+				CCSprite *border = [CCSprite spriteWithFile:@"border.png"];
+				[[border texture] setAliasTexParameters];
+				[border setPosition:ccp(border.contentSize.width/2, border.contentSize.height/2 - 1)];
+				[bg addChild:border z:1];
+				
+				[bg setPosition:ccp(bg.contentSize.width/2 + 5, back.contentSize.height/2)];
+				
+			} else {
+				bg = [CCSprite node];
+				[title setString:@""];
+			}
 			
 			[cell addChild:back z:1 tag:1];
 			[cell addChild:backSelected z:2 tag:2];
 			[cell addChild:label z:3 tag:3];
 			[cell addChild:bg z:4 tag:4];
+			[cell addChild:title z:5 tag:5];
 			
 		} else {
 			
@@ -725,21 +995,51 @@
 				if (idx%2 == 0) back.opacity = 255;
 				else back.opacity = 128;
 				
-				if (cell.levelId > 0) {
+				if ((cell.levelId > 0) || (cell.levelId == -1)) {
 					[cell removeChildByTag:4 cleanup:YES];
 				}
 				
-				CCSprite *bg = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:background ignoreCache:NO]];
-				bg.scale = 0.6;
-				[bg setPosition:ccp((16 + bg.contentSize.width*0.6)/2, back.contentSize.height/2)];
+				CCSprite *bg;
+				if ((background != nil) && ![background isEqualToString:@""]) {
+					//CCLOG(@"Thumb: %@", background);
+					//CCSprite *original = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:background ignoreCache:NO]];
+					//CCSprite *original = [CCSprite spriteWithFile:@"back0_thumb.jpg"];
+					NSArray *values = [background componentsSeparatedByString:@"/"];
+					//CCLOG(@"Thumb: %@", [values lastObject]);
+					CCSprite *original = [CCSprite spriteWithFile:[values lastObject]];
+					
+					[original setScale:CC_CONTENT_SCALE_FACTOR()];
+					CCSprite *mask = [CCSprite spriteWithFile:@"mask.png"];
+					bg = [Shared maskedSpriteWithSprite:original maskSprite:mask];
+					
+					CCSprite *border = [CCSprite spriteWithFile:@"border.png"];
+					[[border texture] setAliasTexParameters];
+					[border setPosition:ccp(border.contentSize.width/2, border.contentSize.height/2 - 1)];
+					[bg addChild:border z:1];
+					
+					[bg setPosition:ccp(bg.contentSize.width/2 + 5, back.contentSize.height/2)];
+					
+				} else {
+					bg = [CCSprite node];
+				}
+
 				[cell addChild:bg z:4 tag:4];
 				
-				CCLabelBMFontMultiline *label = (CCLabelBMFontMultiline*)[cell getChildByTag:3];
+				CCLabelFX *label = (CCLabelFX*)[cell getChildByTag:3];
 				[label setString:title];
 				
-				if (label.contentSize.width > 200) [label setPosition: ccp(100, back.contentSize.height/2 + label.contentSize.height/2 - 10)]; // Quick nasty hack
-				else [label setPosition: ccp(100, back.contentSize.height/2)];
-				//CCLOG(@"%f,%f", label.contentSize.width, label.contentSize.height);
+				CCLabelFX *title = (CCLabelFX*)[cell getChildByTag:5];
+				if ((background != nil) && ![background isEqualToString:@""]) {
+					NSString *author = [levelData objectForKey:@"author"];
+					if ((author == nil) || [author isMemberOfClass:[NSNull class]]) {
+						if (selectedPage == myGames) author = [levelData objectForKey:@"published_date"]; //author = userName;
+						else author = @"";
+					}
+					[title setString:author];
+					
+				} else {
+					[title setString:@""];
+				}
 				
 				cell.index = idx;
 				cell.levelId = levelId;
@@ -774,8 +1074,8 @@
     //CCLOG(@"cell touch released at index: %i", cell.idx);
 	
 	CCSprite *backSelected = (CCSprite*)[cell getChildByTag:2];
-	[backSelected stopAllActions];
-	backSelected.visible = NO;
+	//[backSelected stopAllActions];
+	//backSelected.visible = NO;
 	
 	GameCell *selected = (GameCell *)cell;
 	if (selected.levelId > 0) {
@@ -783,8 +1083,9 @@
 		
 		//CCLOG(@"Selected Level: %i", selected.levelId);
 		[Shared setLevel:selected.levelId];
+		[Shared setLevelDate:[selected.data objectForKey:@"published_date"]];
 		
-		//Add level to favourites
+		// Add level to favourites
 		for (uint i = 0; i < [jsonDataPlaying count]; i++) {
 			NSDictionary *levelData = [jsonDataPlaying objectAtIndex:i];
 			int levelId = [[levelData objectForKey:@"id"] intValue];
@@ -793,15 +1094,47 @@
 				break;
 			}
 		}
-		[jsonDataPlaying insertObject:selected.data atIndex:0];
+		
+		NSMutableDictionary *data = [selected.data mutableCopy];
+		NSString *author = [data objectForKey:@"author"];
+		//CCLOG(@">>>>>> %@, %@", author, [author class]);
+		if ([author isMemberOfClass:[NSNull class]]) {
+			[data setObject:userName forKey:@"author"];
+		}
+		
+		[jsonDataPlaying insertObject:data atIndex:0];
 		//CCLOG(@"Add favourite: %@", [selected.data description]);
 		
-		//CCLOG(@"Favourites: %@", [favourites description]);
+		//CCLOG(@"Favourites: %@", [jsonDataPlaying description]);
 		
-		[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
+		id action = [CCSequence actions:
+					 [CCDelayTime actionWithDuration:0.2],
+					 [CCCallFunc actionWithTarget:self selector:@selector(selectedLevel:)],
+					 nil];
+		[backSelected runAction:action];
+		
+		//[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
+		
+	} else if (selected.levelId == -1) {
+		// Clear results
+		backSelected.visible = NO;
+		
+		if (selectedPage == playing) {
+			[jsonDataPlaying removeAllObjects];
+			
+			NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+			[prefs setObject:jsonDataPlaying forKey:@"favourites"];
+			[prefs synchronize];
+			
+			playing = nil;
+			
+			[self loadPlaying];
+			[self updatePlayedBadge];
+		}
 		
 	} else {
 		// Load more
+		backSelected.visible = NO;
 		
 		int load = 25;
 		if (load > total - loaded) load = total - loaded;
@@ -837,6 +1170,8 @@
 	}
 	
 	if (filteredArray != nil) [filteredArray release];
+	
+	if (userName != nil) [userName release];
 	
 	[properties release];
 	

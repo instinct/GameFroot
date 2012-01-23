@@ -46,6 +46,14 @@
 	active = NO;
 }
 
+-(void) resetPosition
+{
+	if (active) {
+		if (frames > 1) [self setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"tile_%i",tileId] index:0];
+		active = NO;
+	}
+}
+
 -(void) togle 
 {
 	if (active) {

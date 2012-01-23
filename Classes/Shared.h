@@ -20,6 +20,8 @@
 +(BOOL) connectedToNetwork;
 +(int) getLevel;
 +(void) setLevel: (int)_value;
++(NSString *) getLevelDate;
++(void) setLevelDate: (NSString *)_value;
 +(NSString *) getOSVersion;
 +(void) detectOSVersion;
 +(BOOL) isMultitaskingSupported;
@@ -27,6 +29,9 @@
 +(void) setDevice: (NSString *)_value;
 +(NSString *) traceCGRect: (CGRect) rect;
 +(void) drawCGRect: (CGRect) rect;
++(void) drawTriangle: (CGRect) rect direction:(NSString *)direction;
++(BOOL) pointInTriangle:(CGPoint) point pointA:(CGPoint) pointA pointB:(CGPoint) pointB pointC:(CGPoint) pointC;
++(CGPoint *) getTrianglePoints: (CGRect) rect direction:(NSString *)direction;
 +(void) moveDocumentFilesToLibrary;
 +(BOOL) isEmpty:(id) object;
 +(NSString *) decode: (NSString *)value;
@@ -39,5 +44,7 @@
 
 +(NSString*)stringWithContentsOfURL:(NSString*)url ignoreCache:(BOOL)ignoreCache ;
 +(CCTexture2D*) getTexture2DFromWeb:(NSString*)url ignoreCache:(BOOL)ignoreCache ;
+
++(CCSprite *)maskedSpriteWithSprite:(CCSprite *)textureSprite maskSprite:(CCSprite *)maskSprite;
 
 @end

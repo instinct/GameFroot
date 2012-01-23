@@ -33,5 +33,6 @@ enum ANIM { STAND = 0, WALK, CROUCH, PRONE, JUMPING, FALLING };
 -(void) createBox2dObject:(b2World*)world size:(CGSize)size;
 -(void) remove;
 -(void) resetPosition;
+-(void) update:(ccTime)dt;
 
 @end

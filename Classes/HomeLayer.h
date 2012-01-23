@@ -11,7 +11,7 @@
 #import "CCUIViewWrapper.h"
 #import "FBConnect.h"
 
-@interface HomeLayer : CCLayerColor <SWTableViewDataSource, SWTableViewDelegate, UITextFieldDelegate, FBSessionDelegate> {
+@interface HomeLayer : CCLayerColor <SWTableViewDataSource, SWTableViewDelegate, UITextFieldDelegate, FBSessionDelegate, FBRequestDelegate, UIAlertViewDelegate> {
 	// Properties
 	NSDictionary *properties;
 	
@@ -40,12 +40,20 @@
 	SWTableView *tableView;
 	int loaded;
 	int total;
-	NSArray *tableData;
+	NSMutableArray *tableData;
 	NSArray *filteredArray;
 	
 	// Browse
 	CCUIViewWrapper *searchField;
 	UITextField *searchTextField;
+	
+	CCSprite *badgeMiddle;
+	CCSprite *badgeRight;
+	CCLabelTTF *playingLabel;
+	
+	BOOL loading;
+	
+	NSString *userName;
 	
 }
 
@@ -57,5 +65,7 @@
 -(void) loadBrowse;
 -(void) loadMyGames;
 -(void) loadMore;
+-(void) updatePlayedBadge;
+-(void) setupMyGamesHeader;
 
 @end

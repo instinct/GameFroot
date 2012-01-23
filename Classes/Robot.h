@@ -33,6 +33,8 @@
 	CCArray *timerCommands;
 	
 	BOOL solid;
+	BOOL ignoreGravity;
+	BOOL immortal;
 	
 	CGPoint walkNode;
 	
@@ -41,9 +43,12 @@
 	CGRect mapRect;
 }
 
--(void) createBox2dObject:(b2World*)world size:(CGSize)_size solid:(BOOL)_solid;
+@property (nonatomic, assign) BOOL solid;
+@property (nonatomic, assign) BOOL ignoreGravity;
 
--(void) setupRobot:(NSArray *)array;
+-(void) createBox2dObject:(b2World*)world size:(CGSize)_size;
+
+-(void) setupRobot:(NSDictionary *)data;
 -(void) update:(ccTime)dt;
 
 -(void) runCommand: (NSDictionary *)command;
@@ -54,5 +59,6 @@
 
 -(void) touched:(id)sender;
 -(void) finished:(id)sender;
+-(void) hit:(int)force;
 
 @end
