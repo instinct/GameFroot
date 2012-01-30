@@ -424,8 +424,7 @@
 				
 		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels", [properties objectForKey:@"server_json"]];
 		CCLOG(@"Load levels: %@",levelsURL);
-		 
-        /*
+        
         NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
        
 		NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
@@ -436,8 +435,8 @@
 		{
 			return;
 		}
-        */
         
+        /*
         NSMutableURLRequest *req=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:levelsURL]
                                                       cachePolicy:NSURLRequestUseProtocolCachePolicy
                                                       timeoutInterval:10.0];
@@ -456,6 +455,7 @@
         }
         
         return;
+        */
 	}
 	
     [Loader hideAsynchronousLoader];
