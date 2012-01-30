@@ -50,6 +50,8 @@
 		1626403614735B4000B700D8 /* CCTextureAtlas+Dirty.m in Sources */ = {isa = PBXBuildFile; fileRef = 1626402C14735B4000B700D8 /* CCTextureAtlas+Dirty.m */; };
 		162DBA8B14BC9DB900057661 /* dpad_buttons.plist in Resources */ = {isa = PBXBuildFile; fileRef = 162DBA8914BC9DB900057661 /* dpad_buttons.plist */; };
 		162DBA8C14BC9DB900057661 /* dpad_buttons.png in Resources */ = {isa = PBXBuildFile; fileRef = 162DBA8A14BC9DB900057661 /* dpad_buttons.png */; };
+		162E565114D5F73F0013C4BA /* delete_btn-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 162E564F14D5F73F0013C4BA /* delete_btn-hd.png */; };
+		162E565214D5F73F0013C4BA /* delete_btn.png in Resources */ = {isa = PBXBuildFile; fileRef = 162E565014D5F73F0013C4BA /* delete_btn.png */; };
 		1631B1A814C44295004A15E2 /* header-box-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 1631B1A614C44295004A15E2 /* header-box-hd.png */; };
 		1631B1A914C44295004A15E2 /* header-box.png in Resources */ = {isa = PBXBuildFile; fileRef = 1631B1A714C44295004A15E2 /* header-box.png */; };
 		1634CE2D1452B348004A6988 /* teleporter-item.png in Resources */ = {isa = PBXBuildFile; fileRef = 1634CE2C1452B348004A6988 /* teleporter-item.png */; };
@@ -518,6 +520,8 @@
 		1626402C14735B4000B700D8 /* CCTextureAtlas+Dirty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CCTextureAtlas+Dirty.m"; sourceTree = "<group>"; };
 		162DBA8914BC9DB900057661 /* dpad_buttons.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = dpad_buttons.plist; sourceTree = "<group>"; };
 		162DBA8A14BC9DB900057661 /* dpad_buttons.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dpad_buttons.png; sourceTree = "<group>"; };
+		162E564F14D5F73F0013C4BA /* delete_btn-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "delete_btn-hd.png"; sourceTree = "<group>"; };
+		162E565014D5F73F0013C4BA /* delete_btn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = delete_btn.png; sourceTree = "<group>"; };
 		1631B1A614C44295004A15E2 /* header-box-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "header-box-hd.png"; sourceTree = "<group>"; };
 		1631B1A714C44295004A15E2 /* header-box.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "header-box.png"; sourceTree = "<group>"; };
 		1634CE2C1452B348004A6988 /* teleporter-item.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "teleporter-item.png"; sourceTree = "<group>"; };
@@ -1165,6 +1169,8 @@
 		16076BAC14803FC3004BC906 /* welcome */ = {
 			isa = PBXGroup;
 			children = (
+				162E564F14D5F73F0013C4BA /* delete_btn-hd.png */,
+				162E565014D5F73F0013C4BA /* delete_btn.png */,
 				1631B1A614C44295004A15E2 /* header-box-hd.png */,
 				1631B1A714C44295004A15E2 /* header-box.png */,
 				16970D3814C37DFB00F58577 /* badge-left-hd.png */,
@@ -2537,6 +2543,8 @@
 				16FDEAAD14C9F6F1001EA489 /* items.json in Resources */,
 				16FDEAAE14C9F6F1001EA489 /* tiles.json in Resources */,
 				16FDEAAF14C9F6F1001EA489 /* tiles.png in Resources */,
+				162E565114D5F73F0013C4BA /* delete_btn-hd.png in Resources */,
+				162E565214D5F73F0013C4BA /* delete_btn.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2879,6 +2887,7 @@
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 				USER_HEADER_SEARCH_PATHS = "";
+				VALID_ARCHS = armv7;
 			};
 			name = Debug;
 		};
@@ -2904,6 +2913,7 @@
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "B2018D1A-B330-4EFC-B95F-AB3402ACBEC2";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
+				VALID_ARCHS = armv7;
 			};
 			name = Release;
 		};

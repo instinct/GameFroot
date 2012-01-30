@@ -342,6 +342,19 @@ CGPoint GBSub(const CGPoint v1, const CGPoint v2) {
 #pragma mark -
 #pragma mark Remote Data Loading
 
++(NSString*)stringWithContentsOfPostURL:(NSString*)url post:(NSString *)post
+{
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]];
+	[request setHTTPMethod:@"POST"];
+	NSData *requestBody = [post dataUsingEncoding:NSUTF8StringEncoding];
+	[request setHTTPBody:requestBody];
+	NSURLResponse *response = NULL;
+	NSError *requestError = NULL;
+	NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&requestError];
+	NSString *responseString = [[[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding] autorelease];
+	return responseString;
+}
+
 +(NSString*)stringWithContentsOfURL:(NSString*)url ignoreCache:(BOOL)ignoreCache
 {
 	NSString *cachedFile = [Shared md5:url];

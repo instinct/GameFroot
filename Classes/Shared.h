@@ -40,10 +40,11 @@
 +(NSString*) replaceAccents:(NSString*)a;
 
 #pragma mark -
-#pragma mark Remote Image Loading
+#pragma mark Remote Data Loading
 
-+(NSString*)stringWithContentsOfURL:(NSString*)url ignoreCache:(BOOL)ignoreCache ;
-+(CCTexture2D*) getTexture2DFromWeb:(NSString*)url ignoreCache:(BOOL)ignoreCache ;
++(NSString*)stringWithContentsOfPostURL:(NSString*)url post:(NSString *)post;
++(NSString*)stringWithContentsOfURL:(NSString*)url ignoreCache:(BOOL)ignoreCache;
++(CCTexture2D*) getTexture2DFromWeb:(NSString*)url ignoreCache:(BOOL)ignoreCache;
 
 +(CCSprite *)maskedSpriteWithSprite:(CCSprite *)textureSprite maskSprite:(CCSprite *)maskSprite;
 

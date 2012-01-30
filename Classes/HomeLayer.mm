@@ -350,6 +350,64 @@
 }
 
 #pragma mark -
+#pragma mark Connection
+
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+{
+    // this method is called when the server has determined that it
+    // has enough information to create the NSURLResponse
+	
+    // it can be called multiple times, for example in the case of a
+    // redirect, so each time we reset the data.
+    // receivedData is declared as a method instance elsewhere
+    [receivedData setLength:0];
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+    // append the new data to the receivedData
+    // receivedData is declared as a method instance elsewhere
+    [receivedData appendData:data];
+}
+
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+{
+    [connection release];
+    [receivedData release];
+	connecting = NO;
+	
+    // inform the user
+    UIAlertView *alertView = [[[UIAlertView alloc] initWithTitle: @"Server Connection" 
+                                                         message: @"We cannot connect to our servers, pleaser review your internet connection." 
+                                                        delegate: self 
+                                               cancelButtonTitle: @"Ok" 
+                                               otherButtonTitles: nil] autorelease];
+    [alertView show];
+	
+	[Loader hideAsynchronousLoader];
+}
+
+- (void) connectionDidFinishLoading:(NSURLConnection *)connection
+{
+    // do something with the data
+    // receivedData is declared as a method instance elsewhere
+	connecting = NO;
+	
+    if (selectedPage == featured) {
+        
+		jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:receivedData error:nil] retain];
+		//CCLOG(@"Levels: %@", [jsonData description]);
+        CCLOG(@"connectionDidFinishLoading featured");
+        [self _loadFeatured];
+    }
+	
+	
+    // release the connection, and the data object
+	[connection release];
+    [receivedData release];
+}
+
+#pragma mark -
 #pragma mark Featured
 
 -(void) loadFeatured {
@@ -362,14 +420,14 @@
 
 -(void) _loadFeatured {
 	
-	[Loader hideAsynchronousLoader];
-	
 	if (jsonDataFeatured == nil) {
 				
 		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels", [properties objectForKey:@"server_json"]];
 		CCLOG(@"Load levels: %@",levelsURL);
-		
-		NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
+		 
+        /*
+        NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
+       
 		NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
 		jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] retain];
 		//CCLOG(@"Levels: %@", [jsonData description]);
@@ -378,8 +436,30 @@
 		{
 			return;
 		}
+        */
+        
+        NSMutableURLRequest *req=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:levelsURL]
+                                                      cachePolicy:NSURLRequestUseProtocolCachePolicy
+                                                      timeoutInterval:10.0];
+        conn = [[NSURLConnection alloc] initWithRequest:req delegate:self];
+        if (conn) {
+            receivedData = [[NSMutableData data] retain];
+            connecting = YES;
+            
+        } else {
+            UIAlertView *alertView = [[[UIAlertView alloc] initWithTitle: @"Server Connection" 
+                                                                 message: @"We cannot connect to our servers, pleaser review your internet connection." 
+                                                                delegate: self 
+                                                       cancelButtonTitle: @"Ok" 
+                                                       otherButtonTitles: nil] autorelease];
+            [alertView show];
+        }
+        
+        return;
 	}
 	
+    [Loader hideAsynchronousLoader];
+    
 	CGSize size = [[CCDirector sharedDirector] winSize];
 	
 	// Featured panel
@@ -434,6 +514,7 @@
 		return;
 	}
 	
+	/*
 	if ([tableData count] > 0) {
 		NSMutableDictionary *clearItem = [NSMutableDictionary dictionaryWithCapacity:5];
 		[clearItem setObject:@"" forKey:@"background"];
@@ -443,6 +524,7 @@
 		[clearItem setObject:@"Clear recent played list..." forKey:@"title"];
 		[tableData addObject:clearItem];
 	}
+	*/
 	
 	loaded = 25;
 	total = [tableData count];
@@ -775,12 +857,16 @@
 	NSString *facebookid = [result objectForKey:@"id"];
 	NSString *key = [NSString stringWithFormat:@"%@%@", facebookid, email];
 	NSString *userLoginURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=ios_login&email=%@&code=%@", [properties objectForKey:@"server_json"], email, [Shared md5:key]];
-	//NSString *userLoginURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=fb_login", [properties objectForKey:@"server_json"]];
+	//NSString *stringData = [Shared stringWithContentsOfURL:userLoginURL ignoreCache:YES];
 	
-	NSString *stringData = [Shared stringWithContentsOfURL:userLoginURL ignoreCache:YES];
+	//NSString *userLoginURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=ios_login", [properties objectForKey:@"server_json"]];
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSString *post = [NSString stringWithFormat:@"token=%@", [defaults objectForKey:@"FBAccessTokenKey"]];
+	NSString *stringData = [Shared stringWithContentsOfPostURL:userLoginURL post:post];
+	
+	CCLOG(@"ios_login result: %@ (%@)", stringData, post);
 	
 	if ([stringData isEqualToString:@"success"]) {
-		
 		userName = [[result objectForKey:@"name"] retain];
 		[self setupMyGamesHeader];
 		[Loader showAsynchronousLoaderWithDelayedAction:0.1f target:self selector:@selector(displayMyGames)];
@@ -1070,12 +1156,77 @@
 	backSelected.visible = NO;
 }
 
+-(void)table:(SWTableView *)table cellSwipedHorizontally:(SWTableViewCell *)cell {
+    //CCLOG(@"cell swipped horizontally at index: %i", cell.idx);
+	
+	if (selectedPage == playing) {
+		CCSprite *bkSelected = (CCSprite*)[cell getChildByTag:2];
+		[bkSelected stopAllActions];
+		bkSelected.visible = NO;
+		
+		if (deleteMenu != nil) {
+			[deleteMenu.parent removeChild:deleteMenu cleanup:YES];
+		}
+		
+		CCMenuItemSprite *deleteButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"delete_btn.png"] selectedSprite:[CCSprite spriteWithFile:@"delete_btn.png"] target:self selector:@selector(deleteItem:)];
+		deleteMenu = [CCMenu menuWithItems:deleteButton, nil];
+		
+		CGSize size = [[CCDirector sharedDirector] winSize];
+		if (CC_CONTENT_SCALE_FACTOR() == 2) [deleteMenu setPosition:ccp(size.width - deleteButton.contentSize.width/2 - 10, (58*2) - (58/2))];
+		else [deleteMenu setPosition:ccp(size.width - deleteButton.contentSize.width/2 - 10, 58/2)];
+		[cell addChild:deleteMenu z:10 tag:10];
+		
+		return;
+	}
+}
+
+-(void)deleteItem:(id)sender {
+	CCMenuItemSprite *button = (CCMenuItemSprite *)sender;
+	GameCell *cell = (GameCell *)button.parent.parent;
+	
+	for (uint i = 0; i < [jsonDataPlaying count]; i++) {
+		NSDictionary *levelData = [jsonDataPlaying objectAtIndex:i];
+		int levelId = [[levelData objectForKey:@"id"] intValue];
+		if (levelId == cell.levelId) {
+			
+			[jsonDataPlaying removeObjectAtIndex:i];
+			
+			NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+			[prefs setObject:jsonDataPlaying forKey:@"favourites"];
+			[prefs synchronize];
+			
+			// Refresh without delay
+			[playing removeAllChildrenWithCleanup:YES];
+			[self _loadPlaying];
+			
+			[self updatePlayedBadge];
+			
+			return;
+		}
+	}
+}
+
+-(void)scrollViewDidScroll:(SWScrollView *)view {
+	if (deleteMenu != nil) {
+		[deleteMenu.parent removeChild:deleteMenu cleanup:YES];
+		deleteMenu = nil;
+	}
+}
+
+-(void)scrollViewDidZoom:(SWScrollView *)view {
+	
+}
+
 -(void)table:(SWTableView *)table cellTouchReleased:(SWTableViewCell *)cell {
     //CCLOG(@"cell touch released at index: %i", cell.idx);
 	
 	CCSprite *backSelected = (CCSprite*)[cell getChildByTag:2];
 	//[backSelected stopAllActions];
 	//backSelected.visible = NO;
+	
+	if (deleteMenu != nil) {
+		[deleteMenu.parent removeChild:deleteMenu cleanup:YES];
+	}
 	
 	GameCell *selected = (GameCell *)cell;
 	if (selected.levelId > 0) {
@@ -1114,7 +1265,8 @@
 		[backSelected runAction:action];
 		
 		//[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
-		
+	
+	/*
 	} else if (selected.levelId == -1) {
 		// Clear results
 		backSelected.visible = NO;
@@ -1131,7 +1283,8 @@
 			[self loadPlaying];
 			[self updatePlayedBadge];
 		}
-		
+	*/
+	
 	} else {
 		// Load more
 		backSelected.visible = NO;

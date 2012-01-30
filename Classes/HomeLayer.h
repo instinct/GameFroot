@@ -11,7 +11,15 @@
 #import "CCUIViewWrapper.h"
 #import "FBConnect.h"
 
-@interface HomeLayer : CCLayerColor <SWTableViewDataSource, SWTableViewDelegate, UITextFieldDelegate, FBSessionDelegate, FBRequestDelegate, UIAlertViewDelegate> {
+@interface HomeLayer : CCLayerColor <
+	SWTableViewDataSource, 
+	SWTableViewDelegate, 
+	SWScrollViewDelegate,
+	UITextFieldDelegate,
+	FBSessionDelegate,
+	FBRequestDelegate,
+	UIAlertViewDelegate
+> {
 	// Properties
 	NSDictionary *properties;
 	
@@ -55,15 +63,26 @@
 	
 	NSString *userName;
 	
+	CCMenu *deleteMenu;
+    
+    // Async connection
+    NSURLConnection *conn;
+	NSMutableData *receivedData;
+	BOOL connecting;
+	
 }
 
 // returns a CCScene that contains the HomeLayer as the only child
 +(CCScene *) scene;
 
 -(void) loadFeatured;
+-(void) _loadFeatured;
 -(void) loadPlaying;
+-(void) _loadPlaying;
 -(void) loadBrowse;
+-(void) _loadBrowse;
 -(void) loadMyGames;
+-(void) _loadMyGames;
 -(void) loadMore;
 -(void) updatePlayedBadge;
 -(void) setupMyGamesHeader;
