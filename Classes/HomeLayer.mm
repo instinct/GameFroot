@@ -1183,8 +1183,8 @@
         // Crop texts
         CCLabelFX *label = (CCLabelFX*)[cell getChildByTag:3];
         CCLabelFX *title = (CCLabelFX*)[cell getChildByTag:5];
-        [label setContentSize:CGSizeMake(150, 16)];
-        [title setContentSize:CGSizeMake(150, 13)];
+        //[label setContentSize:CGSizeMake(150, 16)];
+        //[title setContentSize:CGSizeMake(150, 13)];
         
 		return;
 	}
