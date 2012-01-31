@@ -161,6 +161,7 @@
     visibleArea = area;
 }
 
+/*
 -(void) visit {
     glPushMatrix();
 	glEnable(GL_SCISSOR_TEST);
@@ -169,5 +170,6 @@
 	glDisable(GL_SCISSOR_TEST);
     glPopMatrix();
 }
+*/
 
 @end
