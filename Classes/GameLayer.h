@@ -25,6 +25,7 @@
 	NSMutableDictionary *tilesIds;
 	NSMutableDictionary *itemsIds;
 	NSMutableDictionary *animationsIds;
+    //NSMutableDictionary *robotsIds;
 	NSMutableDictionary *switches;
 	NSMutableDictionary *cached;
 	

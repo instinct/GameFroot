@@ -880,6 +880,9 @@
 								otherButtonTitles: nil] autorelease];
 		[alertView show];
 		[Loader hideAsynchronousLoader];
+        
+        loading = NO;
+        myGames.visible = NO;
 	}
 }
 
