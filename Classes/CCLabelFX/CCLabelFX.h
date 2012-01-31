@@ -21,6 +21,7 @@
     float           shadowBlur_;
 	ccColor4B       shadowColor_;
     ccColor4B       fillColor_;
+    CGSize          visibleArea;
 }
 
 /** creates a CCLabel from a fontname, alignment, dimension in points, font size in points, shadow offset in points, shadow blur in points, shadow color and fill color*/
@@ -59,5 +60,7 @@
 @property (nonatomic,readwrite) ccColor4B fillColor;
 /**  Texture shadow color, setting the shadow color is as expensive as creating a new CCLabelFX */
 @property (nonatomic,readwrite) ccColor4B shadowColor;
+
+-(void) setVisibleArea:(CGSize)area;
 
 @end

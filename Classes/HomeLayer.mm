@@ -206,7 +206,8 @@
 		tableData = nil;
 		selectedPage = nil;
 		loading = NO;
-		
+        displayingDeleteButton = NO;
+        
 		// Load featured panel
 		[self loadFeatured];
 	}
@@ -398,7 +399,7 @@
 		jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:receivedData error:nil] retain];
 		//CCLOG(@"Levels: %@", [jsonData description]);
         CCLOG(@"connectionDidFinishLoading featured");
-        [self _loadFeatured];
+        //[self _loadFeatured];
     }
 	
 	
@@ -922,6 +923,7 @@
 		
 		GameCell *cell = (GameCell *)[table dequeueCell];
 		if (!cell) {
+            
 			cell = [[GameCell new] autorelease];
 			cell.index = idx;
 			cell.levelId = 0;
@@ -1073,7 +1075,7 @@
 			[cell addChild:title z:5 tag:5];
 			
 		} else {
-			
+            
 			if (cell.index != (int)idx) {
 				//CCLOG(@"Replace cell: %i, %i (%i, %i)", idx, levelId, cell.index, cell.levelId);
 				
@@ -1164,18 +1166,26 @@
 		[bkSelected stopAllActions];
 		bkSelected.visible = NO;
 		
-		if (deleteMenu != nil) {
-			[deleteMenu.parent removeChild:deleteMenu cleanup:YES];
-		}
-		
+        if (displayingDeleteButton) {
+            if ([deleteMenu.parent getChildByTag:10] != nil) [deleteMenu.parent removeChildByTag:10 cleanup:YES]; // remove any delete button
+        }
+        
 		CCMenuItemSprite *deleteButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"delete_btn.png"] selectedSprite:[CCSprite spriteWithFile:@"delete_btn.png"] target:self selector:@selector(deleteItem:)];
 		deleteMenu = [CCMenu menuWithItems:deleteButton, nil];
-		
+		displayingDeleteButton = YES;
+        
 		CGSize size = [[CCDirector sharedDirector] winSize];
-		if (CC_CONTENT_SCALE_FACTOR() == 2) [deleteMenu setPosition:ccp(size.width - deleteButton.contentSize.width/2 - 10, (58*2) - (58/2))];
-		else [deleteMenu setPosition:ccp(size.width - deleteButton.contentSize.width/2 - 10, 58/2)];
+        [deleteMenu setPosition:ccp(size.width - deleteButton.contentSize.width/2 - 10 + 100, 58/2)];
 		[cell addChild:deleteMenu z:10 tag:10];
 		
+        [deleteMenu runAction:[CCMoveBy actionWithDuration:0.2 position:ccp(-100, 0)]];
+        
+        // Crop texts
+        CCLabelFX *label = (CCLabelFX*)[cell getChildByTag:3];
+        CCLabelFX *title = (CCLabelFX*)[cell getChildByTag:5];
+        [label setContentSize:CGSizeMake(150, 16)];
+        [title setContentSize:CGSizeMake(150, 13)];
+        
 		return;
 	}
 }
@@ -1206,15 +1216,15 @@
 	}
 }
 
--(void)scrollViewDidScroll:(SWScrollView *)view {
-	if (deleteMenu != nil) {
-		[deleteMenu.parent removeChild:deleteMenu cleanup:YES];
-		deleteMenu = nil;
-	}
-}
-
--(void)scrollViewDidZoom:(SWScrollView *)view {
-	
+-(void)scrollViewDidScroll:(SWScrollView *)view
+{
+    //CCLOG(@"HomeLayer.scrollViewDidScroll");
+    
+    if (displayingDeleteButton) {
+        if ([deleteMenu.parent getChildByTag:10] != nil) [deleteMenu.parent removeChildByTag:10 cleanup:YES]; // remove any delete button
+        displayingDeleteButton = NO;
+    }
+    
 }
 
 -(void)table:(SWTableView *)table cellTouchReleased:(SWTableViewCell *)cell {
@@ -1223,17 +1233,24 @@
 	CCSprite *backSelected = (CCSprite*)[cell getChildByTag:2];
 	//[backSelected stopAllActions];
 	//backSelected.visible = NO;
-	
-	if (deleteMenu != nil) {
-		[deleteMenu.parent removeChild:deleteMenu cleanup:YES];
-	}
-	
+    
+    if (displayingDeleteButton) {
+        if ([deleteMenu.parent getChildByTag:10] != nil) [deleteMenu.parent removeChildByTag:10 cleanup:YES]; // remove any delete button
+        displayingDeleteButton = NO;
+        
+        [backSelected stopAllActions];
+        backSelected.visible = NO;
+        
+        return;
+    }
+    
 	GameCell *selected = (GameCell *)cell;
 	if (selected.levelId > 0) {
 		// Load level
 		
 		//CCLOG(@"Selected Level: %i", selected.levelId);
 		[Shared setLevel:selected.levelId];
+        [Shared setLevelTitle:[selected.data objectForKey:@"title"]];
 		[Shared setLevelDate:[selected.data objectForKey:@"published_date"]];
 		
 		// Add level to favourites

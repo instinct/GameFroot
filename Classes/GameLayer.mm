@@ -610,7 +610,12 @@ GameLayer *instance;
 	[bg setScale:CC_CONTENT_SCALE_FACTOR()];
 	[bg setPosition:ccp(size.width*0.5,size.height*0.5)];
 	[loading addChild:bg];
-	
+    
+    CCLabelBMFont *level = [CCLabelBMFont labelWithString:[Shared getLevelTitle] fntFile:@"Chicago.fnt"];
+    [level setScale:CC_CONTENT_SCALE_FACTOR()];
+    [level setPosition:ccp(size.width*0.49,size.height*0.8)];
+	[loading addChild:level];
+    
 	CCSprite *title = [CCSprite spriteWithFile:@"loading-title.png"];
 	[title setScale:CC_CONTENT_SCALE_FACTOR()];
 	[title setPosition:ccp(size.width*0.5,size.height*0.546875)];

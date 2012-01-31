@@ -134,6 +134,8 @@
 	CGRect rect = CGRectZero;
 	rect.size = [texture_ contentSize];
 	[self setTextureRect: rect];
+    
+    visibleArea = [texture_ contentSizeInPixels];
 }
 
 - (void)setShadowColor:(ccColor4B)shadowColor
@@ -152,6 +154,20 @@
 {
 	return [NSString stringWithFormat:@"<%@ = %08X | FontName = %@, FontSize = %.1f, ShadowOffset = %@, ShadowBlur = %f>", 
             [self class], self, fontName_, fontSize_, NSStringFromCGSize(shadowOffset_), shadowBlur_];
+}
+
+-(void) setVisibleArea:(CGSize)area
+{
+    visibleArea = area;
+}
+
+-(void) visit {
+    glPushMatrix();
+	glEnable(GL_SCISSOR_TEST);
+	glScissor(self.position.x, self.position.y, visibleArea.width, visibleArea.height);
+	[super visit];
+	glDisable(GL_SCISSOR_TEST);
+    glPopMatrix();
 }
 
 @end

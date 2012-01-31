@@ -20,6 +20,7 @@ static NSString *device = @"";
 
 static NSString *levelDate = @"";
 static int levelID;
+static NSString *levelTitle = @"";
 
 #pragma mark -
 #pragma mark Generic functions
@@ -55,6 +56,14 @@ static int levelID;
 
 +(void) setLevelDate: (NSString *)_value {
 	levelDate = _value;
+}
+
++(NSString *) getLevelTitle {
+    return levelTitle;
+}
+
++(void) setLevelTitle: (NSString *)_value {
+    levelTitle = _value;
 }
 
 +(NSString *) getOSVersion {

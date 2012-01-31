@@ -22,6 +22,8 @@
 +(void) setLevel: (int)_value;
 +(NSString *) getLevelDate;
 +(void) setLevelDate: (NSString *)_value;
++(NSString *) getLevelTitle;
++(void) setLevelTitle: (NSString *)_value;
 +(NSString *) getOSVersion;
 +(void) detectOSVersion;
 +(BOOL) isMultitaskingSupported;

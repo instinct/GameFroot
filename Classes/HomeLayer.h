@@ -13,8 +13,7 @@
 
 @interface HomeLayer : CCLayerColor <
 	SWTableViewDataSource, 
-	SWTableViewDelegate, 
-	SWScrollViewDelegate,
+	SWTableViewDelegate,
 	UITextFieldDelegate,
 	FBSessionDelegate,
 	FBRequestDelegate,
@@ -55,20 +54,22 @@
 	CCUIViewWrapper *searchField;
 	UITextField *searchTextField;
 	
+    // Playing
 	CCSprite *badgeMiddle;
 	CCSprite *badgeRight;
 	CCLabelTTF *playingLabel;
-	
-	BOOL loading;
-	
-	NSString *userName;
-	
 	CCMenu *deleteMenu;
+    BOOL displayingDeleteButton;
+    
+	// My games
+	NSString *userName;
     
     // Async connection
     NSURLConnection *conn;
 	NSMutableData *receivedData;
 	BOOL connecting;
+    
+    BOOL loading;
 	
 }
 
@@ -76,13 +77,9 @@
 +(CCScene *) scene;
 
 -(void) loadFeatured;
--(void) _loadFeatured;
 -(void) loadPlaying;
--(void) _loadPlaying;
 -(void) loadBrowse;
--(void) _loadBrowse;
 -(void) loadMyGames;
--(void) _loadMyGames;
 -(void) loadMore;
 -(void) updatePlayedBadge;
 -(void) setupMyGamesHeader;
