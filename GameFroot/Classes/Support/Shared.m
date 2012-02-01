@@ -488,30 +488,24 @@ CGPoint GBSub(const CGPoint v1, const CGPoint v2) {
 	}
 }
 
-+(CCSprite *)maskedSpriteWithSprite:(CCSprite *)textureSprite maskSprite:(CCSprite *)maskSprite { 
-	
-    // 1
++(CCSprite *)maskedSpriteWithSprite:(CCSprite *)textureSprite maskSprite:(CCSprite *)maskSprite 
+{ 
     CCRenderTexture * rt = [CCRenderTexture renderTextureWithWidth:maskSprite.contentSize.width height:maskSprite.contentSize.height];
 	
-    // 2
     maskSprite.position = ccp(maskSprite.contentSize.width/2, maskSprite.contentSize.height/2);
     textureSprite.position = ccp(textureSprite.contentSize.width/2, textureSprite.contentSize.height/2);
 	
-    // 3
     [maskSprite setBlendFunc:(ccBlendFunc){GL_ONE, GL_ZERO}];
     [textureSprite setBlendFunc:(ccBlendFunc){GL_DST_ALPHA, GL_ZERO}];
 	
-    // 4
     [rt begin];
     [maskSprite visit];        
     [textureSprite visit];    
     [rt end];
 	
-    // 5
     CCSprite *retval = [CCSprite spriteWithTexture:rt.sprite.texture];
     retval.flipY = YES;
     return retval;
-	
 }
 
 @end

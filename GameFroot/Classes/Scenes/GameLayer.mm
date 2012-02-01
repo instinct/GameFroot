@@ -75,7 +75,7 @@ GameLayer *instance;
 }
 
 -(void) setupDebugDraw {
-	debugDraw = new GLESDebugDraw(PTM_RATIO * REDUCE_FACTOR);
+	debugDraw = new GLESDebugDraw(PTM_RATIO * REDUCE_FACTOR * CC_CONTENT_SCALE_FACTOR());
 	world->SetDebugDraw(debugDraw);
 	debugDraw->SetFlags(b2Draw::e_shapeBit);
 }
@@ -467,7 +467,7 @@ GameLayer *instance;
 	[loading addChild:bg];
     
     CCLabelBMFont *level = [CCLabelBMFont labelWithString:[Shared getLevelTitle] fntFile:@"Chicago.fnt"];
-    [level setPosition:ccp(size.width*0.49,size.height*0.8)];
+    [level setPosition:ccp(size.width*0.5,size.height*0.8)];
 	[loading addChild:level];
     
 	CCSprite *title = [CCSprite spriteWithFile:@"loading-title.png"];
@@ -724,9 +724,11 @@ GameLayer *instance;
 			NSArray *behaviour = [[itemElements objectAtIndex:i] objectForKey:@"behaviour"];
 			//CCLOG(@"Item behaviour: %@", [behaviour description]);
 			
-			[itemData setObject:[[behaviour objectAtIndex:0] objectForKey:@"type"] forKey:@"type"];
-			[itemData setObject:[[behaviour objectAtIndex:0] objectForKey:@"amount"] forKey:@"value"];
-			
+            if ((behaviour != nil) && (![behaviour isMemberOfClass:[NSNull class]]) && ([behaviour count] >= 1)) {
+                [itemData setObject:[[behaviour objectAtIndex:0] objectForKey:@"type"] forKey:@"type"];
+                [itemData setObject:[[behaviour objectAtIndex:0] objectForKey:@"amount"] forKey:@"value"];
+            }
+            
 			/*
 			NSString *subtype = [[positions objectAtIndex:1] objectAtIndex:0];
 			[itemData setObject:subtype forKey:@"subtype"];
@@ -1004,8 +1006,11 @@ GameLayer *instance;
 			//CCLOG(@"%@", [dict description]);
 			
 			int tileNum;
-			if (customTiles) tileNum = [[animationsIds objectForKey:[[dict objectForKey:@"animationId"] stringValue]] intValue];
-			else tileNum = [[tilesIds objectForKey:[dict objectForKey:@"tileNum"]] intValue];
+			if (customTiles) {
+                if ([animationsIds objectForKey:[dict objectForKey:@"animationId"]] != nil) tileNum = [[animationsIds objectForKey:[dict objectForKey:@"animationId"]] intValue];
+                else tileNum = [[animationsIds objectForKey:[[dict objectForKey:@"animationId"] stringValue]] intValue];
+			} 
+            else tileNum = [[tilesIds objectForKey:[dict objectForKey:@"tileNum"]] intValue];
 			
 			int dx = [[dict objectForKey:@"positionX"] intValue];
 			int dy = [[dict objectForKey:@"positionY"] intValue];			
@@ -1348,7 +1353,10 @@ GameLayer *instance;
 		//CCLOG(@"%@", [dict description]);
 		
 		int tileNum;
-		if (customTiles) tileNum = [[animationsIds objectForKey:[[dict objectForKey:@"animationId"] stringValue]] intValue];
+        if (customTiles) {
+            if ([animationsIds objectForKey:[dict objectForKey:@"animationId"]] != nil) tileNum = [[animationsIds objectForKey:[dict objectForKey:@"animationId"]] intValue];
+            else tileNum = [[animationsIds objectForKey:[[dict objectForKey:@"animationId"] stringValue]] intValue];
+        } 
 		else tileNum = [[itemsIds objectForKey:[dict objectForKey:@"tileNum"]] intValue];
 		
 		int dx = [[dict objectForKey:@"positionX"] intValue];
