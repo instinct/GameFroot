@@ -212,7 +212,13 @@ void ContactListener::BeginContact(b2Contact *contact) {
 		
 	} else if (IS_ROBOT(o1, o2)) {
 		//CCLOG(@"-----> Robot made contact with something!");
-		contact->SetEnabled(false);
+        Robot *robot;
+		if (o1.type == kGameObjectRobot) {
+			robot = (Robot *)o1;			
+		} else {
+			robot = (Robot *)o2;
+		}
+        if (!robot.solid) contact->SetEnabled(false);
 			   
 	} else if (IS_COLLECTABLE(o1, o2) && IS_ENEMY(o1, o2)) {
 		//CCLOG(@"-----> Enemy made contact with collectable item!");
@@ -499,7 +505,13 @@ void ContactListener::PreSolve(b2Contact *contact, const b2Manifold *oldManifold
 		
 	} else if (IS_ROBOT(o1, o2)) {
 		//CCLOG(@"-----> Robot made contact with something!");
-		contact->SetEnabled(false);
+		Robot *robot;
+		if (o1.type == kGameObjectRobot) {
+			robot = (Robot *)o1;			
+		} else {
+			robot = (Robot *)o2;
+		}
+        if (!robot.solid) contact->SetEnabled(false);
 		
 	}
 }

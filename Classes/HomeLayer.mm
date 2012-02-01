@@ -854,13 +854,13 @@
 	
 	if (selectedPage != myGames) return;
 	
-	NSString *email = [result objectForKey:@"email"];
-	NSString *facebookid = [result objectForKey:@"id"];
-	NSString *key = [NSString stringWithFormat:@"%@%@", facebookid, email];
-	NSString *userLoginURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=ios_login&email=%@&code=%@", [properties objectForKey:@"server_json"], email, [Shared md5:key]];
+	//NSString *email = [result objectForKey:@"email"];
+	//NSString *facebookid = [result objectForKey:@"id"];
+	//NSString *key = [NSString stringWithFormat:@"%@%@", facebookid, email];
+	//NSString *userLoginURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=ios_login&email=%@&code=%@", [properties objectForKey:@"server_json"], email, [Shared md5:key]];
 	//NSString *stringData = [Shared stringWithContentsOfURL:userLoginURL ignoreCache:YES];
 	
-	//NSString *userLoginURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=ios_login", [properties objectForKey:@"server_json"]];
+	NSString *userLoginURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=ios_login", [properties objectForKey:@"server_json"]];
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSString *post = [NSString stringWithFormat:@"token=%@", [defaults objectForKey:@"FBAccessTokenKey"]];
 	NSString *stringData = [Shared stringWithContentsOfPostURL:userLoginURL post:post];
@@ -1183,11 +1183,11 @@
 		
         [deleteMenu runAction:[CCMoveBy actionWithDuration:0.2 position:ccp(-100, 0)]];
         
-        // Crop texts
-        CCLabelFX *label = (CCLabelFX*)[cell getChildByTag:3];
-        CCLabelFX *title = (CCLabelFX*)[cell getChildByTag:5];
-        //[label setContentSize:CGSizeMake(150, 16)];
-        //[title setContentSize:CGSizeMake(150, 13)];
+        // Crop texts, needs some work
+        //CCLabelFX *label = (CCLabelFX*)[cell getChildByTag:3];
+        //CCLabelFX *title = (CCLabelFX*)[cell getChildByTag:5];
+        //[label setVisibleArea:CGSizeMake(150, 16)];
+        //[title setVisibleArea:CGSizeMake(150, 13)];
         
 		return;
 	}

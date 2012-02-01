@@ -41,6 +41,8 @@
 	NSDictionary *delayedMessage;
 	
 	CGRect mapRect;
+    
+    BOOL wasMoving;
 }
 
 @property (nonatomic, assign) BOOL solid;

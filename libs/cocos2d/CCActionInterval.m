@@ -308,7 +308,7 @@
 			[innerAction_ stop];
 			[innerAction_ startWithTarget:target_]; 
 			nextDt_ += [innerAction_ duration]/duration_;
-		}
+		} 
 		
 		//don't set a instantaction back or update it, it has no use because it has no duration
 		if (!isActionInstant_)

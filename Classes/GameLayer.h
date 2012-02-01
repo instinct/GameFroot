@@ -25,7 +25,7 @@
 	NSMutableDictionary *tilesIds;
 	NSMutableDictionary *itemsIds;
 	NSMutableDictionary *animationsIds;
-    //NSMutableDictionary *robotsIds;
+    NSMutableDictionary *robotsIds;
 	NSMutableDictionary *switches;
 	NSMutableDictionary *cached;
 	
@@ -125,6 +125,8 @@
 	BOOL useDPad;
 	
 	BOOL ignoreCache;
+    
+    CGPoint originalPosition;
 }
 
 @property(nonatomic,assign) int points;
@@ -196,6 +198,7 @@
 -(void) decreaseLive:(int)amount;
 -(void) enableTimer;
 -(void) disableTimer;
+-(void) quakeCameraWithIntensity:(int)intensity during:(int)milliseconds;
 
 -(void) setTimer:(int)_seconds;
 -(void) setLives:(int)_lives;

@@ -452,151 +452,6 @@ GameLayer *instance;
 	dpadSpriteSheet.visible = useDPad;
 }
 
--(void) setAmmo:(int)_ammo
-{
-	if (_ammo == 0) {
-		ammoBarLeft.visible = NO;
-		ammoBarMiddle.visible = NO;
-		ammoBarRight.visible = NO;
-		
-	} else {
-		ammoBarLeft.visible = YES;
-		ammoBarMiddle.visible = YES;
-		ammoBarRight.visible = YES;
-		
-		ammoBarMiddle.scaleX = 79 * (_ammo/100.0f);
-		[ammoBarMiddle setPosition:ccp(ammoBarLeft.position.x + ammoBarLeft.contentSize.width/2, ammoBarLeft.position.y)];
-	}
-}
-
--(int) getAmmo;
-{
-	return ammo;
-}
-
--(void) increaseAmmo:(int)amount
-{
-	ammo += amount;
-	if (ammo > 100) ammo = 100;
-	
-	[self setAmmo:ammo];
-}
-
--(void) reduceAmmo
-{
-	ammo--;
-	if (ammo < 0) ammo = 0;
-	[self setAmmo:ammo];
-}
-
--(void) changeWeapon:(int)_weaponID
-{
-	[player changeWeapon:_weaponID];
-}
-
--(void) increaseHealth:(int)amount
-{
-	[player increaseHealth:amount];
-}
-
--(void) decreaseHealth:(int)amount
-{
-	[player decreaseHealth:amount];
-}
-
--(void) increaseTime:(int)amount
-{
-	seconds += amount;
-	[self setTimer:seconds];
-	[self enableTimer];
-}
-
--(void) decreaseTime:(int)amount
-{
-	seconds -= amount;
-	if (seconds <= 0) {
-		seconds = 0;
-	}
-	[self setTimer:seconds];
-	[self enableTimer];
-	
-	if (seconds == 0) {
-		[player lose];
-	}
-}
-
--(void) increaseLive:(int)amount
-{
-	[player increaseLive:amount];
-}
-
--(void) decreaseLive:(int)amount
-{
-	[player decreaseLive:amount];
-}
-
--(void) enableTimer
-{
-	[self schedule:@selector(timer:) interval:1.0f];
-	timerEnabled = YES;
-	timerLabel.visible = YES;
-}
-
--(void) disableTimer
-{
-	[self unschedule:@selector(timer:)];
-	timerEnabled = NO;
-	timerLabel.visible = NO;
-}
-
--(void) jetpack
-{
-	[player addJetpack];
-}
-
--(void) setTimer:(int)_seconds 
-{
-	NSString *label;
-	
-	int lminutes = (_seconds / 60);
-	int lseconds = _seconds % 60;
-	if ((lseconds < 10) && (lminutes < 10)) label = [NSString stringWithFormat:@"0%i:0%i", lminutes, lseconds];
-	else if ((lseconds < 10) && (lminutes >= 10)) label = [NSString stringWithFormat:@"%i:0%i", lminutes, lseconds];
-	else if ((lseconds >= 10) && (lminutes < 10)) label = [NSString stringWithFormat:@"0%i:%i", lminutes, lseconds];
-	else label = [NSString stringWithFormat:@"%i:%i", lminutes, lseconds];
-	
-	[timerLabel setString: label];
-}
-
--(void) setLives:(int)_lives
-{
-	[livesLabel setString:[NSString stringWithFormat:@"%ixHP", _lives]];
-}
-
--(void) setHealth:(int)_health
-{
-	if (_health == 0) {
-		barLeft.visible = NO;
-		barMiddle.visible = NO;
-		barRight.visible = NO;
-		
-	} else {
-		barLeft.visible = YES;
-		barMiddle.visible = YES;
-		barRight.visible = YES;
-		
-		barMiddle.scaleX = _health;
-		[barMiddle setPosition:ccp(barLeft.position.x + barLeft.contentSize.width/2, barLeft.position.y)];
-		[barRight setPosition:ccp(barMiddle.position.x + barMiddle.contentSize.width * barMiddle.scaleX, barMiddle.position.y)];
-	}
-}
-
--(void) increasePoints:(int)_points
-{
-	points += _points;
-	[pointsLabel setString:[NSString stringWithFormat:@"%06d", points]];
-}
-
 -(void) setupLoadingScreen
 {
 	CGSize size = [[CCDirector sharedDirector] winSize];
@@ -612,7 +467,6 @@ GameLayer *instance;
 	[loading addChild:bg];
     
     CCLabelBMFont *level = [CCLabelBMFont labelWithString:[Shared getLevelTitle] fntFile:@"Chicago.fnt"];
-    [level setScale:CC_CONTENT_SCALE_FACTOR()];
     [level setPosition:ccp(size.width*0.49,size.height*0.8)];
 	[loading addChild:level];
     
@@ -724,7 +578,7 @@ GameLayer *instance;
 		return;
 	}
 	
-	CCLOG(@"%@", [jsonData description]);
+	//CCLOG(@"%@", [jsonData description]);
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Load Header Data
@@ -781,6 +635,19 @@ GameLayer *instance;
 	}
 	//CCLOG(@"Animations: %@", [animationsIds description]);
 	
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Load robots
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	NSArray *arrayRobotsIds = [[jsonData objectForKey:@"sprites"] objectForKey:@"robots"];
+	int countRobots = [arrayRobotsIds count];
+	robotsIds = [[NSMutableDictionary dictionaryWithCapacity:countRobots] retain];
+	for (int i=0; i < countRobots; i++) {
+		NSDictionary *values = (NSDictionary *)[arrayRobotsIds objectAtIndex:i];
+		//CCLOG(@"robot id %@ with script %@", [values objectForKey:@"id"], [values objectForKey:@"script"]);
+		[robotsIds setObject:[values objectForKey:@"script"] forKey:[values objectForKey:@"id"]];
+	}
+	//CCLOG(@"Robots: %@", [robotsIds description]);
+    
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Load Player
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -848,12 +715,10 @@ GameLayer *instance;
 			
 			// Get tile id on global embedded spritesheet
 			[itemData setObject:[NSNumber numberWithInt:tileNum] forKey:@"tileNum"];
-			
-			
+						
 			// Get position
 			[itemData setObject:[NSNumber numberWithInt:[[[itemElements objectAtIndex:i] objectForKey:@"xpos"] intValue]] forKey:@"positionX"];
 			[itemData setObject:[NSNumber numberWithInt:[[[itemElements objectAtIndex:i] objectForKey:@"ypos"] intValue]] forKey:@"positionY"];
-			[itemTiles addObject:itemData];
 			
 			// Get behaviour
 			NSArray *behaviour = [[itemElements objectAtIndex:i] objectForKey:@"behaviour"];
@@ -872,13 +737,15 @@ GameLayer *instance;
 			[itemData setObject:[NSNumber numberWithInt:frames] forKey:@"frames"];
 			
 			// Is robot?
-			NSDictionary *robot = [[itemElements objectAtIndex:i] objectForKey:@"robot_id"];
+			NSDictionary *robot = [[itemElements objectAtIndex:i] objectForKey:@"robot"];
 			if ((robot == nil) || ([robot isMemberOfClass:[NSNull class]])) {
 				[itemData setObject:[NSDictionary dictionary] forKey:@"robot"];
 				
 			} else if ([robot isKindOfClass:[NSDictionary class]]) {
-				[itemData setObject:robot forKey:@"robot"];
+				[itemData setObject:[robotsIds objectForKey:[robot objectForKey:@"id"]] forKey:@"robot"];
 			}
+                 
+            [itemTiles addObject:itemData];
 			
 		}
 		[data setObject:itemTiles forKey:@"itemTiles"];		
@@ -1938,6 +1805,9 @@ GameLayer *instance;
 	}
 }
 
+#pragma mark -
+#pragma mark Interactions
+
 -(void) addBullet:(CCSpriteBatchNode *)bullet
 {
 	[objects addChild:bullet z:LAYER_PLAYER];
@@ -2047,6 +1917,187 @@ GameLayer *instance;
 	Robot *robot; CCARRAY_FOREACH(robots, robot) {
 		[robot receiveMessage:[command objectForKey:@"message"]];
 	}
+}
+
+-(void) setAmmo:(int)_ammo
+{
+	if (_ammo == 0) {
+		ammoBarLeft.visible = NO;
+		ammoBarMiddle.visible = NO;
+		ammoBarRight.visible = NO;
+		
+	} else {
+		ammoBarLeft.visible = YES;
+		ammoBarMiddle.visible = YES;
+		ammoBarRight.visible = YES;
+		
+		ammoBarMiddle.scaleX = 79 * (_ammo/100.0f);
+		[ammoBarMiddle setPosition:ccp(ammoBarLeft.position.x + ammoBarLeft.contentSize.width/2, ammoBarLeft.position.y)];
+	}
+}
+
+-(int) getAmmo;
+{
+	return ammo;
+}
+
+-(void) increaseAmmo:(int)amount
+{
+	ammo += amount;
+	if (ammo > 100) ammo = 100;
+	
+	[self setAmmo:ammo];
+}
+
+-(void) reduceAmmo
+{
+	ammo--;
+	if (ammo < 0) ammo = 0;
+	[self setAmmo:ammo];
+}
+
+-(void) changeWeapon:(int)_weaponID
+{
+	[player changeWeapon:_weaponID];
+}
+
+-(void) increaseHealth:(int)amount
+{
+	[player increaseHealth:amount];
+}
+
+-(void) decreaseHealth:(int)amount
+{
+	[player decreaseHealth:amount];
+}
+
+-(void) increaseTime:(int)amount
+{
+	seconds += amount;
+	[self setTimer:seconds];
+	[self enableTimer];
+}
+
+-(void) decreaseTime:(int)amount
+{
+	seconds -= amount;
+	if (seconds <= 0) {
+		seconds = 0;
+	}
+	[self setTimer:seconds];
+	[self enableTimer];
+	
+	if (seconds == 0) {
+		[player lose];
+	}
+}
+
+-(void) increaseLive:(int)amount
+{
+	[player increaseLive:amount];
+}
+
+-(void) decreaseLive:(int)amount
+{
+	[player decreaseLive:amount];
+}
+
+-(void) enableTimer
+{
+	[self schedule:@selector(timer:) interval:1.0f];
+	timerEnabled = YES;
+	timerLabel.visible = YES;
+}
+
+-(void) disableTimer
+{
+	[self unschedule:@selector(timer:)];
+	timerEnabled = NO;
+	timerLabel.visible = NO;
+}
+
+-(void) quakeCameraWithIntensity:(int)intensity during:(int)milliseconds
+{
+    originalPosition = scene.position;
+    float origianlX = scene.position.x;
+	float origianlY = scene.position.y;
+    
+    float time = (1.0f/60.0f) * 10.0 * 1000.0;
+    int times = milliseconds / time;
+    if (times <= 0) times = 1;
+    CCLOG(@"GameLayer.quakeCameraWithIntensity: %i times: %i at 1/60 secs", intensity, times);
+    
+	// Shake screen
+	id action = [CCSequence actions:
+				 [CCRepeat actionWithAction:
+				  [CCSequence actions:
+				   [CCMoveTo actionWithDuration:1.0f/60.0f position:ccp(origianlX-intensity,origianlY)],
+				   [CCMoveTo actionWithDuration:1.0f/60.0f position:ccp(origianlX+intensity,origianlY)],
+				   [CCMoveTo actionWithDuration:1.0f/60.0f position:ccp(origianlX+intensity,origianlY-intensity)],
+				   [CCMoveTo actionWithDuration:1.0f/60.0f position:ccp(origianlX-intensity,origianlY)],
+				   [CCMoveTo actionWithDuration:1.0f/60.0f position:ccp(origianlX-intensity,origianlY)],
+				   [CCMoveTo actionWithDuration:1.0f/60.0f position:ccp(origianlX,origianlY+intensity)],
+				   [CCMoveTo actionWithDuration:1.0f/60.0f position:ccp(origianlX-intensity,origianlY)],
+				   [CCMoveTo actionWithDuration:1.0f/60.0f position:ccp(origianlX,origianlY-intensity)],
+				   [CCMoveTo actionWithDuration:1.0f/60.0f position:ccp(origianlX-intensity,origianlY)],
+				   [CCMoveTo actionWithDuration:1.0f/60.0f position:ccp(origianlX,origianlY)],
+				   nil] times:times],
+                 [CCCallFunc actionWithTarget:self selector:@selector(_resetPosition)],
+				 nil];
+	[scene runAction: action];
+}
+
+-(void) _resetPosition
+{
+    [scene setPosition:originalPosition];
+}
+
+-(void) jetpack
+{
+	[player addJetpack];
+}
+
+-(void) setTimer:(int)_seconds 
+{
+	NSString *label;
+	
+	int lminutes = (_seconds / 60);
+	int lseconds = _seconds % 60;
+	if ((lseconds < 10) && (lminutes < 10)) label = [NSString stringWithFormat:@"0%i:0%i", lminutes, lseconds];
+	else if ((lseconds < 10) && (lminutes >= 10)) label = [NSString stringWithFormat:@"%i:0%i", lminutes, lseconds];
+	else if ((lseconds >= 10) && (lminutes < 10)) label = [NSString stringWithFormat:@"0%i:%i", lminutes, lseconds];
+	else label = [NSString stringWithFormat:@"%i:%i", lminutes, lseconds];
+	
+	[timerLabel setString: label];
+}
+
+-(void) setLives:(int)_lives
+{
+	[livesLabel setString:[NSString stringWithFormat:@"%ixHP", _lives]];
+}
+
+-(void) setHealth:(int)_health
+{
+	if (_health == 0) {
+		barLeft.visible = NO;
+		barMiddle.visible = NO;
+		barRight.visible = NO;
+		
+	} else {
+		barLeft.visible = YES;
+		barMiddle.visible = YES;
+		barRight.visible = YES;
+		
+		barMiddle.scaleX = _health;
+		[barMiddle setPosition:ccp(barLeft.position.x + barLeft.contentSize.width/2, barLeft.position.y)];
+		[barRight setPosition:ccp(barMiddle.position.x + barMiddle.contentSize.width * barMiddle.scaleX, barMiddle.position.y)];
+	}
+}
+
+-(void) increasePoints:(int)_points
+{
+	points += _points;
+	[pointsLabel setString:[NSString stringWithFormat:@"%06d", points]];
 }
 
 #pragma mark -
@@ -2245,7 +2296,7 @@ GameLayer *instance;
 		
 		//CCLOG(@"Touch ended: %f,%f (%@)", location.x, location.y, touch);
 		
-		CGSize size = [[CCDirector sharedDirector] winSize];
+		//CGSize size = [[CCDirector sharedDirector] winSize];
 		
 		if (!useDPad && !paused) {
 			
@@ -2402,7 +2453,7 @@ GameLayer *instance;
 	
 	//CCLOG(@"Touch cancelled: %f,%f", location.x, location.y);
 	
-	CGSize size = [[CCDirector sharedDirector] winSize];
+	//CGSize size = [[CCDirector sharedDirector] winSize];
 	
 	if (!paused) {
 		if (touch == leftTouch) {
@@ -2417,6 +2468,7 @@ GameLayer *instance;
 }
 
 #pragma mark -
+#pragma mark Flow control
 
 /*
 -(void) visit {
@@ -2493,6 +2545,8 @@ GameLayer *instance;
 	[self resetControls];
 }
 
+#pragma mark -
+
 // on "dealloc" you need to release all your retained objects
 - (void) dealloc
 {
@@ -2524,6 +2578,7 @@ GameLayer *instance;
 	[properties release];
 	[tilesIds release];
 	[animationsIds release];
+    [robotsIds release];
 	[switches release];
 	[cached release];
 	

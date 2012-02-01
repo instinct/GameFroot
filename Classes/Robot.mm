@@ -47,7 +47,7 @@
 	
 	//if (solid) {
 		b2PolygonShape shape;
-		shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0f)/PTM_RATIO);
+		shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0)/PTM_RATIO);
 		b2FixtureDef fixtureDef;
 		fixtureDef.shape = &shape;
 		fixtureDef.density = 1.0;
@@ -1287,6 +1287,16 @@
 	return [NSNumber numberWithFloat:ccpDistance(point1, point2)];
 }
 
+-(void) quakeCamera:(NSDictionary *)command 
+{
+    //CCLOG(@"Robot.quakeCamera: %@", command);
+    
+    int intensity = [[command objectForKey:@"intensity"] intValue];
+    int time = [[command objectForKey:@"time"] intValue];
+    
+    [[GameLayer getInstance] quakeCameraWithIntensity:intensity during:time];
+}
+
 -(NSNumber *) angleToInstance:(NSDictionary *)command 
 {
 	CGPoint point1 = CGPointZero;
@@ -1329,12 +1339,24 @@
 		[self execute:@"onTouchStart" type:kGameObjectPlayer];
 		onTouchStart = YES;
 	}
+    
+    b2Vec2 current = body->GetLinearVelocity();
+    if ((current.x == 0) && (current. y == 0)) {
+        wasMoving = NO;
+    } else {
+        wasMoving = YES;
+    }
 }
 
 -(void) finished:(id)sender
 {
 	//CCLOG(@"Robot.finished: %@", behavior);
 	onTouchStart = NO;
+    
+    if (!wasMoving) {
+        body->SetLinearVelocity(b2Vec2(0,0));
+        body->SetAngularVelocity(0);
+    }
 }
 
 -(void) hit:(int)force 

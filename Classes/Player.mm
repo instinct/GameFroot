@@ -418,6 +418,11 @@
 
 -(void) jump
 {	
+    if ((action == PRONE) || (action == CROUCH)) {
+        //[self setState:STAND];
+        return;
+    }
+    
 	pressedJump = YES;
 	
 	b2Vec2 current = body->GetLinearVelocity();
@@ -442,6 +447,11 @@
 
 -(void) jumpDirection:(GameObjectDirection)dir
 {
+    if ((action == PRONE) || (action == CROUCH)) {
+        //[self setState:STAND];
+        return;
+    }
+    
 	pressedJump = YES;
 	
 	b2Vec2 current = body->GetLinearVelocity();
