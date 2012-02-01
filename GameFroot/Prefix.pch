@@ -1,0 +1,24 @@
+//
+// Prefix header for all source files of the 'Test' target in the 'Test' project
+//
+
+#import <Availability.h>
+
+#ifndef __IPHONE_3_0
+#warning "This project uses features only available in iPhone SDK 3.0 and later."
+#endif
+
+#ifdef __OBJC__
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+
+// My extensions to cocos2d and cocoa framework
+#import "CCNode+HideShow.h"
+#import "CCMenu+Reset.h"
+#import "CCArray+Extension.h"
+#import "CCLabelBMFont+AddToBatchNode.h"
+#import "CCDrawingPrimitives+Extension.h"
+#import "CCSpriteBatchNode+FastChildren.h"
+#import "CCTextureAtlas+Dirty.h"
+
+#endif
