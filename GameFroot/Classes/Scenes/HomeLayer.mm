@@ -242,6 +242,65 @@
 #pragma mark -
 #pragma mark Event handlers
 
+
+-(void) gameDetailBack:(id)sender {
+    
+    welcome.visible = NO;
+	featured.visible = NO;
+	playing.visible = NO;
+	browse.visible = NO;
+	myGames.visible = NO;
+	more.visible = NO;
+    gameDetail.visible = NO;
+	
+    CCNode *previousPage = selectedPage;
+    selectedPage = gameDetail;
+    
+    if(previousPage == featured) {
+        [self loadFeatured];
+    } else if(previousPage == playing) {
+        [self loadPlaying];
+    } else if(previousPage == browse) {
+        [self loadBrowse];
+    } else if(previousPage == myGames) {
+        [self loadMyGames];
+    } else {
+        [self loadFeatured];
+    }
+}
+
+-(void) gameDetailPlay:(id)sender {
+    
+    /*
+     // Add level to favourites
+     for (uint i = 0; i < [jsonDataPlaying count]; i++) {
+         NSDictionary *levelData = [jsonDataPlaying objectAtIndex:i];
+         int levelId = [[levelData objectForKey:@"id"] intValue];
+         if (levelId == selected.levelId) {
+             [jsonDataPlaying removeObjectAtIndex:i];
+             break;
+         }
+     }
+     
+     NSMutableDictionary *data = [selected.data mutableCopy];
+     NSString *author = [data objectForKey:@"author"];
+     //CCLOG(@">>>>>> %@, %@", author, [author class]);
+     if ([author isMemberOfClass:[NSNull class]]) {
+     [data setObject:userName forKey:@"author"];
+     }
+     
+     [jsonDataPlaying insertObject:data atIndex:0];
+    */
+     //CCLOG(@"Add favourite: %@", [selected.data description]);
+     //CCLOG(@"Favourites: %@", [jsonDataPlaying description]);
+     
+     id action = [CCSequence actions:
+     [CCDelayTime actionWithDuration:0.2],
+     [CCCallFunc actionWithTarget:self selector:@selector(selectedLevel:)],
+     nil];
+     [sender runAction:action];
+}
+
 -(void) selectedLevel:(id)sender {	
 	[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
 }
@@ -463,10 +522,8 @@
 #pragma mark GameDetail
 
 
-// Game detail i
 -(void) loadGameDetail {
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
-	selectedPage = gameDetail;
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadGameDetail)];
 	loading = YES;
 }
@@ -480,11 +537,29 @@
     placeHolderText.color = ccc3(255,255,255);
     placeHolderText.position = ccp(size.width/2, size.height/2);
     [gameDetail addChild:placeHolderText];
+    
+    // Add top menu and buttons
+    CCMenuItemSprite *topNavBackButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"placeholder_back_arrow.png"] selectedSprite:[CCSprite spriteWithFile:@"placeholder_back_arrow.png"] target:self selector:@selector(gameDetailBack:)];
+    
+    CCMenuItemSprite *topNavPlayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"placeholder_play_arrow.png"] selectedSprite:[CCSprite spriteWithFile:@"placeholder_play_arrow.png"] target:self selector:@selector(gameDetailPlay:)];
+    
+    CCMenu *topNav = [CCMenu menuWithItems:topNavBackButton, topNavPlayButton, nil];
+    [topNav alignItemsHorizontallyWithPadding:20];
+    topNav.position = ccp(size.width/2, size.height - 44 - topNavBackButton.contentSize.height/2 - 5);
+    
+    // Add some stuff to the content area
+    
+    CCMenuItemSprite *contentPlayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"placeholder_play.png"] selectedSprite:[CCSprite spriteWithFile:@"placeholder_play.png.png"] target:self selector:@selector(gameDetailPlay:)];
+    
+    CCMenu *contentMenu = [CCMenu menuWithItems:contentPlayButton, nil];
+    contentMenu.position = ccp(size.width/2,size.height/2);
+    
+    [gameDetail addChild:topNav];
+    [gameDetail addChild:contentMenu];
+    
     loading = NO;
 	gameDetail.visible = YES;
 }
-
-
 
 #pragma mark -
 #pragma mark Featured
@@ -1329,9 +1404,6 @@
 	if (selected.levelId > 0) {
 		// Load game detail screen.
         
-
-        
-        
          // OLD CODE BEGINS
          
 		//CCLOG(@"Selected Level: %i", selected.levelId);
@@ -1341,38 +1413,7 @@
 		
         [self loadGameDetail];
         
-        /*
-		// Add level to favourites
-		for (uint i = 0; i < [jsonDataPlaying count]; i++) {
-			NSDictionary *levelData = [jsonDataPlaying objectAtIndex:i];
-			int levelId = [[levelData objectForKey:@"id"] intValue];
-			if (levelId == selected.levelId) {
-				[jsonDataPlaying removeObjectAtIndex:i];
-				break;
-			}
-		}
-		
-		NSMutableDictionary *data = [selected.data mutableCopy];
-		NSString *author = [data objectForKey:@"author"];
-		//CCLOG(@">>>>>> %@, %@", author, [author class]);
-		if ([author isMemberOfClass:[NSNull class]]) {
-			[data setObject:userName forKey:@"author"];
-		}
-		
-		[jsonDataPlaying insertObject:data atIndex:0];
-		//CCLOG(@"Add favourite: %@", [selected.data description]);
-		
-		//CCLOG(@"Favourites: %@", [jsonDataPlaying description]);
-		
-		id action = [CCSequence actions:
-					 [CCDelayTime actionWithDuration:0.2],
-					 [CCCallFunc actionWithTarget:self selector:@selector(selectedLevel:)],
-					 nil];
-		[backSelected runAction:action];
-        
-        // OLD CODE ENDS
-        */
-		
+       		
 		//[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
 	
 	/*
