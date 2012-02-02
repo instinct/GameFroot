@@ -24,6 +24,7 @@
 	
 	// Containers
     CCNode *welcome;
+    CCNode *gameDetail;
 	CCNode *featured;
 	CCNode *playing;
 	CCNode *browse;
@@ -78,6 +79,7 @@
 +(CCScene *) scene;
 
 -(void) loadWelcome;
+-(void) loadGameDetail;
 -(void) loadFeatured;
 -(void) loadPlaying;
 -(void) loadBrowse;

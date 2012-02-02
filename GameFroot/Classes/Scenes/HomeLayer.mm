@@ -89,6 +89,9 @@
         
         welcome = [CCNode node];
         [self addChild:welcome z:4];
+        
+        gameDetail = [CCNode node];
+        [self addChild:gameDetail z:4];
 		
 		// Main tab navigation
 		CCSprite *bottom = [CCSprite spriteWithFile:@"tab-bar.png"];
@@ -266,11 +269,13 @@
 	[myGamesButton unselected];
 	[moreButton unselected];
 	
+    welcome.visible = NO;
 	if (selectedPage != featured) featured.visible = NO;
 	playing.visible = NO;
 	browse.visible = NO;
 	myGames.visible = NO;
 	more.visible = NO;
+    gameDetail.visible = NO;
 	
 	[self loadFeatured];
 }
@@ -287,11 +292,13 @@
 	[myGamesButton unselected];
 	[moreButton unselected];
 	
+    welcome.visible = NO;
 	featured.visible = NO;
 	if (selectedPage != playing) playing.visible = NO;
 	browse.visible = NO;
 	myGames.visible = NO;
 	more.visible = NO;
+    gameDetail.visible = NO;
 	
 	[self loadPlaying];
 }
@@ -308,11 +315,13 @@
 	[myGamesButton unselected];
 	[moreButton unselected];
 	
+    welcome.visible = NO;
 	featured.visible = NO;
 	playing.visible = NO;
 	if (selectedPage != browse) browse.visible = NO;
 	myGames.visible = NO;
 	more.visible = NO;
+    gameDetail.visible = NO;
 	
 	[self loadBrowse];
 }
@@ -329,11 +338,13 @@
 	[myGamesButton selected];
 	[moreButton unselected];
 	
+    welcome.visible = NO;
 	featured.visible = NO;
 	playing.visible = NO;
 	browse.visible = NO;
 	if (selectedPage != myGames) myGames.visible = NO;
 	more.visible = NO;
+    gameDetail.visible = NO;
 	
 	[self loadMyGames];
 }
@@ -350,11 +361,14 @@
 	[myGamesButton unselected];
 	[moreButton selected];
 	
+    welcome.visible = NO;
 	featured.visible = NO;
 	playing.visible = NO;
 	browse.visible = NO;
 	myGames.visible = NO;
 	if (selectedPage != more) more.visible = NO;
+    gameDetail.visible = NO;
+    
 	[self loadMore];
 }
 
@@ -443,6 +457,33 @@
     loading = NO;
 	welcome.visible = YES;
 }
+
+
+#pragma mark -
+#pragma mark GameDetail
+
+
+// Game detail i
+-(void) loadGameDetail {
+	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
+	selectedPage = gameDetail;
+	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadGameDetail)];
+	loading = YES;
+}
+
+-(void) _loadGameDetail {    
+    CGSize size = [[CCDirector sharedDirector] winSize];
+    
+    [Loader hideAsynchronousLoader];
+    
+    CCLabelTTF *placeHolderText = [CCLabelTTF labelWithString:@"Game detail screen" fontName:@"HelveticaNeue-Bold" fontSize:16];
+    placeHolderText.color = ccc3(255,255,255);
+    placeHolderText.position = ccp(size.width/2, size.height/2);
+    [gameDetail addChild:placeHolderText];
+    loading = NO;
+	gameDetail.visible = YES;
+}
+
 
 
 #pragma mark -
@@ -1286,13 +1327,21 @@
     
 	GameCell *selected = (GameCell *)cell;
 	if (selected.levelId > 0) {
-		// Load level
-		
+		// Load game detail screen.
+        
+
+        
+        
+         // OLD CODE BEGINS
+         
 		//CCLOG(@"Selected Level: %i", selected.levelId);
 		[Shared setLevel:selected.levelId];
         [Shared setLevelTitle:[selected.data objectForKey:@"title"]];
 		[Shared setLevelDate:[selected.data objectForKey:@"published_date"]];
 		
+        [self loadGameDetail];
+        
+        /*
 		// Add level to favourites
 		for (uint i = 0; i < [jsonDataPlaying count]; i++) {
 			NSDictionary *levelData = [jsonDataPlaying objectAtIndex:i];
@@ -1320,6 +1369,9 @@
 					 [CCCallFunc actionWithTarget:self selector:@selector(selectedLevel:)],
 					 nil];
 		[backSelected runAction:action];
+        
+        // OLD CODE ENDS
+        */
 		
 		//[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
 	
