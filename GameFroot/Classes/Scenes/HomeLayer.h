@@ -23,6 +23,8 @@
 	NSDictionary *properties;
 	
 	// Containers
+    CCNode *welcome;
+    CCNode *gameDetail;
 	CCNode *featured;
 	CCNode *playing;
 	CCNode *browse;
@@ -76,6 +78,8 @@
 // returns a CCScene that contains the HomeLayer as the only child
 +(CCScene *) scene;
 
+-(void) loadWelcome;
+-(void) loadGameDetail;
 -(void) loadFeatured;
 -(void) loadPlaying;
 -(void) loadBrowse;

@@ -86,6 +86,12 @@
 		
 		more = [CCNode node];
 		[self addChild:more z:4];
+        
+        welcome = [CCNode node];
+        [self addChild:welcome z:4];
+        
+        gameDetail = [CCNode node];
+        [self addChild:gameDetail z:4];
 		
 		// Main tab navigation
 		CCSprite *bottom = [CCSprite spriteWithFile:@"tab-bar.png"];
@@ -208,8 +214,13 @@
 		loading = NO;
         displayingDeleteButton = NO;
         
-		// Load featured panel
-		[self loadFeatured];
+		if([[NSUserDefaults standardUserDefaults] boolForKey:@"firstlaunch"]) {
+            // Do some stuff on first launch
+            [self loadWelcome];
+        } else {
+            // Load featured panel
+            [self loadFeatured];
+        }
 	}
 	
 	return self;
@@ -230,6 +241,65 @@
 
 #pragma mark -
 #pragma mark Event handlers
+
+
+-(void) gameDetailBack:(id)sender {
+    
+    welcome.visible = NO;
+	featured.visible = NO;
+	playing.visible = NO;
+	browse.visible = NO;
+	myGames.visible = NO;
+	more.visible = NO;
+    gameDetail.visible = NO;
+	
+    CCNode *previousPage = selectedPage;
+    selectedPage = gameDetail;
+    
+    if(previousPage == featured) {
+        [self loadFeatured];
+    } else if(previousPage == playing) {
+        [self loadPlaying];
+    } else if(previousPage == browse) {
+        [self loadBrowse];
+    } else if(previousPage == myGames) {
+        [self loadMyGames];
+    } else {
+        [self loadFeatured];
+    }
+}
+
+-(void) gameDetailPlay:(id)sender {
+    
+    /*
+     // Add level to favourites
+     for (uint i = 0; i < [jsonDataPlaying count]; i++) {
+         NSDictionary *levelData = [jsonDataPlaying objectAtIndex:i];
+         int levelId = [[levelData objectForKey:@"id"] intValue];
+         if (levelId == selected.levelId) {
+             [jsonDataPlaying removeObjectAtIndex:i];
+             break;
+         }
+     }
+     
+     NSMutableDictionary *data = [selected.data mutableCopy];
+     NSString *author = [data objectForKey:@"author"];
+     //CCLOG(@">>>>>> %@, %@", author, [author class]);
+     if ([author isMemberOfClass:[NSNull class]]) {
+     [data setObject:userName forKey:@"author"];
+     }
+     
+     [jsonDataPlaying insertObject:data atIndex:0];
+    */
+     //CCLOG(@"Add favourite: %@", [selected.data description]);
+     //CCLOG(@"Favourites: %@", [jsonDataPlaying description]);
+     
+     id action = [CCSequence actions:
+     [CCDelayTime actionWithDuration:0.2],
+     [CCCallFunc actionWithTarget:self selector:@selector(selectedLevel:)],
+     nil];
+     [sender runAction:action];
+}
 
 -(void) selectedLevel:(id)sender {	
 	[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
@@ -258,11 +328,13 @@
 	[myGamesButton unselected];
 	[moreButton unselected];
 	
+    welcome.visible = NO;
 	if (selectedPage != featured) featured.visible = NO;
 	playing.visible = NO;
 	browse.visible = NO;
 	myGames.visible = NO;
 	more.visible = NO;
+    gameDetail.visible = NO;
 	
 	[self loadFeatured];
 }
@@ -279,11 +351,13 @@
 	[myGamesButton unselected];
 	[moreButton unselected];
 	
+    welcome.visible = NO;
 	featured.visible = NO;
 	if (selectedPage != playing) playing.visible = NO;
 	browse.visible = NO;
 	myGames.visible = NO;
 	more.visible = NO;
+    gameDetail.visible = NO;
 	
 	[self loadPlaying];
 }
@@ -300,11 +374,13 @@
 	[myGamesButton unselected];
 	[moreButton unselected];
 	
+    welcome.visible = NO;
 	featured.visible = NO;
 	playing.visible = NO;
 	if (selectedPage != browse) browse.visible = NO;
 	myGames.visible = NO;
 	more.visible = NO;
+    gameDetail.visible = NO;
 	
 	[self loadBrowse];
 }
@@ -321,11 +397,13 @@
 	[myGamesButton selected];
 	[moreButton unselected];
 	
+    welcome.visible = NO;
 	featured.visible = NO;
 	playing.visible = NO;
 	browse.visible = NO;
 	if (selectedPage != myGames) myGames.visible = NO;
 	more.visible = NO;
+    gameDetail.visible = NO;
 	
 	[self loadMyGames];
 }
@@ -342,11 +420,14 @@
 	[myGamesButton unselected];
 	[moreButton selected];
 	
+    welcome.visible = NO;
 	featured.visible = NO;
 	playing.visible = NO;
 	browse.visible = NO;
 	myGames.visible = NO;
 	if (selectedPage != more) more.visible = NO;
+    gameDetail.visible = NO;
+    
 	[self loadMore];
 }
 
@@ -406,6 +487,78 @@
     // release the connection, and the data object
 	[connection release];
     [receivedData release];
+}
+
+
+#pragma mark -
+#pragma mark Welcome
+
+-(void) loadWelcome {
+	selectedPage = welcome;
+    NSLog(@"LoadWelcome called!");
+	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadWelcome)];
+	loading = YES;
+}
+
+-(void) _loadWelcome {
+    [Loader hideAsynchronousLoader];
+    
+	CGSize size = [[CCDirector sharedDirector] winSize];
+    // Some stuff for the welcome screen here.
+    // add a textplaceholder
+    
+    CCLabelTTF *placeHolderText = [CCLabelTTF labelWithString:@"Welcome screen" fontName:@"HelveticaNeue-Bold" fontSize:16];
+    placeHolderText.color = ccc3(255,255,255);
+    placeHolderText.position = ccp(size.width/2, size.height/2);
+    [welcome addChild:placeHolderText z:4];
+    
+    
+    loading = NO;
+	welcome.visible = YES;
+}
+
+
+#pragma mark -
+#pragma mark GameDetail
+
+
+-(void) loadGameDetail {
+	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
+	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadGameDetail)];
+	loading = YES;
+}
+
+-(void) _loadGameDetail {    
+    CGSize size = [[CCDirector sharedDirector] winSize];
+    
+    [Loader hideAsynchronousLoader];
+    
+    CCLabelTTF *placeHolderText = [CCLabelTTF labelWithString:@"Game detail screen" fontName:@"HelveticaNeue-Bold" fontSize:16];
+    placeHolderText.color = ccc3(255,255,255);
+    placeHolderText.position = ccp(size.width/2, size.height/2);
+    [gameDetail addChild:placeHolderText];
+    
+    // Add top menu and buttons
+    CCMenuItemSprite *topNavBackButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"placeholder_back_arrow.png"] selectedSprite:[CCSprite spriteWithFile:@"placeholder_back_arrow.png"] target:self selector:@selector(gameDetailBack:)];
+    
+    CCMenuItemSprite *topNavPlayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"placeholder_play_arrow.png"] selectedSprite:[CCSprite spriteWithFile:@"placeholder_play_arrow.png"] target:self selector:@selector(gameDetailPlay:)];
+    
+    CCMenu *topNav = [CCMenu menuWithItems:topNavBackButton, topNavPlayButton, nil];
+    [topNav alignItemsHorizontallyWithPadding:20];
+    topNav.position = ccp(size.width/2, size.height - 44 - topNavBackButton.contentSize.height/2 - 5);
+    
+    // Add some stuff to the content area
+    
+    CCMenuItemSprite *contentPlayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"placeholder_play.png"] selectedSprite:[CCSprite spriteWithFile:@"placeholder_play.png.png"] target:self selector:@selector(gameDetailPlay:)];
+    
+    CCMenu *contentMenu = [CCMenu menuWithItems:contentPlayButton, nil];
+    contentMenu.position = ccp(size.width/2,size.height/2);
+    
+    [gameDetail addChild:topNav];
+    [gameDetail addChild:contentMenu];
+    
+    loading = NO;
+	gameDetail.visible = YES;
 }
 
 #pragma mark -
@@ -1249,41 +1402,18 @@
     
 	GameCell *selected = (GameCell *)cell;
 	if (selected.levelId > 0) {
-		// Load level
-		
+		// Load game detail screen.
+        
+         // OLD CODE BEGINS
+         
 		//CCLOG(@"Selected Level: %i", selected.levelId);
 		[Shared setLevel:selected.levelId];
         [Shared setLevelTitle:[selected.data objectForKey:@"title"]];
 		[Shared setLevelDate:[selected.data objectForKey:@"published_date"]];
 		
-		// Add level to favourites
-		for (uint i = 0; i < [jsonDataPlaying count]; i++) {
-			NSDictionary *levelData = [jsonDataPlaying objectAtIndex:i];
-			int levelId = [[levelData objectForKey:@"id"] intValue];
-			if (levelId == selected.levelId) {
-				[jsonDataPlaying removeObjectAtIndex:i];
-				break;
-			}
-		}
-		
-		NSMutableDictionary *data = [selected.data mutableCopy];
-		NSString *author = [data objectForKey:@"author"];
-		//CCLOG(@">>>>>> %@, %@", author, [author class]);
-		if ([author isMemberOfClass:[NSNull class]]) {
-			[data setObject:userName forKey:@"author"];
-		}
-		
-		[jsonDataPlaying insertObject:data atIndex:0];
-		//CCLOG(@"Add favourite: %@", [selected.data description]);
-		
-		//CCLOG(@"Favourites: %@", [jsonDataPlaying description]);
-		
-		id action = [CCSequence actions:
-					 [CCDelayTime actionWithDuration:0.2],
-					 [CCCallFunc actionWithTarget:self selector:@selector(selectedLevel:)],
-					 nil];
-		[backSelected runAction:action];
-		
+        [self loadGameDetail];
+        
+       		
 		//[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
 	
 	/*
