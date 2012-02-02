@@ -49,6 +49,10 @@
 {
 	// Init the window
 	window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    
+    //Add a firstlaunch flag so we can run different stuff on firstlaunch
+    [[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES],@"firstlaunch", nil]];
+    
 	
 	// Try to use CADisplayLink director
 	// if it fails (SDK < 3.1) use the default director
@@ -153,6 +157,7 @@
 
 
 - (void)applicationWillResignActive:(UIApplication *)application {
+    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"firstlaunch"];
 	[[CCDirector sharedDirector] pause];
 }
 
@@ -193,13 +198,10 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application {
 	CCDirector *director = [CCDirector sharedDirector];
-	
+	[[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"firstlaunch"];
 	[[director openGLView] removeFromSuperview];
-	
 	[viewController release];
-	
 	[window release];
-	
 	[director end];	
 }
 

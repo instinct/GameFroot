@@ -86,6 +86,9 @@
 		
 		more = [CCNode node];
 		[self addChild:more z:4];
+        
+        welcome = [CCNode node];
+        [self addChild:welcome z:4];
 		
 		// Main tab navigation
 		CCSprite *bottom = [CCSprite spriteWithFile:@"tab-bar.png"];
@@ -208,8 +211,13 @@
 		loading = NO;
         displayingDeleteButton = NO;
         
-		// Load featured panel
-		[self loadFeatured];
+		if([[NSUserDefaults standardUserDefaults] boolForKey:@"firstlaunch"]) {
+            // Do some stuff on first launch
+            [self loadWelcome];
+        } else {
+            // Load featured panel
+            [self loadFeatured];
+        }
 	}
 	
 	return self;
@@ -407,6 +415,35 @@
 	[connection release];
     [receivedData release];
 }
+
+
+#pragma mark -
+#pragma mark Welcome
+
+-(void) loadWelcome {
+	selectedPage = welcome;
+    NSLog(@"LoadWelcome called!");
+	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadWelcome)];
+	loading = YES;
+}
+
+-(void) _loadWelcome {
+    [Loader hideAsynchronousLoader];
+    
+	CGSize size = [[CCDirector sharedDirector] winSize];
+    // Some stuff for the welcome screen here.
+    // add a textplaceholder
+    
+    CCLabelTTF *placeHolderText = [CCLabelTTF labelWithString:@"Welcome screen" fontName:@"HelveticaNeue-Bold" fontSize:16];
+    placeHolderText.color = ccc3(255,255,255);
+    placeHolderText.position = ccp(size.width/2, size.height/2);
+    [welcome addChild:placeHolderText z:4];
+    
+    
+    loading = NO;
+	welcome.visible = YES;
+}
+
 
 #pragma mark -
 #pragma mark Featured
