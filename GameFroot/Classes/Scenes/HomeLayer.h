@@ -72,6 +72,8 @@
 	BOOL connecting;
     
     BOOL loading;
+    
+    NSMutableDictionary *levelData;
 	
 }
 

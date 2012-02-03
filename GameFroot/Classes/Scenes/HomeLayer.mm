@@ -271,28 +271,33 @@
 
 -(void) gameDetailPlay:(id)sender {
     
-    /*
      // Add level to favourites
      for (uint i = 0; i < [jsonDataPlaying count]; i++) {
-         NSDictionary *levelData = [jsonDataPlaying objectAtIndex:i];
-         int levelId = [[levelData objectForKey:@"id"] intValue];
-         if (levelId == selected.levelId) {
+         NSDictionary *ld = [jsonDataPlaying objectAtIndex:i];
+         int levelId = [[ld objectForKey:@"id"] intValue];
+         if (levelId == [Shared getLevel]) {
              [jsonDataPlaying removeObjectAtIndex:i];
              break;
          }
      }
+    
+    // if we havn't already retrieved the level data get it now
+    // need to check correct json data depending on where we've come from
+    
+    
+     NSString *author = [levelData objectForKey:@"author"];
      
-     NSMutableDictionary *data = [selected.data mutableCopy];
-     NSString *author = [data objectForKey:@"author"];
      //CCLOG(@">>>>>> %@, %@", author, [author class]);
      if ([author isMemberOfClass:[NSNull class]]) {
-     [data setObject:userName forKey:@"author"];
+         [levelData setObject:userName forKey:@"author"];
      }
      
-     [jsonDataPlaying insertObject:data atIndex:0];
-    */
-     //CCLOG(@"Add favourite: %@", [selected.data description]);
-     //CCLOG(@"Favourites: %@", [jsonDataPlaying description]);
+    NSMutableArray *data = [levelData mutableCopy];
+    [jsonDataPlaying insertObject:data atIndex:0];
+    [data release];
+    
+    //CCLOG(@"Add favourite: %@", [levelData description]);
+    //CCLOG(@"Favourites: %@", [jsonDataPlaying description]);
      
      id action = [CCSequence actions:
      [CCDelayTime actionWithDuration:0.2],
@@ -1404,13 +1409,16 @@
 	if (selected.levelId > 0) {
 		// Load game detail screen.
         
-         // OLD CODE BEGINS
-         
-		//CCLOG(@"Selected Level: %i", selected.levelId);
+        NSLog(@"data: %@", selected.data);
+        //CCLOG(@"Selected Level: %i", selected.levelId);
 		[Shared setLevel:selected.levelId];
         [Shared setLevelTitle:[selected.data objectForKey:@"title"]];
 		[Shared setLevelDate:[selected.data objectForKey:@"published_date"]];
-		
+        
+        // store this for later.
+        [levelData autorelease];
+        levelData = [selected.data mutableCopy];
+        
         [self loadGameDetail];
         
        		
@@ -1477,6 +1485,7 @@
 	if (userName != nil) [userName release];
 	
 	[properties release];
+    [levelData release];
 	
 	// don't forget to call "super dealloc"
 	[super dealloc];
