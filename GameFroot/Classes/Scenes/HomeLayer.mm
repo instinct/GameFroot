@@ -1153,10 +1153,10 @@
 		
 	} else {
 		
-		NSDictionary *levelData = [tableData objectAtIndex:idx];
-		NSString *title = [levelData objectForKey:@"title"];
-		NSString *background = [levelData objectForKey:@"background"];
-		int levelId = [[levelData objectForKey:@"id"] intValue];
+		NSDictionary *cellData = [tableData objectAtIndex:idx];
+		NSString *title = [cellData objectForKey:@"title"];
+		NSString *background = [cellData objectForKey:@"background"];
+		int levelId = [[cellData objectForKey:@"id"] intValue];
 		//CCLOG(@"Level '%@'", title);
 		
 		GameCell *cell = (GameCell *)[table dequeueCell];
@@ -1164,7 +1164,7 @@
 			cell = [[GameCell new] autorelease];
 			cell.index = idx;
 			cell.levelId = levelId;
-			cell.data = levelData;
+			cell.data = cellData;
 			
 			//CCLOG(@"Add cell: %i, %i", idx, levelId);
 			
@@ -1188,9 +1188,9 @@
 			label.anchorPoint = ccp(0,0.5);
 			[label setPosition: ccp(60, back.contentSize.height/2)];
 			
-			NSString *author = [levelData objectForKey:@"author"];
+			NSString *author = [cellData objectForKey:@"author"];
 			if ((author == nil) || [author isMemberOfClass:[NSNull class]]) {
-				if (selectedPage == myGames) author = [levelData objectForKey:@"published_date"]; //author = userName;
+				if (selectedPage == myGames) author = [cellData objectForKey:@"published_date"]; //author = userName;
 				else author = @"";
 			}
 			
@@ -1277,9 +1277,9 @@
 				
 				CCLabelFX *title = (CCLabelFX*)[cell getChildByTag:5];
 				if ((background != nil) && ![background isEqualToString:@""]) {
-					NSString *author = [levelData objectForKey:@"author"];
+					NSString *author = [cellData objectForKey:@"author"];
 					if ((author == nil) || [author isMemberOfClass:[NSNull class]]) {
-						if (selectedPage == myGames) author = [levelData objectForKey:@"published_date"]; //author = userName;
+						if (selectedPage == myGames) author = [cellData objectForKey:@"published_date"]; //author = userName;
 						else author = @"";
 					}
 					[title setString:author];
@@ -1290,7 +1290,7 @@
 				
 				cell.index = idx;
 				cell.levelId = levelId;
-				cell.data = levelData;
+				cell.data = cellData;
 			}
 		}
 		
@@ -1354,8 +1354,8 @@
 	GameCell *cell = (GameCell *)button.parent.parent;
 	
 	for (uint i = 0; i < [jsonDataPlaying count]; i++) {
-		NSDictionary *levelData = [jsonDataPlaying objectAtIndex:i];
-		int levelId = [[levelData objectForKey:@"id"] intValue];
+		NSDictionary *cellData = [jsonDataPlaying objectAtIndex:i];
+		int levelId = [[cellData objectForKey:@"id"] intValue];
 		if (levelId == cell.levelId) {
 			
 			[jsonDataPlaying removeObjectAtIndex:i];
