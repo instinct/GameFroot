@@ -9,6 +9,7 @@
 
 // Import the interfaces
 #import "GameLayer.h"
+#import "GameMenu.h"
 #import "HomeLayer.h"
 #import "Shared.h"
 #import "CJSONDeserializer.h"
@@ -453,55 +454,24 @@ GameLayer *instance;
 }
 
 -(void) setupLoadingScreen
-{
-	CGSize size = [[CCDirector sharedDirector] winSize];
-	
+{	
 	// Loading
-	loading = [CCNode node];
-	[loading setPosition:ccp(0,0)];
-	[self addChild:loading z:1000];
-	
-	CCSprite *bg = [CCSprite spriteWithFile:@"loading-bg.png"];
-	[bg setScale:CC_CONTENT_SCALE_FACTOR()];
-	[bg setPosition:ccp(size.width*0.5,size.height*0.5)];
-	[loading addChild:bg];
-    
-    CCLabelBMFont *level = [CCLabelBMFont labelWithString:[Shared getLevelTitle] fntFile:@"Chicago.fnt"];
-    [level setPosition:ccp(size.width*0.5,size.height*0.8)];
-	[loading addChild:level];
-    
-	CCSprite *title = [CCSprite spriteWithFile:@"loading-title.png"];
-	[title setScale:CC_CONTENT_SCALE_FACTOR()];
-	[title setPosition:ccp(size.width*0.5,size.height*0.546875)];
-	[loading addChild:title];
-	
-	CCSprite *progressbarBack = [CCSprite spriteWithFile:@"loading-bar-bg.png"];
-	[progressbarBack setScale:CC_CONTENT_SCALE_FACTOR()];
-	[progressbarBack setPosition:ccp(size.width*0.5,size.height*0.4)];
-	[loading addChild:progressbarBack];
-	
-	progressbar = [CCSprite spriteWithFile:@"loading-bar-overlay.png"];
-	[progressbar setScale:CC_CONTENT_SCALE_FACTOR()];
-	[progressbar setPosition:ccp(size.width*0.225,size.height*0.4075)];
-	[progressbar setAnchorPoint:ccp(0,0.5)];
-	[loading addChild:progressbar z:10];
-	
-	parts = 8;
-	partsLoaded = 0;
-	[self setProgressBar:0.0f];
-	
-	[self schedule:@selector(startLoading) interval:0.1f];
+	mainMenu = [GameMenu node];
+	[mainMenu setPosition:ccp(0,0)];
+	[self addChild:mainMenu z:1000];
+    [mainMenu resetProgressBar];
+    [mainMenu showProgressBar];
+    parts = 8;
+    partsLoaded = 0;
+    [mainMenu setProgressBar:0.0f];    
+    [self schedule:@selector(startLoading) interval:0.1f];    
 }
 
 -(void) removeLoadingScreen
 {
-	[self removeChild:loading cleanup:YES];
+	[self removeChild:mainMenu cleanup:YES];
 }
 
--(void) setProgressBar:(float)percent
-{
-	[progressbar setTextureRect:CGRectMake(0,0,263*(float)(percent / 100.0f),18/CC_CONTENT_SCALE_FACTOR())];
-}
 
 -(void) startLoading
 {
@@ -543,7 +513,7 @@ GameLayer *instance;
 	
 	partsLoaded++;
 	float percent = ((float)partsLoaded / (float)parts) * 100.0f;
-	[self setProgressBar:percent];
+	[mainMenu setProgressBar:percent];
 	
 	CCLOG(@"Percent loaded: %f (%i of %i)", percent, partsLoaded, parts);
 	

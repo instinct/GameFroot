@@ -16,6 +16,7 @@
 @class Player;
 @class GameObject;
 @class Bullet;
+@class GameMenu;
 
 // GameLayer
 @interface GameLayer : CCLayer
@@ -35,8 +36,8 @@
 	CCNode *objects;
 	CCNode *hud;
 	
-	// Loader
-	CCSprite *loading;
+	// Loader/Main menu
+	GameMenu *mainMenu;
 	CCSprite *progressbar;
 	int parts;
 	int partsLoaded;
@@ -145,7 +146,6 @@
 +(GameLayer *)getInstance;
 -(void) setupLoadingScreen;
 -(void) removeLoadingScreen;
--(void) setProgressBar:(float)percent;
 -(void) startLoading;
 -(void) loadLevelData:(int)gameID;
 -(void) loadBackgroundLevel;

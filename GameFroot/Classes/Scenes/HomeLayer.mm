@@ -291,10 +291,8 @@
      if ([author isMemberOfClass:[NSNull class]]) {
          [levelData setObject:userName forKey:@"author"];
      }
-     
-    NSMutableArray *data = [levelData mutableCopy];
-    [jsonDataPlaying insertObject:data atIndex:0];
-    [data release];
+    
+    [jsonDataPlaying insertObject:levelData atIndex:0];
     
     //CCLOG(@"Add favourite: %@", [levelData description]);
     //CCLOG(@"Favourites: %@", [jsonDataPlaying description]);

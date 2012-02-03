@@ -418,6 +418,7 @@
 		1643B75914D9B78E00A67057 /* CJSONSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1643B75214D9B78E00A67057 /* CJSONSerializer.m */; };
 		1643B75E14D9BA2000A67057 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1643B75C14D9BA2000A67057 /* SystemConfiguration.framework */; };
 		1643B75F14D9BA2000A67057 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1643B75D14D9BA2000A67057 /* CFNetwork.framework */; };
+		2230953914DB6CB600D7D219 /* GameMenu.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2230953814DB6CB600D7D219 /* GameMenu.mm */; };
 		22615B5C14DA3870009A0A28 /* placeholder_back_arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 22615B5914DA382A009A0A28 /* placeholder_back_arrow.png */; };
 		22615B5D14DA3870009A0A28 /* placeholder_play_arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 22615B5A14DA3849009A0A28 /* placeholder_play_arrow.png */; };
 		22615B5E14DA3870009A0A28 /* placeholder_play.png in Resources */ = {isa = PBXBuildFile; fileRef = 22615B5B14DA3866009A0A28 /* placeholder_play.png */; };
@@ -1066,6 +1067,8 @@
 		1643B75314D9B78E00A67057 /* JSONRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONRepresentation.h; sourceTree = "<group>"; };
 		1643B75C14D9BA2000A67057 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		1643B75D14D9BA2000A67057 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		2230953414DB68DB00D7D219 /* GameMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameMenu.h; path = ../Scenes/GameMenu.h; sourceTree = "<group>"; };
+		2230953814DB6CB600D7D219 /* GameMenu.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GameMenu.mm; path = ../Scenes/GameMenu.mm; sourceTree = "<group>"; };
 		22615B5914DA382A009A0A28 /* placeholder_back_arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = placeholder_back_arrow.png; sourceTree = "<group>"; };
 		22615B5A14DA3849009A0A28 /* placeholder_play_arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = placeholder_play_arrow.png; sourceTree = "<group>"; };
 		22615B5B14DA3866009A0A28 /* placeholder_play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = placeholder_play.png; sourceTree = "<group>"; };
@@ -1995,6 +1998,8 @@
 		1643B6D614D9B49D00A67057 /* Overlays */ = {
 			isa = PBXGroup;
 			children = (
+				2230953414DB68DB00D7D219 /* GameMenu.h */,
+				2230953814DB6CB600D7D219 /* GameMenu.mm */,
 				1643B6D714D9B49D00A67057 /* Lose.h */,
 				1643B6D814D9B49D00A67057 /* Lose.mm */,
 				1643B6D914D9B49D00A67057 /* Win.h */,
@@ -2596,6 +2601,7 @@
 				1643B75714D9B78E00A67057 /* CJSONDeserializer.m in Sources */,
 				1643B75814D9B78E00A67057 /* CJSONScanner.m in Sources */,
 				1643B75914D9B78E00A67057 /* CJSONSerializer.m in Sources */,
+				2230953914DB6CB600D7D219 /* GameMenu.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
