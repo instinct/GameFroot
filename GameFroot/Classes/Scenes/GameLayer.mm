@@ -714,7 +714,8 @@ GameLayer *instance;
 				[itemData setObject:[NSDictionary dictionary] forKey:@"robot"];
 				
 			} else if ([robot isKindOfClass:[NSDictionary class]]) {
-				[itemData setObject:[robotsIds objectForKey:[robot objectForKey:@"id"]] forKey:@"robot"];
+                if ([robotsIds objectForKey:[robot objectForKey:@"id"]] != nil) [itemData setObject:[robotsIds objectForKey:[robot objectForKey:@"id"]] forKey:@"robot"];
+                else [itemData setObject:[robotsIds objectForKey:[NSNumber numberWithInt:[[robot objectForKey:@"id"] intValue]]] forKey:@"robot"];
 			}
                  
             [itemTiles addObject:itemData];

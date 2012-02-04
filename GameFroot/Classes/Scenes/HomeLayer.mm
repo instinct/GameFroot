@@ -552,7 +552,7 @@
     
     // Add some stuff to the content area
     
-    CCMenuItemSprite *contentPlayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"placeholder_play.png"] selectedSprite:[CCSprite spriteWithFile:@"placeholder_play.png.png"] target:self selector:@selector(gameDetailPlay:)];
+    CCMenuItemSprite *contentPlayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"placeholder_play.png"] selectedSprite:[CCSprite spriteWithFile:@"placeholder_play.png"] target:self selector:@selector(gameDetailPlay:)];
     
     CCMenu *contentMenu = [CCMenu menuWithItems:contentPlayButton, nil];
     contentMenu.position = ccp(size.width/2,size.height/2);

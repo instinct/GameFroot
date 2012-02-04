@@ -7,7 +7,7 @@
 //
 
 #import "GameMenu.h"
-
+#import "HomeLayer.h"
 
 @implementation GameMenu
 
@@ -40,11 +40,22 @@
         [_progressBar setPosition:ccp(size.width*0.225,size.height*0.4075)];
         [_progressBar setAnchorPoint:ccp(0,0.5)];
   
+		CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-main-menu2.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-main-menu2.png"] target:self selector:@selector(backMenu:)];
+		[backButton setScale:0.75*CC_CONTENT_SCALE_FACTOR()];		
+		CCMenu *menu = [CCMenu menuWithItems:backButton, nil];
+		menu.position = ccp(size.width/2, size.height/2 - 100);
+		[self addChild:menu];
+
+        
         [self hideProgressBar];
         [self addChild:_progressBarBack];
         [self addChild:_progressBar z:10];
     }
     return self;
+}
+
+-(void) backMenu:(id)sender {
+	[[CCDirector sharedDirector] replaceScene:[HomeLayer scene]];
 }
 
 -(void) showProgressBar {
