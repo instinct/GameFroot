@@ -152,7 +152,7 @@
 -(void) loadTilesLevel;
 -(void) createMapTiles;
 -(void) createMapItems;
--(void) createMapNPCSs;
+//-(void) createMapNPCSs;
 -(void) loadPlayer;
 -(void) loadEnemies;
 
@@ -199,6 +199,9 @@
 -(void) enableTimer;
 -(void) disableTimer;
 -(void) quakeCameraWithIntensity:(int)intensity during:(int)milliseconds;
+-(void) say:(NSString *)msg;
+-(void) think:(NSString *)msg;
+-(void) sayInChatPanel:(NSString *)msg;
 
 -(void) setTimer:(int)_seconds;
 -(void) setLives:(int)_lives;

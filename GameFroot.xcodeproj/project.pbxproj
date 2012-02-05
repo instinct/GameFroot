@@ -1966,14 +1966,14 @@
 			isa = PBXGroup;
 			children = (
 				1643B6D114D9B49D00A67057 /* Table Items */,
+				1643B6C914D9B49D00A67057 /* GameObject.h */,
+				1643B6CA14D9B49D00A67057 /* GameObject.mm */,
 				1643B6C314D9B49D00A67057 /* CheckPoint.h */,
 				1643B6C414D9B49D00A67057 /* CheckPoint.mm */,
 				1643B6C514D9B49D00A67057 /* Collectable.h */,
 				1643B6C614D9B49D00A67057 /* Collectable.mm */,
 				1643B6C714D9B49D00A67057 /* Dialogue.h */,
 				1643B6C814D9B49D00A67057 /* Dialogue.mm */,
-				1643B6C914D9B49D00A67057 /* GameObject.h */,
-				1643B6CA14D9B49D00A67057 /* GameObject.mm */,
 				1643B6CB14D9B49D00A67057 /* MovingPlatform.h */,
 				1643B6CC14D9B49D00A67057 /* MovingPlatform.mm */,
 				1643B6CD14D9B49D00A67057 /* Robot.h */,

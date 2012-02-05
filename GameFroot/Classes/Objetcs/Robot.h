@@ -10,7 +10,8 @@
 
 @interface Robot : GameObject {
 	NSArray *behavior;
-	
+	NSDictionary *parameters;
+    
 	int health;
 	BOOL facingLeft;
 	
@@ -43,6 +44,11 @@
 	CGRect mapRect;
     
     BOOL wasMoving;
+    
+    BOOL invisible;
+    BOOL freezed;
+    
+    NSString *name;
 }
 
 @property (nonatomic, assign) BOOL solid;
@@ -50,7 +56,7 @@
 
 -(void) createBox2dObject:(b2World*)world size:(CGSize)_size;
 
--(void) setupRobot:(NSDictionary *)data;
+-(void) setupRobot:(NSDictionary *)data parameters:(NSDictionary *)params;
 -(void) update:(ccTime)dt;
 
 -(void) runCommand: (NSDictionary *)command;

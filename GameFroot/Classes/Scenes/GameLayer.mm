@@ -468,7 +468,7 @@ GameLayer *instance;
 	[self addChild:mainMenu z:1000];
     [mainMenu resetProgressBar];
     [mainMenu showProgressBar];
-    parts = 8;
+    parts = 7;
     partsLoaded = 0;
     [mainMenu setProgressBar:0.0f];    
     [self schedule:@selector(startLoading) interval:0.1f];    
@@ -506,14 +506,10 @@ GameLayer *instance;
 			break;
 			
 		case 5:
-			[self createMapNPCSs];
-			break;
-			
-		case 6:
 			[self loadPlayer];
 			break;
 			
-		case 7:
+		case 6:
 			[self loadEnemies];
 			break;
 	}
@@ -723,6 +719,8 @@ GameLayer *instance;
 			} else if ([robot isKindOfClass:[NSDictionary class]]) {
                 if ([robotsIds objectForKey:[robot objectForKey:@"id"]] != nil) [itemData setObject:[robotsIds objectForKey:[robot objectForKey:@"id"]] forKey:@"robot"];
                 else [itemData setObject:[robotsIds objectForKey:[NSNumber numberWithInt:[[robot objectForKey:@"id"] intValue]]] forKey:@"robot"];
+                
+                [itemData setObject:robot forKey:@"robotParameters"];
 			}
                  
             [itemTiles addObject:itemData];
@@ -1388,7 +1386,7 @@ GameLayer *instance;
 				// Override other functionality
 				Robot *item = [Robot spriteWithBatchNode:spriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 				[item setPosition:pos];
-				[item setupRobot:robot];
+				[item setupRobot:robot parameters:[dict objectForKey:@"robotParameters"]];
 				[item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
 				[spriteSheet addChild:item z:zorder];
 				
@@ -1442,6 +1440,7 @@ GameLayer *instance;
 	CCLOG(@"Total points level: %i", totalPoints);
 }
 
+/*
 -(void) createMapNPCSs {
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Add NPCS to map
@@ -1496,6 +1495,7 @@ GameLayer *instance;
 		
 	}
 }
+*/
 
 -(void) loadPlayer
 {
@@ -2036,6 +2036,32 @@ GameLayer *instance;
 -(void) _resetPosition
 {
     [scene setPosition:originalPosition];
+}
+
+-(void) say:(NSString *)msg
+{
+	Dialogue *npcs = [Dialogue node];
+    [npcs setupDialogue:msg];
+    [npcs display];
+}
+
+-(void) think:(NSString *)msg
+{
+	Dialogue *npcs = [Dialogue node];
+    [npcs setupDialogue:msg];
+    [npcs display];
+}
+
+-(void) sayInChatPanel:(NSString *)msg
+{
+	Dialogue *npcs = [Dialogue node];
+    [npcs setupDialogue:msg];
+    [npcs display];
+}
+
+-(void) askMultichoice:(NSDictionary *)comman
+{
+	
 }
 
 -(void) jetpack

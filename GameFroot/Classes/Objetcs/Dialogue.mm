@@ -25,9 +25,10 @@
 	[[CCTouchDispatcher sharedDispatcher] addTargetedDelegate:self priority:TOUCH_PRIORITY swallowsTouches:YES];
 }
 
--(void) remove
+//-(void) remove
+-(void) display
 {
-	CGSize s = [[CCDirector sharedDirector] winSize];
+	//CGSize s = [[CCDirector sharedDirector] winSize];
 	
 	background = [CCSprite spriteWithFile:@"dialogue_background.png"];
 	[background setAnchorPoint:ccp(0,0)];
@@ -85,8 +86,6 @@
 		[[CCDirector sharedDirector] resume];
 		[[CCDirector sharedDirector] startAnimation];
 		[[GameLayer getInstance] resume];
-		
-		[super remove];
 		
 		return YES;
 	}

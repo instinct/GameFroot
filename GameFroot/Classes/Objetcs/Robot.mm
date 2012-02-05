@@ -45,7 +45,9 @@
 	
 	if (ignoreGravity) body->SetGravityScale(0.0f);
 	
-	//if (solid) {
+    BOOL isSensor = [name isEqualToString:@"Teleporter"] || [name isEqualToString:@"Story-Point"];
+	
+    if (!isSensor) {
 		b2PolygonShape shape;
 		shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0)/PTM_RATIO);
 		b2FixtureDef fixtureDef;
@@ -55,10 +57,10 @@
 		fixtureDef.restitution = 0.0; // bouncing
 		fixtureDef.isSensor = false;
 		body->CreateFixture(&fixtureDef);
-	/*	
+		
 	} else {
 		b2PolygonShape shape;
-		shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0f)/PTM_RATIO);
+		shape.SetAsBox((size.width/4.0)/PTM_RATIO, (size.height/4.0f)/PTM_RATIO); // Reduce size to allow player walk into the object
 		b2FixtureDef fixtureDef;
 		fixtureDef.shape = &shape;
 		fixtureDef.density = 1.0;
@@ -67,7 +69,6 @@
 		fixtureDef.isSensor = true;
 		body->CreateFixture(&fixtureDef);
 	 }
-	 */
 }
 
 -(void) createBox2dObject:(b2World*)world size:(CGSize)_size
@@ -79,15 +80,18 @@
 	removed = NO;
 }
 
--(void) setupRobot:(NSDictionary *)data
+-(void) setupRobot:(NSDictionary *)data parameters:(NSDictionary *)params
 {
 	//CCLOG(@"Robot.setupRobot: %@", data);
-	
+	//CCLOG(@"Robot.setupRobot (parameters): %@", params);
+    
 	// default values
 	health = 100;	
 	solid = NO;
 	ignoreGravity = YES;
 	immortal = NO;
+    invisible = NO;
+    freezed = NO;
 	
 	if ([data objectForKey:@"behavior"]) {
 		behavior = [[data objectForKey:@"behavior"] retain];
@@ -100,12 +104,17 @@
 		immortal = [[[data objectForKey:@"properties"] objectForKey:@"immortal"] boolValue];
 		solid = [[[data objectForKey:@"properties"] objectForKey:@"solid"] boolValue];
 		ignoreGravity = ![[[data objectForKey:@"properties"] objectForKey:@"physics"] boolValue];
-		
+        
+        // Special atention to Story-Point and Teleporter, make them sensors and smaller hit area
+		name = [[[data objectForKey:@"properties"] objectForKey:@"name"] retain];
+         
 		CCLOG(@"Robot.immortal: %i", immortal);
 		CCLOG(@"Robot.solid: %i", solid);
 		CCLOG(@"Robot.ignoreGravity: %i", ignoreGravity);
 	}
 	
+    parameters = [params retain];
+    
 	facingLeft = YES;
 	
 	onMessage = NO;
@@ -129,16 +138,16 @@
 		NSDictionary *event = (NSDictionary *)[behavior objectAtIndex:i];
 		//CCLOG(@"%@", event);
 		
-		NSString *name = [event objectForKey:@"event"];
+		NSString *nameEvent = [event objectForKey:@"event"];
 		
-		if ([name isEqualToString:@"onSpawn"]) {
+		if ([nameEvent isEqualToString:@"onSpawn"]) {
 			[self resolve:i];
 			
-		} else if ([name isEqualToString:@"onMessage"]) {
+		} else if ([nameEvent isEqualToString:@"onMessage"]) {
 			[msgName addObject:[event objectForKey:@"messageName"]];
 			[msgCommands addObject:[event objectForKey:@"commands"]];
 			
-		} else if ([name isEqualToString:@"onDie"]) {
+		} else if ([nameEvent isEqualToString:@"onDie"]) {
 			onDieCommands = [event objectForKey:@"commands"];
 			
 		}
@@ -156,6 +165,11 @@
 		[self remove];
 	}
 	
+    if (invisible) return;
+    
+    if (freezed && (body->IsActive())) body->SetActive(NO);
+    else if (!freezed && (!body->IsActive())) body->SetActive(YES);
+    
 	if (pos.x + self.contentSize.width < 0) {
 		if (self.visible) {
 			self.visible = NO;
@@ -201,9 +215,9 @@
 				NSDictionary *event = (NSDictionary *)[behavior objectAtIndex:i];
 				//CCLOG(@"%@", event);
 				
-				NSString *name = [event objectForKey:@"event"];
+				NSString *nameEvent = [event objectForKey:@"event"];
 				
-				if ([name isEqualToString:@"onInShot"]) {
+				if ([nameEvent isEqualToString:@"onInShot"]) {
 					[self resolve:i];
 				}
 				
@@ -226,12 +240,12 @@
 	[super update:dt];
 }
 
--(id) runMethod:(NSString *)name withObject:(id)anObject
+-(id) runMethod:(NSString *)nameMethod withObject:(id)anObject
 {
 	NSString *method;
 	
-	if (anObject != nil) method = [NSString stringWithFormat:@"%@:", name];
-	else method = name;
+	if (anObject != nil) method = [NSString stringWithFormat:@"%@:", nameMethod];
+	else method = nameMethod;
 	
 	SEL selector = NSSelectorFromString(method);
 	if ([self respondsToSelector:selector]) {
@@ -241,11 +255,11 @@
 		else result = [self performSelector:selector];
 		
 		//CCLOG(@"Robot: calling selector: %@ with parameter: %@ and result: %@", method, anObject, result);
-		//CCLOG(@"Robot: calling selector: %@ with parameter: %@", method, anObject);
+		CCLOG(@"Robot: calling selector: %@ with parameter: %@", method, anObject);
 		return result;
 		
 	} else {
-		//CCLOG(@"Robot: undeclared selector: %@", method);
+		CCLOG(@"Robot: undeclared selector: %@", method);
 		return nil;
 	}
 }
@@ -291,11 +305,11 @@
 		
 	while (l < totalEvents) {
 		NSDictionary *event = (NSDictionary *)[behavior objectAtIndex:l];
-		NSString *name = [event objectForKey:@"event"];
+		NSString *nameEvent = [event objectForKey:@"event"];
 		
-		if ([name isEqualToString:eventType]) {
+		if ([nameEvent isEqualToString:eventType]) {
 			
-			if (![name isEqualToString:@"onTouchStart"]) {
+			if (![nameEvent isEqualToString:@"onTouchStart"]) {
 				[self resolve:l];
 				
 			} else {
@@ -402,6 +416,17 @@
 		return [NSNumber numberWithBool:NO];
 }
 
+-(NSNumber *) opBooleanNot: (NSDictionary *)command
+{
+	NSDictionary *operand1 = [command objectForKey:@"operand1"];
+	
+	NSString *token1 = [operand1 objectForKey:@"token"];
+	
+	BOOL op1 = [[self runMethod:token1 withObject:operand1] boolValue];
+	
+    return [NSNumber numberWithBool:!op1];
+}
+
 -(BOOL) isSolid:(id)obj
 {
 	return solid;
@@ -450,12 +475,30 @@
 
 -(void) say:(id)obj
 {
-	//TODO: pending
+    //CCLOG(@"Robot.say: %@", obj);
+	
+    if ([[obj objectForKey:@"words"] isKindOfClass:[NSDictionary class]]) {
+        NSString *token = [[obj objectForKey:@"words"] objectForKey:@"token"];
+		NSString *msg = [self runMethod:token withObject:[obj objectForKey:@"words"]];
+        [[GameLayer getInstance] say:msg];
+        
+    } else  if ([[obj objectForKey:@"words"] isKindOfClass:[NSString class]]) {
+        [[GameLayer getInstance] say:[obj objectForKey:@"words"]];
+    }
 }
 
 -(void) think:(id)obj
 {
-	//TODO: pending
+    //CCLOG(@"Robot.think: %@", obj);
+	
+    [self say:obj];
+}
+
+-(void) sayInChatPanel:(id)obj
+{
+    //CCLOG(@"Robot.sayInChatPanel: %@", obj);
+    
+    [self say:obj];
 }
 
 -(void) askMultichoice:(NSDictionary *)comman
@@ -465,19 +508,21 @@
 
 -(NSNumber *) isVisible:(id)obj
 {
-	return [NSNumber numberWithBool:self.visible];
+	return [NSNumber numberWithBool:!invisible];
 }
 
 -(NSNumber *) goVisible:(id)obj
 {
 	self.visible = YES;
-	return [NSNumber numberWithBool:self.visible];
+    invisible = NO;
+	return [NSNumber numberWithBool:!invisible];
 }
 
 -(NSNumber *) goInvisible:(id)obj
 {
 	self.visible = NO;
-	return [NSNumber numberWithBool:self.visible];
+    invisible = YES;
+	return [NSNumber numberWithBool:!invisible];
 }
 
 -(NSNumber *) facingLeft:(id)obj
@@ -627,7 +672,11 @@
 		[self runCommand:[onDieCommands objectAtIndex:i]];
 	}
 	
-	if (!immortal) [self remove];
+    NSString *permanent;
+    if ((permanent = [parameters objectForKey:@"permanent"]) == nil) permanent = @"1";
+    BOOL isPermanent = [permanent intValue] == 1;
+    
+	if (!immortal || !isPermanent) [self remove];
 }
 
 -(NSNumber *) changeHealth:(NSDictionary *)command 
@@ -697,17 +746,30 @@
 	NSDictionary *location = [command objectForKey:@"location"];
 	NSString *token = [location objectForKey:@"token"];
 	
-	NSMutableArray *position = [self runMethod:token withObject:location];
-	
-	auxX = [[position objectAtIndex:0] floatValue];
-	auxY = [[position objectAtIndex:1] floatValue];
-	
-	id action = [CCSequence actions:
+    id result = [self runMethod:token withObject:location];
+    BOOL found = NO;
+    
+    if ([result isKindOfClass:[NSDictionary class]]) {
+        NSDictionary *position = (NSDictionary *)result;
+        auxX = [[position objectForKey:@"xpos"] floatValue];
+        auxY = [[position objectForKey:@"ypos"] floatValue];
+        found = YES;
+        
+	} else if ([result isKindOfClass:[NSArray class]]) {
+        NSArray *position = (NSArray *)result;
+        auxX = [[position objectAtIndex:0] floatValue];
+        auxY = [[position objectAtIndex:1] floatValue];
+        found = YES;
+    }
+         
+    if (found) {
+        id action = [CCSequence actions:
 					  [CCDelayTime actionWithDuration:1.0/60.0],
 					  [CCCallFunc actionWithTarget:self selector:@selector(_changePosition)],
 					  nil];
 	
-	[self runAction:action];
+        [self runAction:action];
+    }
 }
 
 -(void) teleportInstance:(NSDictionary *)command 
@@ -715,20 +777,34 @@
 	NSDictionary *location = [command objectForKey:@"location"];
 	NSString *token = [location objectForKey:@"token"];
 	
-	NSMutableArray *position = [self runMethod:token withObject:location];
+    id result = [self runMethod:token withObject:location];
+    BOOL found = NO;
+    
+    if ([result isKindOfClass:[NSDictionary class]]) {
+        NSDictionary *position = (NSDictionary *)result;
+        auxX = [[position objectForKey:@"xpos"] floatValue];
+        auxY = [[position objectForKey:@"ypos"] floatValue];
+        found = YES;
+        
+	} else if ([result isKindOfClass:[NSArray class]]) {
+        NSArray *position = (NSArray *)result;
+        auxX = [[position objectAtIndex:0] floatValue];
+        auxY = [[position objectAtIndex:1] floatValue];
+        found = YES;
+    }
+    
+    if (found) {
 	
-	auxX = [[position objectAtIndex:0] floatValue];
-	auxY = [[position objectAtIndex:1] floatValue];
-	
-	if ([[[command objectForKey:@"instance"] objectForKey:@"token"] isEqualToString:@"player"]) {
-	
-		id action = [CCSequence actions:
-				 [CCDelayTime actionWithDuration:1.0/60.0],
-				 [CCCallFunc actionWithTarget:self selector:@selector(_changePosition)],
-				 nil];
-	
-		[self runAction:action];
-	}
+        if ([[[command objectForKey:@"instance"] objectForKey:@"token"] isEqualToString:@"player"]) {
+            
+            id action = [CCSequence actions:
+                     [CCDelayTime actionWithDuration:1.0/60.0],
+                     [CCCallFunc actionWithTarget:self selector:@selector(_changePlayerPosition)],
+                     nil];
+        
+            [self runAction:action];
+        }
+    }
 }
 
 -(void) _changePosition
@@ -737,6 +813,11 @@
 	body->SetTransform(b2Vec2(((pos.x - 30)/PTM_RATIO), (pos.y + 0)/PTM_RATIO),0);
 	
 	self.position = pos;
+}
+
+-(void) _changePlayerPosition
+{
+    [[GameLayer getInstance] transportPlayerToX:auxX andY:auxY];
 }
 
 -(void) walkToNode:(NSDictionary *)command 
@@ -897,14 +978,30 @@
 	return [NSNumber numberWithBool:current.y < 0];
 }
 
--(void) freezePhysics:(id)obj
+-(void) freezePlayer:(id)obj
 {
-	//TODO: pending
+    body->SetLinearVelocity(b2Vec2(0,0));
+    body->SetAngularVelocity(0);
+    
+    freezed = YES;
 }
 
--(void) unfreezePhysics:(id)obj
+-(void) unfreezePlayer:(id)obj
+{
+    freezed = NO;
+}
+
+-(void) playAnimationOnce:(NSDictionary *)command
 {
 	//TODO: pending
+    
+    //CCLOG(@"Robot.playAnimationOnce: %@", command);
+    [self receiveMessage:[command objectForKey:@"message"]];
+}
+
+-(void) switchAnimation:(NSDictionary *)command
+{
+    //TODO: pending
 }
 
 -(void) receiveMessage:(NSString *)msg
@@ -1329,6 +1426,40 @@
 	return [NSNumber numberWithFloat:degrees];
 }
 
+-(NSString *) customString:(NSDictionary *)command
+{
+    //CCLOG(@"Robot.customString: %@", command);
+    
+    NSString *variable = [command objectForKey:@"variable"];
+    
+    NSString *string;
+    if ((string = [parameters objectForKey:variable]) != nil) return string;
+    else return @"";
+}
+
+-(NSNumber *) customBoolean:(NSDictionary *)command
+{
+    //CCLOG(@"Robot.customBoolean: %@", command);
+    
+    NSString *variable = [command objectForKey:@"variable"];
+    
+    NSString *string;
+    if ((string = [parameters objectForKey:variable]) != nil) return [NSNumber numberWithBool:[string intValue] == 1];
+    else return [NSNumber numberWithBool:NO];
+}
+
+-(NSDictionary *) customNode:(NSDictionary *)command
+{
+    //CCLOG(@"Robot.customNode: %@", command);
+    
+    NSString *variable = [command objectForKey:@"variable"];
+    
+    NSDictionary *values;
+    if ((values = [parameters objectForKey:variable]) != nil) return values;
+    else return [NSDictionary dictionary];
+}
+
+
 #pragma mark -
 #pragma mark Events
 
@@ -1398,12 +1529,14 @@
 - (void)dealloc
 {
 	[behavior release];
+    [parameters release];
 	[msgCommands release];
 	[msgName release];
 	[andToken release];
 	[orToken release];
 	[timerCommands release];
-	
+	[name release];
+    
     [super dealloc];
 }
 

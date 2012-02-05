@@ -9,12 +9,14 @@
 #import "cocos2d.h"
 #import "GameObject.h"
 
-@interface Dialogue : GameObject <CCTargetedTouchDelegate> {
+//@interface Dialogue : GameObject <CCTargetedTouchDelegate> {
+@interface Dialogue : CCNode <CCTargetedTouchDelegate> {
 	NSString *text;
 	BOOL read;
 	CCSprite *background;
 }
 
 -(void) setupDialogue:(NSString *)_text;
+-(void) display;
 
 @end
