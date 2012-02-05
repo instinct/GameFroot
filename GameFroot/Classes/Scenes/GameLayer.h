@@ -212,5 +212,6 @@
 -(void) quitGame;
 -(void) pauseGame;
 -(void) restartGame;
+-(void) restartGameFromPause;
 
 @end

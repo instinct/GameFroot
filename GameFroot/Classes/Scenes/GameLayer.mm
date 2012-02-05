@@ -309,6 +309,13 @@ GameLayer *instance;
 		[menuPause alignItemsVertically];
 		[pauseCover addChild:menuPause];
 		[pauseCover setScale:CC_CONTENT_SCALE_FACTOR()];
+        
+        CCMenuItemSprite *restartButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-replay.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-replay.png"] target:self selector:@selector(restartGameFromPause)];
+		[restartButton setScale:0.75];		
+		CCMenu *menuRestart = [CCMenu menuWithItems:restartButton, nil];
+		menuRestart.position = ccp(size.width/2, size.height/2 - 130/CC_CONTENT_SCALE_FACTOR());
+		[pauseCover addChild:menuRestart];
+        
 		
 		//
 		seconds = 180;
@@ -2522,6 +2529,12 @@ GameLayer *instance;
 	[player resetPosition];
 	
 	[self resetControls];
+}
+
+-(void) restartGameFromPause
+{
+    [self pauseGame];
+    [self restartGame];
 }
 
 #pragma mark -

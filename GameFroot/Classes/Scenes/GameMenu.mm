@@ -45,7 +45,6 @@
 		CCMenu *menu = [CCMenu menuWithItems:backButton, nil];
 		menu.position = ccp(size.width/2, size.height/2 - 100);
 		[self addChild:menu];
-
         
         [self hideProgressBar];
         [self addChild:_progressBarBack];
