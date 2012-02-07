@@ -2494,8 +2494,23 @@ GameLayer *instance;
 
 -(void) quitGame
 {
-	[[CCDirector sharedDirector] resume];
-	[[CCDirector sharedDirector] replaceScene:[HomeLayer scene]];
+    [self pauseGame];
+    
+    /*
+    mainMenu = [GameMenu node];
+    [mainMenu setPosition:ccp(0,0)];
+    CCLOG(@"self: %@", self);
+    [self addChild:mainMenu z:1005];
+    */
+     
+    //DEBUG:
+    
+    CCArray *layers = self.children;
+    CCNode *layer; CCARRAY_FOREACH(layers, layer) {
+        NSLog(@"%i", layer.zOrder);
+	}
+    
+    //[self restartGameFromPause];
 }
 
 -(void) pauseGame

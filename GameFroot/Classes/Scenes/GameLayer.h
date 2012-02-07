@@ -38,7 +38,6 @@
 	
 	// Loader/Main menu
 	GameMenu *mainMenu;
-	CCSprite *progressbar;
 	int parts;
 	int partsLoaded;
 	
