@@ -467,16 +467,18 @@ GameLayer *instance;
 	[mainMenu setPosition:ccp(0,0)];
 	[self addChild:mainMenu z:1000];
     [mainMenu resetProgressBar];
-    [mainMenu showProgressBar];
+    [mainMenu playModeOn:NO];
     parts = 7;
     partsLoaded = 0;
-    [mainMenu setProgressBar:0.0f];    
+    [mainMenu setProgressBar:0.0f];
     [self schedule:@selector(startLoading) interval:0.1f];    
 }
 
 -(void) removeLoadingScreen
 {
 	[self removeChild:mainMenu cleanup:YES];
+    [self initControls];
+    [self initGame];
 }
 
 
@@ -522,13 +524,8 @@ GameLayer *instance;
 	
 	if (partsLoaded >= parts) {
 		// Init game
-		[self removeLoadingScreen];
-		
-		[self initControls];
-		[self initGame];
-		
-	} else {
-		
+        [mainMenu playModeOn:YES];
+	} else {		
 		[self schedule:@selector(startLoading) interval:0.1f];
 	}
 	

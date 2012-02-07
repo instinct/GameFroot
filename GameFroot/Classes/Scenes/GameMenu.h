@@ -11,14 +11,19 @@
 #import "Shared.h"
 
 @interface GameMenu : CCLayer {
-    @private 
+    @private
+        CCSprite *_loadingTitle;
         CCSprite *_progressBar;
         CCSprite *_progressBarBack;
+        CCMenuItemSprite *_playButton;
+        bool playMode;
 }
 
 -(void) showProgressBar;
 -(void) resetProgressBar;
 -(void) hideProgressBar;
 -(void) setProgressBar:(float)percent;
+-(void) playModeOn:(bool)status;
+
 
 @end
