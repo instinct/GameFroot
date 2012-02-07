@@ -381,7 +381,6 @@
 		1643B71F14D9B49D00A67057 /* Robot.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1643B6CE14D9B49D00A67057 /* Robot.mm */; };
 		1643B72014D9B49D00A67057 /* Switch.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1643B6D014D9B49D00A67057 /* Switch.mm */; };
 		1643B72114D9B49D00A67057 /* GameCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 1643B6D314D9B49D00A67057 /* GameCell.m */; };
-		1643B72214D9B49D00A67057 /* TeleTransporter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1643B6D514D9B49D00A67057 /* TeleTransporter.mm */; };
 		1643B72314D9B49D00A67057 /* Lose.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1643B6D814D9B49D00A67057 /* Lose.mm */; };
 		1643B72414D9B49D00A67057 /* Win.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1643B6DA14D9B49D00A67057 /* Win.mm */; };
 		1643B72514D9B49D00A67057 /* GameLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1643B6DD14D9B49D00A67057 /* GameLayer.mm */; };
@@ -994,8 +993,6 @@
 		1643B6D014D9B49D00A67057 /* Switch.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Switch.mm; sourceTree = "<group>"; };
 		1643B6D214D9B49D00A67057 /* GameCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameCell.h; sourceTree = "<group>"; };
 		1643B6D314D9B49D00A67057 /* GameCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameCell.m; sourceTree = "<group>"; };
-		1643B6D414D9B49D00A67057 /* TeleTransporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TeleTransporter.h; sourceTree = "<group>"; };
-		1643B6D514D9B49D00A67057 /* TeleTransporter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TeleTransporter.mm; sourceTree = "<group>"; };
 		1643B6D714D9B49D00A67057 /* Lose.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lose.h; sourceTree = "<group>"; };
 		1643B6D814D9B49D00A67057 /* Lose.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Lose.mm; sourceTree = "<group>"; };
 		1643B6D914D9B49D00A67057 /* Win.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Win.h; sourceTree = "<group>"; };
@@ -1986,8 +1983,6 @@
 				1643B6CE14D9B49D00A67057 /* Robot.mm */,
 				1643B6CF14D9B49D00A67057 /* Switch.h */,
 				1643B6D014D9B49D00A67057 /* Switch.mm */,
-				1643B6D414D9B49D00A67057 /* TeleTransporter.h */,
-				1643B6D514D9B49D00A67057 /* TeleTransporter.mm */,
 			);
 			path = Objetcs;
 			sourceTree = "<group>";
@@ -2574,7 +2569,6 @@
 				1643B71F14D9B49D00A67057 /* Robot.mm in Sources */,
 				1643B72014D9B49D00A67057 /* Switch.mm in Sources */,
 				1643B72114D9B49D00A67057 /* GameCell.m in Sources */,
-				1643B72214D9B49D00A67057 /* TeleTransporter.mm in Sources */,
 				1643B72314D9B49D00A67057 /* Lose.mm in Sources */,
 				1643B72414D9B49D00A67057 /* Win.mm in Sources */,
 				1643B72514D9B49D00A67057 /* GameLayer.mm in Sources */,

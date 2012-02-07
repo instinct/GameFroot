@@ -18,6 +18,7 @@
 
 @synthesize solid;
 @synthesize ignoreGravity;
+@synthesize sensor;
 
 - (id) init
 {
@@ -45,9 +46,9 @@
 	
 	if (ignoreGravity) body->SetGravityScale(0.0f);
 	
-    BOOL isSensor = [name isEqualToString:@"Teleporter"] || [name isEqualToString:@"Story-Point"];
+    sensor = [name isEqualToString:@"Teleporter"] || [name isEqualToString:@"Story-Point"];
 	
-    if (!isSensor) {
+    if (!sensor) {
 		b2PolygonShape shape;
 		shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0)/PTM_RATIO);
 		b2FixtureDef fixtureDef;
@@ -85,6 +86,9 @@
 	//CCLOG(@"Robot.setupRobot: %@", data);
 	//CCLOG(@"Robot.setupRobot (parameters): %@", params);
     
+    original = [data retain];
+    parameters = [params retain];
+    
 	// default values
 	health = 100;	
 	solid = NO;
@@ -92,7 +96,8 @@
 	immortal = NO;
     invisible = NO;
     freezed = NO;
-	
+	sensor = NO;
+    
 	if ([data objectForKey:@"behavior"]) {
 		behavior = [[data objectForKey:@"behavior"] retain];
 	} else {
@@ -112,8 +117,6 @@
 		CCLOG(@"Robot.solid: %i", solid);
 		CCLOG(@"Robot.ignoreGravity: %i", ignoreGravity);
 	}
-	
-    parameters = [params retain];
     
 	facingLeft = YES;
 	
@@ -255,11 +258,11 @@
 		else result = [self performSelector:selector];
 		
 		//CCLOG(@"Robot: calling selector: %@ with parameter: %@ and result: %@", method, anObject, result);
-		CCLOG(@"Robot: calling selector: %@ with parameter: %@", method, anObject);
+		//CCLOG(@"Robot: calling selector: %@ with parameter: %@", method, anObject);
 		return result;
 		
 	} else {
-		CCLOG(@"Robot: undeclared selector: %@", method);
+		//CCLOG(@"Robot: undeclared selector: %@", method);
 		return nil;
 	}
 }
@@ -1503,6 +1506,8 @@
 
 -(void) resetPosition
 {
+    [self setupRobot:original parameters:parameters];
+    
 	if (removed) {
 		[self _recreateBody];
 		self.position = originalPosition;
@@ -1530,6 +1535,7 @@
 {
 	[behavior release];
     [parameters release];
+    [original release];
 	[msgCommands release];
 	[msgName release];
 	[andToken release];

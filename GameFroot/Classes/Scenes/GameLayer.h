@@ -151,7 +151,6 @@
 -(void) loadTilesLevel;
 -(void) createMapTiles;
 -(void) createMapItems;
-//-(void) createMapNPCSs;
 -(void) loadPlayer;
 -(void) loadEnemies;
 

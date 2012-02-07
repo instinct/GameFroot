@@ -190,7 +190,7 @@ void ContactListener::BeginContact(b2Contact *contact) {
 			bullet  = (Bullet *)o1;
 		}
 		
-		if (robot.solid) {
+		if ((robot.solid) && (!robot.sensor)) {
 			[robot hit:bullet.damage];
 			[bullet die];
 		}

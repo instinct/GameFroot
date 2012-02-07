@@ -10,6 +10,7 @@
 
 @interface Robot : GameObject {
 	NSArray *behavior;
+    NSDictionary *original;
 	NSDictionary *parameters;
     
 	int health;
@@ -47,12 +48,14 @@
     
     BOOL invisible;
     BOOL freezed;
+    BOOL sensor;
     
     NSString *name;
 }
 
 @property (nonatomic, assign) BOOL solid;
 @property (nonatomic, assign) BOOL ignoreGravity;
+@property (nonatomic, assign) BOOL sensor;
 
 -(void) createBox2dObject:(b2World*)world size:(CGSize)_size;
 

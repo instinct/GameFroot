@@ -21,7 +21,6 @@
 #import "MovingPlatform.h"
 #import "Switch.h"
 #import "Dialogue.h"
-#import "TeleTransporter.h"
 #import "CheckPoint.h"
 #import "Collectable.h"
 #import "Robot.h"
@@ -477,8 +476,13 @@ GameLayer *instance;
 -(void) removeLoadingScreen
 {
 	[self removeChild:mainMenu cleanup:YES];
+    
     [self initControls];
     [self initGame];
+    
+    [hud show];
+    [scene show];
+    paused = NO;
 }
 
 
@@ -548,7 +552,7 @@ GameLayer *instance;
 		return;
 	}
 	
-	//CCLOG(@"%@", [jsonData description]);
+	CCLOG(@"%@", [jsonData description]);
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Load Header Data
@@ -715,7 +719,8 @@ GameLayer *instance;
 				
 			} else if ([robot isKindOfClass:[NSDictionary class]]) {
                 if ([robotsIds objectForKey:[robot objectForKey:@"id"]] != nil) [itemData setObject:[robotsIds objectForKey:[robot objectForKey:@"id"]] forKey:@"robot"];
-                else [itemData setObject:[robotsIds objectForKey:[NSNumber numberWithInt:[[robot objectForKey:@"id"] intValue]]] forKey:@"robot"];
+                else if ([robotsIds objectForKey:[NSNumber numberWithInt:[[robot objectForKey:@"id"] intValue]]] != nil) [itemData setObject:[robotsIds objectForKey:[NSNumber numberWithInt:[[robot objectForKey:@"id"] intValue]]] forKey:@"robot"];
+                else [itemData setObject:[NSDictionary dictionary] forKey:@"robot"];
                 
                 [itemData setObject:robot forKey:@"robotParameters"];
 			}
@@ -726,55 +731,6 @@ GameLayer *instance;
 		[data setObject:itemTiles forKey:@"itemTiles"];		
 		//CCLOG(@"Item Tiles: %@", [itemTiles description]);
 	}
-	
-	/*
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Load Level NPCS
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	NSArray *npcsElements = [jsonData objectForKey:@"npcs"];
-	if(npcsElements)
-	{
-		NSMutableArray *npcsTiles = [[NSMutableArray alloc] init];
-		
-		for(uint i = 0; i < [npcsElements count]; i++)
-		{
-			NSMutableDictionary *itemData = [[NSMutableDictionary alloc] init];
-			
-			// Get type
-			NSString *type = [[npcsElements objectAtIndex:i] objectForKey:@"sub_type"];
-			
-			if ([type isEqualToString:@"story"]) {
-				[itemData setObject:type forKey:@"type"];
-				
-				// Get dialogue
-				[itemData setObject:[[npcsElements objectAtIndex:i] objectForKey:@"text_data"] forKey:@"dialogue"];
-				
-				// Get position
-				[itemData setObject:[NSNumber numberWithInt:[[[npcsElements objectAtIndex:i] objectForKey:@"xpos"] intValue]] forKey:@"positionX"];
-				[itemData setObject:[NSNumber numberWithInt:[[[npcsElements objectAtIndex:i] objectForKey:@"ypos"] intValue]] forKey:@"positionY"];
-				
-				[npcsTiles addObject:itemData];
-				
-			} else if ([type isEqualToString:@"teleport"]) {
-				[itemData setObject:type forKey:@"type"];
-				
-				// Get destination
-				NSArray *positions = [[npcsElements objectAtIndex:i] objectForKey:@"behaviour"];	
-				[itemData setObject:[NSNumber numberWithInt:[[positions objectAtIndex:0] intValue]] forKey:@"destinationX"];
-				[itemData setObject:[NSNumber numberWithInt:[[positions objectAtIndex:1] intValue]] forKey:@"destinationY"];
-				
-				// Get position
-				[itemData setObject:[NSNumber numberWithInt:[[[npcsElements objectAtIndex:i] objectForKey:@"xpos"] intValue]] forKey:@"positionX"];
-				[itemData setObject:[NSNumber numberWithInt:[[[npcsElements objectAtIndex:i] objectForKey:@"ypos"] intValue]] forKey:@"positionY"];
-				
-				[npcsTiles addObject:itemData];
-			}
-			
-		}
-		[data setObject:npcsTiles forKey:@"npcsTiles"];		
-		//CCLOG(@"NPCS Tiles: %@", [npcsTiles description]);
-	}
-	*/
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Load Level Tiles
@@ -1437,63 +1393,6 @@ GameLayer *instance;
 	CCLOG(@"Total points level: %i", totalPoints);
 }
 
-/*
--(void) createMapNPCSs {
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Add NPCS to map
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	NSArray *arNPCSTiles = [data objectForKey:@"npcsTiles"];
-	for(uint i = 0; i < [arNPCSTiles count]; i++)
-	{
-		NSDictionary *dict = (NSDictionary *)[arNPCSTiles objectAtIndex:i];
-		
-		NSString *type = [dict objectForKey:@"type"];
-		int dx = [[dict objectForKey:@"positionX"] intValue];
-		int dy = [[dict objectForKey:@"positionY"] intValue];			
-		
-		@try
-		{
-			CGPoint pos = ccp(dx * MAP_TILE_WIDTH, (mapHeight - dy - 1) * MAP_TILE_HEIGHT);
-			pos.x += MAP_TILE_WIDTH/2.0f;
-			pos.y += MAP_TILE_HEIGHT/2.0f;
-			
-			if ([type isEqualToString:@"story"]) {
-				NSString *dialogue = [dict objectForKey:@"dialogue"];
-				
-				// Tile sprite
-				Dialogue *npcs = [Dialogue node];
-				
-				[npcs setupDialogue:dialogue];
-				
-				[npcs setPosition:pos];
-				[npcs createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH/6.0f, MAP_TILE_HEIGHT/2.0f)];
-				[npcs setType:kGameObjectCollectable];
-				[objects addChild:npcs];
-				
-			} else if ([type isEqualToString:@"teleport"]) {
-				
-				// Tile sprite
-				TeleTransporter *npcs = [TeleTransporter spriteWithFile:@"teleporter-item.png"];
-				
-				int destinationX = [[dict objectForKey:@"destinationX"] intValue];
-				int destinationY = [[dict objectForKey:@"destinationY"] intValue];	
-				[npcs setupTeleTransporterWithX:destinationX andY:destinationY];
-				
-				[npcs setPosition:ccp(pos.x,pos.y)];
-				[npcs createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH/4.0f, MAP_TILE_HEIGHT/2.0f)];
-				[npcs setType:kGameObjectCollectable];
-				[objects addChild:npcs];
-			}
-			
-		}
-		@catch(NSException *e)
-		{
-		}
-		
-	}
-}
-*/
-
 -(void) loadPlayer
 {
 	NSDictionary *dict = (NSDictionary *)[data objectForKey:@"player"];
@@ -1656,39 +1555,42 @@ GameLayer *instance;
 
 -(void) initControls
 {
-	leftJoy = [CCSprite spriteWithSpriteFrameName:@"d_pad_normal.png"];
-	[leftJoy setScale:CC_CONTENT_SCALE_FACTOR()];
-	[leftJoy setOpacity:125];
-	leftJoy.position = ccp(76,66);
-	
-	leftBut = [CCSprite spriteWithSpriteFrameName:@"b_button_up.png"];
-	[leftBut setScale:CC_CONTENT_SCALE_FACTOR()];
-	[leftBut setOpacity:125];
-	leftBut.position = ccp(330,56);
+    if (!leftJoy) { // Be sure we don't recreate them again when restaring the game
+        
+        leftJoy = [CCSprite spriteWithSpriteFrameName:@"d_pad_normal.png"];
+        [leftJoy setScale:CC_CONTENT_SCALE_FACTOR()];
+        [leftJoy setOpacity:125];
+        leftJoy.position = ccp(76,66);
+        
+        leftBut = [CCSprite spriteWithSpriteFrameName:@"b_button_up.png"];
+        [leftBut setScale:CC_CONTENT_SCALE_FACTOR()];
+        [leftBut setOpacity:125];
+        leftBut.position = ccp(330,56);
 
-	rightBut = [CCSprite spriteWithSpriteFrameName:@"a_button_up.png"];
-	[rightBut setScale:CC_CONTENT_SCALE_FACTOR()];
-	[rightBut setOpacity:125];
-	rightBut.position = ccp(424,56);
-	
-	[dpadSpriteSheet addChild:leftJoy];
-	[dpadSpriteSheet addChild:leftBut];
-	[dpadSpriteSheet addChild:rightBut];
-	
-	dpadSpriteSheet.visible = useDPad;
-	
-	northMoveArea = CGRectMake(5, 141, 140, 70);
-	southMoveArea = CGRectMake(5, 71, 140, 70);
-	eastMoveArea = CGRectMake(76, 141, 70, 140);
-	westMoveArea = CGRectMake(5, 141, 70, 140);
-	
-	northTriangleArea = [Shared getTrianglePoints: northMoveArea direction:@"north"];
-	southTriangleArea = [Shared getTrianglePoints: southMoveArea direction:@"south"];
-	eastTriangleArea = [Shared getTrianglePoints: eastMoveArea direction:@"east"];
-	westTriangleArea = [Shared getTrianglePoints: westMoveArea direction:@"west"];
-	
-	jumpArea = CGRectMake(480 - 100 - 1, 91, 90, 90);
-	shootArea = CGRectMake(480 - 195 - 1, 91, 90, 90);
+        rightBut = [CCSprite spriteWithSpriteFrameName:@"a_button_up.png"];
+        [rightBut setScale:CC_CONTENT_SCALE_FACTOR()];
+        [rightBut setOpacity:125];
+        rightBut.position = ccp(424,56);
+        
+        [dpadSpriteSheet addChild:leftJoy];
+        [dpadSpriteSheet addChild:leftBut];
+        [dpadSpriteSheet addChild:rightBut];
+        
+        dpadSpriteSheet.visible = useDPad;
+        
+        northMoveArea = CGRectMake(5, 141, 140, 70);
+        southMoveArea = CGRectMake(5, 71, 140, 70);
+        eastMoveArea = CGRectMake(76, 141, 70, 140);
+        westMoveArea = CGRectMake(5, 141, 70, 140);
+        
+        northTriangleArea = [Shared getTrianglePoints: northMoveArea direction:@"north"];
+        southTriangleArea = [Shared getTrianglePoints: southMoveArea direction:@"south"];
+        eastTriangleArea = [Shared getTrianglePoints: eastMoveArea direction:@"east"];
+        westTriangleArea = [Shared getTrianglePoints: westMoveArea direction:@"west"];
+        
+        jumpArea = CGRectMake(480 - 100 - 1, 91, 90, 90);
+        shootArea = CGRectMake(480 - 195 - 1, 91, 90, 90);
+    }
 }
 
 -(void) initGame
@@ -2493,24 +2395,33 @@ GameLayer *instance;
 */
 
 -(void) quitGame
-{
-    [self pauseGame];
+{    
+    [self restartGameFromPause];
+    [self pause];
+    [pauseCover hide];
+    [hud hide];
+    [scene hide];
     
-    /*
+    [[CCDirector sharedDirector] resume];
+    
     mainMenu = [GameMenu node];
     [mainMenu setPosition:ccp(0,0)];
-    CCLOG(@"self: %@", self);
-    [self addChild:mainMenu z:1005];
-    */
-     
-    //DEBUG:
+    //CCLOG(@"self: %@", self);
+    [self addChild:mainMenu z:1000];
     
+    [self setPosition:ccp(0,0)]; // IMPORTANT!! Since box2d uses the main layer, we scroll self, so we need to restart to (0,0)
+    
+    //DEBUG
+    /*
     CCArray *layers = self.children;
     CCNode *layer; CCARRAY_FOREACH(layers, layer) {
-        NSLog(@"%i", layer.zOrder);
+        NSLog(@"%%i", layer.zOrder);
 	}
+    */
     
-    //[self restartGameFromPause];
+    // Original code
+    //[[CCDirector sharedDirector] resume];
+    //[[CCDirector sharedDirector] replaceScene:[HomeLayer scene]];
 }
 
 -(void) pauseGame
@@ -2533,6 +2444,7 @@ GameLayer *instance;
 		
 		[[SimpleAudioEngine sharedEngine] setBackgroundMusicVolume:0.2f];
 	}
+    
 }
 
 -(void) restartGame

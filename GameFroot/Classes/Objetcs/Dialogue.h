@@ -7,9 +7,7 @@
 //
 
 #import "cocos2d.h"
-#import "GameObject.h"
 
-//@interface Dialogue : GameObject <CCTargetedTouchDelegate> {
 @interface Dialogue : CCNode <CCTargetedTouchDelegate> {
 	NSString *text;
 	BOOL read;
