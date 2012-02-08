@@ -1228,7 +1228,7 @@
 	else body->SetGravityScale(1.0f);
 	
 	if ((fabsf(roundf(current.y)) == 0) || ignoreGravity) {
-		//CCLOG(@"%f, %i, %i", current.y, action, jumping);
+		CCLOG(@"%f, %i, %i", current.x, action, jumping);
 		if ((fabsf(roundf(current.x)) == 0) && (action != PRONE) && (action != CROUCH) && (!jumping)) {
 			[self setState:STAND];
 		}
@@ -1250,7 +1250,8 @@
 				b2Vec2 impulse = b2Vec2(0.0f, fabs(current.y) + JETPACK_IMPULSE);
 				body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
 				
-			} else if (helpFall && !jumping) {
+			/* Not need it anymore since we used edges instead of boxes, I think!!
+            } else if (helpFall && !jumping) {
 				// Give little impluse down so we can fall in one tile gaps
 				
 				//CCLOG(@"Help fall %f", current.y);
@@ -1259,6 +1260,8 @@
 				body->ApplyForce(b2Vec2(0.0f, -250.0f),body->GetWorldCenter());
 
 				helpFall = NO;
+            */
+            
 			}
 		}
 	}

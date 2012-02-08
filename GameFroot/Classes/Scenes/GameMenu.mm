@@ -24,7 +24,6 @@
         [bg setScale:CC_CONTENT_SCALE_FACTOR()];
         [bg setPosition:ccp(size.width*0.5,size.height*0.5)];
         [self addChild:bg];
-        CCLOG(@">>>>> %@", bg);
         
         CCLabelBMFont *level = [CCLabelBMFont labelWithString:[Shared getLevelTitle] fntFile:@"Chicago.fnt"];
         [level setPosition:ccp(size.width*0.5,size.height*0.8)];
