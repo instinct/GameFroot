@@ -2406,22 +2406,10 @@ GameLayer *instance;
     
     mainMenu = [GameMenu node];
     [mainMenu setPosition:ccp(0,0)];
-    //CCLOG(@"self: %@", self);
     [self addChild:mainMenu z:1000];
     
-    [self setPosition:ccp(0,0)]; // IMPORTANT!! Since box2d uses the main layer, we scroll self, so we need to restart to (0,0)
-    
-    //DEBUG
-    /*
-    CCArray *layers = self.children;
-    CCNode *layer; CCARRAY_FOREACH(layers, layer) {
-        NSLog(@"%%i", layer.zOrder);
-	}
-    */
-    
-    // Original code
-    //[[CCDirector sharedDirector] resume];
-    //[[CCDirector sharedDirector] replaceScene:[HomeLayer scene]];
+    // IMPORTANT!! Since box2d uses the main layer, we scroll self, so we need 
+    [self setPosition:ccp(0,0)]; 
 }
 
 -(void) pauseGame

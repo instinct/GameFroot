@@ -45,6 +45,9 @@
 	CCMenuItemSprite *myGamesButton;
 	CCMenuItemSprite *moreButton;
 	
+    // Scroll view (Game detail)
+    SWScrollView *gameDetailSV;
+    
 	// Table view
 	SWTableView *tableView;
 	int loaded;
