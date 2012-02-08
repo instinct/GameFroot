@@ -27,6 +27,7 @@
 #import "Loader.h"
 #import "Win.h"
 #import "Lose.h"
+#import "Controls.h"
 #import "SimpleAudioEngine.h"
 //#import "InputController.h"
 
@@ -354,9 +355,9 @@ GameLayer *instance;
 		[hudSpriteSheet.textureAtlas.texture setAliasTexParameters];
 		[hud addChild:hudSpriteSheet z:10];
 		
-		dpadSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"dpad_buttons.png"];
-		[dpadSpriteSheet.textureAtlas.texture setAliasTexParameters];
-		[hud addChild:dpadSpriteSheet z:500];
+		controls = [Controls controlsWithFile:@"dpad_buttons.png"];
+		[controls.textureAtlas.texture setAliasTexParameters];
+		[hud addChild:controls z:500];
 		
 		//
 		barBGLeft = [CCSprite spriteWithSpriteFrameName:@"FatBarBGLeft.png"];
@@ -456,7 +457,7 @@ GameLayer *instance;
 		useDPad = NO;
 	}
 	
-	dpadSpriteSheet.visible = useDPad;
+    [controls checkSettings];
 }
 
 -(void) setupLoadingScreen
@@ -1453,6 +1454,8 @@ GameLayer *instance;
 	[player setupPlayer:playerID initialX:dx initialY:dy];
 	[player createBox2dObject:world size:CGSizeMake(spriteWidth/4,spriteHeight - 40)];
 	[playerSpriteSheet addChild:player z:LAYER_PLAYER];
+    
+    [controls setPlayer:player];
 	
 	[player immortal];
 }
@@ -1555,52 +1558,7 @@ GameLayer *instance;
 
 -(void) initControls
 {
-    if (!leftJoy) { // Be sure we don't recreate them again when restaring the game
-        
-        leftJoy = [CCSprite spriteWithSpriteFrameName:@"d_pad_normal.png"];
-        [leftJoy setScale:CC_CONTENT_SCALE_FACTOR()];
-        [leftJoy setOpacity:125];
-        leftJoy.position = ccp(76,66);
-        
-        leftBut = [CCSprite spriteWithSpriteFrameName:@"b_button_up.png"];
-        [leftBut setScale:CC_CONTENT_SCALE_FACTOR()];
-        [leftBut setOpacity:125];
-        leftBut.position = ccp(330,56);
-
-        rightBut = [CCSprite spriteWithSpriteFrameName:@"a_button_up.png"];
-        [rightBut setScale:CC_CONTENT_SCALE_FACTOR()];
-        [rightBut setOpacity:125];
-        rightBut.position = ccp(424,56);
-        
-        [dpadSpriteSheet addChild:leftJoy];
-        [dpadSpriteSheet addChild:leftBut];
-        [dpadSpriteSheet addChild:rightBut];
-        
-        dpadSpriteSheet.visible = useDPad;
-        
-        northMoveArea = CGRectMake(5, 141, 140, 70);
-        southMoveArea = CGRectMake(5, 71, 140, 70);
-        eastMoveArea = CGRectMake(76, 141, 70, 140);
-        westMoveArea = CGRectMake(5, 141, 70, 140);
-        
-        northTriangleArea = [Shared getTrianglePoints: northMoveArea direction:@"north"];
-        southTriangleArea = [Shared getTrianglePoints: southMoveArea direction:@"south"];
-        eastTriangleArea = [Shared getTrianglePoints: eastMoveArea direction:@"east"];
-        westTriangleArea = [Shared getTrianglePoints: westMoveArea direction:@"west"];
-        
-        jumpArea = CGRectMake(480 - 100 - 1, 91, 90, 90);
-        shootArea = CGRectMake(480 - 195 - 1, 91, 90, 90);
-    }
-}
-
--(void) pressedControls
-{
-    [leftJoy setOpacity:80];
-}
-
--(void) releasedControls
-{
-    [leftJoy setOpacity:125];
+    [controls setup];
 }
 
 -(void) initGame
@@ -2024,68 +1982,10 @@ GameLayer *instance;
 #pragma mark -
 #pragma mark Touch controls
 
--(BOOL) dpadNorth:(CGPoint) location
-{
-	return [Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:northTriangleArea[0] pointB:northTriangleArea[1] pointC:northTriangleArea[2]];
-}
-
--(BOOL) dpadSouth:(CGPoint) location
-{
-	return [Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:southTriangleArea[0] pointB:southTriangleArea[1] pointC:southTriangleArea[2]];
-}
-
--(BOOL) dpadWest:(CGPoint) location
-{
-	return [Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:westTriangleArea[0] pointB:westTriangleArea[1] pointC:westTriangleArea[2]];
-}
-
--(BOOL) dpadEast:(CGPoint) location
-{
-	return [Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:eastTriangleArea[0] pointB:eastTriangleArea[1] pointC:eastTriangleArea[2]];
-}
-
--(BOOL) dpadA:(CGPoint) location
-{
-	if ((location.x >= shootArea.origin.x) && (location.x <= shootArea.origin.x + shootArea.size.width) 
-		&& (location.y >= shootArea.origin.y - shootArea.size.height) && (location.y <= shootArea.origin.y)) {
-	
-		return YES;
-		
-	} else {
-		return NO;
-	}
-}
-
--(BOOL) dpadB:(CGPoint) location
-{
-	if ((location.x >= jumpArea.origin.x) && (location.x <= jumpArea.origin.x + jumpArea.size.width) 
-		&& (location.y >= jumpArea.origin.y - jumpArea.size.height) && (location.y <= jumpArea.origin.y)) {
-		
-		return YES;
-		
-	} else {
-		return NO;
-	}
-}
-
 -(void) resetControls
 {
-	[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_normal.png"]];
-	leftJoy.rotation = 0;
-	
-	[rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_up.png"]];
-	[leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_up.png"]];
-	
-	gestureTouch = nil;
-	gestureStartTime = 0;
-	lastShoot = 0;
-	leftTouch = nil;
-	rightTouch = nil;
-	jumpTouch = nil;
-	shootTouch = nil;
-	dpadTouch = nil;
+    [controls resetControls];
 }
-
 
 -(void) ccTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
 {
@@ -2096,115 +1996,10 @@ GameLayer *instance;
 	location = [[CCDirector sharedDirector] convertToGL:location];
 	
 	//CCLOG(@"Touch began: %f,%f (%@)", location.x, location.y, touch);
-	
-	CGSize size = [[CCDirector sharedDirector] winSize];
-	
-	if (!useDPad && !paused) {
-		
-		if (location.x < size.width * 0.25f) {
-			
-			if (location.y > size.height * 0.35f) {
-				// Jump left
-				[player jumpDirection:kDirectionLeft];
-				jumpTouch = touch;
-				
-			} else {
-				// Walk left
-				[player moveLeft];
-				leftTouch = touch;
-			}
-			
-		} else if (location.x > size.width - (size.width * 0.25f)) {
-			if (location.y > size.height * 0.35f) {
-				// Jump right
-				[player jumpDirection:kDirectionRight];
-				jumpTouch = touch;
-				
-			} else {
-				// Walk right
-				[player moveRight];
-				rightTouch = touch;
-			}
-			
-		} else if (location.y > size.height - (size.height * 0.40f)) {
-			// Jump
-			[player jump];
-			jumpTouch = touch;
-			
-		} else {
-			// Shoot
-			if (event.timestamp - lastShoot > player.shootDelay) {
-				[player shoot];
-				lastShoot = event.timestamp;
-			}
-			
-			// Control swipe
-			gestureStartPoint = location;
-			gestureTouch = touch;
-			gestureStartTime = event.timestamp;
-		}
-	}
-	
-	if (useDPad && !paused) {
-		if ([Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:northTriangleArea[0] pointB:northTriangleArea[1] pointC:northTriangleArea[2]]) {
-			[player jump];
-			dpadTouch = touch;
-			jumpTouch = dpadTouch;
-			
-			[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_horizontal.png"]];
-			leftJoy.rotation = -90;
-            
-            [self pressedControls];
-			
-		} else if ([Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:southTriangleArea[0] pointB:southTriangleArea[1] pointC:southTriangleArea[2]]) {
-			[player prone];
-			dpadTouch = touch;
-			
-			[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_horizontal.png"]];
-			leftJoy.rotation = 90;
-            
-            [self pressedControls];
-			
-		} else if ([Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:eastTriangleArea[0] pointB:eastTriangleArea[1] pointC:eastTriangleArea[2]]) {
-			[player moveRight];
-			dpadTouch = touch;
-			
-			[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_horizontal.png"]];
-			leftJoy.rotation = 0;
-            
-            [self pressedControls];
-			
-		} else if ([Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:westTriangleArea[0] pointB:westTriangleArea[1] pointC:westTriangleArea[2]]) {
-			[player moveLeft];
-			dpadTouch = touch;
-			
-			[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_horizontal.png"]];
-			leftJoy.rotation = 180;
-            
-            [self pressedControls];
-			
-		} else if ((location.x >= jumpArea.origin.x) && (location.x <= jumpArea.origin.x + jumpArea.size.width) 
-				   && (location.y >= jumpArea.origin.y - jumpArea.size.height) && (location.y <= jumpArea.origin.y)) {
-			
-			if ((dpadTouch == nil) || (dpadTouch != jumpTouch)) {
-				[player jump];
-				jumpTouch = touch;
-			
-				[rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_down.png"]];
-			}
-		
-		} else if ((location.x >= shootArea.origin.x) && (location.x <= shootArea.origin.x + shootArea.size.width) 
-				   && (location.y >= shootArea.origin.y - shootArea.size.height) && (location.y <= shootArea.origin.y)) {
-			
-			if (event.timestamp - lastShoot > player.shootDelay) {
-				[player shoot];
-				lastShoot = event.timestamp;
-				shootTouch = touch;
-				
-				[leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_down.png"]];
-			}
-		}
-	}
+    
+    if (!paused) {
+        [controls ccTouchBegan:touch withEvent:event andLocation:location];
+    }
 }
 
 -(void) ccTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
@@ -2225,65 +2020,9 @@ GameLayer *instance;
 		
 		//CCLOG(@"Touch ended: %f,%f (%@)", location.x, location.y, touch);
 		
-		//CGSize size = [[CCDirector sharedDirector] winSize];
-		
-		if (!useDPad && !paused) {
-			
-			if (touch == leftTouch) {
-				if (rightTouch == nil) [player stop];
-				leftTouch = nil;
-				
-			} else if (touch == rightTouch) {
-				if (leftTouch == nil) [player stop];
-				rightTouch = nil;
-				
-			} else if (touch == jumpTouch) {
-				[player resetJump];
-				jumpTouch = nil;
-				
-			} else if (touch == gestureTouch) {
-				
-				// Detect swipe
-				CGFloat diffY = gestureStartPoint.y - location.y;	
-				//CCLOG(@"swipes, diffX:%f, diffY:%f", diffX, diffY);
-				
-				if (diffY > 80) {
-					// swipe down
-					[player prone];
-				}
-				gestureTouch = nil;
-				
-			}
-		}
-		
-		if (useDPad && !paused) {
-			
-			if (touch == dpadTouch) {
-				[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_normal.png"]];
-				leftJoy.rotation = 0;
-				
-				[player stop];
-				
-				if (touch == jumpTouch) {
-					[player resetJump];
-					jumpTouch = nil;
-				}
-				
-				dpadTouch = nil;
-                
-                [self releasedControls];
-			}
-			
-			if (touch == jumpTouch) {
-				[player resetJump];
-				jumpTouch = nil;
-				[rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_up.png"]];
-                
-			} else if (touch == shootTouch) {
-				shootTouch = nil;
-				[leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_up.png"]];
-			}
-		}
+        if (!paused) {
+            [controls ccTouchEnded:touch withEvent:event andLocation:location];
+        }
 	}
 	
 }
@@ -2298,80 +2037,9 @@ GameLayer *instance;
 	
 	//CCLOG(@"Touch moved: %f,%f", location.x, location.y);
 	
-	CGSize size = [[CCDirector sharedDirector] winSize];
-	
-	if (!useDPad && !paused) {
-		
-		if (touch == leftTouch) {
-			
-			if (location.x >= size.width * 0.35f) {
-				[player stop];
-				leftTouch = nil;
-				
-			} else {
-				if (location.y > size.height/2) {
-					// Jump left
-					[player stop];
-					leftTouch = nil;
-					
-					[player jumpDirection:kDirectionLeft];
-					jumpTouch = touch;
-				}
-			}
-			
-		} else if (touch == rightTouch) {
-			
-			if (location.x <= size.width - (size.width * 0.35f)) {
-				[player stop];
-				rightTouch = nil;
-				
-			} else {
-				if (location.y > size.height/2) {
-					// Jump right
-					[player stop];
-					rightTouch = nil;
-					
-					[player jumpDirection:kDirectionRight];
-					jumpTouch = touch;
-				}
-			}
-		}
-	}
-	
-	if (useDPad && !paused) {
-		if (touch == dpadTouch) {
-			
-			if (([self dpadNorth:location]) && ((dpadTouch != jumpTouch))) {
-				[player jump];
-				jumpTouch = touch;
-				leftJoy.rotation = -90;
-				
-			} else if ([self dpadSouth:location]) {
-				[player prone];
-				leftJoy.rotation = 90;
-				if (dpadTouch == jumpTouch) {
-					[player resetJump];
-					jumpTouch = nil;
-				}
-				
-			} else if ([self dpadEast:location]) {
-				[player moveRight];
-				leftJoy.rotation = 0;
-				if (dpadTouch == jumpTouch) {
-					[player resetJump];
-					jumpTouch = nil;
-				}
-				
-			} else if ([self dpadWest:location]) {
-				[player moveLeft];
-				leftJoy.rotation = 180;
-				if (dpadTouch == jumpTouch) {
-					[player resetJump];
-					jumpTouch = nil;
-				}
-			}
-		}
-	}
+    if (!paused) {
+        [controls ccTouchMoved:touch withEvent:event andLocation:location];
+    }
 }
 
 -(void) ccTouchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
@@ -2383,36 +2051,14 @@ GameLayer *instance;
 	location = [[CCDirector sharedDirector] convertToGL:location];
 	
 	//CCLOG(@"Touch cancelled: %f,%f", location.x, location.y);
-	
-	//CGSize size = [[CCDirector sharedDirector] winSize];
-	
+    
 	if (!paused) {
-		if (touch == leftTouch) {
-			[player stop];
-			leftTouch = nil;
-			
-		} else if (touch == rightTouch) {
-			[player stop];
-			rightTouch = nil;
-		}
+        [controls ccTouchCancelled:touch withEvent:event andLocation:location];
 	}
 }
 
 #pragma mark -
 #pragma mark Flow control
-
-/*
--(void) visit {
-	[super visit];
-	
-	[Shared drawTriangle: northMoveArea direction:@"north"];
-	[Shared drawTriangle: southMoveArea direction:@"south"];
-	[Shared drawTriangle: eastMoveArea direction:@"east"];
-	[Shared drawTriangle: westMoveArea direction:@"west"];
-	[Shared drawCGRect: jumpArea];
-	[Shared drawCGRect: shootArea];
-}
-*/
 
 -(void) quitGame
 {    

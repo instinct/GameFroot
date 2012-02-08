@@ -134,7 +134,7 @@
 	bulletBodyDef.allowSleep = false;
 	bulletBodyDef.fixedRotation = true;
 	
-	//bulletBodyDef.bullet = true;
+	bulletBodyDef.bullet = true;
 	
 	// If bullet is kinematic, it won't collide with static objects (platforms)
 	// If bullet is dynamic, it will fall with gravity, so ignore gravity for this kind

@@ -113,6 +113,11 @@ static NSString *levelTitle = @"";
 }
 
 +(void) drawCGRect: (CGRect) rect {
+    rect.origin.x *= CC_CONTENT_SCALE_FACTOR();
+	rect.origin.y *= CC_CONTENT_SCALE_FACTOR();
+	rect.size.width *= CC_CONTENT_SCALE_FACTOR();
+	rect.size.height *= CC_CONTENT_SCALE_FACTOR();
+    
 	const GLfloat lines[] = {
 		rect.origin.x, rect.origin.y,
 		rect.origin.x + rect.size.width, rect.origin.y,
@@ -149,6 +154,11 @@ static NSString *levelTitle = @"";
 
 +(void) drawTriangle: (CGRect) rect direction:(NSString *)direction {
 	
+    rect.origin.x *= CC_CONTENT_SCALE_FACTOR();
+	rect.origin.y *= CC_CONTENT_SCALE_FACTOR();
+	rect.size.width *= CC_CONTENT_SCALE_FACTOR();
+	rect.size.height *= CC_CONTENT_SCALE_FACTOR();
+    
 	CGPoint *points = [Shared getTrianglePoints: rect direction:direction];
 	const GLfloat lines[] = {
 		points[0].x, points[0].y,

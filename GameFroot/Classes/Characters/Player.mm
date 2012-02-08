@@ -1228,7 +1228,7 @@
 	else body->SetGravityScale(1.0f);
 	
 	if ((fabsf(roundf(current.y)) == 0) || ignoreGravity) {
-		CCLOG(@"%f, %i, %i", current.x, action, jumping);
+		//CCLOG(@"%f, %i, %i", current.x, action, jumping);
 		if ((fabsf(roundf(current.x)) == 0) && (action != PRONE) && (action != CROUCH) && (!jumping)) {
 			[self setState:STAND];
 		}

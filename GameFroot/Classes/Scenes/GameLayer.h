@@ -17,6 +17,7 @@
 @class GameObject;
 @class Bullet;
 @class GameMenu;
+@class Controls;
 
 // GameLayer
 @interface GameLayer : CCLayer
@@ -41,25 +42,12 @@
 	int parts;
 	int partsLoaded;
 	
-	// Joystick
-	CCSprite *leftJoy;
-	CCSprite *leftBut;
-	CCSprite *rightBut;
-	CGRect northMoveArea;
-	CGRect southMoveArea;
-	CGRect eastMoveArea;
-	CGRect westMoveArea;
-	CGRect jumpArea;
-	CGRect shootArea;
-	CGPoint *northTriangleArea;
-	CGPoint *southTriangleArea;
-	CGPoint *eastTriangleArea;
-	CGPoint *westTriangleArea;
-	
+	// Controls
+    Controls *controls;
+    
 	// Spritesheets
 	CCSpriteBatchNode *spriteSheet;
 	CCSpriteBatchNode *hudSpriteSheet;
-	CCSpriteBatchNode *dpadSpriteSheet;
 	
 	// Map
 	NSMutableDictionary *data;
@@ -79,18 +67,6 @@
 	CCArray *movingPlatforms;
 	CCArray *robots;
 	CCArray *bullets;
-	
-	// Touch controls
-	CGPoint	gestureStartPoint;
-	UITouch	* gestureTouch;
-	NSTimeInterval gestureStartTime;
-	NSTimeInterval lastShoot;
-	UITouch	*leftTouch;
-	UITouch	*rightTouch;
-	UITouch	*jumpTouch;
-	UITouch	*shootTouch;
-	UITouch	*dpadTouch;
-	BOOL paused;
 	
 	// HUD
 	CCLayerColor *pauseCover;
@@ -113,6 +89,8 @@
 	CCSprite *ammoBarMiddle;
 	CCSprite *ammoBarRight;
 	
+    BOOL paused;
+    
 	BOOL timerEnabled;
 	
 	BOOL lock;
