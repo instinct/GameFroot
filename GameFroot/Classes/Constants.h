@@ -55,6 +55,6 @@ typedef enum{
 
 #define REDUCE_FACTOR	0.75f * CC_CONTENT_SCALE_FACTOR()
 
-#define ADJUSTMENT_COLLISION_X	4.0f
+//#define ADJUSTMENT_COLLISION_X	4.0f
 
 #define DEBUG_WORLD				0

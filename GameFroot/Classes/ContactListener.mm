@@ -67,14 +67,14 @@ void ContactListener::BeginContact(b2Contact *contact) {
 			//CCLOG(@"%f , %f", player.position.x + player.size.width*(1.0f-player.anchorPoint.x), tile.position.x - tile.size.width/2.0f);
 			//CCLOG(@"%f , %f", player.position.x - player.size.width*player.anchorPoint.x, tile.position.x + tile.size.width/2.0f);
 			
-			if ((player.position.x + player.size.width*(1.0f-player.anchorPoint.x) - ADJUSTMENT_COLLISION_X >= tile.position.x - tile.size.width/2.0f)
-				&& (player.position.x - player.size.width*player.anchorPoint.x + ADJUSTMENT_COLLISION_X <= tile.position.x + tile.size.width/2.0f) ) {
+			//if ((player.position.x + player.size.width*(1.0f-player.anchorPoint.x) - ADJUSTMENT_COLLISION_X >= tile.position.x - tile.size.width/2.0f)
+			//	&& (player.position.x - player.size.width*player.anchorPoint.x + ADJUSTMENT_COLLISION_X <= tile.position.x + tile.size.width/2.0f) ) {
 				
 				[player hitsFloor];
 				
-			} else {
-				contact->SetEnabled(false);	
-			}
+			//} else {
+			//	contact->SetEnabled(false);	
+			//}
 		}
 		
 		if (IS_CLOUD(o1, o2)) {
@@ -114,15 +114,15 @@ void ContactListener::BeginContact(b2Contact *contact) {
 
 		if (enemy.position.y - enemy.size.height*enemy.anchorPoint.y >= tile.position.y + tile.size.height/2.0f) {
 					
-			if ((enemy.position.x + enemy.size.width*(1.0f-enemy.anchorPoint.x) - ADJUSTMENT_COLLISION_X >= tile.position.x - tile.size.width/2.0f)
-				&& (enemy.position.x - enemy.size.width*enemy.anchorPoint.x + ADJUSTMENT_COLLISION_X <= tile.position.x + tile.size.width/2.0f) ) {
+			//if ((enemy.position.x + enemy.size.width*(1.0f-enemy.anchorPoint.x) - ADJUSTMENT_COLLISION_X >= tile.position.x - tile.size.width/2.0f)
+			//	&& (enemy.position.x - enemy.size.width*enemy.anchorPoint.x + ADJUSTMENT_COLLISION_X <= tile.position.x + tile.size.width/2.0f) ) {
 						
 				[enemy hitsFloor];
 			
-			} else {
-				contact->SetEnabled(false);	
+			//} else {
+			//	contact->SetEnabled(false);	
 				
-			}
+			//}
 		}
 			
 		
@@ -271,7 +271,13 @@ void ContactListener::BeginContact(b2Contact *contact) {
 	
 	} else if (IS_BULLET(o1, o2) && IS_BULLET_ENEMY(o1, o2)) {
 		///CCLOG(@"-----> Bullet made contact with bullet!");
-		contact->SetEnabled(false);
+		//contact->SetEnabled(false);
+        
+			Bullet *bullet1 = (Bullet *)o1;
+			[bullet1 die];
+
+			Bullet *bullet2 = (Bullet *)o2;
+			[bullet2 die];
 		
 	} else if ((IS_BULLET(o1, o2) || IS_BULLET_ENEMY(o1, o2)) && IS_PLATFORM(o1, o2)) {
 		//CCLOG(@"-----> Bullet made contact with platform!");
@@ -324,14 +330,14 @@ void ContactListener::BeginContact(b2Contact *contact) {
 				[platform changeDirection];
 			}
 			
-		} else if (player.position.x + player.size.width*(1.0f-player.anchorPoint.x) - ADJUSTMENT_COLLISION_X <= platform.position.x - platform.size.width/2.0f) {
+		} else if (player.position.x + player.size.width*(1.0f-player.anchorPoint.x) <= platform.position.x - platform.size.width/2.0f) {
 			//CCLOG(@"Player hits moving platform from left!");
 			b2Vec2 current = platform.body->GetLinearVelocity();
 			if (current.x < 0) {
 				[platform changeDirection];
 			}
 			
-		} else if (player.position.x - player.size.width*player.anchorPoint.x + ADJUSTMENT_COLLISION_X >= platform.position.x + platform.size.width/2.0f) {
+		} else if (player.position.x - player.size.width*player.anchorPoint.x >= platform.position.x + platform.size.width/2.0f) {
 			//CCLOG(@"Player hits moving platform from right!");
 			b2Vec2 current = platform.body->GetLinearVelocity();
 			if (current.x > 0) {
@@ -416,16 +422,16 @@ void ContactListener::PreSolve(b2Contact *contact, const b2Manifold *oldManifold
 		} else {
 			//CCLOG(@"Check if floor (presolve): %f , %f", player.position.y - player.size.height*player.anchorPoint.y, tile.position.y + tile.size.height/2.0f);
 			
-			if ((player.position.x + player.size.width*(1.0f-player.anchorPoint.x) - ADJUSTMENT_COLLISION_X >= tile.position.x - tile.size.width/2.0f)
-				&& (player.position.x - player.size.width*player.anchorPoint.x + ADJUSTMENT_COLLISION_X <= tile.position.x + tile.size.width/2.0f) ) {
+			//if ((player.position.x + player.size.width*(1.0f-player.anchorPoint.x) - ADJUSTMENT_COLLISION_X >= tile.position.x - tile.size.width/2.0f)
+			//	&& (player.position.x - player.size.width*player.anchorPoint.x + ADJUSTMENT_COLLISION_X <= tile.position.x + tile.size.width/2.0f) ) {
 				
 				b2Vec2 current = player.body->GetLinearVelocity();
 				if (current.y < 0) [player hitsFloor];
 				
-			} else {
-				b2Vec2 current = player.body->GetLinearVelocity();
-				if (current.y < 0) contact->SetEnabled(false);
-			}
+			//} else {
+			//	b2Vec2 current = player.body->GetLinearVelocity();
+			//	if (current.y < 0) contact->SetEnabled(false);
+			//}
 		}
 		
 	} else if (IS_BULLET_ENEMY(o1, o2) && IS_PLAYER(o1, o2)) {

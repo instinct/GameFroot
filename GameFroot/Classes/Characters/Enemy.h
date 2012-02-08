@@ -31,6 +31,8 @@
 	int behaviour;
 	
 	CGPoint prevPosition;
+    
+    NSTimeInterval lastShoot;
 }
 
 @property (nonatomic,assign) int score;

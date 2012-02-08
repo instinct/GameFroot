@@ -332,7 +332,7 @@
 	playerBodyDef.userData = self;
 	body = world->CreateBody(&playerBodyDef);
 	
-	[[GB2ShapeCache sharedShapeCache] addFixturesToBody:body forShapeName:@"player2"];
+	[[GB2ShapeCache sharedShapeCache] addFixturesToBody:body forShapeName:@"player"];
 	
 	/*
 	 b2PolygonShape shape;
@@ -843,24 +843,6 @@
 			
 			CGPoint bulletOffset = ccp(0,0);
 			
-			/*
-			 if (action == PRONE)
-			 {
-			 if (facingLeft) bulletOffset = ccp(0, -24);
-			 else bulletOffset = ccp(60, -24);
-			 }
-			 else if (action == CROUCH)
-			 {
-			 if (facingLeft) bulletOffset = ccp(0, 0);
-			 else bulletOffset = ccp(60, 0);
-			 }
-			 else
-			 {
-			 if (facingLeft) bulletOffset = ccp(0, 8);
-			 else bulletOffset = ccp(60, 8);
-			 }
-			 */
-			
 			if (facingLeft) bulletOffset = ccp(-50/CC_CONTENT_SCALE_FACTOR(), bulletOffsetY);
 			else bulletOffset = ccp(50/CC_CONTENT_SCALE_FACTOR(), bulletOffsetY);
 			
@@ -1246,7 +1228,7 @@
 	else body->SetGravityScale(1.0f);
 	
 	if ((fabsf(roundf(current.y)) == 0) || ignoreGravity) {
-		//CCLOG(@"%f, %i, %i", current.y, action, jumping);
+		CCLOG(@"%f, %i, %i", current.x, action, jumping);
 		if ((fabsf(roundf(current.x)) == 0) && (action != PRONE) && (action != CROUCH) && (!jumping)) {
 			[self setState:STAND];
 		}
@@ -1268,7 +1250,8 @@
 				b2Vec2 impulse = b2Vec2(0.0f, fabs(current.y) + JETPACK_IMPULSE);
 				body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
 				
-			} else if (helpFall && !jumping) {
+			/* Not need it anymore since we used edges instead of boxes, I think!!
+            } else if (helpFall && !jumping) {
 				// Give little impluse down so we can fall in one tile gaps
 				
 				//CCLOG(@"Help fall %f", current.y);
@@ -1277,6 +1260,8 @@
 				body->ApplyForce(b2Vec2(0.0f, -250.0f),body->GetWorldCenter());
 
 				helpFall = NO;
+            */
+            
 			}
 		}
 	}
