@@ -1593,6 +1593,16 @@ GameLayer *instance;
     }
 }
 
+-(void) pressedControls
+{
+    [leftJoy setOpacity:80];
+}
+
+-(void) releasedControls
+{
+    [leftJoy setOpacity:125];
+}
+
 -(void) initGame
 {
 	// Game loaded, save cached date
@@ -2143,6 +2153,8 @@ GameLayer *instance;
 			
 			[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_horizontal.png"]];
 			leftJoy.rotation = -90;
+            
+            [self pressedControls];
 			
 		} else if ([Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:southTriangleArea[0] pointB:southTriangleArea[1] pointC:southTriangleArea[2]]) {
 			[player prone];
@@ -2150,6 +2162,8 @@ GameLayer *instance;
 			
 			[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_horizontal.png"]];
 			leftJoy.rotation = 90;
+            
+            [self pressedControls];
 			
 		} else if ([Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:eastTriangleArea[0] pointB:eastTriangleArea[1] pointC:eastTriangleArea[2]]) {
 			[player moveRight];
@@ -2157,6 +2171,8 @@ GameLayer *instance;
 			
 			[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_horizontal.png"]];
 			leftJoy.rotation = 0;
+            
+            [self pressedControls];
 			
 		} else if ([Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:westTriangleArea[0] pointB:westTriangleArea[1] pointC:westTriangleArea[2]]) {
 			[player moveLeft];
@@ -2164,6 +2180,8 @@ GameLayer *instance;
 			
 			[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_horizontal.png"]];
 			leftJoy.rotation = 180;
+            
+            [self pressedControls];
 			
 		} else if ((location.x >= jumpArea.origin.x) && (location.x <= jumpArea.origin.x + jumpArea.size.width) 
 				   && (location.y >= jumpArea.origin.y - jumpArea.size.height) && (location.y <= jumpArea.origin.y)) {
@@ -2252,13 +2270,15 @@ GameLayer *instance;
 				}
 				
 				dpadTouch = nil;
+                
+                [self releasedControls];
 			}
 			
 			if (touch == jumpTouch) {
 				[player resetJump];
 				jumpTouch = nil;
 				[rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_up.png"]];
-				
+                
 			} else if (touch == shootTouch) {
 				shootTouch = nil;
 				[leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_up.png"]];
@@ -2477,6 +2497,7 @@ GameLayer *instance;
 	}
 	
 	[player resetPosition];
+    [player changeWeapon:4]; // Default weapon
 	
 	[self resetControls];
 }

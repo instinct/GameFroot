@@ -148,7 +148,7 @@
 	body->SetGravityScale(0.0f);
 	
 	b2PolygonShape shape;
-	shape.SetAsBox((32.0f/6.0f)/PTM_RATIO, (20.0f/6.0f)/PTM_RATIO);
+	shape.SetAsBox((32.0f/6.0f)/(PTM_RATIO*CC_CONTENT_SCALE_FACTOR()), (20.0f/6.0f)/(PTM_RATIO*CC_CONTENT_SCALE_FACTOR()));
 	b2FixtureDef fixtureDef;
 	fixtureDef.shape = &shape;
 	fixtureDef.density = 1.0;
@@ -160,20 +160,10 @@
 	if (direction == kDirectionLeft) {
 		b2Vec2 velocity = b2Vec2(-BULLET_SPEED, 0.0f);
 		body->SetLinearVelocity(velocity);
-		//body->ApplyForce(b2Vec2(0.0f, 15.0f),body->GetWorldCenter());
-		
-		//body->ApplyForce(b2Vec2(-200.0f, 0.0f),body->GetWorldCenter());
-		
-		//body->ApplyLinearImpulse(b2Vec2(-1.1f, 0.05f), body->GetWorldCenter());
 		
 	} else {
 		b2Vec2 velocity = b2Vec2(BULLET_SPEED, 0.0f);
 		body->SetLinearVelocity(velocity);
-		//body->ApplyForce(b2Vec2(0.0f, 15.0f),body->GetWorldCenter());
-		
-		//body->ApplyForce(b2Vec2(200.0f, 0.0f),body->GetWorldCenter());
-		
-		//body->ApplyLinearImpulse(b2Vec2(1.1f, 0.05f), body->GetWorldCenter());
 	}
 }
 
@@ -184,7 +174,7 @@
 		
 		removing = YES;
 		body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
-		
+        
 		id dieAction = [CCSequence actions:
 						//[CCHide action],
 						[CCAnimate actionWithAnimation:explosion],
@@ -199,6 +189,7 @@
 -(void) destroy
 {
 	[GameLayer getInstance].world->DestroyBody(body);
+    [spriteSheet removeAllChildrenWithCleanup:YES];
 	[[GameLayer getInstance] removeBullet:spriteSheet];
 }
 

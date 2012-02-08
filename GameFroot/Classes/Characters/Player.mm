@@ -332,7 +332,7 @@
 	playerBodyDef.userData = self;
 	body = world->CreateBody(&playerBodyDef);
 	
-	[[GB2ShapeCache sharedShapeCache] addFixturesToBody:body forShapeName:@"player2"];
+	[[GB2ShapeCache sharedShapeCache] addFixturesToBody:body forShapeName:@"player"];
 	
 	/*
 	 b2PolygonShape shape;
@@ -842,24 +842,6 @@
 			[[GameLayer getInstance] reduceAmmo];
 			
 			CGPoint bulletOffset = ccp(0,0);
-			
-			/*
-			 if (action == PRONE)
-			 {
-			 if (facingLeft) bulletOffset = ccp(0, -24);
-			 else bulletOffset = ccp(60, -24);
-			 }
-			 else if (action == CROUCH)
-			 {
-			 if (facingLeft) bulletOffset = ccp(0, 0);
-			 else bulletOffset = ccp(60, 0);
-			 }
-			 else
-			 {
-			 if (facingLeft) bulletOffset = ccp(0, 8);
-			 else bulletOffset = ccp(60, 8);
-			 }
-			 */
 			
 			if (facingLeft) bulletOffset = ccp(-50/CC_CONTENT_SCALE_FACTOR(), bulletOffsetY);
 			else bulletOffset = ccp(50/CC_CONTENT_SCALE_FACTOR(), bulletOffsetY);

@@ -40,7 +40,31 @@
 	
 	body = world->CreateBody(&playerBodyDef);
 	
+    // Define the box shape as edges
+	b2Vec2 lowerLeft = b2Vec2(0 - (size.width/2.0f/PTM_RATIO), 0 - (size.height/2.0f/PTM_RATIO));
+	b2Vec2 lowerRight = b2Vec2(size.width/2.0f/PTM_RATIO, 0 - (size.height/2.0f/PTM_RATIO));
+	b2Vec2 upperRight = b2Vec2(size.width/2.0f/PTM_RATIO, size.height/2.0f/PTM_RATIO);
+	b2Vec2 upperLeft = b2Vec2(0 - (size.width/2.0f/PTM_RATIO), size.height/2.0f/PTM_RATIO);
+    
+	b2EdgeShape groundBox;		
 	
+	// bottom
+	groundBox.Set(lowerLeft, lowerRight);
+	body->CreateFixture(&groundBox,0);
+	
+	// top
+	groundBox.Set(upperRight, upperLeft);
+	body->CreateFixture(&groundBox,0);
+	
+	// left
+	groundBox.Set(upperLeft, lowerLeft);
+	body->CreateFixture(&groundBox,0);
+	
+	// right
+	groundBox.Set(lowerRight, upperRight);
+	body->CreateFixture(&groundBox,0);
+    
+    /*
 	b2PolygonShape shape;
 	shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0f)/PTM_RATIO);
 	b2FixtureDef fixtureDef;
@@ -49,7 +73,8 @@
 	fixtureDef.friction = 0.0;
 	fixtureDef.restitution = 0.0; // bouncing
 	body->CreateFixture(&fixtureDef);
-	
+	*/
+    
 	removed = NO;
 }
 
@@ -101,6 +126,7 @@
 	if (body->GetType() != b2_staticBody) {
 		self.position = ccp(body->GetPosition().x * PTM_RATIO, body->GetPosition().y * PTM_RATIO);
 		//self.rotation =  -1 * CC_RADIANS_TO_DEGREES(body->GetAngle()); // We don't rotate, so we can save this
+        //body->SetTransform(body->GetPosition(), 0);
 	}
 }
 

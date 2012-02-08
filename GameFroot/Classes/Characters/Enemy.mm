@@ -227,7 +227,7 @@
 	playerBodyDef.userData = self;
 	body = world->CreateBody(&playerBodyDef);
 	
-	[[GB2ShapeCache sharedShapeCache] addFixturesToBody:body forShapeName:@"player2"];
+	[[GB2ShapeCache sharedShapeCache] addFixturesToBody:body forShapeName:@"player"];
 	
 	/*
 	b2PolygonShape shape;
@@ -330,26 +330,11 @@
 	if (!dying && !immortal && (action != PRONE) && (action != CROUCH)) {
 		CGPoint bulletOffset = ccp(0,0);
 		
-		/*
-		if (action == PRONE)
-		{
-			if (facingLeft) bulletOffset = ccp(0, -24);
-			else bulletOffset = ccp(60, -24);
-		}
-		else if (action == CROUCH)
-		{
-			if (facingLeft) bulletOffset = ccp(0, 0);
-			else bulletOffset = ccp(60, 0);
-		}
-		else
-		{
-			if (facingLeft) bulletOffset = ccp(0, 8);
-			else bulletOffset = ccp(60, 8);
-		}
-		*/
+        if (facingLeft) bulletOffset = ccp(-50/CC_CONTENT_SCALE_FACTOR(), bulletOffsetY);
+        else bulletOffset = ccp(50/CC_CONTENT_SCALE_FACTOR(), bulletOffsetY);
 		
-		if (facingLeft) bulletOffset = ccp(-50/CC_CONTENT_SCALE_FACTOR(), -5/CC_CONTENT_SCALE_FACTOR());
-		else bulletOffset = ccp(50/CC_CONTENT_SCALE_FACTOR(), -5/CC_CONTENT_SCALE_FACTOR());
+		//if (facingLeft) bulletOffset = ccp(-50/CC_CONTENT_SCALE_FACTOR(), -5/CC_CONTENT_SCALE_FACTOR());
+		//else bulletOffset = ccp(50/CC_CONTENT_SCALE_FACTOR(), -5/CC_CONTENT_SCALE_FACTOR());
 		
 		GameObjectDirection bulletDirection;
 		if (facingLeft) bulletDirection = kDirectionLeft;
@@ -407,7 +392,7 @@
 		removed = YES;
 		
 		body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
-		
+        
 		[self setState:STAND];
 		
 		id dieAction = [CCSequence actions:
@@ -584,7 +569,7 @@
 			}
 		}
 		
-	} else if (behaviour & BEHAVIOUR_WALKING > 0) {
+	} else if ((behaviour & BEHAVIOUR_WALKING) > 0) {
 		if (self.position.x > player.position.x + 200.0f) {
 			if (direction != kDirectionLeft) {
 				//CCLOG(@"Enemy.update: move left");
@@ -629,13 +614,16 @@
 		}
 	}
 	
-	if (behaviour & BEHAVIOUR_SHOOTING > 0) {
+	if ((behaviour & BEHAVIOUR_SHOOTING) > 0) {
 		if (roundf(self.position.y/100) == roundf(player.position.y/100)) {
 			// Enemy and player on same level
 			int rnd = arc4random()%100;
-			if (rnd < 5) {
-				if (facingLeft) [self shoot];
-				else if (!facingLeft) [self shoot];
+			if (rnd < 15) {
+                NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
+				if (timestamp - lastShoot > shootDelay) {
+                    [self shoot];
+                    lastShoot = timestamp;
+                }
 			}
 		}
 	}
