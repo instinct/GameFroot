@@ -538,7 +538,6 @@
     
     // TODO: Refactor into SWScrollView
     
-    
     CCLabelTTF *placeHolderText = [CCLabelTTF labelWithString:@"Game detail screen" fontName:@"HelveticaNeue-Bold" fontSize:16];
     placeHolderText.color = ccc3(255,255,255);
     
@@ -556,30 +555,41 @@
     CCMenu *contentMenu = [CCMenu menuWithItems:contentPlayButton, nil];
     
     // Add placeholder ratings section.
-    CCSprite *ratings_placeholder = [CCSprite spriteWithFile:@"rate_controls_mockup.png"];
+    CCSprite *ratingsPlaceholder = [CCSprite spriteWithFile:@"rate_controls_mockup.png"];
     
     CCNode *container = [CCNode node];
-        
+    //CCLayerColor *container = [CCLayerColor layerWithColor:ccc4(255,0,0,255)];
+    
     // parenting
     [container addChild:placeHolderText];
-    [container addChild:ratings_placeholder];
+    [container addChild:ratingsPlaceholder];
     [container addChild:topNav];
     [container addChild:contentMenu];
     
     // position stuff
-    placeHolderText.position = ccp(size.width/2, size.height/2);
+    placeHolderText.position = ccp(size.width/2, size.height/2 + size.height/2);
     [topNav alignItemsHorizontallyWithPadding:20];
-    topNav.position = ccp(size.width/2, size.height - 44 - topNavBackButton.contentSize.height/2 - 5);
-    contentMenu.position = ccp(size.width/2,size.height/2);
-    ratings_placeholder.position = ccp(size.width/2, 0);
+    topNav.position = ccp(size.width/2, size.height - topNavBackButton.contentSize.height/2 - 10 + size.height/2);
+    contentMenu.position = ccp(size.width/2,size.height/2 + size.height/2);
+    ratingsPlaceholder.position = ccp(size.width/2, 0 + size.height/2);
     
-    CCLOG(@"anchor point: x:%f and y:%f", container.anchorPoint.x, container.anchorPoint.y); 
+    // Calculate size of the layer
+    // NOTE! cocos2d layers don't get size according to his cildren
+    CGSize sizeScroll = CGSizeMake(size.width, (topNav.position.y + topNav.contentSize.height/2) - (ratingsPlaceholder.position.y) + 40);
+    CGSize sizeView = CGSizeMake(size.width, size.height - (45 + 50)); // Screen size minus bottom and top navigation margins
+    //CCLOG(@"scroll: %f,%f", sizeScroll.width, sizeScroll.height);
+    //CCLOG(@"view: %f,%f", sizeView.width, sizeView.height);
     
-     gameDetailSV = [SWScrollView viewWithViewSize:CGSizeMake(size.width, size.height-44) container:container];
-     gameDetailSV.direction = SWScrollViewDirectionVertical;
-     gameDetailSV.isTouchEnabled = YES;
+    gameDetailSV = [SWScrollView viewWithViewSize:sizeView container:container];
+    gameDetailSV.contentSize = sizeScroll;
+    gameDetailSV.direction = SWScrollViewDirectionVertical;
+    gameDetailSV.position = ccp(0,50); // Bottom navigation margin
+    
+    // ScrollView is initally centered, so scroll to top
+    [gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height)) animated:NO];
     
     [gameDetail addChild:gameDetailSV];
+    
     
     loading = NO;
     gameDetailSV.visible = YES;
