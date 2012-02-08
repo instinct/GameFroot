@@ -47,6 +47,7 @@
         westMoveArea = CGRectMake(5, 141, 70, 140);
         
         // This could perhaps be improved using just angle from centre of dpap
+        // North is up, south is right, and so on...
         northTriangleArea = [Shared getTrianglePoints: northMoveArea direction:@"north"];
         southTriangleArea = [Shared getTrianglePoints: southMoveArea direction:@"south"];
         eastTriangleArea = [Shared getTrianglePoints: eastMoveArea direction:@"east"];

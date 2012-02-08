@@ -18,6 +18,7 @@
 @class Bullet;
 @class GameMenu;
 @class Controls;
+@class Pause;
 
 // GameLayer
 @interface GameLayer : CCLayer
@@ -69,7 +70,7 @@
 	CCArray *bullets;
 	
 	// HUD
-	CCLayerColor *pauseCover;
+	Pause *pauseCover;
 	CCLabelBMFont *livesLabel;
 	CCLabelBMFont *timerLabel;
 	CCLabelBMFont *pointsLabel;
@@ -90,20 +91,11 @@
 	CCSprite *ammoBarRight;
 	
     BOOL paused;
-    
 	BOOL timerEnabled;
-	
 	BOOL lock;
-	
-	CCMenuItemToggle *musicButton;
-	CCMenuItemToggle *dpadButton;
-	
 	BOOL customTiles;
-	
 	BOOL useDPad;
-	
 	BOOL ignoreCache;
-    
     CGPoint originalPosition;
 }
 
@@ -131,6 +123,8 @@
 -(void) createMapItems;
 -(void) loadPlayer;
 -(void) loadEnemies;
+-(void)music: (id)sender;
+-(void)dpad: (id)sender;
 
 #pragma mark -
 #pragma mark Setup
