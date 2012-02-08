@@ -881,6 +881,7 @@
 		[self runAction:blinkAction];
 		
 		if (type == kGameObjectPlayer) {
+            
 			id weaponBlinkAction = [CCSequence actions:
 									[CCFadeOut actionWithDuration:0.2],
 									[CCFadeIn actionWithDuration:0.2],
@@ -1230,7 +1231,7 @@
 	if ((fabsf(roundf(current.y)) == 0) || ignoreGravity) {
 		//CCLOG(@"%f, %i, %i", current.x, action, jumping);
 		if ((fabsf(roundf(current.x)) == 0) && (action != PRONE) && (action != CROUCH) && (!jumping)) {
-			[self setState:STAND];
+			//[self setState:STAND];
 		}
 		
 	} else {
