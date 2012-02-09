@@ -448,6 +448,8 @@ GameLayer *instance;
     [hud show];
     [scene show];
     paused = NO;
+    
+    [player immortal];
 }
 
 
@@ -1420,8 +1422,6 @@ GameLayer *instance;
 	[playerSpriteSheet addChild:player z:LAYER_PLAYER];
     
     [controls setPlayer:player];
-	
-	[player immortal];
 }
 
 -(void) loadEnemies
@@ -1527,6 +1527,8 @@ GameLayer *instance;
 
 -(void) initGame
 {
+    [Shared setPlaying:YES];
+    
 	// Game loaded, save cached date
 	NSString *published = [Shared getLevelDate];
 	//CCLOG(@"Game published: %@", published);
@@ -2032,6 +2034,8 @@ GameLayer *instance;
     [hud hide];
     [scene hide];
     
+    [Shared setPlaying:NO];
+    
     [[CCDirector sharedDirector] resume];
     
     mainMenu = [GameMenu node];
@@ -2093,11 +2097,17 @@ GameLayer *instance;
 	MovingPlatform *platform; CCARRAY_FOREACH(movingPlatforms, platform) {
 		[platform resetStatus:true];
 	}
+    
+    Robot *robot; CCARRAY_FOREACH(robots, robot) {
+		[robot resetPosition];
+	}
 	
-	[player resetPosition];
     [player changeWeapon:4]; // Default weapon
+	[player resetPosition];
 	
 	[self resetControls];
+    
+    [Shared setPlaying:YES];
 }
 
 -(void) restartGameFromPause

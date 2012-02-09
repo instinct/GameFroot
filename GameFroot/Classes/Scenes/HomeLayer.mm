@@ -928,7 +928,7 @@
 	
 	AppDelegate *app = (AppDelegate *)[UIApplication sharedApplication].delegate;
 	
-	if (![[app facebook] isSessionValid]) {
+	if (![[app facebook] isSessionValid] || (![Shared connectedToNetwork])) {
 		
 		CCMenuItemSprite *loginButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"LoginNormal.png"] selectedSprite:[CCSprite spriteWithFile:@"LoginPressed.png"] target:self selector:@selector(fbLogin:)];
 		CCMenu *menu = [CCMenu menuWithItems:loginButton, nil];
@@ -1004,7 +1004,7 @@
 	//CCLOG(@">>>>>>>>>>>> Facebook Connect logging unsuccesful");
 	
 	loading = NO;
-	myGames.visible = NO;
+	myGames.visible = YES;
 }
 
 -(void) fbDidLogout {

@@ -22,6 +22,8 @@ static NSString *levelDate = @"";
 static int levelID;
 static NSString *levelTitle = @"";
 
+static BOOL playing;
+
 #pragma mark -
 #pragma mark Generic functions
 
@@ -65,6 +67,15 @@ static NSString *levelTitle = @"";
 +(void) setLevelTitle: (NSString *)_value {
     levelTitle = _value;
 }
+
++(BOOL) isPlaying {
+	return playing;
+}
+
++(void) setPlaying: (BOOL)_value {
+	playing = _value;
+}
+
 
 +(NSString *) getOSVersion {
 	return osVersion;
@@ -474,7 +485,7 @@ CGPoint GBSub(const CGPoint v1, const CGPoint v2) {
 			} else {
 				//CCLOG(@"Shared.getTexture2DFromWeb (ONLINE, NOT SAVED:%i): %@", saved, cachedFile);
 				UIImage *img = [[UIImage alloc] initWithData:imgData];
-				CCTexture2D *tex = [[CCTexture2D alloc] initWithImage:img];
+				CCTexture2D *tex = [[CCTexture2D alloc] initWithImage:img resolutionType:kCCResolutionStandard];
 				return tex;
 			}
 			
@@ -488,7 +499,7 @@ CGPoint GBSub(const CGPoint v1, const CGPoint v2) {
 			} else {
 				UIImage *img = [[UIImage alloc] initWithData:[NSData dataWithContentsOfFile:resource]];
 				//CCLOG(@"Shared.getTexture2DFromWeb (ERROR, NOT CACHED): %@", cachedFile);
-				CCTexture2D *tex = [[CCTexture2D alloc] initWithImage:img];
+				CCTexture2D *tex = [[CCTexture2D alloc] initWithImage:img resolutionType:kCCResolutionStandard];
 				return tex;
 			}
 			

@@ -426,7 +426,7 @@
 	pressedJump = YES;
 	
 	b2Vec2 current = body->GetLinearVelocity();
-	//CCLOG(@"Player.jump: %i, %f, %i", canJump, fabsf(roundf(current.y)), ignoreGravity);
+	//CCLOG(@"Player.jump: %i, %i, %i, %f, %i", canJump, dying, immortal, fabsf(roundf(current.y)), ignoreGravity);
 	if (canJump && !dying && !immortal && ((fabsf(roundf(current.y)) == 0) || ignoreGravity)) {
 		canJump = NO;
 		jumping = YES;
@@ -881,6 +881,7 @@
 		[self runAction:blinkAction];
 		
 		if (type == kGameObjectPlayer) {
+            
 			id weaponBlinkAction = [CCSequence actions:
 									[CCFadeOut actionWithDuration:0.2],
 									[CCFadeIn actionWithDuration:0.2],
@@ -1230,7 +1231,7 @@
 	if ((fabsf(roundf(current.y)) == 0) || ignoreGravity) {
 		//CCLOG(@"%f, %i, %i", current.x, action, jumping);
 		if ((fabsf(roundf(current.x)) == 0) && (action != PRONE) && (action != CROUCH) && (!jumping)) {
-			[self setState:STAND];
+			//[self setState:STAND];
 		}
 		
 	} else {

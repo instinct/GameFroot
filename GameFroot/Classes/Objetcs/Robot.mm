@@ -1523,6 +1523,18 @@
 	onMessage = NO;
 	onTouchStart = NO;
 	onInShot = NO;
+    
+    int totalEvents = [behavior count];
+	for (int i=0; i<totalEvents; i++) {
+		NSDictionary *event = (NSDictionary *)[behavior objectAtIndex:i];
+		//CCLOG(@"%@", event);
+		
+		NSString *nameEvent = [event objectForKey:@"event"];
+		
+		if ([nameEvent isEqualToString:@"onSpawn"]) {
+			[self resolve:i];
+        }
+    }
 }
 
 -(void) remove
