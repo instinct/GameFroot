@@ -205,7 +205,7 @@
         
 	} else {
 		if ([Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:northTriangleArea[0] pointB:northTriangleArea[1] pointC:northTriangleArea[2]]) {
-			[player jump];
+			//[player jump];
 			dpadTouch = touch;
 			jumpTouch = dpadTouch;
 			
