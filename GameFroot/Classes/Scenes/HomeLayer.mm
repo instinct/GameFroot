@@ -48,7 +48,8 @@
 	// always call "super" init
 	// Apple recommends to re-assign "self" with the "super" return value
 	if( (self=[super initWithColor:ccc4(52,52,52,255)])) {
-		
+
+        
 		CGSize size = [[CCDirector sharedDirector] winSize];	
 			
 		// Initialise properties dictionary
@@ -215,9 +216,11 @@
         displayingDeleteButton = NO;
         ratingsAnchorEnabled = NO;
         
-		if([[NSUserDefaults standardUserDefaults] boolForKey:@"firstlaunch"]) {
+		if([[NSUserDefaults standardUserDefaults] boolForKey:@"firstlaunch"] && ![Shared getWelcomeShown]) {
             // Do some stuff on first launch
+            [Shared setWelcomeShown:YES];
             [self loadWelcome];
+        
         } else {
             // If we have come from a game, go to that games' detail page
             if(![Shared getLevel]) {

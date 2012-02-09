@@ -42,6 +42,8 @@
 +(NSString*) md5: (NSString *)str;
 +(NSString*) sha1: (NSString *)str;
 +(NSString*) replaceAccents:(NSString*)a;
++(BOOL) getWelcomeShown;
++(void) setWelcomeShown:(BOOL)val;
 
 #pragma mark -
 #pragma mark Remote Data Loading

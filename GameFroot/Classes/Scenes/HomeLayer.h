@@ -74,7 +74,7 @@
 	NSMutableData *receivedData;
 	BOOL connecting;
     BOOL loading;
-    BOOL ratingsAnchorEnabled;
+    BOOL ratingsAnchorEnabled;  
     
     NSMutableDictionary *levelData;
 	

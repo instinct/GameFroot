@@ -23,6 +23,7 @@ static int levelID;
 static NSString *levelTitle = @"";
 
 static BOOL playing;
+static BOOL welcomeShown = NO;
 
 #pragma mark -
 #pragma mark Generic functions
@@ -42,6 +43,14 @@ static BOOL playing;
     [formatter release];
     [cal release];
     return ret;
+}
+
++(BOOL) getWelcomeShown {
+    return welcomeShown;
+}
+
++(void) setWelcomeShown:(BOOL)val {
+    welcomeShown = val;
 }
 
 +(int) getLevel {
