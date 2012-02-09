@@ -206,9 +206,10 @@
 	} else {
 		if ([Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:northTriangleArea[0] pointB:northTriangleArea[1] pointC:northTriangleArea[2]]) {
 			//[player jump];
-			dpadTouch = touch;
-			jumpTouch = dpadTouch;
+			//jumpTouch = dpadTouch;
 			
+            dpadTouch = touch;
+            
 			[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_horizontal.png"]];
 			leftJoy.rotation = -90;
             
@@ -372,8 +373,9 @@
 		if (touch == dpadTouch) {
 			
 			if (([self dpadNorth:location]) && ((dpadTouch != jumpTouch))) {
-				[player jump];
-				jumpTouch = touch;
+				//[player jump];
+				//jumpTouch = touch;
+                
 				leftJoy.rotation = -90;
 				
 			} else if ([self dpadSouth:location]) {
