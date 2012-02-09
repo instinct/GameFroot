@@ -73,8 +73,8 @@
     NSURLConnection *conn;
 	NSMutableData *receivedData;
 	BOOL connecting;
-    
     BOOL loading;
+    BOOL ratingsAnchorEnabled;
     
     NSMutableDictionary *levelData;
 	

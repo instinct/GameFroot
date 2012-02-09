@@ -213,13 +213,20 @@
 		selectedPage = nil;
 		loading = NO;
         displayingDeleteButton = NO;
+        ratingsAnchorEnabled = NO;
         
 		if([[NSUserDefaults standardUserDefaults] boolForKey:@"firstlaunch"]) {
             // Do some stuff on first launch
             [self loadWelcome];
         } else {
-            // Load featured panel
-            [self loadFeatured];
+            // If we have come from a game, go to that games' detail page
+            if(![Shared getLevel]) {
+                // Load featured panel, out default screen.
+                [self loadFeatured];
+            } else {
+                ratingsAnchorEnabled = YES;
+                [self loadGameDetail];
+            }
         }
 	}
 	
@@ -524,7 +531,6 @@
 #pragma mark -
 #pragma mark GameDetail
 
-
 -(void) loadGameDetail {
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadGameDetail)];
@@ -585,11 +591,18 @@
     gameDetailSV.direction = SWScrollViewDirectionVertical;
     gameDetailSV.position = ccp(0,50); // Bottom navigation margin
     
-    // ScrollView is initally centered, so scroll to top
-    [gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height)) animated:NO];
+
+    if(ratingsAnchorEnabled) {
+        // Scroll to ratings section
+        [gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height)) animated:NO];
+        [gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height) + sizeScroll.height - ratingsPlaceholder.contentSize.height - 45) animated:YES];
+        ratingsAnchorEnabled = NO;
+    } else {
+        // Scroll to top
+        [gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height)) animated:NO];
+    }
     
     [gameDetail addChild:gameDetailSV];
-    
     
     loading = NO;
     gameDetailSV.visible = YES;
