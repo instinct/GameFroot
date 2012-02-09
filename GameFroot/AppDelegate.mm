@@ -10,6 +10,7 @@
 
 #import "AppDelegate.h"
 #import "SplashLayer.h"
+#import "GameLayer.h"
 #import "GameConfig.h"
 #import "RootViewController.h"
 #import "Shared.h"
@@ -159,6 +160,7 @@
 - (void)applicationWillResignActive:(UIApplication *)application {
     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"firstlaunch"];
 	[[CCDirector sharedDirector] pause];
+    if ([Shared isPlaying]) [[GameLayer getInstance] pause];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
@@ -171,6 +173,7 @@
 -(void) resumeGame:(NSTimer *) sender 
 {
 	[[CCDirector sharedDirector] resume];
+    if ([Shared isPlaying]) [[GameLayer getInstance] resume];
 }
 
 // Pre 4.2 support

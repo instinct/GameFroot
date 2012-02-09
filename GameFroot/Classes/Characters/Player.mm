@@ -426,7 +426,7 @@
 	pressedJump = YES;
 	
 	b2Vec2 current = body->GetLinearVelocity();
-	//CCLOG(@"Player.jump: %i, %f, %i", canJump, fabsf(roundf(current.y)), ignoreGravity);
+	//CCLOG(@"Player.jump: %i, %i, %i, %f, %i", canJump, dying, immortal, fabsf(roundf(current.y)), ignoreGravity);
 	if (canJump && !dying && !immortal && ((fabsf(roundf(current.y)) == 0) || ignoreGravity)) {
 		canJump = NO;
 		jumping = YES;

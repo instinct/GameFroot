@@ -64,6 +64,17 @@
 	groundBox.Set(lowerRight, upperRight);
 	body->CreateFixture(&groundBox,0);
     
+    // add extra edges to avoid bullets going through on single tile blocks
+    if (size.width > MAP_TILE_WIDTH) {
+        // left
+        groundBox.Set(upperLeft + b2Vec2(MAP_TILE_WIDTH/PTM_RATIO, 0), lowerLeft + b2Vec2(MAP_TILE_WIDTH/PTM_RATIO, 0));
+        body->CreateFixture(&groundBox,0);
+        
+        // right
+        groundBox.Set(lowerRight - b2Vec2(MAP_TILE_WIDTH/PTM_RATIO, 0), upperRight - b2Vec2(MAP_TILE_WIDTH/PTM_RATIO, 0));
+        body->CreateFixture(&groundBox,0); 
+    }
+    
     /*
 	b2PolygonShape shape;
 	shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0f)/PTM_RATIO);

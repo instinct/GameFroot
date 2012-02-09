@@ -24,6 +24,8 @@
 +(void) setLevelDate: (NSString *)_value;
 +(NSString *) getLevelTitle;
 +(void) setLevelTitle: (NSString *)_value;
++(BOOL) isPlaying;
++(void) setPlaying: (BOOL)_value;
 +(NSString *) getOSVersion;
 +(void) detectOSVersion;
 +(BOOL) isMultitaskingSupported;
