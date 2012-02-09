@@ -20,6 +20,8 @@
 {
     if (!leftJoy) { // Be sure we don't recreate them again when restaring the game
         
+        
+        
         [self checkSettings];
         
         leftJoy = [CCSprite spriteWithSpriteFrameName:@"d_pad_normal.png"];
@@ -62,6 +64,12 @@
 {
     // Read saved settings
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    
+    if ([prefs boolForKey:@"firstlaunch"]) {
+        [prefs setInteger:1 forKey:@"dpad"];
+        [prefs synchronize];
+    }
+      
     int dpadPref = [prefs integerForKey:@"dpad"];
     //if ([Shared isDebugging]) CCLOG(@"DPad preference: %i", dpadPref);
     useDPad = dpadPref == 1;

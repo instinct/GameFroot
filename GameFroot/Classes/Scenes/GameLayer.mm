@@ -42,6 +42,7 @@
 
 GameLayer *instance;
 
+@synthesize controls;
 @synthesize points;
 @synthesize totalPoints;
 @synthesize mapWidth;

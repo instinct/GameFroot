@@ -99,6 +99,7 @@
     CGPoint originalPosition;
 }
 
+@property(nonatomic,assign) Controls *controls;
 @property(nonatomic,assign) int points;
 @property(nonatomic,assign) int totalPoints;
 @property(nonatomic,assign) int mapWidth;

@@ -9,6 +9,7 @@
 #import "Pause.h"
 #import "GameLayer.h"
 #import "SimpleAudioEngine.h"
+#import "Controls.h"
 
 @implementation Pause
 
@@ -20,6 +21,8 @@
 	if( (self=[super initWithColor:ccc4(0,0,0,200)])) {
 		
 		CGSize size = [[CCDirector sharedDirector] winSize];
+        
+        [[GameLayer getInstance].controls checkSettings];
         
 		CCMenuItemSprite *resumeButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-resume.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-resume-off.png"] target:self selector:@selector(pauseGame)];
 		CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-main-menu.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-main-menu-off.png"] target:self selector:@selector(quitGame)];
@@ -34,6 +37,8 @@
                       [CCMenuItemImage itemFromNormalImage:@"btn-dpad-on.png" selectedImage:@"btn-dpad-on.png"],
                       nil];
 		
+        
+        
 		// Read saved settings
 		NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 		int musicPref = [prefs integerForKey:@"music"];
