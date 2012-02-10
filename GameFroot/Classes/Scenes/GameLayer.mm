@@ -1419,7 +1419,7 @@ GameLayer *instance;
 	player.position = pos;
 	[player setAnchorPoint:ccp(0.41,0.33)];
 	[player setupPlayer:playerID initialX:dx initialY:dy];
-	[player createBox2dObject:world size:CGSizeMake(spriteWidth/4,spriteHeight - 40)];
+    [player createBox2dObject:world size:CGSizeMake(26.0 / CC_CONTENT_SCALE_FACTOR(), 57.0 / CC_CONTENT_SCALE_FACTOR())];
 	[playerSpriteSheet addChild:player z:LAYER_PLAYER];
     
     [controls setPlayer:player];
@@ -1510,8 +1510,7 @@ GameLayer *instance;
 		
 		// Call this after the other values have been set
 		[enemy setupEnemy:enemyID initialX:dx initialY:dy health:health player:player];
-		
-		[enemy createBox2dObject:world size:CGSizeMake(spriteWidth/4,spriteHeight - 40)];
+		[enemy createBox2dObject:world size:CGSizeMake(26.0 / CC_CONTENT_SCALE_FACTOR(), 57.0 / CC_CONTENT_SCALE_FACTOR())];
 		[enemySpriteSheet addChild:enemy z:LAYER_PLAYER];
 		
 		[enemies addObject:enemy];
@@ -2103,6 +2102,7 @@ GameLayer *instance;
 		[robot resetPosition];
 	}
 	
+    [player removeJetpack];
     [player changeWeapon:4]; // Default weapon
 	[player resetPosition];
 	
