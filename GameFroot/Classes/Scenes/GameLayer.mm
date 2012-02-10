@@ -204,7 +204,7 @@ GameLayer *instance;
 		NSFileManager *fileManager = [NSFileManager defaultManager];
 		NSArray *paths = NSSearchPathForDirectoriesInDomains(SAVE_FOLDER, NSUserDomainMask, YES);
 		NSString *documentsDirectory = [paths objectAtIndex:0];
-		NSString *resource = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"cachedLevel%i",[Shared getLevel]]];
+		NSString *resource = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"cachedLevel%i",[Shared getLevelID]]];
 		//CCLOG(@"Find if level cache is expired: %@", resource);
 		if ([fileManager fileExistsAtPath:resource]) {
 			NSString *cachedDate = [NSString stringWithContentsOfFile:resource encoding:NSASCIIStringEncoding error:nil];
@@ -298,7 +298,7 @@ GameLayer *instance;
 		[menu setPosition:ccp(size.width/2 + pauseBtn.contentSize.width + 20.0f, size.height - pauseBtn.contentSize.height + 5.0f)];
 		[hud addChild:menu z:1001];
 		
-		livesLabel = [CCLabelBMFont labelWithString:@"3xHP" fntFile:@"hud.fnt"];
+		livesLabel = [CCLabelBMFont labelWithString:@"00xHD" fntFile:@"hud.fnt"];
 		[livesLabel setPosition: ccp(livesLabel.contentSize.width/2 + 5, size.height - livesLabel.contentSize.height/2)];
 		[livesLabel.textureAtlas.texture setAliasTexParameters];
 		[hud addChild:livesLabel z:1];
@@ -352,13 +352,13 @@ GameLayer *instance;
 		[barRight setPosition:ccp(barMiddle.position.x + barMiddle.contentSize.width * barMiddle.scaleX, barMiddle.position.y)];
 		
 		//
-		CCSprite *ammoIcon = [CCSprite spriteWithSpriteFrameName:@"GunIcon.png"];
+        ammoIcon = [CCSprite spriteWithSpriteFrameName:@"GunIcon.png"];
 		[hudSpriteSheet addChild:ammoIcon];
 		[ammoIcon setPosition:ccp(ammoIcon.contentSize.width/2 + 5, livesLabel.position.y - livesLabel.contentSize.height/2 - ammoIcon.contentSize.height/2 + 10)];
 		
 		ammoBarBGLeft = [CCSprite spriteWithSpriteFrameName:@"ThinBarBGLeft.png"];
-		CCSprite *ammoBarBGMiddle = [CCSprite spriteWithSpriteFrameName:@"ThinBarBGMiddle.png"];
-		CCSprite *ammoBarBGRight = [CCSprite spriteWithSpriteFrameName:@"ThinBarBGRight.png"];
+		ammoBarBGMiddle = [CCSprite spriteWithSpriteFrameName:@"ThinBarBGMiddle.png"];
+		ammoBarBGRight = [CCSprite spriteWithSpriteFrameName:@"ThinBarBGRight.png"];
 		[hudSpriteSheet addChild:ammoBarBGLeft];
 		[hudSpriteSheet addChild:ammoBarBGMiddle];
 		[hudSpriteSheet addChild:ammoBarBGRight];
@@ -381,7 +381,8 @@ GameLayer *instance;
 		[ammoBarLeft setPosition:ccp(ammoBarBGLeft.position.x + 1, ammoBarBGLeft.position.y + 0.5)];
 		[ammoBarMiddle setPosition:ccp(ammoBarLeft.position.x + ammoBarLeft.contentSize.width/2, ammoBarLeft.position.y)];
 		[ammoBarRight setPosition:ccp(ammoBarMiddle.position.x + ammoBarMiddle.contentSize.width * ammoBarMiddle.scaleX, ammoBarMiddle.position.y)];
-		
+        [self disableAmmo];
+        
 		// Setup loader screen
 		[self setupLoadingScreen];
 		
@@ -460,7 +461,7 @@ GameLayer *instance;
 	
 	switch (partsLoaded) {
 		case 0:
-			[self loadLevelData:[Shared getLevel]];
+			[self loadLevelData:[Shared getLevelID]];
 			break;
 			
 		case 1:
@@ -593,14 +594,19 @@ GameLayer *instance;
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Load Player
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	NSMutableDictionary *playerData = [[NSMutableDictionary alloc] init];
+	//CCLOG(@"Player: %@", [[jsonData objectForKey:@"map"] objectForKey:@"player"]);
+    NSMutableDictionary *playerData = [[NSMutableDictionary alloc] init];
 	[playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"num"] intValue]] forKey:@"type"];
 	[playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"xpos"] intValue]] forKey:@"positionX"];
 	[playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"ypos"] intValue]] forKey:@"positionY"];
+    [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"player_jetpack"] intValue]] forKey:@"hasJetpack"];
+    [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"weapon"] intValue]] forKey:@"hasWeapon"];
+    [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"starting_health"] intValue]] forKey:@"health"];
+    [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"starting_lives"] intValue]] forKey:@"lives"];
+    [playerData setObject:[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"chosen_weapon"] forKey:@"weapon"];
 	[data setObject:playerData forKey:@"player"];
 	//CCLOG(@"Player: %@", [playerData description]);
-	
-	
+    
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Load Characters
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1418,7 +1424,7 @@ GameLayer *instance;
 	player = [Player spriteWithBatchNode:playerSpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];        
 	player.position = pos;
 	[player setAnchorPoint:ccp(0.41,0.33)];
-	[player setupPlayer:playerID initialX:dx initialY:dy];
+	[player setupPlayer:playerID properties:dict];
     [player createBox2dObject:world size:CGSizeMake(26.0 / CC_CONTENT_SCALE_FACTOR(), 57.0 / CC_CONTENT_SCALE_FACTOR())];
 	[playerSpriteSheet addChild:player z:LAYER_PLAYER];
     
@@ -1435,7 +1441,6 @@ GameLayer *instance;
 		int enemyID = [[dict objectForKey:@"type"] intValue];
 		int dx = [[dict objectForKey:@"positionX"] intValue];
 		int dy = [[dict objectForKey:@"positionY"] intValue];
-		int health = [[dict objectForKey:@"health"] intValue];
 		CCLOG(@"Enemy id: %i, initial position: %i,%i", enemyID, dx, dy);
 		
 		CCSpriteBatchNode *enemySpriteSheet;
@@ -1485,31 +1490,7 @@ GameLayer *instance;
 		Enemy *enemy = [Enemy spriteWithBatchNode:enemySpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];        
 		enemy.position = pos;
 		[enemy setAnchorPoint:ccp(0.41,0.33)];
-		
-		int score = [[dict objectForKey:@"score"] intValue];
-		int shootDamage = [[dict objectForKey:@"damage"] intValue];
-		NSString *weaponName = [dict objectForKey:@"weapon"];
-		int shotDelay = [[dict objectForKey:@"shotDelay"] intValue];
-		int speed = [[dict objectForKey:@"speed"] intValue];
-		int multiShot = [[dict objectForKey:@"multiShot"] intValue];
-		int multiShotDelay = [[dict objectForKey:@"multiShotDelay"] intValue];
-		int collideTakeDamage = [[dict objectForKey:@"collideTakeDamage"] intValue];
-		int collideGiveDamage = [[dict objectForKey:@"collideGiveDamage"] intValue];
-		int behaviour = [[dict objectForKey:@"behaviour"] intValue];
-		
-		enemy.score = score;
-		enemy.shootDamage = shootDamage;
-		enemy.weaponName = [weaponName retain];
-		enemy.shotDelay = shotDelay;
-		enemy.speed = speed <= HORIZONTAL_SPEED ? speed : HORIZONTAL_SPEED;
-		enemy.multiShot = multiShot;
-		enemy.multiShotDelay = multiShotDelay;
-		enemy.collideTakeDamage = collideTakeDamage;
-		enemy.collideGiveDamage = collideGiveDamage;
-		enemy.behaviour = behaviour;
-		
-		// Call this after the other values have been set
-		[enemy setupEnemy:enemyID initialX:dx initialY:dy health:health player:player];
+		[enemy setupEnemy:enemyID properties:dict player:player];
 		[enemy createBox2dObject:world size:CGSizeMake(26.0 / CC_CONTENT_SCALE_FACTOR(), 57.0 / CC_CONTENT_SCALE_FACTOR())];
 		[enemySpriteSheet addChild:enemy z:LAYER_PLAYER];
 		
@@ -1534,7 +1515,7 @@ GameLayer *instance;
 	//CCLOG(@"Game published: %@", published);
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(SAVE_FOLDER, NSUserDomainMask, YES);
 	NSString *documentsDirectory = [paths objectAtIndex:0];
-	NSString *resource = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"cachedLevel%i",[Shared getLevel]]];
+	NSString *resource = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"cachedLevel%i",[Shared getLevelID]]];
 	[published writeToFile:resource atomically:YES encoding:NSASCIIStringEncoding error:nil];
 	//CCLOG(@"Write level cache: %@ on: %@", published, resource);
 	
@@ -1740,6 +1721,8 @@ GameLayer *instance;
 
 -(void) setAmmo:(int)_ammo
 {
+    if (!ammoEnabled) return;
+    
 	if (_ammo == 0) {
 		ammoBarLeft.visible = NO;
 		ammoBarMiddle.visible = NO;
@@ -1819,6 +1802,32 @@ GameLayer *instance;
 -(void) decreaseLive:(int)amount
 {
 	[player decreaseLive:amount];
+}
+
+-(void) enableAmmo
+{
+	ammoIcon.visible = YES;
+	ammoBarBGLeft.visible = YES;
+    ammoBarBGMiddle.visible = YES;
+    ammoBarBGRight.visible = YES;
+    ammoBarLeft.visible = YES;
+	ammoBarMiddle.visible = YES;
+	ammoBarRight.visible = YES;
+    
+    ammoEnabled = YES;
+}
+
+-(void) disableAmmo
+{
+	ammoIcon.visible = NO;
+	ammoBarBGLeft.visible = NO;
+    ammoBarBGMiddle.visible = NO;
+    ammoBarBGRight.visible = NO;
+    ammoBarLeft.visible = NO;
+	ammoBarMiddle.visible = NO;
+	ammoBarRight.visible = NO;
+    
+    ammoEnabled = NO;
 }
 
 -(void) enableTimer
@@ -2093,19 +2102,16 @@ GameLayer *instance;
 	Enemy *enemy; CCARRAY_FOREACH(enemies, enemy) {
 		[enemy restartPosition];
 	}
-	
-	MovingPlatform *platform; CCARRAY_FOREACH(movingPlatforms, platform) {
-		[platform resetStatus:true];
-	}
     
     Robot *robot; CCARRAY_FOREACH(robots, robot) {
 		[robot resetPosition];
 	}
+    
+    MovingPlatform *platform; CCARRAY_FOREACH(movingPlatforms, platform) {
+		[platform resetStatus:true];
+	}
 	
-    [player removeJetpack];
-    [player changeWeapon:4]; // Default weapon
-	[player resetPosition];
-	
+    [player restart];
 	[self resetControls];
     
     [Shared setPlaying:YES];

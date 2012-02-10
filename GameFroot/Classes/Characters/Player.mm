@@ -19,31 +19,44 @@
 @synthesize shootDelay;
 @synthesize shootDamage;
 
--(void) setupPlayer:(int)_playerID initialX:(int)dx initialY:(int)dy
+-(void) setupPlayer:(int)_playerID properties:(NSDictionary *)properties
 {
 	playerID = _playerID;
-	
+    
 	type = kGameObjectPlayer;
 	moving = NO;
 	direction = kDirectionNone;
 	facingLeft = NO;
-	initialX = originalX = dx;
-	initialY = originalY = dy;
 	jetpackCollected = NO;
 	jetpackActivated = NO;
 	lose = NO;
 	win = NO;
 	scrollOnProne = 0;
-	
-	lives = 3;
-	health = 100;
-	
+	hasWeapon = NO;
+    
+    initialX = originalX = [[properties objectForKey:@"positionX"] intValue];
+	initialY = originalY = [[properties objectForKey:@"positionY"] intValue];
+	lives = initialLives = [[properties objectForKey:@"lives"] intValue];
+	health = initialHealth = [[properties objectForKey:@"health"] intValue];
+    topHealth = health;
+    
+    defaultWeapon = 4; // Use string [properties objectForKey:@"weapon"]
+    startsWithWeapon = [[properties objectForKey:@"hasWeapon"] intValue] == 1;
+    startsWithJetpack = [[properties objectForKey:@"hasJetpack"] intValue] == 1;
+    
+    [[GameLayer getInstance] setLives:lives];
+    
 	float spriteWidth = self.batchNode.texture.contentSize.width / 8;
 	float spriteHeight = self.batchNode.texture.contentSize.height / 2;
 	
-	// Weapon
-	[self changeWeapon:4]; // Default weapon
-	
+	if (startsWithWeapon) {
+        [self changeWeapon:defaultWeapon];
+	}
+    
+    if (startsWithJetpack) {
+        [self addJetpack];
+	}
+    
 	// Player animations
 	stand = [[CCAnimationCache sharedAnimationCache] animationByName:[NSString stringWithFormat:@"stand_%i",playerID]];
 	if (stand == nil) {
@@ -112,14 +125,25 @@
 	}
 }
 
+-(void) removeWeapon
+{
+    if (weaponSpriteSheet != nil) {
+		[[GameLayer getInstance] removeObject:weaponSpriteSheet];
+	}
+    
+    hasWeapon = NO;
+    [[GameLayer getInstance] disableAmmo];
+}
+
 -(void) changeWeapon:(int)_weaponID
 {
 	CCLOG(@"Player.changeWeapon: %i", _weaponID);
 	
-	if (weaponSpriteSheet != nil) {
-		[[GameLayer getInstance] removeObject:weaponSpriteSheet];
-	}
-	
+	[self removeWeapon];
+    
+    hasWeapon = YES;
+    [[GameLayer getInstance] enableAmmo];
+    
 	weaponID = _weaponID;
 	
 	switch (weaponID) {
@@ -264,13 +288,17 @@
 	
 	if (!immortal) {
 		[self stopAllActions];
-		[weapon stopAllActions];
+		if (hasWeapon) {
+            [weapon stopAllActions];
+            weapon.opacity = 255;
+            weapon.visible = YES;
+        }
+        
 		if (jetpackCollected) [jetpack stopAllActions];
 		
 		self.opacity = 255;
 		
-		weapon.opacity = 255;
-		weapon.visible = YES;
+		
 		
 		if (jetpackCollected) {
 			jetpack.opacity = 255;
@@ -283,37 +311,37 @@
 	if (anim == STAND)
 	{
 		[self setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"stand_%i",playerID] index:0];
-		[weapon setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"weapon_stand_%i",weaponID] index:0];
+		if (hasWeapon) [weapon setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"weapon_stand_%i",weaponID] index:0];
 		if (jetpackCollected) [jetpack setDisplayFrameWithAnimationName:@"jetpack_stand" index:0];
 	}
 	else if (anim == WALK)
 	{
 		[self runAction:[CCRepeatForever actionWithAction:[CCAnimate actionWithAnimation:walk]]];
-		[weapon runAction:[CCRepeatForever actionWithAction:[CCAnimate actionWithAnimation:walkWeapon]]];
+		if (hasWeapon) [weapon runAction:[CCRepeatForever actionWithAction:[CCAnimate actionWithAnimation:walkWeapon]]];
 		if (jetpackCollected) [jetpack runAction:[CCRepeatForever actionWithAction:[CCAnimate actionWithAnimation:walkJetpack]]];
 	}
 	else if (anim == CROUCH)
 	{
 		[self setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"crouch_%i",playerID] index:0];
-		[weapon setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"weapon_crouch_%i",weaponID] index:0];
+		if (hasWeapon) [weapon setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"weapon_crouch_%i",weaponID] index:0];
 		if (jetpackCollected) [jetpack setDisplayFrameWithAnimationName:@"jetpack_crouch" index:0];
 	}
 	else if (anim == PRONE)
 	{
 		[self setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"prone_%i",playerID] index:0];
-		[weapon setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"weapon_prone_%i",weaponID] index:0];
+		if (hasWeapon) [weapon setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"weapon_prone_%i",weaponID] index:0];
 		if (jetpackCollected) [jetpack setDisplayFrameWithAnimationName:@"jetpack_prone" index:0];
 	}
 	else if (anim == JUMPING)
 	{
 		[self setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"jump_%i",playerID] index:0];
-		[weapon setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"weapon_jump_%i",weaponID] index:0];
+		if (hasWeapon) [weapon setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"weapon_jump_%i",weaponID] index:0];
 		if (jetpackCollected) [jetpack setDisplayFrameWithAnimationName:@"jetpack_jump" index:0];
 	}
 	else if (anim == FALLING)
 	{
 		[self setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"jump_%i",playerID] index:1];
-		[weapon setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"weapon_jump_%i",weaponID] index:1];
+		if (hasWeapon) [weapon setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"weapon_jump_%i",weaponID] index:1];
 		if (jetpackCollected) [jetpack setDisplayFrameWithAnimationName:@"jetpack_jump" index:1];
 	}
 }
@@ -357,7 +385,8 @@
 		self.scaleX = 1;
 		
 		if (type == kGameObjectPlayer) {
-			weapon.scaleX = 1;
+			if (hasWeapon) weapon.scaleX = 1;
+            
 			if (jetpackCollected) {
 				jetpack.scaleX = 1;
 				particle.angle = 240.0;
@@ -383,7 +412,8 @@
 		self.scaleX = -1;
 		
 		if (type == kGameObjectPlayer) {
-			weapon.scaleX = -1;
+			if (hasWeapon) weapon.scaleX = -1;
+            
 			if (jetpackCollected) {
 				jetpack.scaleX = -1;
 				particle.angle = 280.0;
@@ -471,7 +501,8 @@
 			facingLeft = YES;
 			
 			if (type == kGameObjectPlayer) {
-				weapon.scaleX = -1;
+				if (hasWeapon) weapon.scaleX = -1;
+                
 				if (jetpackCollected) {
 					jetpack.scaleX = -1;
 					particle.angle=280.0;
@@ -486,7 +517,8 @@
 			facingLeft = NO;
 			
 			if (type == kGameObjectPlayer) {
-				weapon.scaleX = 1;
+				if (hasWeapon) weapon.scaleX = 1;
+                
 				if (jetpackCollected) {
 					jetpack.scaleX = 1;
 					particle.angle=240.0;
@@ -512,7 +544,8 @@
 			facingLeft = YES;
 			
 			if (type == kGameObjectPlayer) {
-				weapon.scaleX = -1;
+				if (hasWeapon) weapon.scaleX = -1;
+                
 				if (jetpackCollected) {
 					jetpack.scaleX = -1;
 					particle.angle=280.0;
@@ -529,7 +562,8 @@
 			facingLeft = NO;
 			
 			if (type == kGameObjectPlayer) {
-				weapon.scaleX = 1;
+				if (hasWeapon) weapon.scaleX = 1;
+                
 				if (jetpackCollected) {
 					jetpack.scaleX = 1;
 					particle.angle=240.0;
@@ -549,7 +583,8 @@
 			facingLeft = YES;
 			
 			if (type == kGameObjectPlayer) {
-				weapon.scaleX = -1;
+				if (hasWeapon) weapon.scaleX = -1;
+                
 				if (jetpackCollected) {
 					jetpack.scaleX = -1;
 					particle.angle=280.0;
@@ -566,7 +601,8 @@
 			facingLeft = NO;
 			
 			if (type == kGameObjectPlayer) {
-				weapon.scaleX = 1;
+				if (hasWeapon) weapon.scaleX = 1;
+                
 				if (jetpackCollected) {
 					jetpack.scaleX = 1;
 					particle.angle=240.0;
@@ -798,8 +834,8 @@
 -(void) increaseHealth:(int)amount
 {
 	health += amount;
-	if (health > 100) {
-		health = 100;
+	if (health > topHealth) {
+		health = topHealth;
 	}
 	[[GameLayer getInstance] setHealth:health];
 }
@@ -829,7 +865,6 @@
 	if (!dying && !immortal) {
 		
 		if ((action == PRONE) || (action == CROUCH)) {
-			//[self setState:STAND];
 			return;
 		}
 		
@@ -837,7 +872,7 @@
 			[touchingSwitch togle];
 			[[GameLayer getInstance] activateSwitch:touchingSwitch.key];
 			
-		} else if ([[GameLayer getInstance] getAmmo] > 0) {
+		} else if (hasWeapon && ([[GameLayer getInstance] getAmmo] > 0)) {
 			
 			[[GameLayer getInstance] reduceAmmo];
 			
@@ -866,7 +901,7 @@
 		
 		[self stopAllActions];
 		if (type == kGameObjectPlayer) {
-			[weapon stopAllActions];
+			if (hasWeapon) [weapon stopAllActions];
 			if (jetpackCollected) [jetpack stopAllActions];
 		}
 		self.opacity = 0;
@@ -882,14 +917,16 @@
 		
 		if (type == kGameObjectPlayer) {
             
-			id weaponBlinkAction = [CCSequence actions:
-									[CCFadeOut actionWithDuration:0.2],
-									[CCFadeIn actionWithDuration:0.2],
-									[CCFadeOut actionWithDuration:0.2],
-									[CCFadeIn actionWithDuration:0.2],
-									nil];
-			[weapon runAction:weaponBlinkAction];
-			
+            if (hasWeapon) {
+                id weaponBlinkAction = [CCSequence actions:
+                                        [CCFadeOut actionWithDuration:0.2],
+                                        [CCFadeIn actionWithDuration:0.2],
+                                        [CCFadeOut actionWithDuration:0.2],
+                                        [CCFadeIn actionWithDuration:0.2],
+                                        nil];
+                [weapon runAction:weaponBlinkAction];
+			}
+            
 			if (jetpackCollected) {
 				id jetpackBlinkAction = [CCSequence actions:
 										 [CCFadeOut actionWithDuration:0.2],
@@ -932,7 +969,7 @@
 			lose = YES;
 			
 		} else {
-			health = 100;
+			health = topHealth;
 			[[GameLayer getInstance] setHealth:0];
 		}
 		
@@ -961,7 +998,7 @@
 		[self runAction:dieAction];
 		
 		if (type == kGameObjectPlayer) {
-			weapon.visible = NO;
+			if (hasWeapon) weapon.visible = NO;
 			if (jetpackCollected) jetpack.visible = NO;
 		}
 	}
@@ -983,8 +1020,8 @@
 {	
 	if (lose || win) {
 		// Restart player
-		lives = 3;
-		health = 100;
+		lives = initialLives;
+		health = initialHealth;
 		
 		[[GameLayer getInstance] setLives:lives];
 		[[GameLayer getInstance] setHealth:health];
@@ -1005,7 +1042,8 @@
 		self.visible = NO;
 		direction = kDirectionNone;
 		facingLeft = NO;
-		[self changeWeapon:4]; // Default weapon
+        
+		if (hasWeapon) [self changeWeapon:defaultWeapon];
 		
 	} else {
 		
@@ -1042,12 +1080,27 @@
 		dying = NO;
 		
 		[[GameLayer getInstance] resume];
-		[[GameLayer getInstance] resetElements];
+        
+		if (!restarting) [[GameLayer getInstance] resetElements];
+        restarting = NO;
 		
 		[self immortal];
 		
 		[[GameLayer getInstance] setHealth:health];
 	}
+}
+
+-(void) restart
+{
+    restarting = YES;
+    
+    if (startsWithJetpack) [self addJetpack];
+    else [self removeJetpack];
+    
+    if (startsWithWeapon) [self changeWeapon:defaultWeapon];
+    else [self removeWeapon];
+    
+	[self resetPosition];
 }
 
 -(void) changePositionX:(int)dx andY:(int)dy

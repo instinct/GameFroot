@@ -18,8 +18,6 @@
 	CCSprite *barMiddle;
 	CCSprite *barRight;
 	
-	int topHealth;
-	
 	int score;
 	NSString *weaponName;
 	int shotDelay;
@@ -35,17 +33,10 @@
     NSTimeInterval lastShoot;
 }
 
-@property (nonatomic,assign) int score;
-@property (nonatomic,assign) NSString *weaponName;
-@property (nonatomic,assign) int shotDelay;
-@property (nonatomic,assign) int speed;
-@property (nonatomic,assign) int multiShot;
-@property (nonatomic,assign) int multiShotDelay;
 @property (nonatomic,assign) int collideTakeDamage;
 @property (nonatomic,assign) int collideGiveDamage;
-@property (nonatomic,assign) int behaviour;
 
--(void) setupEnemy:(int)_enemyID initialX:(int)dx initialY:(int)dy health:(int)_health player:(Player *)_player;
+-(void) setupEnemy:(int)_enemyID properties:(NSDictionary *)properties player:(Player *)_player;
 -(void) faceRight;
 -(void) faceLeft;
 -(void) changeDirection;

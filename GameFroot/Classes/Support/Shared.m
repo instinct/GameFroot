@@ -18,12 +18,11 @@
 static NSString *osVersion = @"";
 static NSString *device = @"";
 
-static NSString *levelDate = @"";
-static int levelID;
-static NSString *levelTitle = @"";
+static NSMutableDictionary *levelData = nil;
 
-static BOOL playing;
+static BOOL playing = NO;
 static BOOL welcomeShown = NO;
+static BOOL simulator = NO;
 
 #pragma mark -
 #pragma mark Generic functions
@@ -53,28 +52,33 @@ static BOOL welcomeShown = NO;
     welcomeShown = val;
 }
 
-+(int) getLevel {
-	return levelID;
++(BOOL) isSimulator {
+	return simulator;
 }
 
-+(void) setLevel: (int)_value {
-	levelID = _value;
++(void) setSimulator: (BOOL)_value {
+	simulator = _value;
+}
+
++(NSMutableDictionary *) getLevel {
+	return levelData;
+}
+
++(void) setLevel: (NSMutableDictionary *)_value {
+	if (levelData != nil) [levelData release];
+    else levelData = [_value retain];
+}
+
++(int) getLevelID {
+	return [[levelData objectForKey:@"id"] intValue];
 }
 
 +(NSString *) getLevelDate {
-	return levelDate;
-}
-
-+(void) setLevelDate: (NSString *)_value {
-	levelDate = _value;
+	return [levelData objectForKey:@"published_date"];
 }
 
 +(NSString *) getLevelTitle {
-    return levelTitle;
-}
-
-+(void) setLevelTitle: (NSString *)_value {
-    levelTitle = _value;
+    return [levelData objectForKey:@"title"];
 }
 
 +(BOOL) isPlaying {

@@ -20,17 +20,10 @@
 
 @implementation Enemy
 
-@synthesize score;
-@synthesize weaponName;
-@synthesize shotDelay;
-@synthesize speed;
-@synthesize multiShot;
-@synthesize multiShotDelay;
 @synthesize collideTakeDamage;
 @synthesize collideGiveDamage;
-@synthesize behaviour;
 
--(void) setupEnemy:(int)_playerID initialX:(int)dx initialY:(int)dy health:(int)_health player:(Player *)_player 
+-(void) setupEnemy:(int)_playerID properties:(NSDictionary *)properties player:(Player *)_player 
 {
 	playerID = _playerID;
 	player = _player;
@@ -39,13 +32,24 @@
 	direction = kDirectionNone;
 	facingLeft = NO;
 	
-	initialX = dx;
-	initialY = dy;
-	
+	initialX = [[properties objectForKey:@"positionX"] intValue];
+	initialY = [[properties objectForKey:@"positionY"] intValue];
 	lives = 1;
-	health = _health;
-	topHealth = _health;
-	
+	health = [[properties objectForKey:@"health"] intValue];
+	topHealth = health;
+    
+    score = [[properties objectForKey:@"score"] intValue];
+    shootDamage = [[properties objectForKey:@"damage"] intValue];
+    weaponName = [properties objectForKey:@"weapon"];
+    shotDelay = [[properties objectForKey:@"shotDelay"] intValue];
+    speed = [[properties objectForKey:@"speed"] intValue] / 32.0;
+    //speed = speed <= HORIZONTAL_SPEED ? speed : HORIZONTAL_SPEED;
+    multiShot = [[properties objectForKey:@"multiShot"] intValue];
+    multiShotDelay = [[properties objectForKey:@"multiShotDelay"] intValue];
+    collideTakeDamage = [[properties objectForKey:@"collideTakeDamage"] intValue];
+    collideGiveDamage = [[properties objectForKey:@"collideGiveDamage"] intValue];
+    behaviour = [[properties objectForKey:@"behaviour"] intValue];
+    
 	float spriteWidth = self.batchNode.texture.contentSize.width / 8;
 	float spriteHeight = self.batchNode.texture.contentSize.height / 2;
 	

@@ -38,7 +38,6 @@
 	playerBodyDef.userData = self;
 	body = world->CreateBody(&playerBodyDef);
 	
-    /*
     // Define the box shape as edges
 	b2Vec2 lowerLeft = b2Vec2(0 - (size.width/2.0f/PTM_RATIO), 0 - (size.height/2.0f/PTM_RATIO));
 	b2Vec2 lowerRight = b2Vec2(size.width/2.0f/PTM_RATIO, 0 - (size.height/2.0f/PTM_RATIO));
@@ -62,9 +61,8 @@
 	// right
 	groundBox.Set(lowerRight, upperRight);
 	body->CreateFixture(&groundBox,0);
-    */
     
-    
+    /*
 	b2PolygonShape shape;
 	shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0f)/PTM_RATIO);
 	b2FixtureDef fixtureDef;
@@ -73,6 +71,7 @@
 	fixtureDef.friction = 0.0;
 	fixtureDef.restitution = 0.0; // bouncing
 	body->CreateFixture(&fixtureDef);
+    */
     
 	origPosition = body->GetPosition();
 }

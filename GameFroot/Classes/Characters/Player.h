@@ -46,9 +46,10 @@
 	BOOL ignoreGravity;
 	BOOL facingLeft;
 	
-	int lives;
-	int health;
-	
+	int lives, initialLives;
+	int health, initialHealth;
+	int topHealth;
+    
 	int auxX, auxY;
 	CGPoint auxPos;
 	
@@ -78,6 +79,13 @@
 	BOOL pressedJump;
 	
 	BOOL helpFall;
+    
+    BOOL startsWithWeapon;
+    BOOL hasWeapon;
+    BOOL startsWithJetpack;
+    int defaultWeapon;
+    
+    BOOL restarting;
 }
 
 @property (nonatomic,assign) int action;
@@ -85,7 +93,7 @@
 @property (nonatomic, assign) float shootDelay;
 @property (nonatomic,assign) int shootDamage;
 
--(void) setupPlayer:(int)_playerID initialX:(int)dx initialY:(int)dy;
+-(void) setupPlayer:(int)_playerID properties:(NSDictionary *)properties;
 -(void) changeWeapon:(int)_weaponID;
 -(void) setState:(int) anim;
 -(void) jump;
@@ -116,6 +124,8 @@
 -(void) changeToPosition:(CGPoint)pos;
 -(void) setTouchingSwitch:(Switch *) touchingSwitch_;
 -(void) resetForces;
+
+-(void) restart;
 
 -(void) pause;
 -(void) resume;

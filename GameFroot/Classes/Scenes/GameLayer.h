@@ -85,11 +85,15 @@
 	CCSprite *barMiddle;
 	CCSprite *barRight;
 	
+    CCSprite *ammoIcon;
+    CCSprite *ammoBarBGMiddle;
+    CCSprite *ammoBarBGRight;
 	CCSprite *ammoBarBGLeft;
 	CCSprite *ammoBarLeft;
 	CCSprite *ammoBarMiddle;
 	CCSprite *ammoBarRight;
-	
+	BOOL ammoEnabled;
+    
     BOOL paused;
 	BOOL timerEnabled;
 	BOOL lock;
@@ -167,6 +171,8 @@
 -(void) decreaseTime:(int)amount;
 -(void) increaseLive:(int)amount;
 -(void) decreaseLive:(int)amount;
+-(void) enableAmmo;
+-(void) disableAmmo;
 -(void) enableTimer;
 -(void) disableTimer;
 -(void) quakeCameraWithIntensity:(int)intensity during:(int)milliseconds;

@@ -205,8 +205,11 @@
         
 	} else {
 		if ([Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:northTriangleArea[0] pointB:northTriangleArea[1] pointC:northTriangleArea[2]]) {
-			//[player jump];
-			//jumpTouch = dpadTouch;
+			if ([Shared isSimulator]) {
+                // Allow dpad jump on simulator otherwise it's pretty difficult to play!
+                [player jump];
+                jumpTouch = dpadTouch;
+            }
 			
             dpadTouch = touch;
             
@@ -373,8 +376,11 @@
 		if (touch == dpadTouch) {
 			
 			if (([self dpadNorth:location]) && ((dpadTouch != jumpTouch))) {
-				//[player jump];
-				//jumpTouch = touch;
+				if ([Shared isSimulator]) {
+                    // Allow dpad jump on simulator otherwise it's pretty difficult to play!
+                    [player jump];
+                    jumpTouch = touch;
+                }
                 
 				leftJoy.rotation = -90;
 				

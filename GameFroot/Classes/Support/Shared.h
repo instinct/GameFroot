@@ -18,12 +18,13 @@
 +(CGSize) getWinSize;
 +(NSString *) formattedStringUsingFormat:(NSString *)dateFormat;
 +(BOOL) connectedToNetwork;
-+(int) getLevel;
-+(void) setLevel: (int)_value;
++(BOOL) isSimulator;
++(void) setSimulator: (BOOL)_value;
++(NSMutableDictionary *) getLevel;
++(void) setLevel: (NSMutableDictionary *)_value;
++(int) getLevelID;
 +(NSString *) getLevelDate;
-+(void) setLevelDate: (NSString *)_value;
 +(NSString *) getLevelTitle;
-+(void) setLevelTitle: (NSString *)_value;
 +(BOOL) isPlaying;
 +(void) setPlaying: (BOOL)_value;
 +(NSString *) getOSVersion;

@@ -48,6 +48,14 @@
 
 - (void) applicationDidFinishLaunching:(UIApplication*)application
 {
+    // Detect device model
+	DeviceHardware *hardware = [[[DeviceHardware alloc] init] autorelease];
+	CCLOG(@"Device: %@", [hardware platformString]);
+	[Shared setSimulator:[[hardware platformString] isEqualToString:@"Simulator"]];
+    
+    // Detect OS version
+    [Shared detectOSVersion];
+    
 	// Init the window
 	window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     

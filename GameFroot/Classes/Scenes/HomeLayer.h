@@ -74,10 +74,7 @@
 	NSMutableData *receivedData;
 	BOOL connecting;
     BOOL loading;
-    BOOL ratingsAnchorEnabled;  
-    
-    NSMutableDictionary *levelData;
-	
+    BOOL ratingsAnchorEnabled;
 }
 
 // returns a CCScene that contains the HomeLayer as the only child

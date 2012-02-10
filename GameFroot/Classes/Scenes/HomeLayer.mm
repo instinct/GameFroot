@@ -285,7 +285,7 @@
      for (uint i = 0; i < [jsonDataPlaying count]; i++) {
          NSDictionary *ld = [jsonDataPlaying objectAtIndex:i];
          int levelId = [[ld objectForKey:@"id"] intValue];
-         if (levelId == [Shared getLevel]) {
+         if (levelId == [Shared getLevelID]) {
              [jsonDataPlaying removeObjectAtIndex:i];
              break;
          }
@@ -295,16 +295,16 @@
     // need to check correct json data depending on where we've come from
     
     
-     NSString *author = [levelData objectForKey:@"author"];
+     NSString *author = [[Shared getLevel] objectForKey:@"author"];
      
      //CCLOG(@">>>>>> %@, %@", author, [author class]);
      if ([author isMemberOfClass:[NSNull class]]) {
-         [levelData setObject:userName forKey:@"author"];
+         [[Shared getLevel] setObject:userName forKey:@"author"];
      }
     
-    [jsonDataPlaying insertObject:levelData atIndex:0];
+    [jsonDataPlaying insertObject:[Shared getLevel] atIndex:0];
     
-    //CCLOG(@"Add favourite: %@", [levelData description]);
+    //CCLOG(@"Add favourite: %@", [[Shared getLevel] description]);
     //CCLOG(@"Favourites: %@", [jsonDataPlaying description]);
      
      id action = [CCSequence actions:
@@ -535,9 +535,11 @@
 #pragma mark GameDetail
 
 -(void) loadGameDetail {
+    if (selectedPage == gameDetail) return;
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadGameDetail)];
-	loading = YES;
+	selectedPage = gameDetail;
+    loading = YES;
 }
 
 -(void) _loadGameDetail {    
@@ -1457,16 +1459,11 @@
         
         NSLog(@"data: %@", selected.data);
         //CCLOG(@"Selected Level: %i", selected.levelId);
-		[Shared setLevel:selected.levelId];
-        [Shared setLevelTitle:[selected.data objectForKey:@"title"]];
-		[Shared setLevelDate:[selected.data objectForKey:@"published_date"]];
         
         // store this for later.
-        [levelData autorelease];
-        levelData = [selected.data mutableCopy];
+        [Shared setLevel:[selected.data mutableCopy]];
         
         [self loadGameDetail];
-        
        		
 		//[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
 	
@@ -1531,7 +1528,6 @@
 	if (userName != nil) [userName release];
 	
 	[properties release];
-    [levelData release];
 	
 	// don't forget to call "super dealloc"
 	[super dealloc];
