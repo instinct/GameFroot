@@ -17,10 +17,7 @@
 
 static NSString *osVersion = @"";
 static NSString *device = @"";
-
-static NSString *levelDate = @"";
-static int levelID;
-static NSString *levelTitle = @"";
+static NSMutableDictionary *levelData;
 
 static BOOL playing;
 static BOOL welcomeShown = NO;
@@ -45,6 +42,15 @@ static BOOL welcomeShown = NO;
     return ret;
 }
 
++(NSMutableDictionary*) getLevelData {
+    return levelData;
+}
+
++(void) setLevelData:(NSMutableDictionary *)ld {
+    [levelData autorelease];
+    levelData = [ld retain];
+}
+
 +(BOOL) getWelcomeShown {
     return welcomeShown;
 }
@@ -54,27 +60,27 @@ static BOOL welcomeShown = NO;
 }
 
 +(int) getLevel {
-	return levelID;
+    return [[levelData objectForKey:@"id"] intValue];
 }
 
 +(void) setLevel: (int)_value {
-	levelID = _value;
+    [levelData setObject:[NSNumber numberWithInt:_value] forKey:@"id"];
 }
 
 +(NSString *) getLevelDate {
-	return levelDate;
+	return [levelData objectForKey:@"published_date"];
 }
 
 +(void) setLevelDate: (NSString *)_value {
-	levelDate = _value;
+    [levelData setObject:_value forKey:@"published_date"];
 }
 
 +(NSString *) getLevelTitle {
-    return levelTitle;
+    return [[self getLevelData] objectForKey:@"title"];
 }
 
 +(void) setLevelTitle: (NSString *)_value {
-    levelTitle = _value;
+    [levelData setObject:_value forKey:@"title"];
 }
 
 +(BOOL) isPlaying {

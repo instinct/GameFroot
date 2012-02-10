@@ -295,14 +295,14 @@
     // need to check correct json data depending on where we've come from
     
     
-     NSString *author = [levelData objectForKey:@"author"];
+     NSString *author = [[Shared getLevelData]objectForKey:@"author"];
      
      //CCLOG(@">>>>>> %@, %@", author, [author class]);
      if ([author isMemberOfClass:[NSNull class]]) {
-         [levelData setObject:userName forKey:@"author"];
+         [[Shared getLevelData] setObject:userName forKey:@"author"];
      }
     
-    [jsonDataPlaying insertObject:levelData atIndex:0];
+    [jsonDataPlaying insertObject:[Shared getLevelData] atIndex:0];
     
     //CCLOG(@"Add favourite: %@", [levelData description]);
     //CCLOG(@"Favourites: %@", [jsonDataPlaying description]);
@@ -1457,14 +1457,10 @@
         
         NSLog(@"data: %@", selected.data);
         //CCLOG(@"Selected Level: %i", selected.levelId);
+        [Shared setLevelData:[[selected.data mutableCopy] autorelease]];
 		[Shared setLevel:selected.levelId];
         [Shared setLevelTitle:[selected.data objectForKey:@"title"]];
-		[Shared setLevelDate:[selected.data objectForKey:@"published_date"]];
-        
-        // store this for later.
-        [levelData autorelease];
-        levelData = [selected.data mutableCopy];
-        
+		[Shared setLevelDate:[selected.data objectForKey:@"published_date"]];        
         [self loadGameDetail];
         
        		
@@ -1531,7 +1527,6 @@
 	if (userName != nil) [userName release];
 	
 	[properties release];
-    [levelData release];
 	
 	// don't forget to call "super dealloc"
 	[super dealloc];
