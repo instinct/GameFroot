@@ -309,10 +309,14 @@ void ContactListener::BeginContact(b2Contact *contact) {
 			player = (Player *)o2;
 			platform = (MovingPlatform *)o1;
 		}
-			
-		if (player.position.y - player.size.height*player.anchorPoint.y >= platform.position.y + platform.size.height/2.0f) {
+		
+        //CCLOG(@"%f, %f", player.position.y + player.size.height*(1.0f-player.anchorPoint.y), platform.position.y - platform.size.height/2.0f);
+        //CCLOG(@"%f, %f", player.position.y - player.size.height*player.anchorPoint.y, platform.position.y + platform.size.height/2.0f);
+        
+        if (player.position.y - player.size.height*player.anchorPoint.y >= platform.position.y + platform.size.height/2.0f) {    
+            //CCLOG(@"Player hits moving platform from above!");
 			b2Vec2 vel = platform.body->GetLinearVelocity();
-			
+            
 			if (platform.velocity.y != 0) {
 				player.ignoreGravity = YES;
 			}
@@ -324,6 +328,7 @@ void ContactListener::BeginContact(b2Contact *contact) {
 			}
 			
 		} else if (player.position.y + player.size.height*(1.0f-player.anchorPoint.y) <= platform.position.y - platform.size.height/2.0f) {
+                
 			//CCLOG(@"Player hits moving platform from below!");
 			b2Vec2 current = platform.body->GetLinearVelocity();
 			if (current.y < 0) {
@@ -331,6 +336,7 @@ void ContactListener::BeginContact(b2Contact *contact) {
 			}
 			
 		} else if (player.position.x + player.size.width*(1.0f-player.anchorPoint.x) <= platform.position.x - platform.size.width/2.0f) {
+            
 			//CCLOG(@"Player hits moving platform from left!");
 			b2Vec2 current = platform.body->GetLinearVelocity();
 			if (current.x < 0) {
@@ -338,7 +344,8 @@ void ContactListener::BeginContact(b2Contact *contact) {
 			}
 			
 		} else if (player.position.x - player.size.width*player.anchorPoint.x >= platform.position.x + platform.size.width/2.0f) {
-			//CCLOG(@"Player hits moving platform from right!");
+		
+            //CCLOG(@"Player hits moving platform from right!");
 			b2Vec2 current = platform.body->GetLinearVelocity();
 			if (current.x > 0) {
 				[platform changeDirection];
@@ -472,7 +479,7 @@ void ContactListener::PreSolve(b2Contact *contact, const b2Manifold *oldManifold
 			platform = (MovingPlatform *)o1;
 		}
 		
-		if (player.position.y + player.size.height*(1.0f-player.anchorPoint.y) >= platform.position.y - platform.size.height/2.0f) {
+        if (player.position.y - player.size.height*player.anchorPoint.y >= platform.position.y + platform.size.height/2.0f) {
 			if (platform.velocity.x != 0) {
 				b2Vec2 vel = platform.body->GetLinearVelocity();
 				[player displaceHorizontally:vel.x];
@@ -502,7 +509,7 @@ void ContactListener::PreSolve(b2Contact *contact, const b2Manifold *oldManifold
 		}
 		
 		if (!robot.solid) contact->SetEnabled(false);
-		else if (player.position.y - player.size.height*(1.0f-player.anchorPoint.y) >= robot.position.y + robot.size.height/2.0f) {
+		else if (player.position.y - player.size.height*player.anchorPoint.y >= robot.position.y + robot.size.height/2.0f) {
 			b2Vec2 vel = robot.body->GetLinearVelocity();
 			if (vel.x != 0) {
 				[player displaceHorizontally:vel.x];
