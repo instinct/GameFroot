@@ -295,6 +295,7 @@
     // need to check correct json data depending on where we've come from
     
     
+<<<<<<< HEAD
      NSString *author = [[Shared getLevel] objectForKey:@"author"];
      
      //CCLOG(@">>>>>> %@, %@", author, [author class]);
@@ -303,6 +304,16 @@
      }
     
     [jsonDataPlaying insertObject:[Shared getLevel] atIndex:0];
+=======
+     NSString *author = [[Shared getLevelData]objectForKey:@"author"];
+     
+     //CCLOG(@">>>>>> %@, %@", author, [author class]);
+     if ([author isMemberOfClass:[NSNull class]]) {
+         [[Shared getLevelData] setObject:userName forKey:@"author"];
+     }
+    
+    [jsonDataPlaying insertObject:[Shared getLevelData] atIndex:0];
+>>>>>>> bcca837ae5488350ae989203ebdf6bd0942f9582
     
     //CCLOG(@"Add favourite: %@", [[Shared getLevel] description]);
     //CCLOG(@"Favourites: %@", [jsonDataPlaying description]);
@@ -1459,10 +1470,17 @@
         
         NSLog(@"data: %@", selected.data);
         //CCLOG(@"Selected Level: %i", selected.levelId);
+<<<<<<< HEAD
         
         // store this for later.
         [Shared setLevel:[selected.data mutableCopy]];
         
+=======
+        [Shared setLevelData:[[selected.data mutableCopy] autorelease]];
+		[Shared setLevel:selected.levelId];
+        [Shared setLevelTitle:[selected.data objectForKey:@"title"]];
+		[Shared setLevelDate:[selected.data objectForKey:@"published_date"]];        
+>>>>>>> bcca837ae5488350ae989203ebdf6bd0942f9582
         [self loadGameDetail];
        		
 		//[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
