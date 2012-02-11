@@ -45,9 +45,6 @@
 +(NSString*) replaceAccents:(NSString*)a;
 +(BOOL) getWelcomeShown;
 +(void) setWelcomeShown:(BOOL)val;
-+(NSMutableDictionary*) getLevelData;
-+(void) setLevelData:(NSMutableDictionary *)ld;
-
 
 #pragma mark -
 #pragma mark Remote Data Loading

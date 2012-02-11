@@ -13,7 +13,6 @@
 #import "CJSONDeserializer.h"
 #import "GameCell.h"
 #import "SWTableViewCell.h"
-//#import "CCLabelBMFontMultiline.h"
 #import "CCLabelFX.h"
 #import "FilteredMenu.h"
 #import "OnPressMenu.h"
@@ -193,7 +192,6 @@
 		[menuBottom reorderChild:playingButton z:browseButton.zOrder+1];
 		
 		[self addChild:menuBottom z:11];
-		[featuredButton selected];
 		
 		// Init variables
 		jsonDataFeatured = nil;
@@ -222,6 +220,9 @@
             [self loadWelcome];
         
         } else {
+            
+            [featuredButton selected]; // Only select navigation button if no welcome screen
+            
             // If we have come from a game, go to that games' detail page
             if(![Shared getLevel]) {
                 // Load featured panel, out default screen.
@@ -229,6 +230,7 @@
             } else {
                 ratingsAnchorEnabled = YES;
                 [self loadGameDetail];
+                selectedPage = gameDetail;
             }
         }
 	}
@@ -252,6 +254,10 @@
 #pragma mark -
 #pragma mark Event handlers
 
+-(void) selectedLevel:(id)sender {
+    [Loader hideAsynchronousLoader];
+	[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
+}
 
 -(void) gameDetailBack:(id)sender {
     
@@ -294,8 +300,7 @@
     // if we havn't already retrieved the level data get it now
     // need to check correct json data depending on where we've come from
     
-    
-<<<<<<< HEAD
+
      NSString *author = [[Shared getLevel] objectForKey:@"author"];
      
      //CCLOG(@">>>>>> %@, %@", author, [author class]);
@@ -304,31 +309,20 @@
      }
     
     [jsonDataPlaying insertObject:[Shared getLevel] atIndex:0];
-=======
-     NSString *author = [[Shared getLevelData]objectForKey:@"author"];
-     
-     //CCLOG(@">>>>>> %@, %@", author, [author class]);
-     if ([author isMemberOfClass:[NSNull class]]) {
-         [[Shared getLevelData] setObject:userName forKey:@"author"];
-     }
-    
-    [jsonDataPlaying insertObject:[Shared getLevelData] atIndex:0];
->>>>>>> bcca837ae5488350ae989203ebdf6bd0942f9582
     
     //CCLOG(@"Add favourite: %@", [[Shared getLevel] description]);
     //CCLOG(@"Favourites: %@", [jsonDataPlaying description]);
-     
-     id action = [CCSequence actions:
-     [CCDelayTime actionWithDuration:0.2],
-     [CCCallFunc actionWithTarget:self selector:@selector(selectedLevel:)],
-     nil];
-     [sender runAction:action];
+    
+    /*
+    id action = [CCSequence actions:
+                  [CCDelayTime actionWithDuration:0.1],
+                  [CCCallFunc actionWithTarget:self selector:@selector(selectedLevel:)],
+                  nil];
+    [sender runAction:action];
+    */
+    
+    [self selectedLevel:sender];
 }
-
--(void) selectedLevel:(id)sender {	
-	[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
-}
-
 
 // Selected featured buttons
 -(void) featured1:(id)sender {
@@ -519,7 +513,7 @@
 
 -(void) loadWelcome {
 	selectedPage = welcome;
-    NSLog(@"LoadWelcome called!");
+    CCLOG(@"HomeLayer.loadWelcome called!");
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadWelcome)];
 	loading = YES;
 }
@@ -546,10 +540,8 @@
 #pragma mark GameDetail
 
 -(void) loadGameDetail {
-    if (selectedPage == gameDetail) return;
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadGameDetail)];
-	selectedPage = gameDetail;
     loading = YES;
 }
 
@@ -565,15 +557,11 @@
     
     // Add top menu and buttons
     CCMenuItemSprite *topNavBackButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"placeholder_back_arrow.png"] selectedSprite:[CCSprite spriteWithFile:@"placeholder_back_arrow.png"] target:self selector:@selector(gameDetailBack:)];
-    
-    CCMenuItemSprite *topNavPlayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"placeholder_play_arrow.png"] selectedSprite:[CCSprite spriteWithFile:@"placeholder_play_arrow.png"] target:self selector:@selector(gameDetailPlay:)];
-    
+    CCMenuItemSprite *topNavPlayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"placeholder_play_arrow.png"] selectedSprite:[CCSprite spriteWithFile:@"placeholder_play_arrow.png"] target:self selector:@selector(gameDetailPlay:)];    
     CCMenu *topNav = [CCMenu menuWithItems:topNavBackButton, topNavPlayButton, nil];
     
-    // Add some stuff to the content area
-    
+    // Add some stuff to the content area    
     CCMenuItemSprite *contentPlayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"placeholder_play.png"] selectedSprite:[CCSprite spriteWithFile:@"placeholder_play.png"] target:self selector:@selector(gameDetailPlay:)];
-    
     CCMenu *contentMenu = [CCMenu menuWithItems:contentPlayButton, nil];
     
     // Add placeholder ratings section.
@@ -589,15 +577,15 @@
     [container addChild:contentMenu];
     
     // position stuff
-    placeHolderText.position = ccp(size.width/2, size.height/2 + size.height/2);
+    placeHolderText.position = ccp(size.width/2, size.height/2 + size.height/2 + 40);
     [topNav alignItemsHorizontallyWithPadding:20];
-    topNav.position = ccp(size.width/2, size.height - topNavBackButton.contentSize.height/2 - 10 + size.height/2);
-    contentMenu.position = ccp(size.width/2,size.height/2 + size.height/2);
-    ratingsPlaceholder.position = ccp(size.width/2, 0 + size.height/2);
+    topNav.position = ccp(size.width/2, size.height - topNavBackButton.contentSize.height/2 - 20 + size.height/2);
+    contentMenu.position = ccp(size.width/2,size.height/2 + size.height/2 - 20);
+    ratingsPlaceholder.position = ccp(size.width/2, 0 + size.height/2 - 20);
     
     // Calculate size of the layer
     // NOTE! cocos2d layers don't get size according to his cildren
-    CGSize sizeScroll = CGSizeMake(size.width, (topNav.position.y + topNav.contentSize.height/2) - (ratingsPlaceholder.position.y) + 40);
+    CGSize sizeScroll = CGSizeMake(size.width, (topNav.position.y + topNav.contentSize.height/2) - (ratingsPlaceholder.position.y) + 20);
     CGSize sizeView = CGSizeMake(size.width, size.height - (45 + 50)); // Screen size minus bottom and top navigation margins
     //CCLOG(@"scroll: %f,%f", sizeScroll.width, sizeScroll.height);
     //CCLOG(@"view: %f,%f", sizeView.width, sizeView.height);
@@ -611,7 +599,7 @@
     if(ratingsAnchorEnabled) {
         // Scroll to ratings section
         [gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height)) animated:NO];
-        [gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height) + sizeScroll.height - ratingsPlaceholder.contentSize.height - 45) animated:YES];
+        [gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height) + sizeScroll.height - ratingsPlaceholder.contentSize.height - 20) animated:YES];
         ratingsAnchorEnabled = NO;
     } else {
         // Scroll to top
@@ -731,19 +719,7 @@
 		playing.visible = YES;	
 		return;
 	}
-	
-	/*
-	if ([tableData count] > 0) {
-		NSMutableDictionary *clearItem = [NSMutableDictionary dictionaryWithCapacity:5];
-		[clearItem setObject:@"" forKey:@"background"];
-		[clearItem setObject:[NSNumber numberWithInt:-1] forKey:@"id"];
-		[clearItem setObject:@"" forKey:@"published"];
-		[clearItem setObject:@"" forKey:@"published_date"];
-		[clearItem setObject:@"Clear recent played list..." forKey:@"title"];
-		[tableData addObject:clearItem];
-	}
-	*/
-	
+
 	loaded = 25;
 	total = [tableData count];
 	if (total < 25) loaded = total;
@@ -1468,41 +1444,18 @@
 	if (selected.levelId > 0) {
 		// Load game detail screen.
         
-        NSLog(@"data: %@", selected.data);
+        //CCLOG(@"Selected data: %@", selected.data);
         //CCLOG(@"Selected Level: %i", selected.levelId);
-<<<<<<< HEAD
-        
+
         // store this for later.
         [Shared setLevel:[selected.data mutableCopy]];
         
-=======
-        [Shared setLevelData:[[selected.data mutableCopy] autorelease]];
-		[Shared setLevel:selected.levelId];
-        [Shared setLevelTitle:[selected.data objectForKey:@"title"]];
-		[Shared setLevelDate:[selected.data objectForKey:@"published_date"]];        
->>>>>>> bcca837ae5488350ae989203ebdf6bd0942f9582
-        [self loadGameDetail];
-       		
-		//[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
-	
-	/*
-	} else if (selected.levelId == -1) {
-		// Clear results
-		backSelected.visible = NO;
-		
-		if (selectedPage == playing) {
-			[jsonDataPlaying removeAllObjects];
-			
-			NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-			[prefs setObject:jsonDataPlaying forKey:@"favourites"];
-			[prefs synchronize];
-			
-			playing = nil;
-			
-			[self loadPlaying];
-			[self updatePlayedBadge];
-		}
-	*/
+        id action = [CCSequence actions:
+                     [CCDelayTime actionWithDuration:0.1],
+                     [CCCallFunc actionWithTarget:self selector:@selector(loadGameDetail)],
+                     nil];
+        [self runAction:action];
+        //[self loadGameDetail];
 	
 	} else {
 		// Load more

@@ -75,10 +75,6 @@
 	BOOL connecting;
     BOOL loading;
     BOOL ratingsAnchorEnabled;
-<<<<<<< HEAD
-=======
-	
->>>>>>> bcca837ae5488350ae989203ebdf6bd0942f9582
 }
 
 // returns a CCScene that contains the HomeLayer as the only child

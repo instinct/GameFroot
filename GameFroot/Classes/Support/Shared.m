@@ -17,13 +17,7 @@
 
 static NSString *osVersion = @"";
 static NSString *device = @"";
-<<<<<<< HEAD
-
 static NSMutableDictionary *levelData = nil;
-=======
-static NSMutableDictionary *levelData;
->>>>>>> bcca837ae5488350ae989203ebdf6bd0942f9582
-
 static BOOL playing = NO;
 static BOOL welcomeShown = NO;
 static BOOL simulator = NO;
@@ -52,11 +46,6 @@ static BOOL simulator = NO;
     return levelData;
 }
 
-+(void) setLevelData:(NSMutableDictionary *)ld {
-    [levelData autorelease];
-    levelData = [ld retain];
-}
-
 +(BOOL) getWelcomeShown {
     return welcomeShown;
 }
@@ -65,7 +54,6 @@ static BOOL simulator = NO;
     welcomeShown = val;
 }
 
-<<<<<<< HEAD
 +(BOOL) isSimulator {
 	return simulator;
 }
@@ -80,7 +68,7 @@ static BOOL simulator = NO;
 
 +(void) setLevel: (NSMutableDictionary *)_value {
 	if (levelData != nil) [levelData release];
-    else levelData = [_value retain];
+    levelData = [_value retain];
 }
 
 +(int) getLevelID {
@@ -93,30 +81,6 @@ static BOOL simulator = NO;
 
 +(NSString *) getLevelTitle {
     return [levelData objectForKey:@"title"];
-=======
-+(int) getLevel {
-    return [[levelData objectForKey:@"id"] intValue];
-}
-
-+(void) setLevel: (int)_value {
-    [levelData setObject:[NSNumber numberWithInt:_value] forKey:@"id"];
-}
-
-+(NSString *) getLevelDate {
-	return [levelData objectForKey:@"published_date"];
-}
-
-+(void) setLevelDate: (NSString *)_value {
-    [levelData setObject:_value forKey:@"published_date"];
-}
-
-+(NSString *) getLevelTitle {
-    return [[self getLevelData] objectForKey:@"title"];
-}
-
-+(void) setLevelTitle: (NSString *)_value {
-    [levelData setObject:_value forKey:@"title"];
->>>>>>> bcca837ae5488350ae989203ebdf6bd0942f9582
 }
 
 +(BOOL) isPlaying {
