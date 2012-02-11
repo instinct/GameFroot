@@ -577,7 +577,7 @@
     [container addChild:contentMenu];
     
     // position stuff
-    placeHolderText.position = ccp(size.width/2, size.height/2 + size.height/2 + 40);
+    placeHolderText.position = ccp(size.width/2, size.height/2 + size.height/2 + 100);
     [topNav alignItemsHorizontallyWithPadding:20];
     topNav.position = ccp(size.width/2, size.height - topNavBackButton.contentSize.height/2 - 20 + size.height/2);
     contentMenu.position = ccp(size.width/2,size.height/2 + size.height/2 - 20);

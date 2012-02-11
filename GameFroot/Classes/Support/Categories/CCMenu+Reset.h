@@ -13,4 +13,6 @@
 /** fix for locked items when touch lost, call manually **/
 -(void) reset;
 
+-(void) cancelTouch;
+
 @end
