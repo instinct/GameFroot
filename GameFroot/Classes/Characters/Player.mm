@@ -12,6 +12,9 @@
 #import "Bullet.h"
 #import "GB2ShapeCache.h"
 
+static float const ANIMATION_OFFSET_X[11] = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f, -20.0f,0.0f,0.0f};
+static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0.0f,-10.0f , -25.0f,0.0f,-2.0f};
+
 @implementation Player
 
 @synthesize action;
@@ -204,15 +207,18 @@
 			break;
 	}
 	
-	weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i.png",weaponID]];
+	//weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i.png",weaponID]];
+    weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i_single.png",weaponID]];
 	
 	if (REDUCE_FACTOR != 1.0f) [weaponSpriteSheet.textureAtlas.texture setAntiAliasTexParameters];
 	else [weaponSpriteSheet.textureAtlas.texture setAliasTexParameters];
 	
 	[[GameLayer getInstance] addObject:weaponSpriteSheet];
 	
-	float spriteWidth = weaponSpriteSheet.texture.contentSize.width / 8;
-	float spriteHeight = weaponSpriteSheet.texture.contentSize.height / 2;
+	//float spriteWidth = weaponSpriteSheet.texture.contentSize.width / 8;
+	//float spriteHeight = weaponSpriteSheet.texture.contentSize.height / 2;
+    float spriteWidth = weaponSpriteSheet.texture.contentSize.width;
+	float spriteHeight = weaponSpriteSheet.texture.contentSize.height;
 	
 	weapon = [CCSprite spriteWithBatchNode:weaponSpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];
 	[weapon setAnchorPoint:ccp(0.41,0.33)];
@@ -224,7 +230,8 @@
 	if (standWeapon == nil) {
 		NSMutableArray *frames = [NSMutableArray array];
 		for(int x = 0; x <= 0; x++) {
-			CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(x*spriteWidth,0,spriteWidth,spriteHeight)];
+			//CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(x*spriteWidth,0,spriteWidth,spriteHeight)];
+            CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(ANIMATION_OFFSET_X[x] / CC_CONTENT_SCALE_FACTOR(),ANIMATION_OFFSET_Y[x] / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
 			[frames addObject:frame];
 		}
 		standWeapon = [CCAnimation animationWithFrames:frames delay:0.125f];
@@ -235,7 +242,8 @@
 	if (walkWeapon == nil) {
 		NSMutableArray *frames = [NSMutableArray array];
 		for(int x = 1; x <= 6; x++) {
-			CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(x*spriteWidth,0,spriteWidth,spriteHeight)];
+			//CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(x*spriteWidth,0,spriteWidth,spriteHeight)];
+            CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(ANIMATION_OFFSET_X[x] / CC_CONTENT_SCALE_FACTOR(),ANIMATION_OFFSET_Y[x] / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
 			[frames addObject:frame];
 		}
 		walkWeapon = [CCAnimation animationWithFrames:frames delay:0.125f];
@@ -246,7 +254,8 @@
 	if (crouchWeapon == nil) {
 		NSMutableArray *frames = [NSMutableArray array];
 		for(int x = 7; x <= 7; x++) {
-			CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(x*spriteWidth,0,spriteWidth,spriteHeight)];
+			//CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(x*spriteWidth,0,spriteWidth,spriteHeight)];
+            CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(ANIMATION_OFFSET_X[x] / CC_CONTENT_SCALE_FACTOR(),ANIMATION_OFFSET_Y[x] / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
 			[frames addObject:frame];
 		}
 		crouchWeapon = [CCAnimation animationWithFrames:frames delay:0.125f];
@@ -257,8 +266,9 @@
 	if (proneWeapon == nil) {
 		NSMutableArray *frames = [NSMutableArray array];
 		for(int x = 0; x <= 0; x++) {
-			CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(x*spriteWidth,spriteHeight,spriteWidth,spriteHeight)];
-			[frames addObject:frame];
+			//CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(x*spriteWidth,spriteHeight,spriteWidth,spriteHeight)];
+            CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(ANIMATION_OFFSET_X[8+x] / CC_CONTENT_SCALE_FACTOR(),ANIMATION_OFFSET_Y[8+x] / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];            
+            [frames addObject:frame];
 		}
 		proneWeapon = [CCAnimation animationWithFrames:frames delay:0.125f];
 		[[CCAnimationCache sharedAnimationCache] addAnimation:proneWeapon name:[NSString stringWithFormat:@"weapon_prone_%i",weaponID]];
@@ -268,7 +278,8 @@
 	if (jumpWeapon == nil) {
 		NSMutableArray *frames = [NSMutableArray array];
 		for(int x = 1; x <= 2; x++) {
-			CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(x*spriteWidth,spriteHeight,spriteWidth,spriteHeight)];
+			//CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(x*spriteWidth,spriteHeight,spriteWidth,spriteHeight)];
+            CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(ANIMATION_OFFSET_X[8+x] / CC_CONTENT_SCALE_FACTOR(),ANIMATION_OFFSET_Y[8+x] / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
 			[frames addObject:frame];
 		}
 		jumpWeapon = [CCAnimation animationWithFrames:frames delay:0.125f];
@@ -693,16 +704,18 @@
 		jetpackCollected = YES;
 		fuel = 2000;
 		
-		jetpackSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"jetpack-sheet.png"];
+		//jetpackSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"jetpack-sheet.png"];
+        jetpackSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"jetpack-single.png"];
 		
 		if (REDUCE_FACTOR != 1.0f) [jetpackSpriteSheet.textureAtlas.texture setAntiAliasTexParameters];
 		else [jetpackSpriteSheet.textureAtlas.texture setAliasTexParameters];
 		
 		[[GameLayer getInstance] addObject:jetpackSpriteSheet withZOrder:LAYER_PLAYER-1];
 		
-		
-		float spriteWidth = jetpackSpriteSheet.texture.contentSize.width / 8;
-		float spriteHeight = jetpackSpriteSheet.texture.contentSize.height / 2;
+		//float spriteWidth = jetpackSpriteSheet.texture.contentSize.width / 8;
+		//float spriteHeight = jetpackSpriteSheet.texture.contentSize.height / 2;
+        float spriteWidth = jetpackSpriteSheet.texture.contentSize.width/2;
+		float spriteHeight = jetpackSpriteSheet.texture.contentSize.height;
 		
 		jetpack = [CCSprite spriteWithBatchNode:jetpackSpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];
 		[jetpack setAnchorPoint:ccp(0.41,0.33)];
@@ -714,7 +727,8 @@
 		if (standJetpack == nil) {
 			NSMutableArray *frames = [NSMutableArray array];
 			for(int x = 0; x <= 0; x++) {
-				CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:jetpackSpriteSheet.texture rect:CGRectMake(x*spriteWidth,0,spriteWidth,spriteHeight)];
+				//CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:jetpackSpriteSheet.texture rect:CGRectMake(x*spriteWidth,0,spriteWidth,spriteHeight)];
+                CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:jetpackSpriteSheet.texture rect:CGRectMake(ANIMATION_OFFSET_X[x] / CC_CONTENT_SCALE_FACTOR(),ANIMATION_OFFSET_Y[x] / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
 				[frames addObject:frame];
 			}
 			standJetpack = [CCAnimation animationWithFrames:frames delay:0.125f];
@@ -725,7 +739,8 @@
 		if (walkJetpack == nil) {
 			NSMutableArray *frames = [NSMutableArray array];
 			for(int x = 1; x <= 6; x++) {
-				CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:jetpackSpriteSheet.texture rect:CGRectMake(x*spriteWidth,0,spriteWidth,spriteHeight)];
+				//CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:jetpackSpriteSheet.texture rect:CGRectMake(x*spriteWidth,0,spriteWidth,spriteHeight)];
+                CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:jetpackSpriteSheet.texture rect:CGRectMake(ANIMATION_OFFSET_X[x] / CC_CONTENT_SCALE_FACTOR(),ANIMATION_OFFSET_Y[x] / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
 				[frames addObject:frame];
 			}
 			walkJetpack = [CCAnimation animationWithFrames:frames delay:0.125f];
@@ -736,7 +751,8 @@
 		if (crouchJetpack == nil) {
 			NSMutableArray *frames = [NSMutableArray array];
 			for(int x = 7; x <= 7; x++) {
-				CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:jetpackSpriteSheet.texture rect:CGRectMake(x*spriteWidth,0,spriteWidth,spriteHeight)];
+				//CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:jetpackSpriteSheet.texture rect:CGRectMake(x*spriteWidth,0,spriteWidth,spriteHeight)];
+                CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:jetpackSpriteSheet.texture rect:CGRectMake(ANIMATION_OFFSET_X[x] / CC_CONTENT_SCALE_FACTOR(),ANIMATION_OFFSET_Y[x] / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
 				[frames addObject:frame];
 			}
 			crouchJetpack = [CCAnimation animationWithFrames:frames delay:0.125f];
@@ -747,7 +763,8 @@
 		if (proneJetpack == nil) {
 			NSMutableArray *frames = [NSMutableArray array];
 			for(int x = 0; x <= 0; x++) {
-				CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:jetpackSpriteSheet.texture rect:CGRectMake(x*spriteWidth,spriteHeight,spriteWidth,spriteHeight)];
+				//CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:jetpackSpriteSheet.texture rect:CGRectMake(x*spriteWidth,spriteHeight,spriteWidth,spriteHeight)];
+                CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:jetpackSpriteSheet.texture rect:CGRectMake(spriteWidth,0,spriteWidth,spriteHeight)];
 				[frames addObject:frame];
 			}
 			proneJetpack = [CCAnimation animationWithFrames:frames delay:0.125f];
@@ -758,7 +775,8 @@
 		if (jumpJetpack == nil) {
 			NSMutableArray *frames = [NSMutableArray array];
 			for(int x = 1; x <= 2; x++) {
-				CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:jetpackSpriteSheet.texture rect:CGRectMake(x*spriteWidth,spriteHeight,spriteWidth,spriteHeight)];
+				//CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:jetpackSpriteSheet.texture rect:CGRectMake(x*spriteWidth,spriteHeight,spriteWidth,spriteHeight)];
+                CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:jetpackSpriteSheet.texture rect:CGRectMake(ANIMATION_OFFSET_X[8+x] / CC_CONTENT_SCALE_FACTOR(),ANIMATION_OFFSET_Y[8+x] / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
 				[frames addObject:frame];
 			}
 			jumpJetpack = [CCAnimation animationWithFrames:frames delay:0.125f];

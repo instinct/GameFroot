@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1616ADDA14E8098D004FF504 /* weapon_0_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADD314E8098D004FF504 /* weapon_0_single.png */; };
+		1616ADDB14E8098D004FF504 /* weapon_1_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADD414E8098D004FF504 /* weapon_1_single.png */; };
+		1616ADDC14E8098D004FF504 /* weapon_2_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADD514E8098D004FF504 /* weapon_2_single.png */; };
+		1616ADDD14E8098D004FF504 /* weapon_3_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADD614E8098D004FF504 /* weapon_3_single.png */; };
+		1616ADDE14E8098D004FF504 /* weapon_4_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADD714E8098D004FF504 /* weapon_4_single.png */; };
+		1616ADDF14E8098D004FF504 /* weapon_5_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADD814E8098D004FF504 /* weapon_5_single.png */; };
+		1616ADE014E8098D004FF504 /* weapon_6_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADD914E8098D004FF504 /* weapon_6_single.png */; };
+		1616ADE214E809A6004FF504 /* jetpack-single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADE114E809A6004FF504 /* jetpack-single.png */; };
 		1643B23F14D9B00F00A67057 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1643B23E14D9B00F00A67057 /* QuartzCore.framework */; };
 		1643B24114D9B00F00A67057 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1643B24014D9B00F00A67057 /* OpenGLES.framework */; };
 		1643B24314D9B00F00A67057 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1643B24214D9B00F00A67057 /* OpenAL.framework */; };
@@ -435,6 +443,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1616ADD314E8098D004FF504 /* weapon_0_single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weapon_0_single.png; sourceTree = "<group>"; };
+		1616ADD414E8098D004FF504 /* weapon_1_single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weapon_1_single.png; sourceTree = "<group>"; };
+		1616ADD514E8098D004FF504 /* weapon_2_single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weapon_2_single.png; sourceTree = "<group>"; };
+		1616ADD614E8098D004FF504 /* weapon_3_single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weapon_3_single.png; sourceTree = "<group>"; };
+		1616ADD714E8098D004FF504 /* weapon_4_single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weapon_4_single.png; sourceTree = "<group>"; };
+		1616ADD814E8098D004FF504 /* weapon_5_single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weapon_5_single.png; sourceTree = "<group>"; };
+		1616ADD914E8098D004FF504 /* weapon_6_single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weapon_6_single.png; sourceTree = "<group>"; };
+		1616ADE114E809A6004FF504 /* jetpack-single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "jetpack-single.png"; path = "Resources/jetpack-single.png"; sourceTree = "<group>"; };
 		1643B23A14D9B00F00A67057 /* GameFroot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GameFroot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1643B23E14D9B00F00A67057 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		1643B24014D9B00F00A67057 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
@@ -1215,6 +1231,7 @@
 				1643B4FF14D9B0BC00A67057 /* Info.plist */,
 				1643B50014D9B0BC00A67057 /* iTunesArtwork */,
 				1643B50114D9B0BC00A67057 /* jetpack-sheet.png */,
+				1616ADE114E809A6004FF504 /* jetpack-single.png */,
 				1643B50214D9B0BC00A67057 /* loading-bar-bg.png */,
 				1643B50314D9B0BC00A67057 /* loading-bar-overlay.png */,
 				1643B50414D9B0BC00A67057 /* loading-bg.png */,
@@ -1671,6 +1688,13 @@
 				1643B49D14D9B0BC00A67057 /* weapon_4.png */,
 				1643B49E14D9B0BC00A67057 /* weapon_5.png */,
 				1643B49F14D9B0BC00A67057 /* weapon_6.png */,
+				1616ADD314E8098D004FF504 /* weapon_0_single.png */,
+				1616ADD414E8098D004FF504 /* weapon_1_single.png */,
+				1616ADD514E8098D004FF504 /* weapon_2_single.png */,
+				1616ADD614E8098D004FF504 /* weapon_3_single.png */,
+				1616ADD714E8098D004FF504 /* weapon_4_single.png */,
+				1616ADD814E8098D004FF504 /* weapon_5_single.png */,
+				1616ADD914E8098D004FF504 /* weapon_6_single.png */,
 			);
 			name = weapons;
 			path = Resources/weapons;
@@ -2437,6 +2461,14 @@
 				169FA26314E1DE2C00E671F5 /* placeholder_game_menu_play-hd.png in Resources */,
 				22D3A6DA14E2276B00EAB052 /* rate_controls_mockup.png in Resources */,
 				166977F714E280DE0081176B /* rate_controls_mockup-hd.png in Resources */,
+				1616ADDA14E8098D004FF504 /* weapon_0_single.png in Resources */,
+				1616ADDB14E8098D004FF504 /* weapon_1_single.png in Resources */,
+				1616ADDC14E8098D004FF504 /* weapon_2_single.png in Resources */,
+				1616ADDD14E8098D004FF504 /* weapon_3_single.png in Resources */,
+				1616ADDE14E8098D004FF504 /* weapon_4_single.png in Resources */,
+				1616ADDF14E8098D004FF504 /* weapon_5_single.png in Resources */,
+				1616ADE014E8098D004FF504 /* weapon_6_single.png in Resources */,
+				1616ADE214E809A6004FF504 /* jetpack-single.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
