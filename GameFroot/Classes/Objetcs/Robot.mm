@@ -48,28 +48,15 @@
 	
     sensor = [name isEqualToString:@"Teleporter"] || [name isEqualToString:@"Story-Point"];
 	
-    if (!sensor) {
-		b2PolygonShape shape;
-		shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0)/PTM_RATIO);
-		b2FixtureDef fixtureDef;
-		fixtureDef.shape = &shape;
-		fixtureDef.density = 1.0;
-		fixtureDef.friction = 0.0;
-		fixtureDef.restitution = 0.0; // bouncing
-		fixtureDef.isSensor = false;
-		body->CreateFixture(&fixtureDef);
-		
-	} else {
-		b2PolygonShape shape;
-		shape.SetAsBox((size.width/4.0)/PTM_RATIO, (size.height/4.0f)/PTM_RATIO); // Reduce size to allow player walk into the object
-		b2FixtureDef fixtureDef;
-		fixtureDef.shape = &shape;
-		fixtureDef.density = 1.0;
-		fixtureDef.friction = 0.0;
-		fixtureDef.restitution = 0.0; // bouncing
-		fixtureDef.isSensor = true;
-		body->CreateFixture(&fixtureDef);
-	 }
+    b2PolygonShape shape;
+    shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0)/PTM_RATIO);
+    b2FixtureDef fixtureDef;
+    fixtureDef.shape = &shape;
+    fixtureDef.density = 1.0;
+    fixtureDef.friction = 0.0;
+    fixtureDef.restitution = 0.0; // bouncing
+    fixtureDef.isSensor = sensor;
+    body->CreateFixture(&fixtureDef);
 }
 
 -(void) createBox2dObject:(b2World*)world size:(CGSize)_size

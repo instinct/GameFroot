@@ -360,9 +360,8 @@
 	playerBodyDef.userData = self;
 	body = world->CreateBody(&playerBodyDef);
 	
-	[[GB2ShapeCache sharedShapeCache] addFixturesToBody:body forShapeName:@"player"];
+	//[[GB2ShapeCache sharedShapeCache] addFixturesToBody:body forShapeName:@"player"];
 	
-    /*
     b2PolygonShape shape;
     shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0f)/PTM_RATIO);
     b2FixtureDef fixtureDef;
@@ -371,7 +370,6 @@
     fixtureDef.friction = 0.0; // we need this 0 so when moving it doens't slow down
     fixtureDef.restitution = 0.0; // bouncing
     body->CreateFixture(&fixtureDef);
-    */
 }
 
 -(void) moveRight
@@ -457,12 +455,15 @@
 	
 	b2Vec2 current = body->GetLinearVelocity();
 	//CCLOG(@"Player.jump: %i, %i, %i, %f, %i", canJump, dying, immortal, fabsf(roundf(current.y)), ignoreGravity);
-	if (canJump && !dying && !immortal && ((fabsf(roundf(current.y)) == 0) || ignoreGravity)) {
+	if (canJump && !dying && !immortal) { // && ((fabsf(roundf(current.y)) == 0) || ignoreGravity)) {
 		canJump = NO;
 		jumping = YES;
 		b2Vec2 impulse = b2Vec2(0.0f, VERTICAL_SPEED);
 		body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
 		
+        [self setState:JUMPING];
+        ignoreGravity = NO;
+        
 	} else if (jetpackCollected && !jetpackActivated && !dying && !immortal) {
 		//b2Vec2 impulse = b2Vec2(0.0f, fabs(current.y) + JETPACK_SPEED);
 		//body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
@@ -472,6 +473,9 @@
 		
 		b2Vec2 impulse = b2Vec2(0.0f, fabs(current.y) + JETPACK_IMPULSE);
 		body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
+        
+        [self setState:JUMPING];
+        ignoreGravity = NO;
 	}
 }
 
@@ -486,7 +490,7 @@
 	
 	b2Vec2 current = body->GetLinearVelocity();
 	//CCLOG(@"Player.jumDirection: %i, %i, %f, %i", dir, canJump, fabsf(roundf(current.y)), ignoreGravity);
-	if (canJump && !dying && !immortal && ((fabsf(roundf(current.y)) == 0) || ignoreGravity)) {
+	if (canJump && !dying && !immortal) { // && ((fabsf(roundf(current.y)) == 0) || ignoreGravity)) {
 		
 		canJump = NO;
 		jumping = YES;
@@ -528,6 +532,9 @@
 		
 		body->SetLinearVelocity(b2Vec2(0.0f, 0.0f)); // reset previous movement
 		body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
+        
+        [self setState:JUMPING];
+        ignoreGravity = NO;
 		
 	} else if (jetpackCollected && !jetpackActivated && !dying && !immortal) {
 		
@@ -570,6 +577,9 @@
 				}
 			}
 		}
+        
+        [self setState:JUMPING];
+        ignoreGravity = NO;
 		
 	} else if (jumping && !dying && !immortal) {
 		//CCLOG(@"Player.jumDirection: change direction in the air");
@@ -641,7 +651,7 @@
 -(void) crouch
 {
 	b2Vec2 vel = body->GetLinearVelocity();
-	if (!dying && !immortal && !jetpackActivated && (fabsf(roundf(vel.y)) == 0)) {
+	if (!dying && !immortal && !jetpackActivated && (fabsf(roundf(vel.x)) == 0) && (fabsf(roundf(vel.y)) == 0)) {
 		body->SetLinearVelocity(b2Vec2(0.0f, vel.y));
 		[self setState:CROUCH];
 		moving = NO;
@@ -652,7 +662,7 @@
 -(void) prone
 {		
 	b2Vec2 vel = body->GetLinearVelocity();
-	if (!dying && !immortal && !jetpackActivated && (fabsf(roundf(vel.y)) == 0)) {
+	if (!dying && !immortal && !jetpackActivated && (fabsf(roundf(vel.x)) == 0) && (fabsf(roundf(vel.y)) == 0)) {
 		body->SetLinearVelocity(b2Vec2(0.0f, vel.y));
 		[self setState:PRONE];
 		moving = NO;
@@ -1017,25 +1027,7 @@
 }
 
 -(void) resetPosition
-{	
-	if (lose || win) {
-		// Restart player
-		lives = initialLives;
-		health = initialHealth;
-		
-		[[GameLayer getInstance] setLives:lives];
-		[[GameLayer getInstance] setHealth:health];
-		
-		initialX = originalX;
-		initialY = originalY;
-		
-		if (win) {
-			win = NO;
-		}
-		
-		[self removeJetpack];
-	}
-	
+{		
 	if (lose) {
 		[[GameLayer getInstance] loseGame];
 		lose = NO;
@@ -1043,9 +1035,9 @@
 		direction = kDirectionNone;
 		facingLeft = NO;
         
-		if (hasWeapon) [self changeWeapon:defaultWeapon];
-		
 	} else {
+        
+        if (win) win = NO;
 		
 		self.visible = YES;
 		
@@ -1068,9 +1060,12 @@
 		
 		self.opacity = 255;
 		if (type == kGameObjectPlayer) {
-			weapon.visible = YES;
-			weapon.scaleX = 1;
 			
+            if (hasWeapon) {
+                weapon.visible = YES;
+                weapon.scaleX = 1;
+			}
+            
 			if (jetpackCollected) {
 				jetpack.scaleX = 1;
 				jetpack.visible = YES;
@@ -1100,6 +1095,15 @@
     if (startsWithWeapon) [self changeWeapon:defaultWeapon];
     else [self removeWeapon];
     
+    lives = initialLives;
+	health = initialHealth;
+    
+    [[GameLayer getInstance] setLives:lives];
+    [[GameLayer getInstance] setHealth:health];
+    
+    initialX = originalX;
+    initialY = originalY;
+    
 	[self resetPosition];
 }
 
@@ -1112,7 +1116,7 @@
 	
 	[self stopAllActions];
 	if (type == kGameObjectPlayer) {
-		[weapon stopAllActions];
+		if (hasWeapon) [weapon stopAllActions];
 		if (jetpackCollected) [jetpack stopAllActions];
 	}
 	
@@ -1125,11 +1129,13 @@
 	[self runAction:blinkAction];
 	
 	if (type == kGameObjectPlayer) {
-		id weaponBlinkAction = [CCSequence actions:
-								[CCFadeOut actionWithDuration:1.0],
-								nil];
-		[weapon runAction:weaponBlinkAction];
-		
+        if (hasWeapon) {
+            id weaponBlinkAction = [CCSequence actions:
+                                    [CCFadeOut actionWithDuration:1.0],
+                                    nil];
+            [weapon runAction:weaponBlinkAction];
+		}
+        
 		if (jetpackCollected) {
 			id jetpackBlinkAction = [CCSequence actions:
 									 [CCFadeOut actionWithDuration:1.0],
@@ -1167,11 +1173,13 @@
 	[self runAction:blinkAction];
 	
 	if (type == kGameObjectPlayer) {
-		id weaponBlinkAction = [CCSequence actions:
-								[CCFadeIn actionWithDuration:1.0],
-								nil];
-		[weapon runAction:weaponBlinkAction];
-		
+        if (hasWeapon) {
+            id weaponBlinkAction = [CCSequence actions:
+                                    [CCFadeIn actionWithDuration:1.0],
+                                    nil];
+            [weapon runAction:weaponBlinkAction];
+		}
+        
 		if (jetpackCollected) {
 			id jetpackBlinkAction = [CCSequence actions:
 									 [CCFadeIn actionWithDuration:1.0],
@@ -1210,28 +1218,21 @@
 	
 	canJump = YES;
 	helpFall = YES;
-	
-	//if (fabsf(roundf(current.y)) != 0) {	
-		//if (jumping) {
-		
-		//CCLOG(@"Player.hitsFloor, jumping:%i, moving:%i, jumpingMoving:%i, vel:%f,%f", jumping, moving, jumpingMoving, current.x, current.y);
-		
-		jumping = NO;
-		jumpingMoving = NO;
-		
-		if (!moving) {
-			
-			if (current.x != 0) {
-				//CCLOG(@"Reset X linear velocity");
-				body->SetLinearVelocity(b2Vec2(0.0f, current.y));
-			}
-			
-			if ((action != PRONE) && (action != CROUCH)) [self setState:STAND];
-			
-		} else {
-			[self setState:WALK];
-		}
-	//}
+    jumping = NO;
+    jumpingMoving = NO;
+    
+    if (!moving) {
+        
+        if (current.x != 0) {
+            //CCLOG(@"Reset X linear velocity");
+            body->SetLinearVelocity(b2Vec2(0.0f, current.y));
+        }
+        
+        if ((action != PRONE) && (action != CROUCH) && (!jetpackActivated)) [self setState:STAND];
+        
+    } else {
+        [self setState:WALK];
+    }
 }
 
 -(void) displaceHorizontally:(float)speed 
@@ -1278,8 +1279,8 @@
 	b2Vec2 current = body->GetLinearVelocity();
 	//CCLOG(@"%f, %i", current.y, action);
 	
-	if (ignoreGravity) body->SetGravityScale(0.0f);
-	else body->SetGravityScale(1.0f);
+	//if (ignoreGravity) body->SetGravityScale(0.0f);
+	//else body->SetGravityScale(1.0f);
 	
 	if ((fabsf(roundf(current.y)) == 0) || ignoreGravity) {
 		//CCLOG(@"%f, %i, %i", current.x, action, jumping);
@@ -1292,7 +1293,7 @@
 		if ((current.y > 0) && jumping) {
 			if (!ignoreGravity) [self setState:JUMPING];
 			
-		} else {
+		} else if (current.y < 0) {
 			if (!ignoreGravity) [self setState:FALLING];
 			
 			if ((pressedJump && jetpackCollected && !jetpackActivated)
@@ -1304,6 +1305,9 @@
 				b2Vec2 impulse = b2Vec2(0.0f, fabs(current.y) + JETPACK_IMPULSE);
 				body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
 				
+                [self setState:JUMPING];
+                ignoreGravity = NO;
+                
 			/* Not need it anymore since we used edges instead of boxes, I think!!
             } else if (helpFall && !jumping) {
 				// Give little impluse down so we can fall in one tile gaps
@@ -1365,7 +1369,8 @@
 		} else {
 			[[GameLayer getInstance] setViewpointCenter:ccp(point.x,point.y)];
 		}
-		[weapon setPosition:point];
+		
+        if (hasWeapon) [weapon setPosition:point];
 		
 		if (jetpackCollected) {
 			[jetpack setPosition:point];
@@ -1379,7 +1384,7 @@
 - (void) dealloc
 {
 	if (type == kGameObjectPlayer) {
-		[weapon release];
+		if (hasWeapon) [weapon release];
 		if (jetpackCollected) [jetpack release];
 	}
 	

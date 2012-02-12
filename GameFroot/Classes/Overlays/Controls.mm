@@ -204,21 +204,20 @@
 		}
         
 	} else {
-		if ([Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:northTriangleArea[0] pointB:northTriangleArea[1] pointC:northTriangleArea[2]]) {
+		if ([self dpadNorth:location]) {
+            dpadTouch = touch;
 			if ([Shared isSimulator]) {
                 // Allow dpad jump on simulator otherwise it's pretty difficult to play!
                 [player jump];
                 jumpTouch = dpadTouch;
             }
-			
-            dpadTouch = touch;
             
 			[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_horizontal.png"]];
 			leftJoy.rotation = -90;
             
             [self pressedControls];
 			
-		} else if ([Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:southTriangleArea[0] pointB:southTriangleArea[1] pointC:southTriangleArea[2]]) {
+		} else if ([self dpadSouth:location]) {
 			[player prone];
 			dpadTouch = touch;
 			
@@ -227,7 +226,7 @@
             
             [self pressedControls];
 			
-		} else if ([Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:eastTriangleArea[0] pointB:eastTriangleArea[1] pointC:eastTriangleArea[2]]) {
+		} else if ([self dpadEast:location]) {
 			[player moveRight];
 			dpadTouch = touch;
 			
@@ -236,7 +235,7 @@
             
             [self pressedControls];
 			
-		} else if ([Shared pointInTriangle:CGPointMake(location.x, location.y) pointA:westTriangleArea[0] pointB:westTriangleArea[1] pointC:westTriangleArea[2]]) {
+		} else if ([self dpadWest:location]) {
 			[player moveLeft];
 			dpadTouch = touch;
 			
@@ -245,8 +244,7 @@
             
             [self pressedControls];
 			
-		} else if ((location.x >= jumpArea.origin.x) && (location.x <= jumpArea.origin.x + jumpArea.size.width) 
-				   && (location.y >= jumpArea.origin.y - jumpArea.size.height) && (location.y <= jumpArea.origin.y)) {
+		} else if ([self dpadB:location]) {
 			
 			if ((dpadTouch == nil) || (dpadTouch != jumpTouch)) {
 				[player jump];
@@ -255,8 +253,7 @@
 				[rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_down.png"]];
 			}
             
-		} else if ((location.x >= shootArea.origin.x) && (location.x <= shootArea.origin.x + shootArea.size.width) 
-				   && (location.y >= shootArea.origin.y - shootArea.size.height) && (location.y <= shootArea.origin.y)) {
+		} else if ([self dpadA:location]) {
 			
 			if (event.timestamp - lastShoot > player.shootDelay) {
 				[player shoot];

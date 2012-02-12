@@ -50,11 +50,8 @@ typedef enum{
 #define SPRITESHEETS_ITEM_WIDTH	42
 
 #define	LAYER_TILES		1
-#define	LAYER_ITEMS		2
-#define	LAYER_PLAYER	3
+#define	LAYER_PLAYER	2
 
 #define REDUCE_FACTOR	0.75f * CC_CONTENT_SCALE_FACTOR()
-
-//#define ADJUSTMENT_COLLISION_X	4.0f
 
 #define DEBUG_WORLD				0

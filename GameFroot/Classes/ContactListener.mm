@@ -8,7 +8,6 @@
 
 #import "ContactListener.h"
 #import "Constants.h"
-#import "GameObject.h"
 #import "Player.h"
 #import "Enemy.h"
 #import "Bullet.h"
@@ -37,6 +36,64 @@ ContactListener::ContactListener() {
 ContactListener::~ContactListener() {
 }
 
+bool ContactListener::Above(b2Contact *contact) {
+    b2WorldManifold worldManifold;
+    contact->GetWorldManifold(&worldManifold);
+    b2Vec2 worldNormal = worldManifold.normal;
+    //CCLOG(@"-----> contact normal: %f, %f", worldNormal.x, worldNormal.y);
+    
+    return (worldNormal.y == 1.0);
+    
+    //CCLOG(@"ContactListener.Above: %f >= %f",o1.position.y - o1.size.height*o1.anchorPoint.y, o2.position.y + o2.size.height*(1.0f-o2.anchorPoint.y));
+    //return (o1.position.y - o1.size.height*o1.anchorPoint.y >= o2.position.y + o2.size.height*(1.0f-o2.anchorPoint.y));
+}
+
+bool ContactListener::Below(b2Contact *contact) {
+    b2WorldManifold worldManifold;
+    contact->GetWorldManifold(&worldManifold);
+    b2Vec2 worldNormal = worldManifold.normal;
+    //CCLOG(@"-----> contact normal: %f, %f", worldNormal.x, worldNormal.y);
+    
+    return (worldNormal.y == -1.0);
+    
+    //CCLOG(@"ContactListener.Below: %f <= %f",o1.position.y + o1.size.height*(1.0f-o1.anchorPoint.y), o2.position.y - o2.size.height*o2.anchorPoint.y);
+    //return (o1.position.y + o1.size.height*(1.0f-o1.anchorPoint.y) <= o2.position.y - o2.size.height*o2.anchorPoint.y);    
+}
+
+bool ContactListener::BelowPos(GameObject *o1, GameObject *o2) {
+    //CCLOG(@"ContactListener.BelowPos: %f <= %f",o1.position.y + o1.size.height*(1.0f-o1.anchorPoint.y), o2.position.y - o2.size.height*o2.anchorPoint.y);
+    return (o1.position.y + o1.size.height*(1.0f-o1.anchorPoint.y) <= o2.position.y - o2.size.height*o2.anchorPoint.y);    
+}
+
+bool ContactListener::BelowCloud(GameObject *o1, GameObject *o2) {
+    //CCLOG(@"ContactListener.BelowCloud: %f < %f",o1.position.y - o1.size.height*o1.anchorPoint.y, o2.position.y + o2.size.height*(1.0f-o2.anchorPoint.y));
+    return (o1.position.y - o1.size.height*o1.anchorPoint.y < o2.position.y + o2.size.height*(1.0f-o2.anchorPoint.y));    
+}
+
+bool ContactListener::Right(b2Contact *contact) {
+    b2WorldManifold worldManifold;
+    contact->GetWorldManifold(&worldManifold);
+    b2Vec2 worldNormal = worldManifold.normal;
+    //CCLOG(@"-----> contact normal: %f, %f", worldNormal.x, worldNormal.y);
+    
+    return (worldNormal.x == 1.0);
+    
+    //CCLOG(@"ContactListener.Right: %f >= %f",o1.position.x - o1.size.width*o1.anchorPoint.x, o2.position.x + o2.size.width*(1.0f-o2.anchorPoint.y));
+    //return (o1.position.x - o1.size.width*o1.anchorPoint.x  >= o2.position.x + o2.size.width*(1.0f-o2.anchorPoint.y));
+}
+
+bool ContactListener::Left(b2Contact *contact) {
+    b2WorldManifold worldManifold;
+    contact->GetWorldManifold(&worldManifold);
+    b2Vec2 worldNormal = worldManifold.normal;
+    //CCLOG(@"-----> contact normal: %f, %f", worldNormal.x, worldNormal.y);
+    
+    return (worldNormal.x == -1.0);
+    
+    //CCLOG(@"ContactListener.Left: %f <= %f",o1.position.x + o1.size.width*(1.0f-o1.anchorPoint.x) , o2.position.x - o2.size.width*o2.anchorPoint.y);
+    //return (o1.position.x + o1.size.width*(1.0f-o1.anchorPoint.x) <= o2.position.x - o2.size.width*o2.anchorPoint.y);
+}
+
 void ContactListener::BeginContact(b2Contact *contact) {
 	GameObject *o1 = (GameObject*)contact->GetFixtureA()->GetBody()->GetUserData();
 	GameObject *o2 = (GameObject*)contact->GetFixtureB()->GetBody()->GetUserData();
@@ -46,8 +103,10 @@ void ContactListener::BeginContact(b2Contact *contact) {
 		return;
 	}
 	
+    if (!contact->IsTouching()) return;
+    
 	if ((IS_PLATFORM(o1, o2) || IS_CLOUD(o1, o2) || IS_ENEMY(o1, o2)) && IS_PLAYER(o1, o2)) {
-		//CCLOG(@"-----> Player made contact with platform or enemy!");
+		//CCLOG(@"-----> Player made contact with platform, cloud or enemy!");
 		
 		Player *player;
 		GameObject *tile;
@@ -61,24 +120,12 @@ void ContactListener::BeginContact(b2Contact *contact) {
 			tile = o1;
 		}
 		
-		//CCLOG(@"Check if floor: %f , %f", player.position.y - player.size.height*player.anchorPoint.y, tile.position.y + tile.size.height/2.0f);
-		if (player.position.y - player.size.height*player.anchorPoint.y >= tile.position.y + tile.size.height/2.0f) {
-			
-			//CCLOG(@"%f , %f", player.position.x + player.size.width*(1.0f-player.anchorPoint.x), tile.position.x - tile.size.width/2.0f);
-			//CCLOG(@"%f , %f", player.position.x - player.size.width*player.anchorPoint.x, tile.position.x + tile.size.width/2.0f);
-			
-			//if ((player.position.x + player.size.width*(1.0f-player.anchorPoint.x) - ADJUSTMENT_COLLISION_X >= tile.position.x - tile.size.width/2.0f)
-			//	&& (player.position.x - player.size.width*player.anchorPoint.x + ADJUSTMENT_COLLISION_X <= tile.position.x + tile.size.width/2.0f) ) {
-				
-				[player hitsFloor];
-				
-			//} else {
-			//	contact->SetEnabled(false);	
-			//}
+		if (Above(contact)) {
+            [player hitsFloor];
 		}
 		
 		if (IS_CLOUD(o1, o2)) {
-			if (player.position.y - player.size.height*player.anchorPoint.y < tile.position.y + tile.size.height/2.0f) {
+			if (BelowCloud(player, tile)) {
 				contact->SetEnabled(false);
 			}
 			
@@ -112,17 +159,8 @@ void ContactListener::BeginContact(b2Contact *contact) {
 			tile = o1;
 		}
 
-		if (enemy.position.y - enemy.size.height*enemy.anchorPoint.y >= tile.position.y + tile.size.height/2.0f) {
-					
-			//if ((enemy.position.x + enemy.size.width*(1.0f-enemy.anchorPoint.x) - ADJUSTMENT_COLLISION_X >= tile.position.x - tile.size.width/2.0f)
-			//	&& (enemy.position.x - enemy.size.width*enemy.anchorPoint.x + ADJUSTMENT_COLLISION_X <= tile.position.x + tile.size.width/2.0f) ) {
-						
-				[enemy hitsFloor];
-			
-			//} else {
-			//	contact->SetEnabled(false);	
-				
-			//}
+        if (Above(contact)) {
+            [enemy hitsFloor];
 		}
 			
 		
@@ -162,7 +200,7 @@ void ContactListener::BeginContact(b2Contact *contact) {
 		if (!robot.solid) contact->SetEnabled(false);
 		[robot touched:player];
 		
-		if (player.position.y - player.size.height*player.anchorPoint.y >= robot.position.y + robot.size.height/2.0f) {
+		if (Above(contact)) {
 			b2Vec2 vel = robot.body->GetLinearVelocity();
 			
 			if (vel.y != 0) {
@@ -231,7 +269,7 @@ void ContactListener::BeginContact(b2Contact *contact) {
 			Player *player = (Player *)o1;
 			Bullet *bullet = (Bullet *)o2;
 
-			if ((player.action != PRONE) || (bullet.position.y < player.position.y - player.size.height*player.anchorPoint.y)) {
+			if ((player.action != PRONE) || (BelowPos(bullet, player))) {
 				[player hit:bullet.damage];
 				[bullet die];
 			}
@@ -240,7 +278,7 @@ void ContactListener::BeginContact(b2Contact *contact) {
 			Player *player = (Player *)o2;
 			Bullet *bullet = (Bullet *)o1;
 			
-			if ((player.action != PRONE) || (bullet.position.y < player.position.y - player.size.height*player.anchorPoint.y)) {
+			if ((player.action != PRONE) || (BelowPos(bullet, player))) {
 				[player hit:bullet.damage];
 				[bullet die];
 			}
@@ -254,7 +292,7 @@ void ContactListener::BeginContact(b2Contact *contact) {
 			Enemy *enemy = (Enemy *)o1;
 			Bullet *bullet = (Bullet *)o2;
 			
-			if ((enemy.action != PRONE) || (bullet.position.y < enemy.position.y - enemy.size.height*enemy.anchorPoint.y)) {
+			if ((enemy.action != PRONE) || (BelowPos(bullet, enemy))) {
 				[enemy hit:bullet.damage];
 				[bullet die];
 			}
@@ -263,7 +301,7 @@ void ContactListener::BeginContact(b2Contact *contact) {
 			Enemy *enemy = (Enemy *)o2;
 			Bullet *bullet = (Bullet *)o1;
 			
-			if ((enemy.action != PRONE) || (bullet.position.y < enemy.position.y - enemy.size.height*enemy.anchorPoint.y)) {
+			if ((enemy.action != PRONE) || (BelowPos(bullet, enemy))) {
 				[enemy hit:bullet.damage];
 				[bullet die];
 			}
@@ -273,11 +311,11 @@ void ContactListener::BeginContact(b2Contact *contact) {
 		///CCLOG(@"-----> Bullet made contact with bullet!");
 		//contact->SetEnabled(false);
         
-			Bullet *bullet1 = (Bullet *)o1;
-			[bullet1 die];
+        Bullet *bullet1 = (Bullet *)o1;
+        [bullet1 die];
 
-			Bullet *bullet2 = (Bullet *)o2;
-			[bullet2 die];
+        Bullet *bullet2 = (Bullet *)o2;
+        [bullet2 die];
 		
 	} else if ((IS_BULLET(o1, o2) || IS_BULLET_ENEMY(o1, o2)) && IS_PLATFORM(o1, o2)) {
 		//CCLOG(@"-----> Bullet made contact with platform!");
@@ -298,7 +336,7 @@ void ContactListener::BeginContact(b2Contact *contact) {
 		
 	} else if (IS_MOVING_PLATFORM(o1, o2) && IS_PLAYER(o1, o2)) {
 		//CCLOG(@"-----> Player contact with moving platform!");
-		
+        
 		Player *player;
 		MovingPlatform *platform;
 		
@@ -310,10 +348,8 @@ void ContactListener::BeginContact(b2Contact *contact) {
 			platform = (MovingPlatform *)o1;
 		}
 		
-        //CCLOG(@"%f, %f", player.position.y + player.size.height*(1.0f-player.anchorPoint.y), platform.position.y - platform.size.height/2.0f);
-        //CCLOG(@"%f, %f", player.position.y - player.size.height*player.anchorPoint.y, platform.position.y + platform.size.height/2.0f);
-        
-        if (player.position.y - player.size.height*player.anchorPoint.y >= platform.position.y + platform.size.height/2.0f) {    
+        if (Above(contact)) {
+            
             //CCLOG(@"Player hits moving platform from above!");
 			b2Vec2 vel = platform.body->GetLinearVelocity();
             
@@ -327,7 +363,7 @@ void ContactListener::BeginContact(b2Contact *contact) {
 				[player displaceHorizontally:vel.x];
 			}
 			
-		} else if (player.position.y + player.size.height*(1.0f-player.anchorPoint.y) <= platform.position.y - platform.size.height/2.0f) {
+		} else if (Below(contact)) {
                 
 			//CCLOG(@"Player hits moving platform from below!");
 			b2Vec2 current = platform.body->GetLinearVelocity();
@@ -335,15 +371,15 @@ void ContactListener::BeginContact(b2Contact *contact) {
 				[platform changeDirection];
 			}
 			
-		} else if (player.position.x + player.size.width*(1.0f-player.anchorPoint.x) <= platform.position.x - platform.size.width/2.0f) {
-            
+		} else if (Left(contact)) {
+
 			//CCLOG(@"Player hits moving platform from left!");
 			b2Vec2 current = platform.body->GetLinearVelocity();
 			if (current.x < 0) {
 				[platform changeDirection];
 			}
 			
-		} else if (player.position.x - player.size.width*player.anchorPoint.x >= platform.position.x + platform.size.width/2.0f) {
+		} else if (Right(contact)) {
 		
             //CCLOG(@"Player hits moving platform from right!");
 			b2Vec2 current = platform.body->GetLinearVelocity();
@@ -408,6 +444,8 @@ void ContactListener::PreSolve(b2Contact *contact, const b2Manifold *oldManifold
 	GameObject *o1 = (GameObject*)contact->GetFixtureA()->GetBody()->GetUserData();
 	GameObject *o2 = (GameObject*)contact->GetFixtureB()->GetBody()->GetUserData();
 	
+    if (!contact->IsTouching()) return;
+    
 	if (IS_CLOUD(o1, o2) && IS_PLAYER(o1, o2)) {
         //CCLOG(@"-----> Player contact with cloud!");
 		
@@ -423,22 +461,12 @@ void ContactListener::PreSolve(b2Contact *contact, const b2Manifold *oldManifold
 			tile = o1;
 		}
 		
-		if (player.position.y - player.size.height*player.anchorPoint.y < tile.position.y + tile.size.height/2.0f) {
+		if (BelowCloud(player, tile)) {
 			contact->SetEnabled(false);
 			
 		} else {
-			//CCLOG(@"Check if floor (presolve): %f , %f", player.position.y - player.size.height*player.anchorPoint.y, tile.position.y + tile.size.height/2.0f);
-			
-			//if ((player.position.x + player.size.width*(1.0f-player.anchorPoint.x) - ADJUSTMENT_COLLISION_X >= tile.position.x - tile.size.width/2.0f)
-			//	&& (player.position.x - player.size.width*player.anchorPoint.x + ADJUSTMENT_COLLISION_X <= tile.position.x + tile.size.width/2.0f) ) {
-				
-				b2Vec2 current = player.body->GetLinearVelocity();
-				if (current.y < 0) [player hitsFloor];
-				
-			//} else {
-			//	b2Vec2 current = player.body->GetLinearVelocity();
-			//	if (current.y < 0) contact->SetEnabled(false);
-			//}
+            b2Vec2 current = player.body->GetLinearVelocity();
+            if (current.y < 0) [player hitsFloor];
 		}
 		
 	} else if (IS_BULLET_ENEMY(o1, o2) && IS_PLAYER(o1, o2)) {
@@ -467,7 +495,7 @@ void ContactListener::PreSolve(b2Contact *contact, const b2Manifold *oldManifold
 		
 	} else if (IS_MOVING_PLATFORM(o1, o2) && IS_PLAYER(o1, o2)) {
 		//CCLOG(@"-----> Player contact with horizontal platform!");
-		
+        
 		Player *player;
 		MovingPlatform *platform;
 		
@@ -479,7 +507,7 @@ void ContactListener::PreSolve(b2Contact *contact, const b2Manifold *oldManifold
 			platform = (MovingPlatform *)o1;
 		}
 		
-        if (player.position.y - player.size.height*player.anchorPoint.y >= platform.position.y + platform.size.height/2.0f) {
+        if (Above(contact)) {
 			if (platform.velocity.x != 0) {
 				b2Vec2 vel = platform.body->GetLinearVelocity();
 				[player displaceHorizontally:vel.x];
@@ -509,7 +537,7 @@ void ContactListener::PreSolve(b2Contact *contact, const b2Manifold *oldManifold
 		}
 		
 		if (!robot.solid) contact->SetEnabled(false);
-		else if (player.position.y - player.size.height*player.anchorPoint.y >= robot.position.y + robot.size.height/2.0f) {
+		else if (Above(contact)) {
 			b2Vec2 vel = robot.body->GetLinearVelocity();
 			if (vel.x != 0) {
 				[player displaceHorizontally:vel.x];
@@ -533,6 +561,8 @@ void ContactListener::PostSolve(b2Contact *contact, const b2ContactImpulse *impu
 	GameObject *o1 = (GameObject*)contact->GetFixtureA()->GetBody()->GetUserData();
 	GameObject *o2 = (GameObject*)contact->GetFixtureB()->GetBody()->GetUserData();
 	
+    if (!contact->IsTouching()) return;
+    
 	if (IS_CLOUD(o1, o2) && IS_PLAYER(o1, o2)) {
         //CCLOG(@"-----> Player contact with cloud!");
 		
@@ -548,7 +578,7 @@ void ContactListener::PostSolve(b2Contact *contact, const b2ContactImpulse *impu
 			tile = o1;
 		}
 		
-		if (player.position.y - player.size.height*player.anchorPoint.y < tile.position.y + tile.size.height/2.0f) {
+		if (BelowCloud(player, tile)) {
 			contact->SetEnabled(false);
 		}
 		
@@ -558,9 +588,9 @@ void ContactListener::PostSolve(b2Contact *contact, const b2ContactImpulse *impu
 void ContactListener::EndContact(b2Contact *contact) {
 	GameObject *o1 = (GameObject*)contact->GetFixtureA()->GetBody()->GetUserData();
 	GameObject *o2 = (GameObject*)contact->GetFixtureB()->GetBody()->GetUserData();
-	
+    
 	if (IS_MOVING_PLATFORM(o1, o2) && IS_PLAYER(o1, o2)) {
-		//CCLOG(@"-----> Player contact ended with horizontal platform!");
+		//CCLOG(@"-----> Player contact ended with moving platform!");
 		
 		Player *player;
 		MovingPlatform *platform;

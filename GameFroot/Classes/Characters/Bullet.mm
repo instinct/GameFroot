@@ -165,6 +165,8 @@
 		b2Vec2 velocity = b2Vec2(BULLET_SPEED, 0.0f);
 		body->SetLinearVelocity(velocity);
 	}
+    
+    size = self.contentSize;
 }
 
 -(void) die {

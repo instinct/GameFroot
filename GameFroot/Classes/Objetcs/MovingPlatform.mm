@@ -48,19 +48,19 @@
 	
 	// bottom
 	groundBox.Set(lowerLeft, lowerRight);
-	body->CreateFixture(&groundBox,0);
+	body->CreateFixture(&groundBox,1.0);
 	
 	// top
 	groundBox.Set(upperRight, upperLeft);
-	body->CreateFixture(&groundBox,0);
+	body->CreateFixture(&groundBox,1.0);
 	
 	// left
 	groundBox.Set(upperLeft, lowerLeft);
-	body->CreateFixture(&groundBox,0);
+	body->CreateFixture(&groundBox,1.0);
 	
 	// right
 	groundBox.Set(lowerRight, upperRight);
-	body->CreateFixture(&groundBox,0);
+	body->CreateFixture(&groundBox,1.0);
     
     /*
 	b2PolygonShape shape;
@@ -223,6 +223,9 @@
 		[self startsOff];
 		body->SetTransform(origPosition, 0);
 		goingForward = YES;
+       
+        [self schedule:@selector(updatePlatform:) interval:duration];
+        [self pause];
 		
 	} else if (!paused) {
 		[self unschedule:@selector(updateChangedPlatform:)];
@@ -233,6 +236,7 @@
 		goingForward = YES;
 		
 		[self schedule:@selector(updatePlatform:) interval:duration];
+        
 	}
 }
 
@@ -284,7 +288,7 @@
 	if ((posOrig.x + self.contentSize.width < 0) && (posFinal.x + self.contentSize.width < 0)) {
 		if (self.visible) {
 			self.visible = NO;
-			//[self pause];
+			[self pause];
 			body->SetActive(false);
 		}
 		return;
@@ -293,7 +297,7 @@
 	} else if ((posOrig.x - self.contentSize.width > winsize.width) && (posFinal.x - self.contentSize.width > winsize.width)) {
 		if (self.visible) {
 			self.visible = NO;
-			//[self pause];
+			[self pause];
 			body->SetActive(false);
 		}
 		return;
@@ -301,7 +305,7 @@
 	} else if ((posOrig.y + self.contentSize.height < 0) && (posFinal.y + self.contentSize.height < 0)) {
 		if (self.visible) {
 			self.visible = NO;
-			//[self pause];
+			[self pause];
 			body->SetActive(false);
 		}
 		return;
@@ -310,14 +314,14 @@
 	} else if ((posOrig.y - self.contentSize.height > winsize.height) && (posFinal.y - self.contentSize.height > winsize.height)) {
 		if (self.visible) {
 			self.visible = NO;
-			//[self pause];
+			[self pause];
 			body->SetActive(false);
 		}
 		return;
 		
 	} else if (!self.visible) {
 		self.visible = YES;
-		//[self resume];
+		[self resume];
 		body->SetActive(true);
 	}
 	

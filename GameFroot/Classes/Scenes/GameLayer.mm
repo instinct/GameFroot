@@ -600,7 +600,7 @@ GameLayer *instance;
 	[playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"xpos"] intValue]] forKey:@"positionX"];
 	[playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"ypos"] intValue]] forKey:@"positionY"];
     [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"player_jetpack"] intValue]] forKey:@"hasJetpack"];
-    [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"weapon"] intValue]] forKey:@"hasWeapon"];
+    [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"player_weapon"] intValue]] forKey:@"hasWeapon"];
     [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"starting_health"] intValue]] forKey:@"health"];
     [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"starting_lives"] intValue]] forKey:@"lives"];
     [playerData setObject:[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"chosen_weapon"] forKey:@"weapon"];
@@ -1058,7 +1058,7 @@ GameLayer *instance;
 				// Tile sprite
 				GameObject *sprite = [GameObject spriteWithBatchNode:spriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 				[sprite setPosition:pos];
-				//[sprite setAnchorPoint:ccp(0,0)];
+				[sprite setAnchorPoint:ccp(0.5,0.5)];
 				[spriteSheet addChild:sprite z:zorder];
 				
 				if (frames > 1) {
@@ -1425,7 +1425,7 @@ GameLayer *instance;
 	player.position = pos;
 	[player setAnchorPoint:ccp(0.41,0.33)];
 	[player setupPlayer:playerID properties:dict];
-    [player createBox2dObject:world size:CGSizeMake(26.0 / CC_CONTENT_SCALE_FACTOR(), 57.0 / CC_CONTENT_SCALE_FACTOR())];
+    [player createBox2dObject:world size:CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR())];
 	[playerSpriteSheet addChild:player z:LAYER_PLAYER];
     
     [controls setPlayer:player];
@@ -1491,7 +1491,7 @@ GameLayer *instance;
 		enemy.position = pos;
 		[enemy setAnchorPoint:ccp(0.41,0.33)];
 		[enemy setupEnemy:enemyID properties:dict player:player];
-		[enemy createBox2dObject:world size:CGSizeMake(26.0 / CC_CONTENT_SCALE_FACTOR(), 57.0 / CC_CONTENT_SCALE_FACTOR())];
+		[enemy createBox2dObject:world size:CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR())];
 		[enemySpriteSheet addChild:enemy z:LAYER_PLAYER];
 		
 		[enemies addObject:enemy];

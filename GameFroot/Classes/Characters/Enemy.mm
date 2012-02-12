@@ -231,9 +231,8 @@
 	playerBodyDef.userData = self;
 	body = world->CreateBody(&playerBodyDef);
 	
-	[[GB2ShapeCache sharedShapeCache] addFixturesToBody:body forShapeName:@"player"];
+	//[[GB2ShapeCache sharedShapeCache] addFixturesToBody:body forShapeName:@"player"];
 	
-	/*
 	b2PolygonShape shape;
 	shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0f)/PTM_RATIO);
 	b2FixtureDef fixtureDef;
@@ -242,7 +241,6 @@
 	fixtureDef.friction = 0.0; // we need this 0 so when moving it doens't slow down
 	fixtureDef.restitution = 0.0; // bouncing
 	body->CreateFixture(&fixtureDef);
-	*/
 	
 	removed = NO;
 }

@@ -57,7 +57,8 @@
 }
 
 -(void) backMenu:(id)sender {
-	[[CCDirector sharedDirector] replaceScene:[HomeLayer scene]];
+	[[GameLayer getInstance] quitGame];
+    [[GameLayer getInstance] removeOverlay:self];
 }
 
 @end

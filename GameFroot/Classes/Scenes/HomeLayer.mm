@@ -1338,12 +1338,21 @@
 -(void)table:(SWTableView *)table cellTouched:(SWTableViewCell *)cell {
     //CCLOG(@"cell touched at index: %i", cell.idx);
 	
-	CCSprite *backSelected = (CCSprite*)[cell getChildByTag:2];
-	id action = [CCSequence actions:
-				 [CCDelayTime actionWithDuration:0.2],
-				 [CCShow action],
-				 nil];
-	[backSelected runAction:action];
+    if (displayingDeleteButton) {
+        if ((deleteMenu != nil) && ([deleteMenu.parent getChildByTag:10] != nil)) {   
+            [deleteMenu.parent removeChildByTag:10 cleanup:YES]; // remove any delete button
+            deleteMenu = nil;
+        }
+        
+    } else {
+    
+        CCSprite *backSelected = (CCSprite*)[cell getChildByTag:2];
+        id action = [CCSequence actions:
+                     [CCDelayTime actionWithDuration:0.2],
+                     [CCShow action],
+                     nil];
+        [backSelected runAction:action];
+    }
 }
 
 -(void)table:(SWTableView *)table cellTouchCancelled:(SWTableViewCell *)cell {
@@ -1363,7 +1372,10 @@
 		bkSelected.visible = NO;
 		
         if (displayingDeleteButton) {
-            if ([deleteMenu.parent getChildByTag:10] != nil) [deleteMenu.parent removeChildByTag:10 cleanup:YES]; // remove any delete button
+            if ((deleteMenu != nil) && ([deleteMenu.parent getChildByTag:10] != nil)) {
+                [deleteMenu.parent removeChildByTag:10 cleanup:YES]; // remove any delete button
+                deleteMenu = nil;
+            }
         }
         
 		CCMenuItemSprite *deleteButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"delete_btn.png"] selectedSprite:[CCSprite spriteWithFile:@"delete_btn.png"] target:self selector:@selector(deleteItem:)];
@@ -1417,10 +1429,12 @@
     //CCLOG(@"HomeLayer.scrollViewDidScroll");
     
     if (displayingDeleteButton) {
-        if ([deleteMenu.parent getChildByTag:10] != nil) [deleteMenu.parent removeChildByTag:10 cleanup:YES]; // remove any delete button
+        if ((deleteMenu != nil) && ([deleteMenu.parent getChildByTag:10] != nil)) {
+            [deleteMenu.parent removeChildByTag:10 cleanup:YES]; // remove any delete button
+            deleteMenu = nil;
+        }
         displayingDeleteButton = NO;
     }
-    
 }
 
 -(void)table:(SWTableView *)table cellTouchReleased:(SWTableViewCell *)cell {
@@ -1431,7 +1445,10 @@
 	//backSelected.visible = NO;
     
     if (displayingDeleteButton) {
-        if ([deleteMenu.parent getChildByTag:10] != nil) [deleteMenu.parent removeChildByTag:10 cleanup:YES]; // remove any delete button
+        if ((deleteMenu != nil) && ([deleteMenu.parent getChildByTag:10] != nil)) {
+            [deleteMenu.parent removeChildByTag:10 cleanup:YES]; // remove any delete button
+            deleteMenu = nil;
+        }
         displayingDeleteButton = NO;
         
         [backSelected stopAllActions];
