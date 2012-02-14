@@ -40,9 +40,9 @@ bool ContactListener::Above(b2Contact *contact) {
     b2WorldManifold worldManifold;
     contact->GetWorldManifold(&worldManifold);
     b2Vec2 worldNormal = worldManifold.normal;
-    //CCLOG(@"-----> contact normal: %f, %f", worldNormal.x, worldNormal.y);
-    
-    return (worldNormal.y == 1.0);
+    //CCLOG(@"-----> contact normal: %d, %d", lround(worldNormal.x), lround(worldNormal.y));
+
+    return (lround(worldNormal.y) == 1);
     
     //CCLOG(@"ContactListener.Above: %f >= %f",o1.position.y - o1.size.height*o1.anchorPoint.y, o2.position.y + o2.size.height*(1.0f-o2.anchorPoint.y));
     //return (o1.position.y - o1.size.height*o1.anchorPoint.y >= o2.position.y + o2.size.height*(1.0f-o2.anchorPoint.y));
@@ -52,9 +52,9 @@ bool ContactListener::Below(b2Contact *contact) {
     b2WorldManifold worldManifold;
     contact->GetWorldManifold(&worldManifold);
     b2Vec2 worldNormal = worldManifold.normal;
-    //CCLOG(@"-----> contact normal: %f, %f", worldNormal.x, worldNormal.y);
+    //CCLOG(@"-----> contact normal: %d, %d", lround(worldNormal.x), lround(worldNormal.y));
     
-    return (worldNormal.y == -1.0);
+    return (lround(worldNormal.y) == -1);
     
     //CCLOG(@"ContactListener.Below: %f <= %f",o1.position.y + o1.size.height*(1.0f-o1.anchorPoint.y), o2.position.y - o2.size.height*o2.anchorPoint.y);
     //return (o1.position.y + o1.size.height*(1.0f-o1.anchorPoint.y) <= o2.position.y - o2.size.height*o2.anchorPoint.y);    
@@ -74,9 +74,9 @@ bool ContactListener::Right(b2Contact *contact) {
     b2WorldManifold worldManifold;
     contact->GetWorldManifold(&worldManifold);
     b2Vec2 worldNormal = worldManifold.normal;
-    //CCLOG(@"-----> contact normal: %f, %f", worldNormal.x, worldNormal.y);
+    //CCLOG(@"-----> contact normal: %d, %d", lround(worldNormal.x), lround(worldNormal.y));
     
-    return (worldNormal.x == 1.0);
+    return (lround(worldNormal.x) == 1);
     
     //CCLOG(@"ContactListener.Right: %f >= %f",o1.position.x - o1.size.width*o1.anchorPoint.x, o2.position.x + o2.size.width*(1.0f-o2.anchorPoint.y));
     //return (o1.position.x - o1.size.width*o1.anchorPoint.x  >= o2.position.x + o2.size.width*(1.0f-o2.anchorPoint.y));
@@ -86,9 +86,9 @@ bool ContactListener::Left(b2Contact *contact) {
     b2WorldManifold worldManifold;
     contact->GetWorldManifold(&worldManifold);
     b2Vec2 worldNormal = worldManifold.normal;
-    //CCLOG(@"-----> contact normal: %f, %f", worldNormal.x, worldNormal.y);
+    //CCLOG(@"-----> contact normal: %d, %d", lround(worldNormal.x), lround(worldNormal.y));
     
-    return (worldNormal.x == -1.0);
+    return (lround(worldNormal.x) == -1);
     
     //CCLOG(@"ContactListener.Left: %f <= %f",o1.position.x + o1.size.width*(1.0f-o1.anchorPoint.x) , o2.position.x - o2.size.width*o2.anchorPoint.y);
     //return (o1.position.x + o1.size.width*(1.0f-o1.anchorPoint.x) <= o2.position.x - o2.size.width*o2.anchorPoint.y);

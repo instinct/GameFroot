@@ -466,7 +466,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	
 	b2Vec2 current = body->GetLinearVelocity();
 	//CCLOG(@"Player.jump: %i, %i, %i, %f, %i", canJump, dying, immortal, fabsf(roundf(current.y)), ignoreGravity);
-	if (canJump && !dying && !immortal) { // && ((fabsf(roundf(current.y)) == 0) || ignoreGravity)) {
+	if (canJump && !dying && !immortal && ((fabsf(roundf(current.y)) == 0) || ignoreGravity)) {
 		canJump = NO;
 		jumping = YES;
 		b2Vec2 impulse = b2Vec2(0.0f, VERTICAL_SPEED);
@@ -645,9 +645,24 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		
 		b2Vec2 current = body->GetLinearVelocity();
 		if (current.y > 0) {
-			body->SetLinearVelocity(b2Vec2(current.x,0));
+            
+			//body->SetLinearVelocity(b2Vec2(current.x,0));
+            
+            // Delay jump rest to avoid reseting too early (before player actually moves)
+            // since this will make the player to not register hitFloor event.
+            id resetAction = [CCSequence actions:
+                              [CCDelayTime actionWithDuration:1.0/60.0],
+                              [CCCallFunc actionWithTarget:self selector:@selector(_resetJump)],
+                              nil];
+            [self runAction:resetAction];
 		}
 	}
+}
+
+-(void) _resetJump
+{
+    b2Vec2 current = body->GetLinearVelocity();
+    body->SetLinearVelocity(b2Vec2(current.x,0));
 }
 
 -(void) stop
