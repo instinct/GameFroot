@@ -35,6 +35,12 @@ typedef enum{
 	kDirectionNone
 } GameObjectDirection;
 
+enum GameControlType{
+    controlDpad,
+    controlNoDpad,
+    controlProSwipe
+};
+
 #define SAVE_FOLDER NSLibraryDirectory
 
 #define HORIZONTAL_SPEED	5.0f

@@ -8,13 +8,16 @@
 
 #import "cocos2d.h"
 #import "Shared.h"
+#import "Controls.h"
 
 @interface Pause : CCLayerColor 
 {
     CCMenuItemToggle *musicButton;
-	CCMenuItemToggle *dpadButton;
-    
-    BOOL useDPad;
+	CCMenuItemToggle *controlsButton;
+    CCMenuItemSprite *control_option1;
+    CCMenuItemSprite *control_option2;
+    CCMenuItemSprite *control_option3;
 }
+-(void)setControlType:(GameControlType)type;
 
 @end

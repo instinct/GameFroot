@@ -8,6 +8,7 @@
 
 #import "cocos2d.h"
 #import "Shared.h"
+#import "Constants.h"
 
 @class Player;
 
@@ -39,12 +40,14 @@
 	UITouch	*shootTouch;
 	UITouch	*dpadTouch;
     
-    BOOL useDPad;
+    GameControlType controlType;
     Player *player;
 }
 
 +(id) controlsWithFile:(NSString *)filename;
 -(void) setup;
+-(GameControlType) getControlType;
+-(void) setControlType:(GameControlType)type;
 -(void) checkSettings;
 -(void) setPlayer:(Player *)_player;
 -(void) resetControls;

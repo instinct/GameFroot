@@ -66,15 +66,26 @@
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     
     if ([prefs boolForKey:@"firstlaunch"]) {
-        [prefs setInteger:1 forKey:@"dpad"];
-        [prefs synchronize];
+        [self setControlType:controlProSwipe];
     }
       
-    int dpadPref = [prefs integerForKey:@"dpad"];
-    //if ([Shared isDebugging]) CCLOG(@"DPad preference: %i", dpadPref);
-    useDPad = dpadPref == 1;
     
-    self.visible = useDPad;
+    //if ([Shared isDebugging]) CCLOG(@"DPad preference: %i", dpadPref);
+    controlType = [self getControlType];
+    
+    //self.visible = useDPad;
+}
+
+-(GameControlType) getControlType {
+    return controlType;
+}
+
+-(void) setControlType:(GameControlType)type {
+    if(type != controlType) {
+        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+        [prefs setInteger:(int)type forKey:@"controlType"];
+        [prefs synchronize];
+    }
 }
 
 -(void) setPlayer:(Player *)_player
@@ -158,7 +169,7 @@
 {
     CGSize size = [[CCDirector sharedDirector] winSize];
     
-    if (!useDPad) {
+    if ([self getControlType] == controlNoDpad) {
 		
 		if (location.x < size.width * 0.25f) {
 			
@@ -203,7 +214,7 @@
 			gestureStartTime = event.timestamp;
 		}
         
-	} else {
+	} else if([self getControlType] == controlDpad) {
 		if ([self dpadNorth:location]) {
             dpadTouch = touch;
 			if ([Shared isSimulator]) {
@@ -269,7 +280,7 @@
 
 -(void) ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event andLocation:(CGPoint)location 
 {
-    if (!useDPad) {
+    if ([self getControlType] == controlNoDpad) {
         
         if (touch == leftTouch) {
             if (rightTouch == nil) [player stop];
@@ -297,7 +308,7 @@
             
         }
         
-    } else {
+    } else if([self getControlType] == controlDpad) {
         
         if (touch == dpadTouch) {
             [leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_normal.png"]];
@@ -331,7 +342,7 @@
 {
     CGSize size = [[CCDirector sharedDirector] winSize];
     
-	if (!useDPad) {
+	if ([self getControlType] == controlNoDpad) {
 		
 		if (touch == leftTouch) {
 			
@@ -368,7 +379,7 @@
 			}
 		}
         
-	} else {
+	} else if([self getControlType] == controlDpad) {
         
 		if (touch == dpadTouch) {
 			
