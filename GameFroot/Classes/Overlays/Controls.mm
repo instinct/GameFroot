@@ -8,6 +8,7 @@
 
 #import "Controls.h"
 #import "Player.h"
+#import <math.h>
 
 @implementation Controls
 
@@ -21,11 +22,17 @@
     if (!leftJoy) { // Be sure we don't recreate them again when restaring the game
         
         [self checkSettings];
+
+        CGSize size = [[CCDirector sharedDirector] winSize];
+
+        dpadInitialPosition = ccp(CONTROLS_INIT_X,CONTROLS_INIT_Y);
+        maxDpadTravel = CONTROLS_MAX_TRAVEL;
+        deadSpotSize = CONTROLS_DEAD_SPOT_SIZE;
         
         leftJoy = [CCSprite spriteWithSpriteFrameName:@"d_pad_normal.png"];
         [leftJoy setScale:CC_CONTENT_SCALE_FACTOR()];
         [leftJoy setOpacity:125];
-        leftJoy.position = ccp(76,66);
+        leftJoy.position = dpadInitialPosition;
         
         leftBut = [CCSprite spriteWithSpriteFrameName:@"b_button_up.png"];
         [leftBut setScale:CC_CONTENT_SCALE_FACTOR()];
@@ -55,13 +62,17 @@
         
         jumpArea = CGRectMake(480 - 100 - 1, 91 + 30, 90, 150);
         shootArea = CGRectMake(480 - 195 - 1, 91 + 30, 90, 150);
+
+        // The area within which the dpad will track touches, roughly half the screen.
+        dpadTouchArea = CGRectMake(0, size.height, size.width/2 + 20, size.height);
+        aButtonTouchArea = CGRectMake(rightBut.position.x - (rightBut.contentSize.width/2) - 20, size.height, rightBut.contentSize.width + 45, size.height);
+        bButtonTouchArea = CGRectMake(leftBut.position.x - (leftBut.contentSize.width/2) - 35, size.height, leftBut.contentSize.width + 45, size.height);
     }
 }
 
 -(void) checkSettings
 {
     // Read saved settings
-    CCLOG(@"Check settings");
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     
     if ([prefs boolForKey:@"firstlaunch"] && ![prefs boolForKey:@"controlDefaultsApplied"]) {
@@ -90,6 +101,7 @@
     switch (type) {
         case controlDpad:
             self.visible = YES;
+            leftJoy.position = dpadInitialPosition;
             break;
         case controlNoDpad:
             self.visible = NO;
@@ -288,6 +300,34 @@
 				[leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_down.png"]];
 			}
 		}
+	} else {
+        
+        // is point within trackable location?
+        if (CGRectContainsPoint(CGRectMake(dpadTouchArea.origin.x, size.height - dpadTouchArea.origin.y, dpadTouchArea.size.width, dpadTouchArea.size.height), location)) {
+            leftJoy.position = location;
+            gestureStartTime = event.timestamp;
+            dpadTouch = touch;
+            [self processProSwipeTouch:touch withEvent:event andLocation:location];
+            CCLOG(@"dpad touch began");
+        }
+        
+        if (CGRectContainsPoint(CGRectMake(aButtonTouchArea.origin.x, size.height - aButtonTouchArea.origin.y, aButtonTouchArea.size.width, aButtonTouchArea.size.height), location)) {
+            [rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_down.png"]];
+            
+            jumpTouch = touch;
+           
+            [player jump];
+			jumpTouch = touch;
+        }
+        
+        if (CGRectContainsPoint(CGRectMake(bButtonTouchArea.origin.x, size.height - bButtonTouchArea.origin.y, bButtonTouchArea.size.width, bButtonTouchArea.size.height), location)) {
+             [leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_down.png"]];
+            shootTouch = touch;
+            if (event.timestamp - lastShoot > player.shootDelay) {
+				[player shoot];
+				lastShoot = event.timestamp;
+			}
+        }	
 	}
 
 }
@@ -349,6 +389,169 @@
             shootTouch = nil;
             [leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_up.png"]];
         }
+    } else {
+    	 if (touch == dpadTouch) {
+            [leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_normal.png"]];
+            leftJoy.rotation = 0;
+            
+            [player stop];
+            
+            if (touch == jumpTouch) {
+                [player resetJump];
+                jumpTouch = nil;
+            }
+            
+            dpadTouch = nil;
+            
+            [self releasedControls];
+        }
+        
+        if (touch == shootTouch) {
+            [player resetJump];
+            shootTouch = nil;
+            [leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_up.png"]];
+           
+            
+        } else if (touch == jumpTouch) {
+            jumpTouch = nil;
+             [rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_up.png"]];
+        }
+    }
+}
+
+-(void) processProSwipeTouch:(UITouch *)touch withEvent:(UIEvent *)event andLocation:(CGPoint)location {
+    
+    CGSize size = [[CCDirector sharedDirector] winSize];
+    
+    if (dpadTouch == jumpTouch) {
+        [player resetJump];
+        jumpTouch = nil;
+    }
+    
+    if (touch == dpadTouch) {
+        CCLOG(@"dpad touches moved");
+        // work out magnatude of control travel, (also maybe useful later for analog control)
+        float magnitude = sqrtf(powf(gestureStartPoint.x - location.x, 2) + powf(gestureStartPoint.y - location.y, 2));
+        
+        CCLOG(@"magnitude: %f", magnitude);
+        
+        int directions = 0;
+        
+        // work out general directions of travel so we can derive a quadrant
+        if (!CGPointEqualToPoint(location, gestureStartPoint)) {
+            directions |= (location.x > gestureStartPoint.x) ? right : 0;
+            directions |= (location.x < gestureStartPoint.x) ? left : 0;
+            directions |= (location.y > gestureStartPoint.y) ? up : 0;
+            directions |= (location.y < gestureStartPoint.y) ? down : 0;
+        }
+        
+        // move control within bound
+        if(CGRectContainsPoint(CGRectMake(dpadTouchArea.origin.x, size.height - dpadTouchArea.origin.y, dpadTouchArea.size.width, dpadTouchArea.size.height), location)) {
+            leftJoy.position = location;                
+        }
+        
+        // if magnitude within deadspot radius or ourside travel, don't register
+        if((magnitude >= deadSpotSize) && (magnitude <= maxDpadTravel)) {
+            
+            // use some trig to get the angle
+            float angle = asinf((abs(location.y - gestureStartPoint.y))/magnitude);
+            
+            //convert to degrees
+            angle *= (180/M_PI);
+            bool withinDiag = (angle >= CONTROLS_DIAG_LOWER && angle <= CONTROLS_DIAG_UPPER);
+            
+            switch (directions) {
+                case 1:
+                    // up
+                    //[player jump];
+                    //CCLOG(@"up");
+                    break;
+                case 2:
+                    // down
+                    //CCLOG(@"down");
+                    [player prone];
+                    break;
+                case 4:
+                    // left
+                    //CCLOG(@"left");
+                    [player moveLeft];
+                    break;
+                case 5:
+                    // upperleft diag
+                    if (withinDiag) {
+                        //CCLOG(@"uperleft diag");
+                        // [player jumpDirection:kDirectionLeft];
+                    } else {
+                        if (angle < CONTROLS_DIAG_LOWER) {
+                            //CCLOG(@"left uld lde");
+                            [player moveLeft];
+                        } else {
+                            //CCLOG(@"jump uld ude");
+                            // [player jump];
+                        }
+                    }
+                    break;
+                case 6:
+                    // lowerleft diag
+                    if (withinDiag) {
+                        //CCLOG(@"lowerleft diag");
+                        [player prone];
+                    } else {
+                        if (angle < CONTROLS_DIAG_LOWER) {
+                            //CCLOG(@"left lld lde");
+                            [player moveLeft];
+                        } else {
+                            //CCLOG(@"crouch lld ude");
+                            [player stop];
+                            [player prone];
+                        }
+                    }
+                    
+                    break;
+                case 8:
+                    // right
+                    //CCLOG(@"right");
+                    [player moveRight];
+                    break;
+                case 9:
+                    // upperright diag
+                    if (withinDiag) {
+                        //CCLOG(@"upperright diag");
+                        // [player jumpDirection:kDirectionRight];
+                    } else {
+                        if (angle < CONTROLS_DIAG_LOWER) {
+                            //CCLOG(@"right urd lde");
+                            [player moveRight];
+                        } else {
+                            //CCLOG(@"jump urd ude");
+                            // [player jump];
+                        }
+                    }
+                    break;
+                case 10:
+                    // lowerright diag
+                    if (withinDiag) {
+                        //CCLOG(@"lowerright diag");
+                        [player prone];
+                    } else {
+                        if (angle < CONTROLS_DIAG_LOWER) {
+                            //CCLOG(@"right lrd lde");
+                            [player moveRight];
+                        } else {
+                            //CCLOG(@"crouch lrd ude");
+                            [player stop];
+                            [player prone];
+                        }
+                    }
+                    break;
+                default:
+                    //CCLOG(@"default");
+                    break;
+            }
+        } else {
+            //[player stop];
+        }
+        gestureStartPoint = location;
     }
 }
 
@@ -431,7 +634,9 @@
 				}
 			}
 		}
-	}
+	} else {
+        [self processProSwipeTouch:touch withEvent:event andLocation:location];
+    }
 }
 
 -(void) ccTouchCancelled:(UITouch *)touch withEvent:(UIEvent *)event andLocation:(CGPoint)location
@@ -450,7 +655,9 @@
 // Use this to trace the dpad hit areas
 -(void) visit {
 	[super visit];
-	
+	[Shared drawCGRect:dpadTouchArea]
+    [Shared drawCGRect:aButtonTouchArea];
+    [Shared drawCGRect:bButtonTouchArea];
 	[Shared drawTriangle: northMoveArea direction:@"north"];
 	[Shared drawTriangle: southMoveArea direction:@"south"];
 	[Shared drawTriangle: eastMoveArea direction:@"east"];
