@@ -20,8 +20,6 @@
 -(void) setup 
 {
     if (!leftJoy) { // Be sure we don't recreate them again when restaring the game
-        
-        [self checkSettings];
 
         CGSize size = [[CCDirector sharedDirector] winSize];
 
@@ -32,7 +30,8 @@
         leftJoy = [CCSprite spriteWithSpriteFrameName:@"d_pad_normal.png"];
         [leftJoy setScale:CC_CONTENT_SCALE_FACTOR()];
         [leftJoy setOpacity:125];
-        leftJoy.position = dpadInitialPosition;
+        leftJoy.position = dpadInitialPosition;        
+    
         
         leftBut = [CCSprite spriteWithSpriteFrameName:@"b_button_up.png"];
         [leftBut setScale:CC_CONTENT_SCALE_FACTOR()];
@@ -67,6 +66,8 @@
         dpadTouchArea = CGRectMake(0, size.height, size.width/2 + 20, size.height);
         aButtonTouchArea = CGRectMake(rightBut.position.x - (rightBut.contentSize.width/2) - 20, size.height, rightBut.contentSize.width + 45, size.height);
         bButtonTouchArea = CGRectMake(leftBut.position.x - (leftBut.contentSize.width/2) - 35, size.height, leftBut.contentSize.width + 45, size.height);
+        
+        [self checkSettings];
     }
 }
 
@@ -101,6 +102,7 @@
     switch (type) {
         case controlDpad:
             self.visible = YES;
+            leftJoy.visible = YES;
             leftJoy.position = dpadInitialPosition;
             break;
         case controlNoDpad:
@@ -108,6 +110,7 @@
             break;
         case controlProSwipe:
             self.visible = YES;
+            leftJoy.visible = NO;
             break;
         default:
             break;
@@ -304,7 +307,7 @@
         
         // is point within trackable location?
         if (CGRectContainsPoint(CGRectMake(dpadTouchArea.origin.x, size.height - dpadTouchArea.origin.y, dpadTouchArea.size.width, dpadTouchArea.size.height), location)) {
-            leftJoy.position = location;
+            proSwipeRing.position = location;
             gestureStartTime = event.timestamp;
             dpadTouch = touch;
             [self processProSwipeTouch:touch withEvent:event andLocation:location];
@@ -429,7 +432,6 @@
     }
     
     if (touch == dpadTouch) {
-        CCLOG(@"dpad touches moved");
         // work out magnatude of control travel, (also maybe useful later for analog control)
         float magnitude = sqrtf(powf(gestureStartPoint.x - location.x, 2) + powf(gestureStartPoint.y - location.y, 2));
         
@@ -447,7 +449,7 @@
         
         // move control within bound
         if(CGRectContainsPoint(CGRectMake(dpadTouchArea.origin.x, size.height - dpadTouchArea.origin.y, dpadTouchArea.size.width, dpadTouchArea.size.height), location)) {
-            leftJoy.position = location;                
+            proSwipeRing.position = location;                
         }
         
         // if magnitude within deadspot radius or ourside travel, don't register
@@ -651,13 +653,14 @@
     }
 }
 
-/*
+
 // Use this to trace the dpad hit areas
+/*
 -(void) visit {
 	[super visit];
-	[Shared drawCGRect:dpadTouchArea]
-    [Shared drawCGRect:aButtonTouchArea];
-    [Shared drawCGRect:bButtonTouchArea];
+	//[Shared drawCGRect:dpadTouchArea];
+    //[Shared drawCGRect:aButtonTouchArea];
+    //[Shared drawCGRect:bButtonTouchArea];
 	[Shared drawTriangle: northMoveArea direction:@"north"];
 	[Shared drawTriangle: southMoveArea direction:@"south"];
 	[Shared drawTriangle: eastMoveArea direction:@"east"];

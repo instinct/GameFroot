@@ -27,6 +27,7 @@ enum direction {up=1, down=2, left=4, right=8};
 {
     // DPad
     CCSprite *leftJoy;
+    CCSprite *proSwipeRing;
 	CCSprite *leftBut;
 	CCSprite *rightBut;
 	CGRect northMoveArea;
