@@ -47,10 +47,10 @@
         [self addChild:leftBut];
         [self addChild:rightBut];
         
-        northMoveArea = CGRectMake(5, 141, 140, 70);
-        southMoveArea = CGRectMake(5, 71, 140, 70);
-        eastMoveArea = CGRectMake(76, 141, 70, 140);
-        westMoveArea = CGRectMake(5, 141, 70, 140);
+        northMoveArea = CGRectMake(-35, 181, 220, 110); // 40 increase
+        southMoveArea = CGRectMake(-35, 71, 220, 110); // done
+        eastMoveArea = CGRectMake(76, 181, 110, 220); // done 
+        westMoveArea = CGRectMake(-35, 181, 110, 220);
         
         // This could perhaps be improved using just angle from centre of dpap
         // North is up, south is right, and so on...
@@ -66,6 +66,10 @@
         dpadTouchArea = CGRectMake(0, size.height, size.width/2 + 20, size.height);
         aButtonTouchArea = CGRectMake(rightBut.position.x - (rightBut.contentSize.width/2) - 20, size.height, rightBut.contentSize.width + 45, size.height);
         bButtonTouchArea = CGRectMake(leftBut.position.x - (leftBut.contentSize.width/2) - 35, size.height, leftBut.contentSize.width + 45, size.height);
+        
+        jumpArea = aButtonTouchArea;
+        shootArea = bButtonTouchArea;
+
         
         [self checkSettings];
     }
@@ -669,5 +673,4 @@
 	[Shared drawCGRect: shootArea];
 }
 */
-
 @end
