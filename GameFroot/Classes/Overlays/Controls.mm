@@ -20,8 +20,6 @@
 {
     if (!leftJoy) { // Be sure we don't recreate them again when restaring the game
         
-        
-        
         [self checkSettings];
         
         leftJoy = [CCSprite spriteWithSpriteFrameName:@"d_pad_normal.png"];
@@ -63,17 +61,17 @@
 -(void) checkSettings
 {
     // Read saved settings
+    CCLOG(@"Check settings");
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     
-    if ([prefs boolForKey:@"firstlaunch"]) {
+    if ([prefs boolForKey:@"firstlaunch"] && ![prefs boolForKey:@"controlDefaultsApplied"]) {
         [self setControlType:controlProSwipe];
+        [prefs setBool:YES forKey:@"controlDefaultsApplied"];
+        [prefs synchronize];
+    } else {
+        controlType = (GameControlType)[prefs integerForKey:@"controlType"];
+        [self setControlType:controlType];
     }
-      
-    
-    //if ([Shared isDebugging]) CCLOG(@"DPad preference: %i", dpadPref);
-    controlType = [self getControlType];
-    
-    //self.visible = useDPad;
 }
 
 -(GameControlType) getControlType {
@@ -85,6 +83,22 @@
         NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
         [prefs setInteger:(int)type forKey:@"controlType"];
         [prefs synchronize];
+        controlType = type;
+        CCLOG(@"Control type set. Incoming value: %i", type);
+        CCLOG(@"value stored in defaults: %i", [prefs integerForKey:@"controlType"]);
+    }
+    switch (type) {
+        case controlDpad:
+            self.visible = YES;
+            break;
+        case controlNoDpad:
+            self.visible = NO;
+            break;
+        case controlProSwipe:
+            self.visible = YES;
+            break;
+        default:
+            break;
     }
 }
 

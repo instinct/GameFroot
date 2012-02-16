@@ -19,5 +19,6 @@
     CCMenuItemSprite *control_option3;
 }
 -(void)setControlType:(GameControlType)type;
+-(void)setControlButtonSelected:(GameControlType)tag;
 
 @end

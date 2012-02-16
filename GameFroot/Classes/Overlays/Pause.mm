@@ -22,8 +22,6 @@
 		
 		CGSize size = [[CCDirector sharedDirector] winSize];
         
-        [[GameLayer getInstance].controls checkSettings];
-        
 		CCMenuItemSprite *resumeButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-resume.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-resume-off.png"] target:self selector:@selector(pauseGame)];
 		
         CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-main-menu.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-main-menu-off.png"] target:self selector:@selector(quitGame)];
@@ -37,7 +35,7 @@
         // Create controls menu
         
         CCSprite *controlsLabel = [CCSprite spriteWithFile:@"label-controls.png"];
-        controlsLabel.position = ccp(size.width/2 - 90, size.height/2-70/CC_CONTENT_SCALE_FACTOR());
+       
         
         control_option1 = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-controls_ps.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-controls_ps_sel.png"] target:self selector:@selector(controllerButtonPressed:)];
         
@@ -51,7 +49,9 @@
         
         CCMenu *controlsMenu = [CCMenu menuWithItems:control_option1, control_option2, control_option3, nil];
         [controlsMenu alignItemsHorizontally];
-        controlsMenu.position = ccp(size.width/2, size.height/2 - 80);
+        controlsMenu.position = ccp(size.width/2 + 70, size.height/2 - 80);
+        controlsLabel.position = ccp(controlsMenu.position.x - 170, controlsMenu.position.y);
+        [self addChild:controlsLabel];
         [self addChild:controlsMenu];
         
 		// Read saved settings
@@ -60,8 +60,9 @@
         //if ([Shared isDebugging]) CCLOG(@"Music preference: %i", musicPref);
 		[musicButton setSelectedIndex: musicPref];
 
-		//int dpadPref = [prefs integerForKey:@"dpad"];
+		// set the selected control method
         //if ([Shared isDebugging]) CCLOG(@"DPad preference: %i", dpadPref);
+        [self setControlButtonSelected:[[GameLayer getInstance].controls getControlType]];
 		
 		CCMenu *menuPause = [CCMenu menuWithItems:resumeButton, backButton, musicButton, nil];
 		
@@ -95,36 +96,43 @@
 	[[GameLayer getInstance] music:sender];
 }
 
--(void)controllerButtonPressed:(id)sender {
-    CCMenuItemSprite *mi = (CCMenuItemSprite*)sender;
+-(void)setControlButtonSelected:(GameControlType)tag {
     control_option1.normalImage = [CCSprite spriteWithFile:@"btn-controls_ps.png"];
     control_option2.normalImage = [CCSprite spriteWithFile:@"btn-controls_dp.png"];
     control_option3.normalImage = [CCSprite spriteWithFile:@"btn-controls_hz.png"];
-
-    switch (mi.tag) {
-        case 0:
+    switch (tag) {
+        case controlProSwipe:
             control_option1.normalImage = [CCSprite spriteWithFile:@"btn-controls_ps_sel.png"];
             break;
-        case 1:
+        case controlDpad:
             control_option2.normalImage = [CCSprite spriteWithFile:@"btn-controls_dp_sel.png"];
             break;
-        case 2:
+        case controlNoDpad:
             control_option3.normalImage = [CCSprite spriteWithFile:@"btn-controls_hz_sel.png"];
             break;
         default:
             break;
     }
-    
+}
+
+-(void)controllerButtonPressed:(id)sender {
+    CCMenuItemSprite *mi = (CCMenuItemSprite*)sender;
+    [self setControlButtonSelected:(GameControlType)mi.tag];   
     [self setControlType:(GameControlType)mi.tag];
 }
 
 -(void)setControlType:(GameControlType)type {
     [[GameLayer getInstance].controls setControlType:type];
-    
 }
 
 -(void) restartGameFromPause {
     [[GameLayer getInstance] restartGameFromPause];
+}
+
+-(void) show {
+    // update buttons if settings have changed
+    [self setControlButtonSelected:[[GameLayer getInstance].controls getControlType]];
+    [super show];
 }
 
 @end
