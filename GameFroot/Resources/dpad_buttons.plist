@@ -7,7 +7,7 @@
             <key>a_button_down.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{196,64},{64,60}}</string>
+                <string>{{132,0},{64,60}}</string>
                 <key>offset</key>
                 <string>{0,-1}</string>
                 <key>rotated</key>
@@ -20,7 +20,7 @@
             <key>a_button_up.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{132,64},{64,64}}</string>
+                <string>{{64,392},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -33,7 +33,7 @@
             <key>b_button_down.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{196,0},{64,60}}</string>
+                <string>{{128,392},{64,60}}</string>
                 <key>offset</key>
                 <string>{0,-1}</string>
                 <key>rotated</key>
@@ -46,7 +46,7 @@
             <key>b_button_up.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{132,0},{64,64}}</string>
+                <string>{{0,392},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -59,7 +59,7 @@
             <key>d_pad_diagonal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,132},{130,130}}</string>
+                <string>{{0,262},{130,130}}</string>
                 <key>offset</key>
                 <string>{1,2}</string>
                 <key>rotated</key>
@@ -85,13 +85,26 @@
             <key>d_pad_normal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,262},{128,128}}</string>
+                <string>{{130,132},{128,128}}</string>
                 <key>offset</key>
                 <string>{0,1}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
                 <string>{{4,3},{128,128}}</string>
+                <key>sourceSize</key>
+                <string>{136,136}</string>
+            </dict>
+            <key>ring.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{0,132},{130,130}}</string>
+                <key>offset</key>
+                <string>{-1,1}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{2,2},{130,130}}</string>
                 <key>sourceSize</key>
                 <string>{136,136}</string>
             </dict>
@@ -103,9 +116,9 @@
             <key>realTextureFileName</key>
             <string>dpad_buttons.png</string>
             <key>size</key>
-            <string>{256,390}</string>
+            <string>{258,456}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:64e7e8e6c7b2efb7ad692cb49bcfdb4e$</string>
+            <string>$TexturePacker:SmartUpdate:ac8000e41f6e6a2e88f1e3140bc348bf$</string>
             <key>textureFileName</key>
             <string>dpad_buttons.png</string>
         </dict>
