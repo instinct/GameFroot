@@ -7,93 +7,93 @@
             <key>a_button_down.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{196,64},{64,60}}</string>
+                <string>{{392,128},{128,120}}</string>
                 <key>offset</key>
-                <string>{0,-1}</string>
+                <string>{0,-3}</string>
                 <key>rotated</key>
                 <true/>
                 <key>sourceColorRect</key>
-                <string>{{0,3},{64,60}}</string>
+                <string>{{0,7},{128,120}}</string>
                 <key>sourceSize</key>
-                <string>{64,64}</string>
+                <string>{128,128}</string>
             </dict>
             <key>a_button_up.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{132,64},{64,64}}</string>
+                <string>{{264,128},{128,128}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{0,0},{64,64}}</string>
+                <string>{{0,0},{128,128}}</string>
                 <key>sourceSize</key>
-                <string>{64,64}</string>
+                <string>{128,128}</string>
             </dict>
             <key>b_button_down.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{196,0},{64,60}}</string>
+                <string>{{392,0},{128,120}}</string>
                 <key>offset</key>
-                <string>{0,-1}</string>
+                <string>{0,-3}</string>
                 <key>rotated</key>
                 <true/>
                 <key>sourceColorRect</key>
-                <string>{{0,3},{64,60}}</string>
+                <string>{{0,7},{128,120}}</string>
                 <key>sourceSize</key>
-                <string>{64,64}</string>
+                <string>{128,128}</string>
             </dict>
             <key>b_button_up.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{132,0},{64,64}}</string>
+                <string>{{264,0},{128,128}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{0,0},{64,64}}</string>
+                <string>{{0,0},{128,128}}</string>
                 <key>sourceSize</key>
-                <string>{64,64}</string>
+                <string>{128,128}</string>
             </dict>
             <key>d_pad_diagonal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,132},{130,130}}</string>
+                <string>{{0,264},{262,260}}</string>
                 <key>offset</key>
-                <string>{1,2}</string>
+                <string>{2,3}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{4,1},{130,130}}</string>
+                <string>{{7,3},{262,260}}</string>
                 <key>sourceSize</key>
-                <string>{136,136}</string>
+                <string>{272,272}</string>
             </dict>
             <key>d_pad_horizontal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,0},{132,132}}</string>
+                <string>{{0,0},{264,264}}</string>
                 <key>offset</key>
                 <string>{-1,1}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{1,1},{132,132}}</string>
+                <string>{{3,3},{264,264}}</string>
                 <key>sourceSize</key>
-                <string>{136,136}</string>
+                <string>{272,272}</string>
             </dict>
             <key>d_pad_normal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,262},{128,128}}</string>
+                <string>{{0,524},{258,258}}</string>
                 <key>offset</key>
-                <string>{0,1}</string>
+                <string>{0,2}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{4,3},{128,128}}</string>
+                <string>{{7,5},{258,258}}</string>
                 <key>sourceSize</key>
-                <string>{136,136}</string>
+                <string>{272,272}</string>
             </dict>
         </dict>
         <key>metadata</key>
@@ -101,13 +101,13 @@
             <key>format</key>
             <integer>2</integer>
             <key>realTextureFileName</key>
-            <string>dpad_buttons.png</string>
+            <string>dpad_buttons-hd.png</string>
             <key>size</key>
-            <string>{256,390}</string>
+            <string>{512,782}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:64e7e8e6c7b2efb7ad692cb49bcfdb4e$</string>
+            <string>$TexturePacker:SmartUpdate:943e7af4fbf215004720ca017c2136d3$</string>
             <key>textureFileName</key>
-            <string>dpad_buttons.png</string>
+            <string>dpad_buttons-hd.png</string>
         </dict>
     </dict>
 </plist>
