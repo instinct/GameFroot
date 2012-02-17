@@ -567,7 +567,7 @@
 
 
 // Use this to trace the dpad hit areas
-
+/*
 -(void) visit {
 	[super visit];
 	[Shared drawCGRect:dpadTouchArea];
@@ -580,5 +580,6 @@
 	//[Shared drawCGRect: jumpArea];
 	//[Shared drawCGRect: shootArea];
 }
+*/
 
 @end
