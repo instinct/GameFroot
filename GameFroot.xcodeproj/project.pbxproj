@@ -427,8 +427,6 @@
 		1643B75F14D9BA2000A67057 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1643B75D14D9BA2000A67057 /* CFNetwork.framework */; };
 		165906BD14E2B38E00321213 /* Controls.mm in Sources */ = {isa = PBXBuildFile; fileRef = 165906BC14E2B38D00321213 /* Controls.mm */; };
 		165BEB0114E2FC5100CF9A2B /* Pause.mm in Sources */ = {isa = PBXBuildFile; fileRef = 165BEB0014E2FC5100CF9A2B /* Pause.mm */; };
-		165CC1E014EDD21500318C3B /* dpad_buttons-hd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 165CC1DE14EDD21500318C3B /* dpad_buttons-hd.plist */; };
-		165CC1E114EDD21500318C3B /* dpad_buttons-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 165CC1DF14EDD21500318C3B /* dpad_buttons-hd.png */; };
 		166977F714E280DE0081176B /* rate_controls_mockup-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 166977F614E280DE0081176B /* rate_controls_mockup-hd.png */; };
 		169FA25D14E1DDD000E671F5 /* placeholder_back_arrow-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 169FA25A14E1DDD000E671F5 /* placeholder_back_arrow-hd.png */; };
 		169FA25E14E1DDD000E671F5 /* placeholder_play_arrow-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 169FA25B14E1DDD000E671F5 /* placeholder_play_arrow-hd.png */; };
@@ -1111,8 +1109,6 @@
 		165906BC14E2B38D00321213 /* Controls.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Controls.mm; sourceTree = "<group>"; };
 		165BEAFF14E2FC5100CF9A2B /* Pause.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pause.h; sourceTree = "<group>"; };
 		165BEB0014E2FC5100CF9A2B /* Pause.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Pause.mm; sourceTree = "<group>"; };
-		165CC1DE14EDD21500318C3B /* dpad_buttons-hd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "dpad_buttons-hd.plist"; path = "Resources/dpad_buttons-hd.plist"; sourceTree = "<group>"; };
-		165CC1DF14EDD21500318C3B /* dpad_buttons-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "dpad_buttons-hd.png"; path = "Resources/dpad_buttons-hd.png"; sourceTree = "<group>"; };
 		166977F614E280DE0081176B /* rate_controls_mockup-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "rate_controls_mockup-hd.png"; sourceTree = "<group>"; };
 		169FA25A14E1DDD000E671F5 /* placeholder_back_arrow-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "placeholder_back_arrow-hd.png"; sourceTree = "<group>"; };
 		169FA25B14E1DDD000E671F5 /* placeholder_play_arrow-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "placeholder_play_arrow-hd.png"; sourceTree = "<group>"; };
@@ -1239,8 +1235,6 @@
 				1643B4E214D9B0BC00A67057 /* Default@2x.png */,
 				1643B4E314D9B0BC00A67057 /* dialogue_background-hd.png */,
 				1643B4E414D9B0BC00A67057 /* dialogue_background.png */,
-				165CC1DE14EDD21500318C3B /* dpad_buttons-hd.plist */,
-				165CC1DF14EDD21500318C3B /* dpad_buttons-hd.png */,
 				1643B4E514D9B0BC00A67057 /* dpad_buttons.plist */,
 				1643B4E614D9B0BC00A67057 /* dpad_buttons.png */,
 				1643B4E714D9B0BC00A67057 /* fps_images.png */,
@@ -2531,8 +2525,6 @@
 				22E0E22014EB3C6700951996 /* btn-controls_ps.png in Resources */,
 				22E0E22314EB49DF00951996 /* label-controls.png in Resources */,
 				22E0E22514EB4E2500951996 /* label-controls-hd.png in Resources */,
-				165CC1E014EDD21500318C3B /* dpad_buttons-hd.plist in Resources */,
-				165CC1E114EDD21500318C3B /* dpad_buttons-hd.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
