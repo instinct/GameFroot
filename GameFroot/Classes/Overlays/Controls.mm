@@ -24,8 +24,6 @@
         CGSize size = [[CCDirector sharedDirector] winSize];
 
         dpadInitialPosition = ccp(CONTROLS_INIT_X,CONTROLS_INIT_Y);
-        maxDpadTravel = CONTROLS_MAX_TRAVEL;
-        deadSpotSize = CONTROLS_DEAD_SPOT_SIZE;
         
         leftJoy = [CCSprite spriteWithSpriteFrameName:@"d_pad_normal.png"];
         [leftJoy setScale:CC_CONTENT_SCALE_FACTOR()];
@@ -66,6 +64,9 @@
         dpadTouchArea = CGRectMake(0, size.height, size.width/2 + 20, size.height);
         aButtonTouchArea = CGRectMake(rightBut.position.x - (rightBut.contentSize.width/2) - 20, size.height, rightBut.contentSize.width + 45, size.height);
         bButtonTouchArea = CGRectMake(leftBut.position.x - (leftBut.contentSize.width/2) - 35, size.height, leftBut.contentSize.width + 45, size.height);
+        
+        // TODO: Change to center on visuals when availible.
+        midPointAnchor = (dpadTouchArea.origin.x + dpadTouchArea.size.width/2);
         
         jumpArea = aButtonTouchArea;
         shootArea = bButtonTouchArea;
@@ -311,8 +312,8 @@
         
         // is point within trackable location?
         if (CGRectContainsPoint(CGRectMake(dpadTouchArea.origin.x, size.height - dpadTouchArea.origin.y, dpadTouchArea.size.width, dpadTouchArea.size.height), location)) {
-            proSwipeRing.position = location;
             gestureStartTime = event.timestamp;
+            gestureStartPoint = location;
             dpadTouch = touch;
             [self processProSwipeTouch:touch withEvent:event andLocation:location];
         }
@@ -360,7 +361,7 @@
             CGFloat diffY = gestureStartPoint.y - location.y;	
             //CCLOG(@"swipes, diffX:%f, diffY:%f", diffX, diffY);
             
-            if (diffY > 80) {
+            if (diffY > CONTROLS_PRONE_TRIGGER) {
                 // swipe down
                 [player prone];
             }
@@ -406,6 +407,15 @@
                 [player resetJump];
                 jumpTouch = nil;
             }
+             
+             // Detect swipe
+             CGFloat diffY = gestureStartPoint.y - location.y;	
+             //CCLOG(@"swipes, diffX:%f, diffY:%f", diffX, diffY);
+             
+             if (diffY > CONTROLS_PRONE_TRIGGER) {
+                 // swipe down
+                 [player prone];
+             }
             
             dpadTouch = nil;
             
@@ -427,163 +437,35 @@
 
 -(void) processProSwipeTouch:(UITouch *)touch withEvent:(UIEvent *)event andLocation:(CGPoint)location {
     
-    CGSize size = [[CCDirector sharedDirector] winSize];
-    
     if (dpadTouch == jumpTouch) {
         [player resetJump];
         jumpTouch = nil;
     }
     
     if (touch == dpadTouch) {
-        // work out magnatude of control travel, (also maybe useful later for analog control)
-        float magnitude = sqrtf(powf(gestureStartPoint.x - location.x, 2) + powf(gestureStartPoint.y - location.y, 2));
         
-        //CCLOG(@"magnitude: %f", magnitude);
-       
-        
-        int lastDirections = directions;
-        directions = 0;
-        
-        // work out general directions of travel so we can derive a quadrant
-        if (!CGPointEqualToPoint(location, gestureStartPoint)) {
-            directions |= (location.x > gestureStartPoint.x) ? right : 0;
-            directions |= (location.x < gestureStartPoint.x) ? left : 0;
-            directions |= (location.y > gestureStartPoint.y) ? up : 0;
-            directions |= (location.y < gestureStartPoint.y) ? down : 0;
-        }
-        
-        // move control within bound
-        if(CGRectContainsPoint(CGRectMake(dpadTouchArea.origin.x, size.height - dpadTouchArea.origin.y, dpadTouchArea.size.width, dpadTouchArea.size.height), location)) {
-            proSwipeRing.position = location;
-        }
-        
-        /*
-            inertia processing
-            
-            Taking into account last directions moved, current
-            directions and magnitude, decide if the current
-            move should be allowed.
-         */
-        
-        bool inertiaExeeded = YES;
-        // we need to check for direction reversal
-        if((((lastDirections & left) == left) && ((directions & right) == right))
-           || (((lastDirections & right ) == right) && ((directions & left) == left))) {
-            
-            CCLOG(@"magnitude: %f", magnitude);
-            
-            if(magnitude > CONTROLS_DIRECTION_INERTIA) {
-                inertiaExeeded = NO;
-                directions = lastDirections;
+        // Process movement
+        float travel = location.x - midPointAnchor;
+        // move if greater than dead spot size
+        if(ABS(travel) > CONTROLS_DEAD_SPOT_SIZE) {
+            if(travel > 0) {
+                [player moveRight];  
+            } else if(travel < 0) {
+                [player moveLeft];  
+            } else {
+                [player stop];  
             }
             
-            CCLOG(@"inertiaExeeded: %i", inertiaExeeded);
-            
-            if(magnitude > CONTROLS_DIRECTION_INERTIA) CCLOG(@"inertial damping activated, magnitude: %f", magnitude);
-            
-        }
-        // if magnitude within deadspot radius or ourside travel, don't register
-        if((magnitude >= deadSpotSize) && (magnitude <= maxDpadTravel) && inertiaExeeded) {
-            
-            // use some trig to get the angle
-            float angle = asinf((abs(location.y - gestureStartPoint.y))/magnitude);
-            
-            //convert to degrees
-            angle *= (180/M_PI);
-            bool withinDiag = (angle >= CONTROLS_DIAG_LOWER && angle <= CONTROLS_DIAG_UPPER);
-            
-            switch (directions) {
-                case 1:
-                    // up
-                    //[player jump];
-                    //CCLOG(@"up");
-                    break;
-                case 2:
-                    // down
-                    //CCLOG(@"down");
-                    [player prone];
-                    break;
-                case 4:
-                    // left
-                    //CCLOG(@"left");
-                    [player moveLeft];
-                    break;
-                case 5:
-                    // upperleft diag
-                    if (withinDiag) {
-                        //CCLOG(@"uperleft diag");
-                        // [player jumpDirection:kDirectionLeft];
-                    } else {
-                        if (angle < CONTROLS_DIAG_LOWER) {
-                            //CCLOG(@"left uld lde");
-                            [player moveLeft];
-                        } else {
-                            //CCLOG(@"jump uld ude");
-                            // [player jump];
-                        }
-                    }
-                    break;
-                case 6:
-                    // lowerleft diag
-                    if (withinDiag) {
-                        //CCLOG(@"lowerleft diag");
-                        [player prone];
-                    } else {
-                        if (angle < CONTROLS_DIAG_LOWER) {
-                            //CCLOG(@"left lld lde");
-                            [player moveLeft];
-                        } else {
-                            //CCLOG(@"crouch lld ude");
-                            [player stop];
-                            [player prone];
-                        }
-                    }
-                    
-                    break;
-                case 8:
-                    // right
-                    //CCLOG(@"right");
-                    [player moveRight];
-                    break;
-                case 9:
-                    // upperright diag
-                    if (withinDiag) {
-                        //CCLOG(@"upperright diag");
-                        // [player jumpDirection:kDirectionRight];
-                    } else {
-                        if (angle < CONTROLS_DIAG_LOWER) {
-                            //CCLOG(@"right urd lde");
-                            [player moveRight];
-                        } else {
-                            //CCLOG(@"jump urd ude");
-                            // [player jump];
-                        }
-                    }
-                    break;
-                case 10:
-                    // lowerright diag
-                    if (withinDiag) {
-                        //CCLOG(@"lowerright diag");
-                        [player prone];
-                    } else {
-                        if (angle < CONTROLS_DIAG_LOWER) {
-                            //CCLOG(@"right lrd lde");
-                            [player moveRight];
-                        } else {
-                            //CCLOG(@"crouch lrd ude");
-                            [player stop];
-                            [player prone];
-                        }
-                    }
-                    break;
-                default:
-                    //CCLOG(@"default");
-                    break;
+            // if size of swipe is greater than max travel,
+            // move anchorpoint.
+            if(ABS(travel) > CONTROLS_MAX_TRAVEL) {
+                if (travel > 0) {
+                    midPointAnchor += (travel - CONTROLS_MAX_TRAVEL); 
+                } else {
+                    midPointAnchor += (travel + CONTROLS_MAX_TRAVEL);
+                }
             }
-        } else {
-            //[player stop];
         }
-        gestureStartPoint = location;
     }
 }
 
@@ -685,18 +567,18 @@
 
 
 // Use this to trace the dpad hit areas
-/*
+
 -(void) visit {
 	[super visit];
-	//[Shared drawCGRect:dpadTouchArea];
-    //[Shared drawCGRect:aButtonTouchArea];
-    //[Shared drawCGRect:bButtonTouchArea];
-	[Shared drawTriangle: northMoveArea direction:@"north"];
-	[Shared drawTriangle: southMoveArea direction:@"south"];
-	[Shared drawTriangle: eastMoveArea direction:@"east"];
-	[Shared drawTriangle: westMoveArea direction:@"west"];
-	[Shared drawCGRect: jumpArea];
-	[Shared drawCGRect: shootArea];
+	[Shared drawCGRect:dpadTouchArea];
+    [Shared drawCGRect:aButtonTouchArea];
+    [Shared drawCGRect:bButtonTouchArea];
+	//[Shared drawTriangle: northMoveArea direction:@"north"];
+	//[Shared drawTriangle: southMoveArea direction:@"south"];
+	//[Shared drawTriangle: eastMoveArea direction:@"east"];
+	//[Shared drawTriangle: westMoveArea direction:@"west"];
+	//[Shared drawCGRect: jumpArea];
+	//[Shared drawCGRect: shootArea];
 }
-*/
+
 @end
