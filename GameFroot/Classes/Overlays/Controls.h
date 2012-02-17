@@ -14,12 +14,14 @@ enum direction {up=1, down=2, left=4, right=8};
 
 
 // Pro swipe constants
-#define CONTROLS_MAX_TRAVEL 1000
+#define CONTROLS_MAX_TRAVEL 40
 #define CONTROLS_DEAD_SPOT_SIZE 1
 #define CONTROLS_INIT_X 76
 #define CONTROLS_INIT_Y 66
 #define CONTROLS_DIAG_LOWER 30
 #define CONTROLS_DIAG_UPPER 60
+#define CONTROLS_DIRECTION_INERTIA 50
+#define CONTROLS_CROUCH_INERTIA 5
 
 @class Player;
 
@@ -48,6 +50,7 @@ enum direction {up=1, down=2, left=4, right=8};
     CGPoint dpadInitialPosition;
     float maxDpadTravel;
     float deadSpotSize;
+    int directions;
     
     // Touch controls
 	CGPoint	gestureStartPoint;
@@ -62,6 +65,7 @@ enum direction {up=1, down=2, left=4, right=8};
     
     GameControlType controlType;
     Player *player;
+    
 }
 
 +(id) controlsWithFile:(NSString *)filename;

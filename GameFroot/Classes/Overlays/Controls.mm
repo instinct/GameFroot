@@ -315,7 +315,6 @@
             gestureStartTime = event.timestamp;
             dpadTouch = touch;
             [self processProSwipeTouch:touch withEvent:event andLocation:location];
-            CCLOG(@"dpad touch began");
         }
         
         if (CGRectContainsPoint(CGRectMake(aButtonTouchArea.origin.x, size.height - aButtonTouchArea.origin.y, aButtonTouchArea.size.width, aButtonTouchArea.size.height), location)) {
@@ -439,9 +438,11 @@
         // work out magnatude of control travel, (also maybe useful later for analog control)
         float magnitude = sqrtf(powf(gestureStartPoint.x - location.x, 2) + powf(gestureStartPoint.y - location.y, 2));
         
-        CCLOG(@"magnitude: %f", magnitude);
+        //CCLOG(@"magnitude: %f", magnitude);
+       
         
-        int directions = 0;
+        int lastDirections = directions;
+        directions = 0;
         
         // work out general directions of travel so we can derive a quadrant
         if (!CGPointEqualToPoint(location, gestureStartPoint)) {
@@ -453,11 +454,36 @@
         
         // move control within bound
         if(CGRectContainsPoint(CGRectMake(dpadTouchArea.origin.x, size.height - dpadTouchArea.origin.y, dpadTouchArea.size.width, dpadTouchArea.size.height), location)) {
-            proSwipeRing.position = location;                
+            proSwipeRing.position = location;
         }
         
+        /*
+            inertia processing
+            
+            Taking into account last directions moved, current
+            directions and magnitude, decide if the current
+            move should be allowed.
+         */
+        
+        bool inertiaExeeded = YES;
+        // we need to check for direction reversal
+        if((((lastDirections & left) == left) && ((directions & right) == right))
+           || (((lastDirections & right ) == right) && ((directions & left) == left))) {
+            
+            CCLOG(@"magnitude: %f", magnitude);
+            
+            if(magnitude > CONTROLS_DIRECTION_INERTIA) {
+                inertiaExeeded = NO;
+                directions = lastDirections;
+            }
+            
+            CCLOG(@"inertiaExeeded: %i", inertiaExeeded);
+            
+            if(magnitude > CONTROLS_DIRECTION_INERTIA) CCLOG(@"inertial damping activated, magnitude: %f", magnitude);
+            
+        }
         // if magnitude within deadspot radius or ourside travel, don't register
-        if((magnitude >= deadSpotSize) && (magnitude <= maxDpadTravel)) {
+        if((magnitude >= deadSpotSize) && (magnitude <= maxDpadTravel) && inertiaExeeded) {
             
             // use some trig to get the angle
             float angle = asinf((abs(location.y - gestureStartPoint.y))/magnitude);
