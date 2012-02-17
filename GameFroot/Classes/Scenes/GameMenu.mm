@@ -36,7 +36,7 @@
         CCMenuItemSprite *helpButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"placeholder_game_menu_help.png"] selectedSprite:[CCSprite spriteWithFile:@"placeholder_game_menu_help.png"] target:self selector:@selector(_onHelp:)];
         
         CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-main-menu2.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-main-menu2.png"] target:self selector:@selector(backMenu:)];
-		[backButton setScale:0.75*CC_CONTENT_SCALE_FACTOR()];	
+		[backButton setScale:0.75];	
         
         CCMenu *mainMenu = [CCMenu menuWithItems:_playButton, helpButton, backButton, nil];
         [mainMenu alignItemsVerticallyWithPadding:4.0f];

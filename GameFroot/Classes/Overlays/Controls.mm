@@ -26,18 +26,15 @@
         dpadInitialPosition = ccp(CONTROLS_INIT_X,CONTROLS_INIT_Y);
         
         leftJoy = [CCSprite spriteWithSpriteFrameName:@"d_pad_normal.png"];
-        [leftJoy setScale:CC_CONTENT_SCALE_FACTOR()];
         [leftJoy setOpacity:125];
         leftJoy.position = dpadInitialPosition;        
     
         
         leftBut = [CCSprite spriteWithSpriteFrameName:@"b_button_up.png"];
-        [leftBut setScale:CC_CONTENT_SCALE_FACTOR()];
         [leftBut setOpacity:125];
         leftBut.position = ccp(330,56);
         
         rightBut = [CCSprite spriteWithSpriteFrameName:@"a_button_up.png"];
-        [rightBut setScale:CC_CONTENT_SCALE_FACTOR()];
         [rightBut setOpacity:125];
         rightBut.position = ccp(424,56);
         

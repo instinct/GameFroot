@@ -71,12 +71,11 @@
 		[menuPause alignItemsVertically];
 		
         [self addChild:menuPause];
-		[self setScale:CC_CONTENT_SCALE_FACTOR()];
         
         CCMenuItemSprite *restartButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-replay.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-replay.png"] target:self selector:@selector(restartGameFromPause)];
 		[restartButton setScale:0.75];		
 		CCMenu *menuRestart = [CCMenu menuWithItems:restartButton, nil];
-		menuRestart.position = ccp(size.width/2, size.height/2 - 130/CC_CONTENT_SCALE_FACTOR());
+		menuRestart.position = ccp(size.width/2, size.height/2 - 130);
 		[self addChild:menuRestart];
 	}
 	return self;
