@@ -318,8 +318,7 @@
         if (CGRectContainsPoint(CGRectMake(aButtonTouchArea.origin.x, size.height - aButtonTouchArea.origin.y, aButtonTouchArea.size.width, aButtonTouchArea.size.height), location)) {
             [rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_down.png"]];
             
-            jumpTouch = touch;
-           
+            dpadTouch = touch;
             [player jump];
 			jumpTouch = touch;
         }

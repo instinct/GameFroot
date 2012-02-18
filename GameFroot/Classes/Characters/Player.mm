@@ -650,11 +650,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             
             // Delay jump rest to avoid reseting too early (before player actually moves)
             // since this will make the player to not register hitFloor event.
-            id resetAction = [CCSequence actions:
-                              [CCDelayTime actionWithDuration:1.0/60.0],
-                              [CCCallFunc actionWithTarget:self selector:@selector(_resetJump)],
-                              nil];
-            [self runAction:resetAction];
+            [self scheduleOnce:@selector(_resetJump) delay:1.0/60.0f];
 		}
 	}
 }

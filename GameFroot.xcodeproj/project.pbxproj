@@ -771,12 +771,12 @@
 		1643B48814D9B0BC00A67057 /* title-you-win.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "title-you-win.png"; sourceTree = "<group>"; };
 		1643B48A14D9B0BC00A67057 /* collect.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = collect.caf; sourceTree = "<group>"; };
 		1643B48B14D9B0BC00A67057 /* collect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = collect.mp3; sourceTree = "<group>"; };
-		1643B48D14D9B0BC00A67057 /* iphone_items.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = iphone_items.json; sourceTree = "<group>"; };
+		1643B48D14D9B0BC00A67057 /* iphone_items.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = iphone_items.json; sourceTree = "<group>"; };
 		1643B48E14D9B0BC00A67057 /* iphone_items.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iphone_items.png; sourceTree = "<group>"; };
-		1643B48F14D9B0BC00A67057 /* iphone_tiles.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = iphone_tiles.json; sourceTree = "<group>"; };
+		1643B48F14D9B0BC00A67057 /* iphone_tiles.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = iphone_tiles.json; sourceTree = "<group>"; };
 		1643B49014D9B0BC00A67057 /* iphone_tiles.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iphone_tiles.png; sourceTree = "<group>"; };
-		1643B49114D9B0BC00A67057 /* items.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = items.json; sourceTree = "<group>"; };
-		1643B49214D9B0BC00A67057 /* tiles.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = tiles.json; sourceTree = "<group>"; };
+		1643B49114D9B0BC00A67057 /* items.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = items.json; sourceTree = "<group>"; };
+		1643B49214D9B0BC00A67057 /* tiles.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tiles.json; sourceTree = "<group>"; };
 		1643B49314D9B0BC00A67057 /* tiles.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tiles.png; sourceTree = "<group>"; };
 		1643B49614D9B0BC00A67057 /* bullet1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bullet1.png; sourceTree = "<group>"; };
 		1643B49714D9B0BC00A67057 /* bullet_laser.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bullet_laser.png; sourceTree = "<group>"; };
