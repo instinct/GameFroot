@@ -1408,6 +1408,12 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		}
 	}
 	[super setPosition:point];
+    
+    CGPoint mapPos = [self getTilePosition];
+    int tileInFront = 0;
+    if (facingLeft) tileInFront = [[GameLayer getInstance] getTileAt:ccp(mapPos.x-1, mapPos.y)];
+    else tileInFront = [[GameLayer getInstance] getTileAt:ccp(mapPos.x+1, mapPos.y)];
+    //CCLOG(@">>>>> %f,%f => %i", mapPos.x, mapPos.y, tileInFront);
 }
 
 - (void) dealloc

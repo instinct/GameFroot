@@ -878,6 +878,16 @@ GameLayer *instance;
 	body->CreateFixture(&fixtureDef);
 }
 
+-(int) getTileAt:(CGPoint)position
+{
+    int pos = position.x + (position.y*MAP_TILE_WIDTH);
+    if ((pos >= 0) && (pos < 100000)) {
+        //CCLOG(@"get tile at: %f, %f => %i = %i", position.x, position.y, pos, arrayTiles[pos]);
+        return arrayTiles[pos];
+        
+    } else return 0;
+}
+
 -(void) createMapTiles
 {
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -891,7 +901,7 @@ GameLayer *instance;
 	NSSortDescriptor *descriptorY = [[NSSortDescriptor alloc] initWithKey:@"positionY" ascending:YES];
     [arTiles sortUsingDescriptors:[NSArray arrayWithObjects:descriptorZOrder, descriptorX, descriptorY, nil]];
 	//CCLOG(@"%@", arTiles);
-		
+    
 	for (int y = 0; y < mapHeight; y++) {
 		NSPredicate *predicate = [NSPredicate predicateWithFormat:@"positionY = %i", y];
 		NSArray *filteredArray = [arTiles filteredArrayUsingPredicate:predicate];
@@ -1060,6 +1070,11 @@ GameLayer *instance;
 				[sprite setPosition:pos];
 				[sprite setAnchorPoint:ccp(0.5,0.5)];
 				[spriteSheet addChild:sprite z:zorder];
+                
+                // Set arrat tiles
+                int index = dx + (dy*MAP_TILE_WIDTH);
+                //CCLOG(@"set tile %i at %i", behaviour, index);
+                arrayTiles[index] = behaviour;
 				
 				if (frames > 1) {
 					float speed = 0.1f;

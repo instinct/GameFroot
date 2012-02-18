@@ -101,6 +101,8 @@
 	BOOL useDPad;
 	BOOL ignoreCache;
     CGPoint originalPosition;
+    
+    int arrayTiles[10000];
 }
 
 @property(nonatomic,assign) Controls *controls;
@@ -124,7 +126,10 @@
 -(void) loadLevelData:(int)gameID;
 -(void) loadBackgroundLevel;
 -(void) loadTilesLevel;
+
+-(int) getTileAt:(CGPoint)position;
 -(void) createMapTiles;
+
 -(void) createMapItems;
 -(void) loadPlayer;
 -(void) loadEnemies;

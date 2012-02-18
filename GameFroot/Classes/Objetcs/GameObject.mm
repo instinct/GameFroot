@@ -117,6 +117,13 @@
 	}
 }
 
+-(CGPoint) getTilePosition {
+    int dx = (self.position.x - size.width/2.0f) / MAP_TILE_WIDTH;
+    int dy = [GameLayer getInstance].mapHeight - ((self.position.y - size.height/2.0f) / MAP_TILE_HEIGHT);
+    
+    return ccp(dx,dy);
+}
+
 -(void) resetPosition
 {
 	if (removed) {
