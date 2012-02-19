@@ -37,7 +37,7 @@
         
         _progressBar = [CCSprite spriteWithFile:@"loading-bar-overlay.png"];
         [_progressBar setScale:CC_CONTENT_SCALE_FACTOR()];
-        [_progressBar setPosition:ccp(size.width*0.225,size.height/2 - 11)];
+        [_progressBar setPosition:ccp(size.width*0.225,size.height/2 - 8)];
         [_progressBar setAnchorPoint:ccp(0,0.5)];
         
         [self resetProgressBar];

@@ -106,7 +106,6 @@
 	[GameLayer getInstance].world->DestroyBody(body);
     [self stopAllActions];
 	self.visible = NO;
-    [self removeFromParentAndCleanup:YES];
 }
 
 -(void) setPosition:(CGPoint)pos

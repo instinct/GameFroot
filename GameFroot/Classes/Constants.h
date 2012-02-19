@@ -60,4 +60,4 @@ enum GameControlType{
 
 #define REDUCE_FACTOR	0.75f * CC_CONTENT_SCALE_FACTOR()
 
-#define DEBUG_WORLD				1
+#define DEBUG_WORLD				0

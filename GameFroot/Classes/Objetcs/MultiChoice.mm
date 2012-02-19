@@ -10,7 +10,6 @@
 #import "GameLayer.h"
 #import "Robot.h"
 #import "CCLabelBMFontMultiline.h"
-#import "ButtonLabelItem.h"
 
 #define TOUCH_PRIORITY		-10000
 
@@ -33,11 +32,26 @@
         NSDictionary *choice = [choices objectAtIndex:i];
         text = [text stringByAppendingString:[NSString stringWithFormat:@"\n%@", [choice objectForKey:@"choiceText"]]];
         
-        //CCSprite *button = [CCSprite spriteWithFile:@"option-btn.png"];
-        //CCLabelBMFont *label = [CCLabelBMFont labelWithString:[NSString stringWithFormat:@"Option %i",i+1] fntFile:@"Chicago.fnt"];
-        //ButtonLabelItem *option = [ButtonLabelItem itemFromSprite:button withLabel:label target:self selector:@selector(optionSelected:)];
+        CCSprite *button = [CCSprite spriteWithFile:@"option-btn.png"];
+        CCSprite *buttonSelected = [CCSprite spriteWithFile:@"option-btn.png"];
         
-        CCMenuItemFont *option = [CCMenuItemFont itemFromString:[NSString stringWithFormat:@"Option %i",i+1] target:self selector:@selector(optionSelected:)];
+        CCLabelBMFont *label = [CCLabelBMFont labelWithString:[NSString stringWithFormat:@"Option %i",i+1] fntFile:@"Chicago.fnt"];
+        CCLabelBMFont *labelSelected = [CCLabelBMFont labelWithString:[NSString stringWithFormat:@"Option %i",i+1] fntFile:@"Chicago.fnt"];
+        [labelSelected setColor:ccc3(255,255,0)];
+        
+        [label.textureAtlas.texture setAliasTexParameters];
+        [labelSelected.textureAtlas.texture setAliasTexParameters];
+        
+        [label setPosition:ccp(button.contentSize.width/2, button.contentSize.height/2)];
+        [labelSelected setPosition:ccp(buttonSelected.contentSize.width/2, buttonSelected.contentSize.height/2)];
+        
+        [button addChild:label];
+        [buttonSelected addChild:labelSelected];
+        
+        CCMenuItemSprite *option = [CCMenuItemSprite itemFromNormalSprite:button selectedSprite:buttonSelected target:self selector:@selector(optionSelected:)];
+
+        //CCMenuItemFont *option = [CCMenuItemFont itemFromString:[NSString stringWithFormat:@"Option %i",i+1] target:self selector:@selector(optionSelected:)];
+        
         option.tag = i;
         [optionsMenu addChild:option];
     }
@@ -46,8 +60,8 @@
     else if (count == 3) [optionsMenu alignItemsInRows:[NSNumber numberWithInt:2],[NSNumber numberWithInt:2],nil];
     else if (count == 2) [optionsMenu alignItemsHorizontally];
     else [optionsMenu alignItemsHorizontally];
-        
-    [optionsMenu setPosition:ccp(size.width/2, size.height/2 + 60)];
+    
+    [optionsMenu setPosition:ccp(size.width/2, size.height/2 + 25)];
     [self addChild:optionsMenu z:3];
 	
 	//[[CCTouchDispatcher sharedDispatcher] addTargetedDelegate:self priority:TOUCH_PRIORITY swallowsTouches:YES];

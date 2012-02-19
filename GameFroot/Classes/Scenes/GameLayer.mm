@@ -31,6 +31,8 @@
 #import "Controls.h"
 #import "Pause.h"
 #import "NextLevel.h"
+#import "IntermediateLayer.h"
+#import "Completed.h"
 #import "SimpleAudioEngine.h"
 //#import "InputController.h"
 
@@ -475,7 +477,7 @@ GameLayer *instance;
 	// Loading
 	nextLevel = [NextLevel node];
 	[nextLevel setPosition:ccp(0,0)];
-	[self addChild:nextLevel z:1000];
+	[self addChild:nextLevel z:1001];
     [nextLevel resetProgressBar];
     parts = 7;
     partsLoaded = 0;
@@ -2010,9 +2012,17 @@ GameLayer *instance;
     [[CCDirector sharedDirector] startAnimation];
     [[GameLayer getInstance] resume];
     
-    [robotMultiChoice receiveMessage:answer];
-    
     [[GameLayer getInstance] removeOverlay:multiChoice];
+    
+    id action = [CCSequence actions:
+                 [CCDelayTime actionWithDuration:1.0/60.0],
+                 [CCCallFuncND actionWithTarget:self selector:@selector(_robotReceiveAnswer:data:) data:answer],
+                 nil];
+	[self runAction: action];
+}
+
+-(void) _robotReceiveAnswer:(id)selector data:(NSString *) answer {
+    [robotMultiChoice receiveMessage:answer];
 }
 
 -(void) jetpack
@@ -2147,7 +2157,33 @@ GameLayer *instance;
 -(void) loadNextLevel:(int)gameID
 {
     [Shared setNextLevelID:gameID];
-    [[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
+    
+    // IMPORTANT!! It seems we cannot replace scene with another instance of current scene,
+    // so I created an intermediate scene that will simply load the game scene again.
+    [[CCDirector sharedDirector] replaceScene:[IntermediateLayer scene]];
+}
+
+-(void) completeAndLoadNextLevel:(int)gameID withTitle:(NSString *)text
+{
+    [Shared setNextLevelID:gameID];
+    
+    lock = YES;
+	
+	[player stop];
+    
+    Completed *completed = [Completed node];
+    [completed setup:text];
+	[self addOverlay:completed];
+}
+
+-(void) loseGameWithText:(NSString *)text
+{
+    [self loseGame];
+}
+
+-(void) winGameWithText:(NSString *)text
+{
+    [self winGame];
 }
 
 -(void) quitGame

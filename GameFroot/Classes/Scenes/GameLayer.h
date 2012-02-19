@@ -207,6 +207,9 @@
 -(void) resetControls;
 
 -(void) loadNextLevel:(int)gameID;
+-(void) completeAndLoadNextLevel:(int)gameID withTitle:(NSString *)text;
+-(void) loseGameWithText:(NSString *)text;
+-(void) winGameWithText:(NSString *)text;
 
 -(void) loseGame;
 -(void) winGame;

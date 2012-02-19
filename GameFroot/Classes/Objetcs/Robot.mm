@@ -493,17 +493,21 @@
 
 -(void) completeLevelAndGoto:(NSDictionary *)command
 {
-    CCLOG(@"Robot.completeLevelAndGoto: %@", command);
+    //CCLOG(@"Robot.completeLevelAndGoto: %@", command);
+    int gameID = [[command objectForKey:@"level"] intValue];
+    [[GameLayer getInstance] completeAndLoadNextLevel:(int)gameID withTitle:[command objectForKey:@"text"]];
 }
 
 -(void) endGameSuccess:(NSDictionary *)command
 {
-    CCLOG(@"Robot.endGameSuccess: %@", command);
+    //CCLOG(@"Robot.endGameSuccess: %@", command);
+    [[GameLayer getInstance] winGameWithText:[command objectForKey:@"text"]];
 }
 
 -(void) endGameFailure:(NSDictionary *)command
 {
-    CCLOG(@"Robot.endGameFailure: %@", command);
+    //CCLOG(@"Robot.endGameFailure: %@", command);
+    [[GameLayer getInstance] loseGameWithText:[command objectForKey:@"text"]];
 }
 
 -(NSNumber *) isVisible:(id)obj
