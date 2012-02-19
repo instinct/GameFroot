@@ -23,11 +23,7 @@
 	read = NO;
 	
 	[[CCTouchDispatcher sharedDispatcher] addTargetedDelegate:self priority:TOUCH_PRIORITY swallowsTouches:YES];
-}
 
-//-(void) remove
--(void) display
-{
 	//CGSize s = [[CCDirector sharedDirector] winSize];
 	
 	background = [CCSprite spriteWithFile:@"dialogue_background.png"];
@@ -73,7 +69,8 @@
 	[[CCDirector sharedDirector] stopAnimation];
 	[[GameLayer getInstance] stopPlayer];
 	[[GameLayer getInstance] pause];
-	
+	[[GameLayer getInstance] resetControls];
+    
 	read = YES;
 }
 

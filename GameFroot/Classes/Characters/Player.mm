@@ -886,15 +886,15 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 
 -(void) increaseLive:(int)amount
 {
-	lives++;
+	lives += amount;
 	[[GameLayer getInstance] setLives:lives];
 }
 
 -(void) decreaseLive:(int)amount
 {
-	if (lives < 1) [self die];
+	if (lives < amount) [self die];
 	else {
-		lives--;
+		lives -= amount;
 		[[GameLayer getInstance] setLives:lives];
 	}
 }
@@ -1225,12 +1225,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 -(void) changeToPosition:(CGPoint)pos
 {
 	auxPos = pos;
-	
-	id change = [CCSequence actions:
-				 [CCDelayTime actionWithDuration:1.0/60.0],
-				 [CCCallFunc actionWithTarget:self selector:@selector(_changeToPosition)],
-				 nil];
-	[self runAction:change];
+    
+    [self scheduleOnce:@selector(_changeToPosition) delay:1.0/60.0];
 }
 
 -(void) _changeToPosition

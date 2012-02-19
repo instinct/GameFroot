@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1604BB9414F07DAB007664B6 /* MultiChoice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1604BB9314F07DAB007664B6 /* MultiChoice.mm */; };
 		1616ADDA14E8098D004FF504 /* weapon_0_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADD314E8098D004FF504 /* weapon_0_single.png */; };
 		1616ADDB14E8098D004FF504 /* weapon_1_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADD414E8098D004FF504 /* weapon_1_single.png */; };
 		1616ADDC14E8098D004FF504 /* weapon_2_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADD514E8098D004FF504 /* weapon_2_single.png */; };
@@ -15,6 +16,7 @@
 		1616ADDF14E8098D004FF504 /* weapon_5_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADD814E8098D004FF504 /* weapon_5_single.png */; };
 		1616ADE014E8098D004FF504 /* weapon_6_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADD914E8098D004FF504 /* weapon_6_single.png */; };
 		1616ADE214E809A6004FF504 /* jetpack-single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADE114E809A6004FF504 /* jetpack-single.png */; };
+		162B76A914F0640F0068C710 /* NextLevel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 162B76A814F0640F0068C710 /* NextLevel.mm */; };
 		1643B23F14D9B00F00A67057 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1643B23E14D9B00F00A67057 /* QuartzCore.framework */; };
 		1643B24114D9B00F00A67057 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1643B24014D9B00F00A67057 /* OpenGLES.framework */; };
 		1643B24314D9B00F00A67057 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1643B24214D9B00F00A67057 /* OpenAL.framework */; };
@@ -284,10 +286,6 @@
 		1643B5BD14D9B0BC00A67057 /* dpad_buttons.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1643B4E514D9B0BC00A67057 /* dpad_buttons.plist */; };
 		1643B5BE14D9B0BC00A67057 /* dpad_buttons.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B4E614D9B0BC00A67057 /* dpad_buttons.png */; };
 		1643B5BF14D9B0BC00A67057 /* fps_images.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B4E714D9B0BC00A67057 /* fps_images.png */; };
-		1643B5C314D9B0BC00A67057 /* hud_fake-hd.fnt in Resources */ = {isa = PBXBuildFile; fileRef = 1643B4EB14D9B0BC00A67057 /* hud_fake-hd.fnt */; };
-		1643B5C414D9B0BC00A67057 /* hud_fake-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B4EC14D9B0BC00A67057 /* hud_fake-hd.png */; };
-		1643B5C514D9B0BC00A67057 /* hud_fake.fnt in Resources */ = {isa = PBXBuildFile; fileRef = 1643B4ED14D9B0BC00A67057 /* hud_fake.fnt */; };
-		1643B5C614D9B0BC00A67057 /* hud_fake.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B4EE14D9B0BC00A67057 /* hud_fake.png */; };
 		1643B5C714D9B0BC00A67057 /* hud_spritesheet-hd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1643B4EF14D9B0BC00A67057 /* hud_spritesheet-hd.plist */; };
 		1643B5C814D9B0BC00A67057 /* hud_spritesheet-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B4F014D9B0BC00A67057 /* hud_spritesheet-hd.png */; };
 		1643B5C914D9B0BC00A67057 /* hud_spritesheet.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1643B4F114D9B0BC00A67057 /* hud_spritesheet.plist */; };
@@ -468,6 +466,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1604BB9214F07DAB007664B6 /* MultiChoice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MultiChoice.h; sourceTree = "<group>"; };
+		1604BB9314F07DAB007664B6 /* MultiChoice.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MultiChoice.mm; sourceTree = "<group>"; };
 		1616ADD314E8098D004FF504 /* weapon_0_single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weapon_0_single.png; sourceTree = "<group>"; };
 		1616ADD414E8098D004FF504 /* weapon_1_single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weapon_1_single.png; sourceTree = "<group>"; };
 		1616ADD514E8098D004FF504 /* weapon_2_single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weapon_2_single.png; sourceTree = "<group>"; };
@@ -476,6 +476,8 @@
 		1616ADD814E8098D004FF504 /* weapon_5_single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weapon_5_single.png; sourceTree = "<group>"; };
 		1616ADD914E8098D004FF504 /* weapon_6_single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weapon_6_single.png; sourceTree = "<group>"; };
 		1616ADE114E809A6004FF504 /* jetpack-single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "jetpack-single.png"; path = "Resources/jetpack-single.png"; sourceTree = "<group>"; };
+		162B76A714F0640F0068C710 /* NextLevel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NextLevel.h; sourceTree = "<group>"; };
+		162B76A814F0640F0068C710 /* NextLevel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NextLevel.mm; sourceTree = "<group>"; };
 		1643B23A14D9B00F00A67057 /* GameFroot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GameFroot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1643B23E14D9B00F00A67057 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		1643B24014D9B00F00A67057 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
@@ -856,10 +858,6 @@
 		1643B4E514D9B0BC00A67057 /* dpad_buttons.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = dpad_buttons.plist; path = Resources/dpad_buttons.plist; sourceTree = "<group>"; };
 		1643B4E614D9B0BC00A67057 /* dpad_buttons.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dpad_buttons.png; path = Resources/dpad_buttons.png; sourceTree = "<group>"; };
 		1643B4E714D9B0BC00A67057 /* fps_images.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = fps_images.png; path = Resources/fps_images.png; sourceTree = "<group>"; };
-		1643B4EB14D9B0BC00A67057 /* hud_fake-hd.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "hud_fake-hd.fnt"; path = "Resources/hud_fake-hd.fnt"; sourceTree = "<group>"; };
-		1643B4EC14D9B0BC00A67057 /* hud_fake-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "hud_fake-hd.png"; path = "Resources/hud_fake-hd.png"; sourceTree = "<group>"; };
-		1643B4ED14D9B0BC00A67057 /* hud_fake.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = hud_fake.fnt; path = Resources/hud_fake.fnt; sourceTree = "<group>"; };
-		1643B4EE14D9B0BC00A67057 /* hud_fake.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = hud_fake.png; path = Resources/hud_fake.png; sourceTree = "<group>"; };
 		1643B4EF14D9B0BC00A67057 /* hud_spritesheet-hd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "hud_spritesheet-hd.plist"; path = "Resources/hud_spritesheet-hd.plist"; sourceTree = "<group>"; };
 		1643B4F014D9B0BC00A67057 /* hud_spritesheet-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "hud_spritesheet-hd.png"; path = "Resources/hud_spritesheet-hd.png"; sourceTree = "<group>"; };
 		1643B4F114D9B0BC00A67057 /* hud_spritesheet.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = hud_spritesheet.plist; path = Resources/hud_spritesheet.plist; sourceTree = "<group>"; };
@@ -1262,10 +1260,6 @@
 				1643B4E514D9B0BC00A67057 /* dpad_buttons.plist */,
 				1643B4E614D9B0BC00A67057 /* dpad_buttons.png */,
 				1643B4E714D9B0BC00A67057 /* fps_images.png */,
-				1643B4EB14D9B0BC00A67057 /* hud_fake-hd.fnt */,
-				1643B4EC14D9B0BC00A67057 /* hud_fake-hd.png */,
-				1643B4ED14D9B0BC00A67057 /* hud_fake.fnt */,
-				1643B4EE14D9B0BC00A67057 /* hud_fake.png */,
 				1643B4EF14D9B0BC00A67057 /* hud_spritesheet-hd.plist */,
 				1643B4F014D9B0BC00A67057 /* hud_spritesheet-hd.png */,
 				1643B4F114D9B0BC00A67057 /* hud_spritesheet.plist */,
@@ -2103,6 +2097,8 @@
 				1643B6C614D9B49D00A67057 /* Collectable.mm */,
 				1643B6C714D9B49D00A67057 /* Dialogue.h */,
 				1643B6C814D9B49D00A67057 /* Dialogue.mm */,
+				1604BB9214F07DAB007664B6 /* MultiChoice.h */,
+				1604BB9314F07DAB007664B6 /* MultiChoice.mm */,
 				1643B6CB14D9B49D00A67057 /* MovingPlatform.h */,
 				1643B6CC14D9B49D00A67057 /* MovingPlatform.mm */,
 				1643B6CD14D9B49D00A67057 /* Robot.h */,
@@ -2131,6 +2127,8 @@
 				165906BC14E2B38D00321213 /* Controls.mm */,
 				2230953414DB68DB00D7D219 /* GameMenu.h */,
 				2230953814DB6CB600D7D219 /* GameMenu.mm */,
+				162B76A714F0640F0068C710 /* NextLevel.h */,
+				162B76A814F0640F0068C710 /* NextLevel.mm */,
 				1643B6D714D9B49D00A67057 /* Lose.h */,
 				1643B6D814D9B49D00A67057 /* Lose.mm */,
 				1643B6D914D9B49D00A67057 /* Win.h */,
@@ -2489,10 +2487,6 @@
 				1643B5BD14D9B0BC00A67057 /* dpad_buttons.plist in Resources */,
 				1643B5BE14D9B0BC00A67057 /* dpad_buttons.png in Resources */,
 				1643B5BF14D9B0BC00A67057 /* fps_images.png in Resources */,
-				1643B5C314D9B0BC00A67057 /* hud_fake-hd.fnt in Resources */,
-				1643B5C414D9B0BC00A67057 /* hud_fake-hd.png in Resources */,
-				1643B5C514D9B0BC00A67057 /* hud_fake.fnt in Resources */,
-				1643B5C614D9B0BC00A67057 /* hud_fake.png in Resources */,
 				1643B5C714D9B0BC00A67057 /* hud_spritesheet-hd.plist in Resources */,
 				1643B5C814D9B0BC00A67057 /* hud_spritesheet-hd.png in Resources */,
 				1643B5C914D9B0BC00A67057 /* hud_spritesheet.plist in Resources */,
@@ -2776,6 +2770,8 @@
 				2230953914DB6CB600D7D219 /* GameMenu.mm in Sources */,
 				165906BD14E2B38E00321213 /* Controls.mm in Sources */,
 				165BEB0114E2FC5100CF9A2B /* Pause.mm in Sources */,
+				162B76A914F0640F0068C710 /* NextLevel.mm in Sources */,
+				1604BB9414F07DAB007664B6 /* MultiChoice.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

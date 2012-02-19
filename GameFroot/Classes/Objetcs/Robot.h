@@ -35,7 +35,7 @@
 	CCArray *timerCommands;
 	
 	BOOL solid;
-	BOOL ignoreGravity;
+	BOOL physics;
 	BOOL immortal;
 	
 	CGPoint walkNode;
@@ -49,12 +49,13 @@
     BOOL invisible;
     BOOL freezed;
     BOOL sensor;
+    BOOL frozen;
     
     NSString *name;
 }
 
 @property (nonatomic, assign) BOOL solid;
-@property (nonatomic, assign) BOOL ignoreGravity;
+@property (nonatomic, assign) BOOL physics;
 @property (nonatomic, assign) BOOL sensor;
 
 -(void) createBox2dObject:(b2World*)world size:(CGSize)_size;

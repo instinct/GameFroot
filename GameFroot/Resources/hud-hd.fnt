@@ -7,7 +7,7 @@ char id=72 x=34 y=4 width=28 height=34 xoffset=4 yoffset=8 xadvance=24 page=0 ch
 char id=48 x=62 y=4 width=26 height=34 xoffset=4 yoffset=8 xadvance=24 page=0 chnl=0 letter="0"
 char id=50 x=90 y=4 width=26 height=34 xoffset=4 yoffset=8 xadvance=24 page=0 chnl=0 letter="2"
 char id=51 x=120 y=4 width=26 height=34 xoffset=4 yoffset=8 xadvance=24 page=0 chnl=0 letter="3"
-char id=53 x=148 y=4 width=26 height=34 xoffset=4 yoffset=8 xadvance=24 page=0 chnl=0 letter="5"
+char id=53 x=146 y=4 width=26 height=34 xoffset=4 yoffset=8 xadvance=24 page=0 chnl=0 letter="5"
 char id=54 x=176 y=4 width=26 height=34 xoffset=4 yoffset=8 xadvance=24 page=0 chnl=0 letter="6"
 char id=55 x=204 y=4 width=26 height=34 xoffset=4 yoffset=8 xadvance=24 page=0 chnl=0 letter="7"
 char id=56 x=4 y=42 width=26 height=34 xoffset=4 yoffset=8 xadvance=24 page=0 chnl=0 letter="8"

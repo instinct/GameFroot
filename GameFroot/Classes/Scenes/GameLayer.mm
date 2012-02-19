@@ -21,6 +21,7 @@
 #import "MovingPlatform.h"
 #import "Switch.h"
 #import "Dialogue.h"
+#import "MultiChoice.h"
 #import "CheckPoint.h"
 #import "Collectable.h"
 #import "Robot.h"
@@ -29,6 +30,7 @@
 #import "Lose.h"
 #import "Controls.h"
 #import "Pause.h"
+#import "NextLevel.h"
 #import "SimpleAudioEngine.h"
 //#import "InputController.h"
 
@@ -211,7 +213,9 @@ GameLayer *instance;
 			//CCLOG(@"%@ == %@ ? %i", cachedDate, [Shared getLevelDate], [cachedDate isEqualToString:[Shared getLevelDate]]);
 			if ([cachedDate isEqualToString:[Shared getLevelDate]]) {
 				// Level not changed since last download, so use cached contents
-				ignoreCache = NO;
+				
+                // !!IMPORTANT: disabled level cached for now since the publish_date is not updated anymore.
+                //ignoreCache = NO;
 			}
 		}
 		
@@ -437,6 +441,7 @@ GameLayer *instance;
     parts = 7;
     partsLoaded = 0;
     [mainMenu setProgressBar:0.0f];
+    loadingNextLevel = NO;
     [self schedule:@selector(startLoading) interval:0.1f];    
 }
 
@@ -454,6 +459,34 @@ GameLayer *instance;
     [player immortal];
 }
 
+-(void) setupNextLevelScreen
+{	
+	// Loading
+	nextLevel = [NextLevel node];
+	[nextLevel setPosition:ccp(0,0)];
+	[self addChild:nextLevel z:1000];
+    [nextLevel resetProgressBar];
+    parts = 7;
+    partsLoaded = 0;
+    [nextLevel setProgressBar:0.0f];
+    loadingNextLevel = YES;
+    [self schedule:@selector(startLoading) interval:0.1f];    
+}
+
+
+-(void) removeNextLevelScreen
+{
+	[self removeChild:nextLevel cleanup:YES];
+    
+    [self initControls];
+    [self initGame];
+    
+    [hud show];
+    [scene show];
+    paused = NO;
+    
+    [player immortal];
+}
 
 -(void) startLoading
 {
@@ -491,13 +524,16 @@ GameLayer *instance;
 	
 	partsLoaded++;
 	float percent = ((float)partsLoaded / (float)parts) * 100.0f;
-	[mainMenu setProgressBar:percent];
+	
+    if (loadingNextLevel) [nextLevel setProgressBar:percent];
+    else [mainMenu setProgressBar:percent];
 	
 	CCLOG(@"Percent loaded: %f (%i of %i)", percent, partsLoaded, parts);
 	
 	if (partsLoaded >= parts) {
 		// Init game
-        [mainMenu playModeOn:YES];
+        if (!loadingNextLevel) [mainMenu playModeOn:YES];
+        
 	} else {		
 		[self schedule:@selector(startLoading) interval:0.1f];
 	}
@@ -1788,11 +1824,16 @@ GameLayer *instance;
 	[player decreaseHealth:amount];
 }
 
+-(void) setTime:(int)amount
+{
+    seconds = amount;
+    [self setTimer:seconds];
+}
+
 -(void) increaseTime:(int)amount
 {
 	seconds += amount;
-	[self setTimer:seconds];
-	[self enableTimer];
+    [self setTimer:seconds];
 }
 
 -(void) decreaseTime:(int)amount
@@ -1801,10 +1842,10 @@ GameLayer *instance;
 	if (seconds <= 0) {
 		seconds = 0;
 	}
-	[self setTimer:seconds];
-	[self enableTimer];
 	
-	if (seconds == 0) {
+    [self setTimer:seconds];
+    
+	if (timerEnabled && (seconds == 0)) {
 		[player lose];
 	}
 }
@@ -1847,16 +1888,25 @@ GameLayer *instance;
 
 -(void) enableTimer
 {
-	[self schedule:@selector(timer:) interval:1.0f];
-	timerEnabled = YES;
-	timerLabel.visible = YES;
+    if (!timerEnabled) {
+        [self schedule:@selector(timer:) interval:1.0f];
+        timerEnabled = YES;
+        timerLabel.visible = YES;
+    }
+}
+
+-(void) pauseTimer
+{
+	if (timerEnabled) [self unschedule:@selector(timer:)];
 }
 
 -(void) disableTimer
 {
-	[self unschedule:@selector(timer:)];
-	timerEnabled = NO;
-	timerLabel.visible = NO;
+    if (timerEnabled) {
+        [self unschedule:@selector(timer:)];
+        timerEnabled = NO;
+        timerLabel.visible = NO;
+    }
 }
 
 -(void) quakeCameraWithIntensity:(int)intensity during:(int)milliseconds
@@ -1865,10 +1915,12 @@ GameLayer *instance;
     float origianlX = scene.position.x;
 	float origianlY = scene.position.y;
     
-    float time = (1.0f/60.0f) * 10.0 * 1000.0;
+    float time = (1.0f/60.0f) * 10.0f * 500.0f;
     int times = milliseconds / time;
     if (times <= 0) times = 1;
-    CCLOG(@"GameLayer.quakeCameraWithIntensity: %i times: %i at 1/60 secs", intensity, times);
+    //CCLOG(@"GameLayer.quakeCameraWithIntensity: %i times: %i at 1/60 secs", intensity, times);
+    
+    intensity *= 2;
     
 	// Shake screen
 	id action = [CCSequence actions:
@@ -1895,30 +1947,45 @@ GameLayer *instance;
     [scene setPosition:originalPosition];
 }
 
+-(void) flashScreenWithColor:(int)color during:(int)milliseconds
+{
+    CCLayerColor *layer = [CCLayerColor layerWithColor:ccc4(0,0,0,255)];
+    [hud addChild:layer z:5001 tag:5001];
+    
+    id action = [CCSequence actions:
+                 [CCFadeOut actionWithDuration:milliseconds/500.0f],
+                 [CCCallFunc actionWithTarget:self selector:@selector(_removeColorOverlay)],
+				 nil];
+    [layer runAction: action];
+}
+
+-(void) _removeColorOverlay
+{
+    [hud removeChildByTag:5001 cleanup:YES];
+}
+
 -(void) say:(NSString *)msg
 {
 	Dialogue *npcs = [Dialogue node];
     [npcs setupDialogue:msg];
-    [npcs display];
 }
 
 -(void) think:(NSString *)msg
 {
 	Dialogue *npcs = [Dialogue node];
     [npcs setupDialogue:msg];
-    [npcs display];
 }
 
 -(void) sayInChatPanel:(NSString *)msg
 {
 	Dialogue *npcs = [Dialogue node];
     [npcs setupDialogue:msg];
-    [npcs display];
 }
 
--(void) askMultichoice:(NSDictionary *)comman
+-(void) askMultichoice:(NSDictionary *)command robot:(Robot *)robot
 {
-	
+	MultiChoice *npcs = [MultiChoice node];
+    [npcs setupChoices:command robot:robot];
 }
 
 -(void) jetpack
@@ -2049,6 +2116,12 @@ GameLayer *instance;
 
 #pragma mark -
 #pragma mark Flow control
+
+-(void) loadLevel:(int)gameID
+{
+    [Shared setLevelID: gameID];
+    
+}
 
 -(void) quitGame
 {    

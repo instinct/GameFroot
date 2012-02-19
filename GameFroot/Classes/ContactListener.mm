@@ -197,7 +197,7 @@ void ContactListener::BeginContact(b2Contact *contact) {
 			player = (Player *)o1;
 		}
 		
-		if (!robot.solid) contact->SetEnabled(false);
+		if (!robot.physics && !robot.solid) contact->SetEnabled(false);
 		[robot touched:player];
 		
 		if (Above(contact)) {
@@ -228,7 +228,7 @@ void ContactListener::BeginContact(b2Contact *contact) {
 			bullet  = (Bullet *)o1;
 		}
 		
-		if ((robot.solid) && (!robot.sensor)) {
+		if ((robot.physics || robot.solid) && (!robot.sensor)) {
 			[robot hit:bullet.damage];
 			[bullet die];
 		}
@@ -246,7 +246,7 @@ void ContactListener::BeginContact(b2Contact *contact) {
 			robot2  = (Robot *)o1;
 		}
 		
-		if ((!robot1.solid) || (!robot2.solid)) contact->SetEnabled(false);
+		if ((!robot1.physics && !robot1.solid) || (!robot2.physics && !robot2.solid)) contact->SetEnabled(false);
 		
 	} else if (IS_ROBOT(o1, o2)) {
 		//CCLOG(@"-----> Robot made contact with something!");
@@ -256,7 +256,7 @@ void ContactListener::BeginContact(b2Contact *contact) {
 		} else {
 			robot = (Robot *)o2;
 		}
-        if (!robot.solid) contact->SetEnabled(false);
+        if (!robot.physics && !robot.solid) contact->SetEnabled(false);
 			   
 	} else if (IS_COLLECTABLE(o1, o2) && IS_ENEMY(o1, o2)) {
 		//CCLOG(@"-----> Enemy made contact with collectable item!");
@@ -536,7 +536,7 @@ void ContactListener::PreSolve(b2Contact *contact, const b2Manifold *oldManifold
 			player = (Player *)o1;
 		}
 		
-		if (!robot.solid) contact->SetEnabled(false);
+		if (!robot.physics && !robot.solid) contact->SetEnabled(false);
 		else if (Above(contact)) {
 			b2Vec2 vel = robot.body->GetLinearVelocity();
 			if (vel.x != 0) {
@@ -552,7 +552,7 @@ void ContactListener::PreSolve(b2Contact *contact, const b2Manifold *oldManifold
 		} else {
 			robot = (Robot *)o2;
 		}
-        if (!robot.solid) contact->SetEnabled(false);
+        if (!robot.physics && !robot.solid) contact->SetEnabled(false);
 		
 	}
 }
@@ -667,5 +667,21 @@ void ContactListener::EndContact(b2Contact *contact) {
 		}
 		
 		[player restartMovement];
+        
+    } else if (ARE_ROBOTS(o1, o2)) {
+		//CCLOG(@"-----> Robot ended contact with another robot!");
+		
+		Robot *robot1;
+		Robot *robot2;
+		if (o1.type == kGameObjectRobot) {
+			robot1 = (Robot *)o1;
+			robot2  = (Robot *)o2;
+		} else {
+			robot1 = (Robot *)o2;
+			robot2  = (Robot *)o1;
+		}
+		
+		if (!robot1.physics && !robot1.solid) [robot1 finished:robot2];
+        if (!robot2.physics && !robot2.solid) [robot2 finished:robot1];
 	}
 }

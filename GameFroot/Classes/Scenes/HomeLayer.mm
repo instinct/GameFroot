@@ -313,14 +313,6 @@
     //CCLOG(@"Add favourite: %@", [[Shared getLevel] description]);
     //CCLOG(@"Favourites: %@", [jsonDataPlaying description]);
     
-    /*
-    id action = [CCSequence actions:
-                  [CCDelayTime actionWithDuration:0.1],
-                  [CCCallFunc actionWithTarget:self selector:@selector(selectedLevel:)],
-                  nil];
-    [sender runAction:action];
-    */
-    
     [self selectedLevel:sender];
 }
 
@@ -1467,11 +1459,7 @@
         // store this for later.
         [Shared setLevel:[selected.data mutableCopy]];
         
-        id action = [CCSequence actions:
-                     [CCDelayTime actionWithDuration:0.1],
-                     [CCCallFunc actionWithTarget:self selector:@selector(loadGameDetail)],
-                     nil];
-        [self runAction:action];
+        [self scheduleOnce:@selector(loadGameDetail) delay:0.1];
         //[self loadGameDetail];
 	
 	} else {

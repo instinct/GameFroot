@@ -17,7 +17,7 @@
 @implementation Robot
 
 @synthesize solid;
-@synthesize ignoreGravity;
+@synthesize physics;
 @synthesize sensor;
 
 - (id) init
@@ -38,15 +38,16 @@
 	
 	// Try to use dynamic bodies, but ignoring gravity
 	//playerBodyDef.type = b2_kinematicBody;
-	playerBodyDef.type = b2_dynamicBody;
+    if (!physics && solid) playerBodyDef.type = b2_staticBody;
+    else playerBodyDef.type = b2_dynamicBody;
 	
 	playerBodyDef.position.Set(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO);
 	playerBodyDef.userData = self;
 	body = [GameLayer getInstance].world->CreateBody(&playerBodyDef);
 	
-	if (ignoreGravity) body->SetGravityScale(0.0f);
+	if (!physics) body->SetGravityScale(0.0f);
 	
-    sensor = [name isEqualToString:@"Teleporter"] || [name isEqualToString:@"Story-Point"];
+    sensor = [name isEqualToString:@"Teleporter"] || [name isEqualToString:@"Story-Point"] || !solid;
 	
     b2PolygonShape shape;
     shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0)/PTM_RATIO);
@@ -79,11 +80,12 @@
 	// default values
 	health = 100;	
 	solid = NO;
-	ignoreGravity = YES;
+	physics = YES;
 	immortal = NO;
     invisible = NO;
     freezed = NO;
 	sensor = NO;
+    frozen = NO;
     
 	if ([data objectForKey:@"behavior"]) {
 		behavior = [[data objectForKey:@"behavior"] retain];
@@ -94,15 +96,19 @@
 	if ([data objectForKey:@"properties"]) {
 		health = [[[data objectForKey:@"properties"] objectForKey:@"health"] intValue];
 		immortal = [[[data objectForKey:@"properties"] objectForKey:@"immortal"] boolValue];
-		solid = [[[data objectForKey:@"properties"] objectForKey:@"solid"] boolValue];
-		ignoreGravity = ![[[data objectForKey:@"properties"] objectForKey:@"physics"] boolValue];
+		
+        //Solid? (Can other things not travel through me?)
+        solid = [[[data objectForKey:@"properties"] objectForKey:@"solid"] boolValue];
+        
+        //Physics? (Can I be moved by other things?)
+		physics = [[[data objectForKey:@"properties"] objectForKey:@"physics"] boolValue];
         
         // Special atention to Story-Point and Teleporter, make them sensors and smaller hit area
 		name = [[[data objectForKey:@"properties"] objectForKey:@"name"] retain];
          
-		CCLOG(@"Robot.immortal: %i", immortal);
-		CCLOG(@"Robot.solid: %i", solid);
-		CCLOG(@"Robot.ignoreGravity: %i", ignoreGravity);
+		//CCLOG(@"Robot.immortal: %i", immortal);
+		//CCLOG(@"Robot.solid: %i", solid);
+		//CCLOG(@"Robot.physics: %i", physics);
 	}
     
 	facingLeft = YES;
@@ -249,7 +255,7 @@
 		return result;
 		
 	} else {
-		//CCLOG(@"Robot: undeclared selector: %@", method);
+		CCLOG(@"Robot: undeclared selector: %@", method);
 		return nil;
 	}
 }
@@ -425,16 +431,9 @@
 -(BOOL) beNotSolid:(id)obj
 {
 	solid = NO;
-
-	/*
-	id action = [CCSequence actions:
-			 [CCDelayTime actionWithDuration:1.0/60.0],
-			 [CCCallFunc actionWithTarget:self selector:@selector(_changeBody)],
-			 nil];
-
-	[self runAction:action];
-	*/
 	
+    [self scheduleOnce:@selector(_changeBody) delay:1.0/60.0];
+    
 	return solid;
 }
 
@@ -442,31 +441,21 @@
 {
 	solid = YES;
 	
-	/*
-	id action = [CCSequence actions:
-			 [CCDelayTime actionWithDuration:1.0/60.0],
-			 [CCCallFunc actionWithTarget:self selector:@selector(_changeBody)],
-			 nil];
-
-	[self runAction:action];
-	*/
+	[self scheduleOnce:@selector(_changeBody) delay:1.0/60.0];
 	
 	return solid;
 }
 
-/*
 -(void) _changeBody
 {
 	[GameLayer getInstance].world->DestroyBody(body);
 	
 	[self _recreateBody];
 }
-*/
 
 -(void) say:(id)obj
 {
     //CCLOG(@"Robot.say: %@", obj);
-	
     if ([[obj objectForKey:@"words"] isKindOfClass:[NSDictionary class]]) {
         NSString *token = [[obj objectForKey:@"words"] objectForKey:@"token"];
 		NSString *msg = [self runMethod:token withObject:[obj objectForKey:@"words"]];
@@ -480,20 +469,40 @@
 -(void) think:(id)obj
 {
     //CCLOG(@"Robot.think: %@", obj);
-	
     [self say:obj];
 }
 
 -(void) sayInChatPanel:(id)obj
 {
     //CCLOG(@"Robot.sayInChatPanel: %@", obj);
-    
     [self say:obj];
 }
 
--(void) askMultichoice:(NSDictionary *)comman
+-(void) askMultichoice:(NSDictionary *)command
 {
-	//TODO: pending
+    //CCLOG(@"Robot.askMultichoice: %@", command);
+    [[GameLayer getInstance] askMultichoice:command robot:self];
+}
+
+-(void) gotoLevel:(NSDictionary *)command
+{
+    //CCLOG(@"Robot.gotoLevel: %@", command);
+    int levelId = [[command objectForKey:@"level"] intValue];
+}
+
+-(void) completeLevelAndGoto:(NSDictionary *)command
+{
+    CCLOG(@"Robot.completeLevelAndGoto: %@", command);
+}
+
+-(void) endGameSuccess:(NSDictionary *)command
+{
+    CCLOG(@"Robot.endGameSuccess: %@", command);
+}
+
+-(void) endGameFailure:(NSDictionary *)command
+{
+    CCLOG(@"Robot.endGameFailure: %@", command);
 }
 
 -(NSNumber *) isVisible:(id)obj
@@ -663,10 +672,12 @@
 	}
 	
     NSString *permanent;
-    if ((permanent = [parameters objectForKey:@"permanent"]) == nil) permanent = @"1";
+    if ((permanent = [parameters objectForKey:@"permanent"]) == nil) permanent = @"0";
     BOOL isPermanent = [permanent intValue] == 1;
     
-	if (!immortal || !isPermanent) [self remove];
+    //CCLOG(@"Robot.die: %i", isPermanent);
+    
+	if (!isPermanent) [self remove];
 }
 
 -(NSNumber *) changeHealth:(NSDictionary *)command 
@@ -691,7 +702,7 @@
 		health += amount;
 	}		
 
-	if (health < 0) [self remove];
+	if ((health < 0) && (!immortal)) [self die:nil];
 	
 	return [NSNumber numberWithInt:health];
 }
@@ -723,12 +734,84 @@
 
 -(void) changeLives:(NSDictionary *)command 
 {
-	//TODO: pending
+	int amount;
+	
+	if ([[command objectForKey:@"amount"] isKindOfClass:[NSDictionary class]]) {
+		
+		NSString *token = [[command objectForKey:@"amount"] objectForKey:@"token"];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"amount"]];
+        amount = [num intValue];
+		
+	} else {
+        amount = [[command objectForKey:@"amount"] intValue];
+	}
+    
+    if (amount < 0){
+        int changeAmount = amount*-1;
+        [[GameLayer getInstance] decreaseLive:changeAmount];
+        
+    } else {
+        [[GameLayer getInstance] increaseLive:amount];
+    }
 }
 
+-(void) timeStart:(id)obj
+{
+    //CCLOG(@"Robot.timeStart");
+    [[GameLayer getInstance] enableTimer];
+}
+
+-(void) timePause:(id)obj
+{
+    //CCLOG(@"Robot.timePause");
+    [[GameLayer getInstance] pauseTimer];
+}
+
+-(void) timeStop:(id)obj
+{
+    [[GameLayer getInstance] disableTimer];
+}
+
+-(void) setTime:(NSDictionary *)command 
+{
+    //CCLOG(@"Robot.setTime: %@", command);
+    int time;
+	
+	if ([[command objectForKey:@"time"] isKindOfClass:[NSDictionary class]]) {
+		
+		NSString *token = [[command objectForKey:@"time"] objectForKey:@"token"];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"time"]];
+        time = [num intValue];
+		
+	} else {
+        time = [[command objectForKey:@"time"] intValue];
+	}
+    
+    [[GameLayer getInstance] setTime:time]; 
+}
+    
 -(void) changeTime:(NSDictionary *)command 
 {
-	//TODO: pending
+    int amount;
+	
+	if ([[command objectForKey:@"amount"] isKindOfClass:[NSDictionary class]]) {
+		
+		NSString *token = [[command objectForKey:@"amount"] objectForKey:@"token"];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"amount"]];
+        amount = [num intValue];
+		
+	} else {
+        amount = [[command objectForKey:@"amount"] intValue];
+	}
+    
+	[[GameLayer getInstance] setTime:amount];
+}
+
+-(void) triggerCheckpoint:(NSDictionary *)command 
+{
+    //CCLOG(@"Robot.triggerCheckpoint: %@", command);
+    CGPoint mapPos = [self getTilePosition];
+    [[GameLayer getInstance] changeInitialPlayerPositionToX:mapPos.x andY:mapPos.y];
 }
 
 -(void) teleport:(NSDictionary *)command 
@@ -752,13 +835,8 @@
         found = YES;
     }
          
-    if (found) {
-        id action = [CCSequence actions:
-					  [CCDelayTime actionWithDuration:1.0/60.0],
-					  [CCCallFunc actionWithTarget:self selector:@selector(_changePosition)],
-					  nil];
-	
-        [self runAction:action];
+    if (found) {        
+        [self scheduleOnce:@selector(_changeToPosition) delay:1.0/60.0];
     }
 }
 
@@ -786,13 +864,7 @@
     if (found) {
 	
         if ([[[command objectForKey:@"instance"] objectForKey:@"token"] isEqualToString:@"player"]) {
-            
-            id action = [CCSequence actions:
-                     [CCDelayTime actionWithDuration:1.0/60.0],
-                     [CCCallFunc actionWithTarget:self selector:@selector(_changePlayerPosition)],
-                     nil];
-        
-            [self runAction:action];
+            [self scheduleOnce:@selector(_changePlayerPosition) delay:1.0/60.0];
         }
     }
 }
@@ -840,6 +912,7 @@
 	b2Vec2 current = body->GetLinearVelocity();
 	b2Vec2 velocity = b2Vec2(speed / FLASH_VELOCITY_FACTOR, current.y);
 	body->SetLinearVelocity(velocity);
+    wasMoving = YES;
 }
 
 -(void) setXvelocity:(NSDictionary *)command 
@@ -859,6 +932,7 @@
 	b2Vec2 current = body->GetLinearVelocity();
 	b2Vec2 velocity = b2Vec2(speed / FLASH_VELOCITY_FACTOR, current.y);
 	body->SetLinearVelocity(velocity);
+    wasMoving = YES;
 }
 
 -(void) setYvelocity:(NSDictionary *)command 
@@ -878,6 +952,7 @@
 	b2Vec2 current = body->GetLinearVelocity();
 	b2Vec2 velocity = b2Vec2(current.x, -speed / FLASH_VELOCITY_FACTOR);
 	body->SetLinearVelocity(velocity);
+    wasMoving = YES;
 }
 
 -(void) changeXvelocity:(NSDictionary *)command 
@@ -897,6 +972,7 @@
 	b2Vec2 current = body->GetLinearVelocity();
 	b2Vec2 velocity = b2Vec2(current.x + speed / FLASH_VELOCITY_FACTOR, current.y);
 	body->SetLinearVelocity(velocity);
+    wasMoving = YES;
 }
 
 -(void) changeYvelocity:(NSDictionary *)command 
@@ -916,6 +992,7 @@
 	b2Vec2 current = body->GetLinearVelocity();
 	b2Vec2 velocity = b2Vec2(current.x, current.y - speed / FLASH_VELOCITY_FACTOR);
 	body->SetLinearVelocity(velocity);
+    wasMoving = YES;
 }
 
 -(NSNumber *) xVelocity:(id)obj 
@@ -974,11 +1051,45 @@
     body->SetAngularVelocity(0);
     
     freezed = YES;
+    wasMoving = NO;
 }
 
 -(void) unfreezePlayer:(id)obj
 {
     freezed = NO;
+}
+
+-(void) freezePhysics:(id)obj
+{
+    //TODO: pending
+    frozen = YES;
+}
+
+-(void) unfreezePhysics:(id)obj
+{
+    //TODO: pending
+    frozen = NO;
+}
+
+-(NSNumber *) isPhysicsFrozen:(id)obj
+{
+    return [NSNumber numberWithBool:frozen];
+}
+
+-(void) freezeLevelPhysics:(id)obj
+{
+    //TODO: pending
+}
+
+-(void) unfreezeLevelPhysics:(id)obj
+{
+    //TODO: pending
+}
+
+-(NSNumber *) isLevelPhysicsFrozen:(id)obj
+{
+    //TODO: pending
+    return [NSNumber numberWithBool:frozen];
 }
 
 -(void) playAnimationOnce:(NSDictionary *)command
@@ -1041,12 +1152,7 @@
 		delay = [[command objectForKey:@"delay"] floatValue];
 	}
 	
-	id action = [CCSequence actions:
-				 [CCDelayTime actionWithDuration:delay/DELAY_FACTOR],
-				 [CCCallFunc actionWithTarget:self selector:@selector(_delayedMessage)],
-				 nil];
-	
-	[self runAction:action];
+    [self scheduleOnce:@selector(_delayedMessage) delay:delay/DELAY_FACTOR];
 }
 
 -(void) _delayedMessage
@@ -1069,13 +1175,8 @@
 	} else {
 		delay = [[command objectForKey:@"delay"] floatValue];
 	}
-	
-	id action = [CCSequence actions:
-				 [CCDelayTime actionWithDuration:delay/DELAY_FACTOR],
-				 [CCCallFunc actionWithTarget:self selector:@selector(_delayedBroadcast)],
-				 nil];
-	
-	[self runAction:action];
+    
+    [self scheduleOnce:@selector(_delayedBroadcast) delay:delay/DELAY_FACTOR];
 }
 
 -(void) _delayedBroadcast
@@ -1384,6 +1485,16 @@
     [[GameLayer getInstance] quakeCameraWithIntensity:intensity during:time];
 }
 
+-(void) flashScreen:(NSDictionary *)command 
+{
+    //CCLOG(@"Robot.flashScreen: %@", command);
+    
+    int color = [[command objectForKey:@"color"] intValue];
+    int time = [[command objectForKey:@"time"] intValue];
+    
+    [[GameLayer getInstance] flashScreenWithColor:color during:time];
+}
+
 -(NSNumber *) angleToInstance:(NSDictionary *)command 
 {
 	CGPoint point1 = CGPointZero;
@@ -1461,12 +1572,14 @@
 		onTouchStart = YES;
 	}
     
+    /*
     b2Vec2 current = body->GetLinearVelocity();
     if ((current.x == 0) && (current. y == 0)) {
         wasMoving = NO;
     } else {
         wasMoving = YES;
     }
+    */
 }
 
 -(void) finished:(id)sender
@@ -1484,7 +1597,7 @@
 {
 	health -= force;
 	
-	if (health < 0) [self die:nil];
+	if (health < 0 && !immortal) [self die:nil];
 }
 
 

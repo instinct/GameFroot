@@ -17,8 +17,10 @@
 @class GameObject;
 @class Bullet;
 @class GameMenu;
+@class NextLevel;
 @class Controls;
 @class Pause;
+@class Robot;
 
 // GameLayer
 @interface GameLayer : CCLayer
@@ -40,6 +42,8 @@
 	
 	// Loader/Main menu
 	GameMenu *mainMenu;
+    NextLevel *nextLevel;
+    BOOL loadingNextLevel;
 	int parts;
 	int partsLoaded;
 	
@@ -122,6 +126,8 @@
 +(GameLayer *)getInstance;
 -(void) setupLoadingScreen;
 -(void) removeLoadingScreen;
+-(void) setupNextLevelScreen;
+-(void) removeNextLevelScreen;
 -(void) startLoading;
 -(void) loadLevelData:(int)gameID;
 -(void) loadBackgroundLevel;
@@ -172,6 +178,7 @@
 -(void) changeWeapon:(int)_weaponID;
 -(void) increaseHealth:(int)amount;
 -(void) decreaseHealth:(int)amount;
+-(void) setTime:(int)amount;
 -(void) increaseTime:(int)amount;
 -(void) decreaseTime:(int)amount;
 -(void) increaseLive:(int)amount;
@@ -179,11 +186,14 @@
 -(void) enableAmmo;
 -(void) disableAmmo;
 -(void) enableTimer;
+-(void) pauseTimer;
 -(void) disableTimer;
 -(void) quakeCameraWithIntensity:(int)intensity during:(int)milliseconds;
+-(void) flashScreenWithColor:(int)color during:(int)milliseconds;
 -(void) say:(NSString *)msg;
 -(void) think:(NSString *)msg;
 -(void) sayInChatPanel:(NSString *)msg;
+-(void) askMultichoice:(NSDictionary *)command robot:(Robot *)robot;
 
 -(void) setTimer:(int)_seconds;
 -(void) setLives:(int)_lives;
@@ -191,6 +201,8 @@
 -(void) increasePoints:(int)_points;
 
 -(void) resetControls;
+
+-(void) loadLevel:(int)gameID;
 
 -(void) loseGame;
 -(void) winGame;

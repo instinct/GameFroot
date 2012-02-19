@@ -15,6 +15,5 @@
 }
 
 -(void) setupDialogue:(NSString *)_text;
--(void) display;
 
 @end
