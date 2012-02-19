@@ -317,10 +317,8 @@
         
         if (CGRectContainsPoint(CGRectMake(aButtonTouchArea.origin.x, size.height - aButtonTouchArea.origin.y, aButtonTouchArea.size.width, aButtonTouchArea.size.height), location)) {
             [rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_down.png"]];
-            
-            dpadTouch = touch;
+            jumpTouch = touch;
             [player jump];
-			jumpTouch = touch;
         }
         
         if (CGRectContainsPoint(CGRectMake(bButtonTouchArea.origin.x, size.height - bButtonTouchArea.origin.y, bButtonTouchArea.size.width, bButtonTouchArea.size.height), location)) {
@@ -398,11 +396,6 @@
             leftJoy.rotation = 0;
             
             [player stop];
-            
-            if (touch == jumpTouch) {
-                [player resetJump];
-                jumpTouch = nil;
-            }
              
              // Detect swipe
              CGFloat diffY = gestureStartPoint.y - location.y;	
@@ -419,13 +412,13 @@
         }
         
         if (touch == shootTouch) {
-            [player resetJump];
             shootTouch = nil;
             [leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_up.png"]];
            
             
         } else if (touch == jumpTouch) {
             jumpTouch = nil;
+            [player resetJump];
              [rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_up.png"]];
         }
     }

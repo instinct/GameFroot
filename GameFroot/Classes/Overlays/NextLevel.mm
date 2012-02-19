@@ -29,7 +29,7 @@
         // Loading progress bar assets
         _loadingTitle = [CCSprite spriteWithFile:@"loading-title.png"];
         [_loadingTitle setScale:CC_CONTENT_SCALE_FACTOR()];
-        [_loadingTitle setPosition:ccp(size.width*0.5,size.height/2 + 30)];
+        [_loadingTitle setPosition:ccp(size.width*0.5,size.height/2 + 35)];
         
         _progressBarBack = [CCSprite spriteWithFile:@"loading-bar-bg.png"];
         [_progressBarBack setScale:CC_CONTENT_SCALE_FACTOR()];
