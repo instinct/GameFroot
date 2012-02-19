@@ -35,5 +35,7 @@ enum ANIM { STAND = 0, WALK, CROUCH, PRONE, JUMPING, FALLING };
 -(CGPoint) getTilePosition;
 -(void) resetPosition;
 -(void) update:(ccTime)dt;
+-(void) remove;
+-(void) destroy;
 
 @end

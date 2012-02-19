@@ -191,7 +191,7 @@ GameLayer *instance;
 
 // on "init" you need to initialize your instance
 -(id) init
-{
+{    
 	[[CCDirector sharedDirector] setDeviceOrientation:kCCDeviceOrientationLandscapeLeft];
 	[[CCDirector sharedDirector] setDisplayFPS:YES];
 	
@@ -199,6 +199,8 @@ GameLayer *instance;
 	// Apple recommends to re-assign "self" with the "super" return value
 	if( (self=[super init])) {
 		
+        CCLOG(@"GameLayer.init: %@", self);
+        
 		instance = self;
 		
 		// Check if we need to download the level data or use cache
@@ -388,7 +390,11 @@ GameLayer *instance;
         [self disableAmmo];
         
 		// Setup loader screen
-		[self setupLoadingScreen];
+        nextLevelID = [Shared getNextLevelID];
+        loadingNextLevel = nextLevelID > 0;
+        
+		if (loadingNextLevel) [self setupNextLevelScreen];
+        else [self setupLoadingScreen];
 		
 		// Init Box2D
 		[self setupWorld];
@@ -432,6 +438,8 @@ GameLayer *instance;
 
 -(void) setupLoadingScreen
 {	
+    CCLOG(@"GameLayer.setupLoadingScreen");
+    
 	// Loading
 	mainMenu = [GameMenu node];
 	[mainMenu setPosition:ccp(0,0)];
@@ -441,12 +449,13 @@ GameLayer *instance;
     parts = 7;
     partsLoaded = 0;
     [mainMenu setProgressBar:0.0f];
-    loadingNextLevel = NO;
     [self schedule:@selector(startLoading) interval:0.1f];    
 }
 
 -(void) removeLoadingScreen
 {
+    CCLOG(@"GameLayer.removeLoadingScreen");
+    
 	[self removeChild:mainMenu cleanup:YES];
     
     [self initControls];
@@ -461,6 +470,8 @@ GameLayer *instance;
 
 -(void) setupNextLevelScreen
 {	
+    CCLOG(@"GameLayer.setupNextLevelScreen");
+    
 	// Loading
 	nextLevel = [NextLevel node];
 	[nextLevel setPosition:ccp(0,0)];
@@ -469,13 +480,14 @@ GameLayer *instance;
     parts = 7;
     partsLoaded = 0;
     [nextLevel setProgressBar:0.0f];
-    loadingNextLevel = YES;
-    [self schedule:@selector(startLoading) interval:0.1f];    
+    [self schedule:@selector(startLoading) interval:0.1f];
 }
 
 
 -(void) removeNextLevelScreen
 {
+    CCLOG(@"GameLayer.removeNextLevelScreen");
+    
 	[self removeChild:nextLevel cleanup:YES];
     
     [self initControls];
@@ -494,7 +506,9 @@ GameLayer *instance;
 	
 	switch (partsLoaded) {
 		case 0:
-			[self loadLevelData:[Shared getLevelID]];
+			if (loadingNextLevel) [self loadLevelData:nextLevelID];
+            else [self loadLevelData:[Shared getLevelID]];
+            
 			break;
 			
 		case 1:
@@ -1984,8 +1998,21 @@ GameLayer *instance;
 
 -(void) askMultichoice:(NSDictionary *)command robot:(Robot *)robot
 {
+    robotMultiChoice = robot;
+    
 	MultiChoice *npcs = [MultiChoice node];
-    [npcs setupChoices:command robot:robot];
+    [npcs setupChoices:command];
+}
+
+-(void) answeredMultiChoice:(MultiChoice *)multiChoice withAnswer:(NSString *)answer
+{
+    [[CCDirector sharedDirector] resume];
+    [[CCDirector sharedDirector] startAnimation];
+    [[GameLayer getInstance] resume];
+    
+    [robotMultiChoice receiveMessage:answer];
+    
+    [[GameLayer getInstance] removeOverlay:multiChoice];
 }
 
 -(void) jetpack
@@ -2117,14 +2144,16 @@ GameLayer *instance;
 #pragma mark -
 #pragma mark Flow control
 
--(void) loadLevel:(int)gameID
+-(void) loadNextLevel:(int)gameID
 {
-    [Shared setLevelID: gameID];
-    
+    [Shared setNextLevelID:gameID];
+    [[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
 }
 
 -(void) quitGame
-{    
+{   
+    [Shared setNextLevelID:0];
+    
     [self restartGameFromPause];
     [self pause];
     [pauseCover hide];
@@ -2216,7 +2245,7 @@ GameLayer *instance;
 // on "dealloc" you need to release all your retained objects
 - (void) dealloc
 {
-	CCLOG(@"GameLayer.dealloc");
+	CCLOG(@"GameLayer.dealloc: %@", self);
 	
 	// in case you have something to dealloc, do it in this method
 	// in this particular example nothing needs to be released.
@@ -2253,9 +2282,9 @@ GameLayer *instance;
 	// Stop music
 	[[SimpleAudioEngine sharedEngine] stopBackgroundMusic];
 	
-	[CCAnimationCache purgeSharedAnimationCache];
-	[[CCDirector sharedDirector] purgeCachedData];
-	
+    [CCAnimationCache purgeSharedAnimationCache];
+    [[CCDirector sharedDirector] purgeCachedData];
+    
 	// don't forget to call "super dealloc"
 	[super dealloc];
 }

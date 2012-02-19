@@ -487,7 +487,8 @@
 -(void) gotoLevel:(NSDictionary *)command
 {
     //CCLOG(@"Robot.gotoLevel: %@", command);
-    int levelId = [[command objectForKey:@"level"] intValue];
+    int gameID = [[command objectForKey:@"level"] intValue];
+    [[GameLayer getInstance] loadNextLevel:gameID];
 }
 
 -(void) completeLevelAndGoto:(NSDictionary *)command

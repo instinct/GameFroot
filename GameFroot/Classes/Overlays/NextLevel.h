@@ -17,9 +17,7 @@
     CCSprite *_progressBarBack;
 }
 
--(void) showProgressBar;
 -(void) resetProgressBar;
--(void) hideProgressBar;
 -(void) setProgressBar:(float)percent;
 
 @end

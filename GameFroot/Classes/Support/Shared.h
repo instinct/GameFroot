@@ -25,6 +25,8 @@
 +(int) getLevelID;
 +(NSString *) getLevelDate;
 +(NSString *) getLevelTitle;
++(void) setNextLevelID: (int)_value;
++(int) getNextLevelID;
 +(BOOL) isPlaying;
 +(void) setPlaying: (BOOL)_value;
 +(NSString *) getOSVersion;

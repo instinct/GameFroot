@@ -10,7 +10,6 @@
 
 @interface Dialogue : CCNode <CCTargetedTouchDelegate> {
 	NSString *text;
-	BOOL read;
 	CCSprite *background;
 }
 

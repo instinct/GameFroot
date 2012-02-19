@@ -18,6 +18,7 @@
 static NSString *osVersion = @"";
 static NSString *device = @"";
 static NSMutableDictionary *levelData = nil;
+static int nextLevelID = 0;
 static BOOL playing = NO;
 static BOOL welcomeShown = NO;
 static BOOL simulator = NO;
@@ -69,6 +70,7 @@ static BOOL simulator = NO;
 +(void) setLevel: (NSMutableDictionary *)_value {
 	if (levelData != nil) [levelData release];
     levelData = [_value retain];
+    nextLevelID = 0;
 }
 
 +(int) getLevelID {
@@ -81,6 +83,14 @@ static BOOL simulator = NO;
 
 +(NSString *) getLevelTitle {
     return [levelData objectForKey:@"title"];
+}
+
++(void) setNextLevelID: (int)_value {
+    nextLevelID = _value;
+}
+
++(int) getNextLevelID {
+    return nextLevelID;
 }
 
 +(BOOL) isPlaying {

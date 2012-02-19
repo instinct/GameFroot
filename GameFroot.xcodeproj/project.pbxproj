@@ -17,6 +17,9 @@
 		1616ADE014E8098D004FF504 /* weapon_6_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADD914E8098D004FF504 /* weapon_6_single.png */; };
 		1616ADE214E809A6004FF504 /* jetpack-single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADE114E809A6004FF504 /* jetpack-single.png */; };
 		162B76A914F0640F0068C710 /* NextLevel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 162B76A814F0640F0068C710 /* NextLevel.mm */; };
+		163938F814F1109E00E663E3 /* option-btn-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 163938F614F1109E00E663E3 /* option-btn-hd.png */; };
+		163938F914F1109E00E663E3 /* option-btn.png in Resources */ = {isa = PBXBuildFile; fileRef = 163938F714F1109E00E663E3 /* option-btn.png */; };
+		163938FC14F110FA00E663E3 /* ButtonLabelItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 163938FB14F110FA00E663E3 /* ButtonLabelItem.m */; };
 		1643B23F14D9B00F00A67057 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1643B23E14D9B00F00A67057 /* QuartzCore.framework */; };
 		1643B24114D9B00F00A67057 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1643B24014D9B00F00A67057 /* OpenGLES.framework */; };
 		1643B24314D9B00F00A67057 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1643B24214D9B00F00A67057 /* OpenAL.framework */; };
@@ -478,6 +481,10 @@
 		1616ADE114E809A6004FF504 /* jetpack-single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "jetpack-single.png"; path = "Resources/jetpack-single.png"; sourceTree = "<group>"; };
 		162B76A714F0640F0068C710 /* NextLevel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NextLevel.h; sourceTree = "<group>"; };
 		162B76A814F0640F0068C710 /* NextLevel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NextLevel.mm; sourceTree = "<group>"; };
+		163938F614F1109E00E663E3 /* option-btn-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "option-btn-hd.png"; sourceTree = "<group>"; };
+		163938F714F1109E00E663E3 /* option-btn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "option-btn.png"; sourceTree = "<group>"; };
+		163938FA14F110FA00E663E3 /* ButtonLabelItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ButtonLabelItem.h; sourceTree = "<group>"; };
+		163938FB14F110FA00E663E3 /* ButtonLabelItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ButtonLabelItem.m; sourceTree = "<group>"; };
 		1643B23A14D9B00F00A67057 /* GameFroot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GameFroot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1643B23E14D9B00F00A67057 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		1643B24014D9B00F00A67057 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
@@ -1676,6 +1683,8 @@
 		1643B47B14D9B0BC00A67057 /* overlays */ = {
 			isa = PBXGroup;
 			children = (
+				163938F614F1109E00E663E3 /* option-btn-hd.png */,
+				163938F714F1109E00E663E3 /* option-btn.png */,
 				16935D7B14EE658400E55F75 /* label-controls-hd.png */,
 				16935D6F14EE656700E55F75 /* btn-controls_dp_sel-hd.png */,
 				16935D7014EE656700E55F75 /* btn-controls_dp-hd.png */,
@@ -2158,6 +2167,8 @@
 				1643B70814D9B49D00A67057 /* SW */,
 				1643B6F214D9B49D00A67057 /* CCLabelBMFontMultiline.h */,
 				1643B6F314D9B49D00A67057 /* CCLabelBMFontMultiline.m */,
+				163938FA14F110FA00E663E3 /* ButtonLabelItem.h */,
+				163938FB14F110FA00E663E3 /* ButtonLabelItem.m */,
 				1643B6F914D9B49D00A67057 /* CCUIViewWrapper.h */,
 				1643B6FA14D9B49D00A67057 /* CCUIViewWrapper.m */,
 				1643B6FB14D9B49D00A67057 /* DeviceHardware.h */,
@@ -2563,6 +2574,8 @@
 				16935D9214EE664200E55F75 /* title-you-win-hd.png in Resources */,
 				16935D9514EE66D600E55F75 /* dpad_buttons-hd.plist in Resources */,
 				16935D9614EE66D600E55F75 /* dpad_buttons-hd.png in Resources */,
+				163938F814F1109E00E663E3 /* option-btn-hd.png in Resources */,
+				163938F914F1109E00E663E3 /* option-btn.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2772,6 +2785,7 @@
 				165BEB0114E2FC5100CF9A2B /* Pause.mm in Sources */,
 				162B76A914F0640F0068C710 /* NextLevel.mm in Sources */,
 				1604BB9414F07DAB007664B6 /* MultiChoice.mm in Sources */,
+				163938FC14F110FA00E663E3 /* ButtonLabelItem.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

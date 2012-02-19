@@ -1291,16 +1291,20 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 -(void) resume 
 {
 	[self resumeSchedulerAndActions];
+    paused = NO;
 }
 
 -(void) pause 
 {
 	[self pauseSchedulerAndActions];
+    paused = YES;
 }
 
 
 -(void) update:(ccTime)dt
 {
+    if (paused) return;
+    
 	b2Vec2 current = body->GetLinearVelocity();
 	//CCLOG(@"%f, %i", current.y, action);
 	

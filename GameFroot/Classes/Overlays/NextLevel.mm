@@ -22,44 +22,30 @@
         [bg setPosition:ccp(size.width*0.5,size.height*0.5)];
         [self addChild:bg];
         
-        CCLabelBMFont *level = [CCLabelBMFont labelWithString:[Shared getLevelTitle] fntFile:@"Chicago.fnt"];
-        [level setPosition:ccp(size.width*0.5,size.height*0.8)];
-        [self addChild:level];
+        //CCLabelBMFont *level = [CCLabelBMFont labelWithString:[Shared getLevelTitle] fntFile:@"Chicago.fnt"];
+        //[level setPosition:ccp(size.width*0.5,size.height*0.8)];
+        //[self addChild:level];
         
         // Loading progress bar assets
-        
         _loadingTitle = [CCSprite spriteWithFile:@"loading-title.png"];
         [_loadingTitle setScale:CC_CONTENT_SCALE_FACTOR()];
-        [_loadingTitle setPosition:ccp(size.width*0.5,size.height/2 + 50)];
-        _loadingTitle.scale = 0.6f;
+        [_loadingTitle setPosition:ccp(size.width*0.5,size.height/2 + 30)];
         
         _progressBarBack = [CCSprite spriteWithFile:@"loading-bar-bg.png"];
         [_progressBarBack setScale:CC_CONTENT_SCALE_FACTOR()];
-        [_progressBarBack setPosition:ccp(size.width*0.5,size.height/2 - 50)];
+        [_progressBarBack setPosition:ccp(size.width*0.5,size.height/2 - 10)];
         
         _progressBar = [CCSprite spriteWithFile:@"loading-bar-overlay.png"];
         [_progressBar setScale:CC_CONTENT_SCALE_FACTOR()];
-        [_progressBar setPosition:ccp(size.width*0.225,size.height/2 - 51)];
+        [_progressBar setPosition:ccp(size.width*0.225,size.height/2 - 11)];
         [_progressBar setAnchorPoint:ccp(0,0.5)];
         
-        [self hideProgressBar];
+        [self resetProgressBar];
         [self addChild:_loadingTitle];
         [self addChild:_progressBarBack];
         [self addChild:_progressBar z:10];
     }
     return self;
-}
-
--(void) showProgressBar {
-    _loadingTitle.visible = YES;
-    _progressBarBack.visible = YES;
-    _progressBar.visible = YES;
-}
-
--(void) hideProgressBar {
-    _loadingTitle.visible = NO;
-    _progressBarBack.visible = NO;
-    _progressBar.visible = NO;
 }
 
 -(void) resetProgressBar {
@@ -71,7 +57,7 @@
 {
 	[_progressBar setTextureRect:CGRectMake(0,0,263*(float)(percent / 100.0f),18/CC_CONTENT_SCALE_FACTOR())];
     if (percent >= 100.0f) {
-        [[GameLayer getInstance] removeLoadingScreen];
+        [[GameLayer getInstance] removeNextLevelScreen];
     }
 }
 

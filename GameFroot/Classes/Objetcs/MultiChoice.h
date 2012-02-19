@@ -8,17 +8,13 @@
 
 #import "cocos2d.h"
 
-@class Robot;
-
-@interface MultiChoice : CCNode <CCTargetedTouchDelegate> {
+@interface MultiChoice : CCNode { //<CCTargetedTouchDelegate> {
 	NSString *text;
-	BOOL read;
 	CCSprite *background;
-    Robot *robot;
     NSArray *choices;
 }
 
--(void) setupChoices:(NSDictionary *)command robot:(Robot *)_robot;
+-(void) setupChoices:(NSDictionary *)command;
 
 @end
 

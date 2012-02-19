@@ -21,6 +21,7 @@
 @class Controls;
 @class Pause;
 @class Robot;
+@class MultiChoice;
 
 // GameLayer
 @interface GameLayer : CCLayer
@@ -44,6 +45,7 @@
 	GameMenu *mainMenu;
     NextLevel *nextLevel;
     BOOL loadingNextLevel;
+    int nextLevelID;
 	int parts;
 	int partsLoaded;
 	
@@ -107,6 +109,8 @@
     CGPoint originalPosition;
     
     int arrayTiles[10000];
+    
+    Robot *robotMultiChoice;
 }
 
 @property(nonatomic,assign) Controls *controls;
@@ -194,7 +198,7 @@
 -(void) think:(NSString *)msg;
 -(void) sayInChatPanel:(NSString *)msg;
 -(void) askMultichoice:(NSDictionary *)command robot:(Robot *)robot;
-
+-(void) answeredMultiChoice:(MultiChoice *)multiChoice withAnswer:(NSString *)answer;
 -(void) setTimer:(int)_seconds;
 -(void) setLives:(int)_lives;
 -(void) setHealth:(int)_health;
@@ -202,7 +206,7 @@
 
 -(void) resetControls;
 
--(void) loadLevel:(int)gameID;
+-(void) loadNextLevel:(int)gameID;
 
 -(void) loseGame;
 -(void) winGame;

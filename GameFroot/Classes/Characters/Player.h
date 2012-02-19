@@ -36,7 +36,8 @@
 	
 	BOOL dying;
 	BOOL immortal;
-	
+	BOOL paused;
+    
 	BOOL canJump;
 	BOOL jumping;
 	BOOL jumpingMoving;
@@ -94,6 +95,7 @@
 @property (nonatomic,assign) int shootDamage;
 
 -(void) setupPlayer:(int)_playerID properties:(NSDictionary *)properties;
+-(void) removeWeapon;
 -(void) changeWeapon:(int)_weaponID;
 -(void) setState:(int) anim;
 -(void) jump;
