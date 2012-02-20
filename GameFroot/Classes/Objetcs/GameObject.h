@@ -12,6 +12,20 @@
 
 enum ANIM { STAND = 0, WALK, CROUCH, PRONE, JUMPING, FALLING };
 
+typedef enum {
+    CONTACT_IS_BELOW,
+    CONTACT_IS_ABOVE,
+    CONTACT_IS_RIGHT,
+    CONTACT_IS_LEFT,
+    CONTACT_IS_UNDEFINED,
+} CONTACT_IS;
+
+typedef struct _contactData {
+    id              object;
+    b2Contact*      contact;
+    CONTACT_IS      position;
+} contactData;
+
 @interface GameObject : CCSprite {
 	b2Body *body;
 	
@@ -37,5 +51,10 @@ enum ANIM { STAND = 0, WALK, CROUCH, PRONE, JUMPING, FALLING };
 -(void) update:(ccTime)dt;
 -(void) remove;
 -(void) destroy;
+
+// collision handling
+-( void )handlePreSolve:( contactData )data;
+-( void )handleBeginCollision:( contactData )data;
+-( void )handleEndCollision:( contactData )data;
 
 @end

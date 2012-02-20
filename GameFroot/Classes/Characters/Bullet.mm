@@ -222,5 +222,27 @@
 	[super update:dt];
 }
 
+// handle bullet collisions
+-( void )handleBeginCollision:( contactData )data {
+    GameObject* object = ( GameObject* )data.object;
+    
+    // case handling
+    switch ( object.type ) {
+        /*
+        case kGameObjectBullet:
+        case kGameObjectBulletEnemy:    
+            [ ( Bullet* )object die ];
+            [ self die ];
+            break;
+        */
+            
+        case kGameObjectPlatform:
+            [ self die ];
+            break;
+            
+        default:
+            break;
+    }
+}
 
 @end

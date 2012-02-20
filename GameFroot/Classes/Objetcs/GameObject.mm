@@ -118,9 +118,24 @@
 	}
 }
 
+/*
 -(CGPoint) getTilePosition {
     int dx = (self.position.x - size.width/2.0f) * CC_CONTENT_SCALE_FACTOR() / (MAP_TILE_WIDTH * CC_CONTENT_SCALE_FACTOR());
     int dy = [GameLayer getInstance].mapHeight - ((self.position.y - size.height/2.0f) * CC_CONTENT_SCALE_FACTOR() / (MAP_TILE_HEIGHT * CC_CONTENT_SCALE_FACTOR()));
+    
+    return ccp(dx,dy);
+}
+*/
+
+-(CGPoint) getTilePosition {
+    /*
+    int dx = (self.position.x - size.width/2.0f) / MAP_TILE_WIDTH;
+    int dy = [GameLayer getInstance].mapHeight - ((self.position.y - size.height/2.0f) / MAP_TILE_HEIGHT);
+    */
+    
+    // seems to work better
+    int dx = self.position.x * CC_CONTENT_SCALE_FACTOR() / MAP_TILE_WIDTH * CC_CONTENT_SCALE_FACTOR();
+    int dy = [ GameLayer getInstance ].mapHeight - ( self.position.y * CC_CONTENT_SCALE_FACTOR() / MAP_TILE_HEIGHT * CC_CONTENT_SCALE_FACTOR() );
     
     return ccp(dx,dy);
 }
@@ -148,6 +163,11 @@
         //body->SetTransform(body->GetPosition(), 0);
 	}
 }
+
+// override for functionality
+-( void )handlePreSolve:( contactData )data { }
+-( void )handleBeginCollision:( contactData )data { }
+-( void )handleEndCollision:( contactData )data { }
 
 - (void)dealloc
 {

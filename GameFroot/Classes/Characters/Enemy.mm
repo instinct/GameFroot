@@ -280,6 +280,7 @@
 	}
 }
 
+/*
 -(void) moveRight
 {
 	if (!dying && !immortal) {
@@ -319,6 +320,7 @@
 		facingLeft = YES;
 	}
 }
+*/
 
 -(void) changeDirection
 {
@@ -411,6 +413,7 @@
 	self.visible = NO;
 }
 
+/*
 -(void) faceRight
 {
 	if (!dying && !immortal) {
@@ -428,6 +431,7 @@
 		facingLeft = YES;
 	}
 }
+*/
 
 -(void) restartPosition
 {
@@ -493,6 +497,7 @@
 	self.visible = YES;
 }
 
+/*
 -(void) update:(ccTime)dt
 {
 	if (removed) return;
@@ -642,12 +647,450 @@
 	
 	[super update:dt];
 }
+*/
 
 - (void)setPosition:(CGPoint)point {
 	[super setPosition:point];
 	float spriteHeight = (self.batchNode.texture.contentSize.height/2) * CC_CONTENT_SCALE_FACTOR();
 	CGPoint posHealth = ccp(self.position.x*REDUCE_FACTOR + [GameLayer getInstance].position.x, self.position.y*REDUCE_FACTOR + spriteHeight/2 + [GameLayer getInstance].position.y);
 	[healthBar setPosition:ccp(roundf(posHealth.x), roundf(posHealth.y))];
+}
+
+// --------------------------------------------------------------
+// AI actions
+// --------------------------------------------------------------
+
+-( void )faceRight {
+    // make sure we can call this each frame
+    if ( ( direction == kDirectionRight ) && ( moving == NO ) ) return; 
+	if ( dying || immortal ) return;
+    // stand and look right
+    self.scaleX = 1;
+    [ self setState:STAND ];
+    moving = NO;
+    direction = kDirectionRight;
+    facingLeft = NO;
+}
+
+-( void )faceLeft {
+    // make sure we can call this each frame
+    if ( ( direction == kDirectionLeft )&& ( moving == NO ) ) return;
+	if ( dying || immortal ) return;
+    // stand and look left
+    self.scaleX = -1;
+    [ self setState:STAND ];
+    moving = NO;
+    direction = kDirectionLeft;
+    facingLeft = YES;
+}
+
+-( void )moveRight {
+    // make sure we can call this each frame
+    if ( ( direction == kDirectionRight ) && ( moving == YES ) ) return;
+	if ( dying || immortal ) return;
+    // walk right
+    b2Vec2 current = body->GetLinearVelocity();
+    b2Vec2 velocity = b2Vec2(HORIZONTAL_SPEED - (HORIZONTAL_SPEED - speed) + horizontalSpeedOffset, current.y);
+    body->SetLinearVelocity(velocity);
+    //
+    self.scaleX = 1;
+    [ self setState:WALK ];
+    moving = YES;
+    direction = kDirectionRight;
+    facingLeft = NO;
+}
+
+-(void) moveLeft {
+    // make sure we can call this each frame
+    if ( ( direction == kDirectionLeft ) && ( moving == YES ) ) return;
+	if ( dying || immortal ) return;
+    // walk lelt
+    b2Vec2 current = body->GetLinearVelocity();
+    b2Vec2 velocity = b2Vec2(-(HORIZONTAL_SPEED- (HORIZONTAL_SPEED - speed)) + horizontalSpeedOffset, current.y);
+    body->SetLinearVelocity(velocity);
+    //    
+    self.scaleX = -1;
+    [ self setState:WALK ];
+    moving = YES;
+    direction = kDirectionLeft;
+    facingLeft = YES;
+}
+
+// --------------------------------------------------------------
+// jumps should maybe be randomized to make AI fail
+
+-( void )jumpTo:( CGPoint )jumpTo {
+    b2Vec2 impulse;
+    
+    // make sure repeated calls are okay
+    if ( jumping ) return;
+	if ( dying || immortal ) return;
+    
+    float dir = ( direction == kDirectionLeft ) ? -1.0f : +1.0f; 
+    // create impulse based on jump direction
+    if ( jumpTo.y >= 0 ) {
+        // jump up or horizontally
+        jumpTo.x -= 1;
+        jumpTo.y += 3;
+        impulse = b2Vec2( dir * ENEMY_JUMP_GAIN * jumpTo.x, ENEMY_JUMP_GAIN * jumpTo.y  );
+    } else {
+        // jump down
+        jumpTo.y = 2;
+        impulse = b2Vec2( dir * ENEMY_JUMP_GAIN * jumpTo.x, ENEMY_JUMP_GAIN * jumpTo.y );
+    }
+    // apply impulse
+    body->SetLinearVelocity( b2Vec2( 0, 0 ) );
+    body->ApplyLinearImpulse( impulse, body->GetWorldCenter( ) );    
+    [ self setState:JUMPING ];
+    jumping = YES;
+    
+}
+
+// --------------------------------------------------------------
+// updated AI handling
+// --------------------------------------------------------------
+
+// get tile type relative to position ( -x => left, y => up )
+// used in all tile checking
+// y is subtracted, so that positive y relative to object, is up
+
+-( int )tileType:( int )x y:( int )y {
+    // if left, invert x
+    if ( direction == kDirectionLeft ) x = -x;
+    // return tile type
+    return( [ [ GameLayer getInstance ] getTileAt:ccp( tilePos.x + x, tilePos.y - y ) ] );
+}
+
+// --------------------------------------------------------------
+// check if a tile is walkable 
+
+-( BOOL )tileWalkable:( int )x y:( int )y {
+    int tile; 
+    
+    // bottom tile must be solid ground
+    tile = [ self tileType:x y:( y - 1 ) ];
+    if ( ( tile != TILE_TYPE_SOLID ) && ( tile != TILE_TYPE_CLOUD ) ) return( NO );
+    // tile +1 above ground must be free
+    tile = [ self tileType:x y:y ];
+    if ( tile != TILE_TYPE_NONE ) return( NO );
+    // tile +2 above ground must be free
+    tile = [ self tileType:x y:( y + 1 ) ];
+    return( tile == TILE_TYPE_NONE );
+}
+
+// --------------------------------------------------------------
+// check if a tile is jumpable
+
+-( BOOL )tileJumpable:( int )x y:( int )y {
+    if ( [ self tileType:x y:( y + 0 ) ] != TILE_TYPE_NONE ) return( NO );
+    if ( [ self tileType:x y:( y + 1 ) ] != TILE_TYPE_NONE ) return( NO );
+    if ( [ self tileType:x y:( y + 2 ) ] != TILE_TYPE_NONE ) return( NO );
+    return( YES );
+}
+
+// --------------------------------------------------------------
+// check is enemy inside game area
+
+-( BOOL )isInsideScreen:( CGPoint )pos {
+#if ENEMY_TRACK_ALWAYS == 1
+    return( YES );
+#else
+    CGSize winSize = [ [ CCDirector sharedDirector ] winSize ];
+    CGRect rect;
+    
+    rect = CGRectMake( -self.contentSize.width - ENEMY_TRACK_RANGE, 
+                      -self.contentSize.height - ENEMY_TRACK_RANGE,
+                      winSize.width + ( self.contentSize.width * 2 ) + ( ENEMY_TRACK_RANGE * 2 ),
+                      winSize.height + ( self.contentSize.height * 2 ) + ( ENEMY_TRACK_RANGE * 2 ) );
+    return( CGRectContainsPoint( rect , pos ) );
+#endif
+}
+
+// --------------------------------------------------------------
+// check if moonwalking
+
+-( BOOL )isMoonWalking {
+    b2Vec2 vel = body->GetLinearVelocity( );
+    if ( ( vel.x < 0 ) && ( direction == kDirectionRight ) ) return( YES );
+    if ( ( vel.x > 0 ) && ( direction == kDirectionLeft ) ) return( YES );
+    return( NO );    
+}
+
+// --------------------------------------------------------------
+// check for jump up solution 
+
+-( CGPoint )jumpUpSolution {
+    int tile;
+    
+    // check for jump capabilities
+    if ( ( behaviour & ENEMY_BEHAVIOUR_JUMPING ) == ENEMY_BEHAVIOUR_NONE ) return( CGPointZero );
+    // check for standing on solid ground
+    tile = [ self tileType:0 y:-1 ];
+    if ( ( tile != TILE_TYPE_SOLID ) && ( tile != TILE_TYPE_CLOUD ) ) return( CGPointZero );
+    // check for no obstructing tile overhead
+    tile = [ self tileType:0 y:2 ];
+    if ( ( tile != TILE_TYPE_NONE ) && ( tile != TILE_TYPE_CLOUD ) ) return( CGPointZero );
+    //tile = [ self tileType:1 y:2 ];
+    //if ( ( tile != TILE_TYPE_NONE ) && ( tile != TILE_TYPE_CLOUD ) ) return( CGPointZero );
+    // scan for jump solution
+    for ( int y = ENEMY_JUMP_UP_LOOKUP; y > 0; y -- ) {
+        for ( int x = 1; x <= ENEMY_JUMP_UP_LOOKAHEAD; x ++ ) {
+            // check for usable terrain
+            if ( [ self tileWalkable:x y:y ] == YES ) {
+                // return jump solution
+                return( ccp( x, y ) );
+            }
+        }
+    }
+    // no jump solution
+    return( CGPointZero );
+}
+
+// --------------------------------------------------------------
+// check for a jump horizontal solution 
+
+-( CGPoint )jumpHorizontalSolution {
+    int tile;
+    
+    // check for jump capabilities
+    if ( ( behaviour & ENEMY_BEHAVIOUR_JUMPING ) == ENEMY_BEHAVIOUR_NONE ) return( CGPointZero );
+    // check for standing on solid ground
+    tile = [ self tileType:0 y:-1 ];
+    if ( ( tile != TILE_TYPE_SOLID ) && ( tile != TILE_TYPE_CLOUD ) ) return( CGPointZero );
+    //
+    for ( int x = 2; x <= ENEMY_JUMP_HORZ_LOOKAHEAD; x ++ ) {
+        if ( [ self tileWalkable:x y:0 ] == YES ) {
+            // return jump solution
+            return( ccp( x, 0 ) );
+        }
+    }
+    // no jump solution
+    return( CGPointZero );
+}
+
+// --------------------------------------------------------------
+// check for a ump down solution
+
+-( CGPoint )jumpDownSolution {
+    int tile;
+    
+    // check for jump capabilities
+    if ( ( behaviour & ENEMY_BEHAVIOUR_JUMPING ) == ENEMY_BEHAVIOUR_NONE ) return( CGPointZero );
+    // check for standing on solid ground
+    tile = [ self tileType:0 y:-1 ];
+    if ( ( tile != TILE_TYPE_SOLID ) && ( tile != TILE_TYPE_CLOUD ) ) return( CGPointZero );
+    //
+    for ( int x = ENEMY_JUMP_DOWN_LOOKAHEAD; x > 0; x -- ) {
+        for ( int y = -ENEMY_JUMP_DOWN_LOOKDOWN; y < 0; y ++ ) {
+            // check for usable terrain
+            if ( [ self tileWalkable:x y:y ] == YES ) {
+                // return jump solution
+                return( ccp( x, y ) );
+            }
+        }
+    }
+    // no jump solution
+    return( CGPointZero );
+}
+
+// --------------------------------------------------------------
+
+-(void) update:( ccTime )dt {
+    CGPoint jumpPos;
+    CGPoint playerPos;
+    
+	if ( removed ) return;
+	
+    // check if visible, otherwise kill all AI
+	CGPoint pos = [ [ GameLayer getInstance ] convertToMapCoordinates:self.position ];
+    if ( [ self isInsideScreen:pos ] == NO ) {
+        // probably wait for ongoing jumps to expire
+		if ( self.visible ) {
+			self.visible = NO;
+			[ self stop ];
+			body->SetActive( false );
+            direction = kDirectionNone; // direction controls scan
+		}
+		return;
+	} else {
+        if ( !self.visible ) {
+            self.visible = YES;
+            body->SetActive( true );
+        }
+	}
+    
+    // check for passive AI
+	if ( behaviour == ENEMY_BEHAVIOUR_NONE ) return;
+    
+    // *****************************
+    // AI control     
+    // *****************************
+    
+    // find positions
+    tilePos = [ self getTilePosition ];
+    playerPos = [ player getTilePosition ];
+    
+    // ********************
+    // check for firing solution
+    // ********************
+    
+    if ( ( playerPos.y == tilePos.y ) || ( playerPos.y - 1 == tilePos.y ) ) {
+        // shoot if facing correct
+        if ( ( ( playerPos.x < tilePos.x ) && ( direction == kDirectionLeft ) ) ||
+            ( ( playerPos.x > tilePos.x ) && ( direction == kDirectionRight ) ) ) {
+            shootTimer -= dt;
+            if ( shootTimer <= 0 ) {
+                [ self shoot ];
+                shootTimer = shootDelay;
+            } 
+        }
+    } else {
+#if ENEMY_INITIAL_WEAPON_DELAY
+        shootTimer = shootDelay;
+#else
+        shootTimer -= dt;
+#endif
+    }
+    
+    // ********************
+    // check for ongoing jump
+    // ********************
+    // if a jump is ongoing or just finished, wait for sequence to complete
+    if ( jumping ) {
+        // check for advanced jump handling ( ex changing direction mid jump
+        
+        
+        [ super update:dt ];
+        return;
+    }
+    if ( jumpDelay > 0 ) {
+        jumpDelay -= dt;
+        [ super update:dt ];
+        return;
+    }
+    
+    
+    
+    
+    
+    // ********************
+    // idle handling
+    // ********************
+    if ( direction == kDirectionNone ) {
+        if ( self.position.x > player.position.x ) {
+            [ self moveLeft ];
+        } else {
+            [ self moveRight ];
+        }
+    }
+    
+    // ********************
+    // direction check
+    // ********************
+    // if enemy is pushed, the physics engine might result in "moonwalking"
+    if ( [ self isMoonWalking ] == YES ) [ self changeDirection ];
+    
+    // ********************
+    // sync, so that tile checking only happens around tile center
+    // ********************    
+    
+    // this does not seems to matter much
+    
+    // ********************
+    // jump handling
+    // ********************
+    
+    // search for jump solutions
+    jumpPos = CGPointZero;
+    // check if player is above, and jump from any valid position
+    if ( playerPos.y < tilePos.y ) {
+        jumpPos = [ self jumpUpSolution ];
+    } else if ( [ self tileWalkable:1 y:0 ] == NO ) {
+        // only jump down and horizontally from end tiles
+        // if player is below
+        if ( playerPos.y > tilePos.y ) {
+            jumpPos = [ self jumpDownSolution ];
+        } else {
+            jumpPos = [ self jumpHorizontalSolution ];                
+        }
+    }
+    // check for jump
+    if ( jumpPos.x != 0 ) {
+        [ self jumpTo:jumpPos ];
+        jumping = YES;
+    } else {
+        // no jump
+        if ( [ self tileWalkable:1 y:0 ] == NO ) [ self changeDirection ];
+        
+    }
+    
+    
+    // done
+	[ super update:dt ];
+}
+
+// --------------------------------------------------------------
+// handle enemy collisions
+
+// presolve is mainly for disabling collision
+
+-( void )handlePreSolve:( contactData )data {
+    GameObject* object = ( GameObject* )data.object;
+    
+    // case handling
+    switch ( object.type ) {
+            
+        case kGameObjectEnemy:
+            data.contact->SetEnabled( false );
+            break;
+            
+        case kGameObjectCloud:
+            if ( data.position == CONTACT_IS_ABOVE ) data.contact->SetEnabled( false );
+            break;
+            
+        default:
+            break;
+            
+    }
+}
+
+// --------------------------------------------------------------
+-( void )handleBeginCollision:( contactData )data {
+    GameObject* object = ( GameObject* )data.object;
+    
+    // case handling
+    switch ( object.type ) {
+            
+        case kGameObjectPlayer:
+			[ player hit:self.collideGiveDamage];
+			[ self hit:self.collideTakeDamage];
+			// [ self resetForces];
+            // [ self stop ];
+            break;
+            
+        case kGameObjectCloud:
+        case kGameObjectPlatform:
+        case kGameObjectKiller:
+            // enemy landed on something
+            if ( data.position == CONTACT_IS_BELOW ) {
+                if ( jumping ) {
+                    jumping = NO;
+                    [ self stop ];
+                    jumpDelay = ENEMY_JUMP_DELAY;
+                }
+                [ self hitsFloor ];
+            }
+            break;
+            
+        case kGameObjectBullet:
+            [ self hit:( ( Bullet* )object ).damage ];
+            [ ( Bullet* )object die ];
+            break;
+            
+        default:
+            break;
+    }
+    
 }
 
 - (void) dealloc

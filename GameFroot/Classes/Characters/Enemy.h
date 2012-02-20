@@ -10,6 +10,37 @@
 #import "GameObject.h"
 #import "Player.h"
 
+#define ENEMY_BEHAVIOUR_NONE            0
+#define ENEMY_BEHAVIOUR_JUMPING         ( 1 << 0 )
+#define ENEMY_BEHAVIOUR_WALKING         ( 1 << 1 )
+#define ENEMY_BEHAVIOUR_SHOOTING        ( 1 << 2 )
+
+#define TILE_TYPE_NONE                  0
+#define TILE_TYPE_SOLID                 1
+#define TILE_TYPE_CLOUD                 2
+#define TILE_TYPE_SPIKE                 3
+#define TILE_TYPE_ICE                   4
+#define TILE_TYPE_DESTRUCTABLE          5
+
+// --------------------------------------------------------------
+// SETTING UP EMENY AI
+
+// defines the jump area enemies scan
+#define ENEMY_JUMP_UP_LOOKAHEAD         4               // tiles to look ahead for jump up solution
+#define ENEMY_JUMP_UP_LOOKUP            3               // tiles to look up for jump up solution
+#define ENEMY_JUMP_HORZ_LOOKAHEAD       5               // tiles to look ahead for horizontal jump
+#define ENEMY_JUMP_DOWN_LOOKAHEAD       3               // tiles to look ahead for jump down solutions
+#define ENEMY_JUMP_DOWN_LOOKDOWN        3               // tiles to look down for ump down solutions
+
+#define ENEMY_JUMP_GAIN                 2.00f           // how powerful jumps are
+#define ENEMY_JUMP_DELAY                1.0f            // jump delay after jump ( should be randomized )    
+#define ENEMY_TRACK_RANGE               100             // how much to expand track range beyond visible screen
+#define ENEMY_INITIAL_WEAPON_DELAY      1               // firing weapon will have an initial delay
+
+#define ENEMY_TRACK_ALWAYS              0               // track even if out of screen
+
+// --------------------------------------------------------------
+
 @interface Enemy : Player {
 	Player *player;
 	
@@ -31,6 +62,10 @@
 	CGPoint prevPosition;
     
     NSTimeInterval lastShoot;
+    
+    CGPoint tilePos;                    // current tile position
+    float jumpDelay;                    // idle delay after jump finished
+    float shootTimer;                   // shoot timer
 }
 
 @property (nonatomic,assign) int collideTakeDamage;

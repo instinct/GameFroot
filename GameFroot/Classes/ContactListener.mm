@@ -16,6 +16,7 @@
 #import "Switch.h"
 #import "Robot.h"
 
+/*
 #define IS_PLAYER(x, y)					(x.type == kGameObjectPlayer || y.type == kGameObjectPlayer)
 #define IS_ENEMY(x, y)					(x.type == kGameObjectEnemy || y.type == kGameObjectEnemy)
 #define IS_PLATFORM(x, y)				(x.type == kGameObjectPlatform || y.type == kGameObjectPlatform)
@@ -29,6 +30,7 @@
 #define IS_ROBOT(x, y)					(x.type == kGameObjectRobot || y.type == kGameObjectRobot)
 #define ARE_ENEMIES(x, y)				(x.type == kGameObjectEnemy && y.type == kGameObjectEnemy)
 #define ARE_ROBOTS(x, y)				(x.type == kGameObjectRobot && y.type == kGameObjectRobot)
+*/
 
 ContactListener::ContactListener() {
 }
@@ -36,6 +38,7 @@ ContactListener::ContactListener() {
 ContactListener::~ContactListener() {
 }
 
+/*
 bool ContactListener::Above(b2Contact *contact) {
     b2WorldManifold worldManifold;
     contact->GetWorldManifold(&worldManifold);
@@ -684,4 +687,95 @@ void ContactListener::EndContact(b2Contact *contact) {
 		if (!robot1.physics && !robot1.solid) [robot1 finished:robot2];
         if (!robot2.physics && !robot2.solid) [robot2 finished:robot1];
 	}
+}
+*/
+
+CONTACT_IS ContactListener::solveContactPosition( b2Contact* contact ) {
+    b2WorldManifold worldManifold;
+    contact->GetWorldManifold(&worldManifold);
+    b2Vec2 worldNormal = worldManifold.normal;
+    
+    // check
+    if ( lround( worldNormal.y ) ==  1 ) return( CONTACT_IS_BELOW );
+    if ( lround( worldNormal.y ) == -1 ) return( CONTACT_IS_ABOVE );
+    if ( lround( worldNormal.x ) ==  1 ) return( CONTACT_IS_LEFT );
+    if ( lround( worldNormal.x ) == -1 ) return( CONTACT_IS_RIGHT );
+    return( CONTACT_IS_UNDEFINED );
+}
+
+// PreSolve can be called several times
+// Primary use is to ignore collisions
+
+void ContactListener::PreSolve(b2Contact *contact, const b2Manifold *oldManifold) {
+	GameObject *o1 = (GameObject*)contact->GetFixtureA()->GetBody()->GetUserData();
+	GameObject *o2 = (GameObject*)contact->GetFixtureB()->GetBody()->GetUserData();
+	
+    if (!contact->IsTouching()) return;
+    
+    contactData data;
+    
+    data.contact = contact;
+    data.position = solveContactPosition( contact );
+    
+    // handle o1 contact
+    data.object = o2;
+    [ o1 handlePreSolve:data ];
+    
+    // handle o2 contact
+    data.object = o1;
+    [ o2 handlePreSolve:data ];
+    
+}
+
+// BeginContact is only called once
+
+void ContactListener::BeginContact(b2Contact *contact) {
+	GameObject *o1 = (GameObject*)contact->GetFixtureA()->GetBody()->GetUserData();
+	GameObject *o2 = (GameObject*)contact->GetFixtureB()->GetBody()->GetUserData();
+	
+	if ( o1.removed || o2.removed ) {
+		contact->SetEnabled( false ); // <- NO EFFECT
+		return;
+	}
+	
+    if (!contact->IsTouching()) return;
+    
+    contactData data;
+    
+    data.contact = contact;
+    data.position = solveContactPosition( contact );
+    
+    // handle o1 contact
+    data.object = o2;
+    [ o1 handleBeginCollision:data ];
+    
+    // handle o2 contact
+    data.object = o1;
+    [ o2 handleBeginCollision:data ];
+    
+}
+
+// EndContact is only called once
+
+void ContactListener::EndContact(b2Contact *contact) {
+	GameObject *o1 = (GameObject*)contact->GetFixtureA()->GetBody()->GetUserData();
+	GameObject *o2 = (GameObject*)contact->GetFixtureB()->GetBody()->GetUserData();
+    
+    contactData data;
+    
+    data.contact = contact;
+    data.position = solveContactPosition( contact );
+    
+    // handle o1 contact
+    data.object = o2;
+    [ o1 handleEndCollision:data ];
+    
+    // handle o2 contact
+    data.object = o1;
+    [ o2 handleEndCollision:data ];
+    
+}
+
+void ContactListener::PostSolve(b2Contact *contact, const b2ContactImpulse *impulse) {
+    
 }

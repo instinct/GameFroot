@@ -9,6 +9,7 @@
 #import "Robot.h"
 #import "CJSONDeserializer.h"
 #import "GameLayer.h"
+#import "Bullet.h"
 #import "SimpleAudioEngine.h"
 
 #define FLASH_VELOCITY_FACTOR	50.0f
@@ -1646,6 +1647,42 @@
 {
 	[self stopAllActions];
 	[super remove];
+}
+
+// collision handling
+-( void )handlePreSolve:( contactData )data {
+    GameObject* object = ( GameObject* )data.object;
+    
+    // case handling
+    switch ( object.type ) {
+            
+        default:    
+            if ( !self.physics && !self.solid ) data.contact->SetEnabled( false );
+            break;
+            
+    }
+}
+
+-( void )handleBeginCollision:( contactData )data {
+    GameObject* object = ( GameObject* )data.object;
+    
+    // case handling
+    switch ( object.type ) {
+            
+        case kGameObjectPlayer:
+            [ self touched:object ];
+            break;
+            
+        case kGameObjectBullet:
+            if ( ( self.physics || self.solid) && ( !self.sensor ) ) {
+                [ self hit:( ( Bullet* )object ).damage ];
+                [ ( Bullet* )object die ];
+            }
+            break;
+            
+        default:
+            break;
+    }
 }
 
 - (void)dealloc

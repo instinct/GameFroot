@@ -10,6 +10,8 @@
 #import "GameLayer.h"
 #import "Constants.h"
 #import "Bullet.h"
+#import "Robot.h"
+#import "MovingPlatform.h"
 #import "GB2ShapeCache.h"
 
 static float const ANIMATION_OFFSET_X[11] = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f, -20.0f,0.0f,0.0f};
@@ -1416,6 +1418,146 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     else tileInFront = [[GameLayer getInstance] getTileAt:ccp(mapPos.x+1, mapPos.y)];
     CCLOG(@">>>>> %f,%f => %i", mapPos.x, mapPos.y, tileInFront);
     */
+}
+
+// handle player collisions
+
+-( void )handlePreSolve:( contactData )data { 
+    GameObject* object = ( GameObject* )data.object;;
+    b2Vec2 velocity;
+    
+    switch ( object.type ) {
+            
+        case kGameObjectCloud:
+            if ( data.position == CONTACT_IS_ABOVE ) data.contact->SetEnabled( false );
+            break;
+            
+        case kGameObjectMovingPlatform:
+            velocity = ( ( MovingPlatform* )object ).body->GetLinearVelocity( );
+            switch ( data.position ) {
+                case CONTACT_IS_BELOW:
+                    [ self displaceHorizontally:velocity.x ];
+                    break;
+                default:
+                    break;
+            }
+            break;
+            
+        case kGameObjectRobot:
+            if ( ( ( Robot* )object ).solid == NO ) {
+                data.contact->SetEnabled(false);
+            } else {
+                if ( data.position == CONTACT_IS_BELOW ) velocity = ( ( Robot* )object ).body->GetLinearVelocity();
+                if ( velocity.x != 0 ) [ self displaceHorizontally:velocity.x ];
+            }
+            
+            break;
+            
+        default:
+            break;
+    }
+}
+
+-( void )handleBeginCollision:( contactData )data {
+    GameObject* object = ( GameObject* )data.object;;
+    b2Vec2 velocity;
+    
+    switch ( object.type ) {
+            
+        case kGameObjectEnemy:
+        case kGameObjectPlatform:
+        case kGameObjectCloud:
+            if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ];
+            break;
+            
+        case kGameObjectKiller:
+            [ self die ];
+            break;
+            
+        case kGameObjectCollectable:
+            [ object remove ];
+            break;
+            
+        case kGameObjectRobot:
+            if ( data.position == CONTACT_IS_BELOW ) {
+                velocity = object.body->GetLinearVelocity( );
+                if ( velocity.y != 0 ) self.ignoreGravity = YES;
+                [ self hitsFloor ];
+                if ( velocity.x != 0 ) [ self displaceHorizontally:velocity.x ];
+            }
+            break;
+            
+        case kGameObjectBulletEnemy:
+			if ( ( self.action != PRONE) /* || ( [ self isBelow:bullet ] ) */ ) {
+				[ self hit:( ( Bullet* )object ).damage ];
+				[ ( Bullet* )object die ];
+			}
+            break;            
+            
+        case kGameObjectMovingPlatform:
+            velocity = ( ( MovingPlatform* )object ).body->GetLinearVelocity( );
+            switch ( data.position ) {
+                case CONTACT_IS_BELOW:
+                    if ( ( ( MovingPlatform* )object ).velocity.y != 0 ) self.ignoreGravity = YES;
+                    [ self hitsFloor ];
+                    if ( ( ( MovingPlatform* )object ).velocity.x != 0 ) [ self displaceHorizontally:velocity.x ];
+                    break;
+                case CONTACT_IS_ABOVE:
+                    if ( velocity.y < 0 ) [ ( MovingPlatform* )object changeDirection ];
+                    break;
+                case CONTACT_IS_LEFT:
+                    if ( velocity.x > 0 ) [ ( MovingPlatform* )object changeDirection ];
+                    break;
+                case CONTACT_IS_RIGHT:
+                    if ( velocity.x < 0 ) [ ( MovingPlatform* )object changeDirection ];
+                    break;
+                default:
+                    break;
+            }
+            break;
+            
+        case kGameObjectSwitch:
+            [ self setTouchingSwitch:( Switch* )object ];
+            break;
+            
+        default:
+            break;
+    }
+}
+
+-( void )handleEndCollision:( contactData )data {
+    GameObject* object = ( GameObject* )data.object;;
+    b2Vec2 velocity;
+    
+    switch ( object.type ) {
+            
+        case kGameObjectPlatform:
+        case kGameObjectCloud:
+            [ self restartMovement ];
+            break;
+            
+        case kGameObjectSwitch:
+            [ self setTouchingSwitch:nil ];
+            break;
+            
+        case kGameObjectRobot:
+            [ ( Robot* )object finished:self ];
+            velocity = ( ( Robot* )object ).body->GetLinearVelocity();
+            if ( velocity.y != 0 ) self.ignoreGravity = NO;
+            if ( velocity.x != 0 ) [ self displaceHorizontally:0.0f ];
+            [ self restartMovement ];
+            break;
+            
+        case kGameObjectMovingPlatform:
+            if ( ( ( MovingPlatform* )object ).velocity.y != 0) self.ignoreGravity = NO;
+            if ( ( ( MovingPlatform* )object ).velocity.x != 0) [ self displaceHorizontally:0.0f ];
+            [ self restartMovement ];
+            break;
+            
+        default:
+            break;
+            
+    }
 }
 
 - (void) dealloc
