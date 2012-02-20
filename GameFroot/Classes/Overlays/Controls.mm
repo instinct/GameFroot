@@ -99,6 +99,9 @@
 
 -(void) setControlType:(GameControlType)type {
     if(type != controlType) {
+        [self unschedule:@selector(proSwipeFadeIn:)];
+        [self unschedule:@selector(proSwipeFadeOut:)];
+        
         NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
         [prefs setInteger:(int)type forKey:@"controlType"];
         [prefs synchronize];
@@ -120,6 +123,8 @@
             self.visible = YES;
             leftJoy.visible = NO;
             proSwipeRing.visible = YES;
+            proSwipeRing.opacity = CONTROLS_OPACITY;
+            firstTouch = YES;
             break;
         default:
             break;
