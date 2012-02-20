@@ -12,11 +12,15 @@
 
 #define CONTROLS_INIT_X 76
 #define CONTROLS_INIT_Y 66
+#define CONTROLS_OPACITY 125
 
 // Pro swipe constants
 #define CONTROLS_MAX_TRAVEL 70
 #define CONTROLS_DEAD_SPOT_SIZE 10
 #define CONTROLS_PRONE_TRIGGER 80
+#define CONTROLS_TIME_TILL_FADE 2
+#define CONTROLS_FADE_DURATION 1
+#define CONTROLS_IDLE_TILL_REAPPEAR 3
 
 @class Player;
 
@@ -58,6 +62,7 @@
     
     GameControlType controlType;
     Player *player;
+    bool firstTouch;
     
 }
 

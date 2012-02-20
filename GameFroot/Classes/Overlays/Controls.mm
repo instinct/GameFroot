@@ -22,25 +22,30 @@
     if (!leftJoy) { // Be sure we don't recreate them again when restaring the game
 
         CGSize size = [[CCDirector sharedDirector] winSize];
+        firstTouch = YES;
 
         dpadInitialPosition = ccp(CONTROLS_INIT_X,CONTROLS_INIT_Y);
         
         leftJoy = [CCSprite spriteWithSpriteFrameName:@"d_pad_normal.png"];
-        [leftJoy setOpacity:125];
-        leftJoy.position = dpadInitialPosition;        
-    
+        [leftJoy setOpacity:CONTROLS_OPACITY];
+        leftJoy.position = dpadInitialPosition;    
+        
+        proSwipeRing = [CCSprite spriteWithSpriteFrameName:@"ring.png"];
+        [proSwipeRing setOpacity:CONTROLS_OPACITY];
+
         
         leftBut = [CCSprite spriteWithSpriteFrameName:@"b_button_up.png"];
-        [leftBut setOpacity:125];
+        [leftBut setOpacity:CONTROLS_OPACITY];
         leftBut.position = ccp(330,56);
         
         rightBut = [CCSprite spriteWithSpriteFrameName:@"a_button_up.png"];
-        [rightBut setOpacity:125];
+        [rightBut setOpacity:CONTROLS_OPACITY];
         rightBut.position = ccp(424,56);
         
         [self addChild:leftJoy];
         [self addChild:leftBut];
         [self addChild:rightBut];
+        [self addChild:proSwipeRing];
         
         northMoveArea = CGRectMake(-35, 181, 220, 110); // 40 increase
         southMoveArea = CGRectMake(-35, 71, 220, 110); // done
@@ -64,10 +69,10 @@
         
         // TODO: Change to center on visuals when availible.
         midPointAnchor = (dpadTouchArea.origin.x + dpadTouchArea.size.width/2);
+        proSwipeRing.position = ccp(dpadTouchArea.size.width/2, dpadTouchArea.size.height/2 - 50);
         
         jumpArea = aButtonTouchArea;
         shootArea = bButtonTouchArea;
-
         
         [self checkSettings];
     }
@@ -106,6 +111,7 @@
             self.visible = YES;
             leftJoy.visible = YES;
             leftJoy.position = dpadInitialPosition;
+            proSwipeRing.visible = NO;
             break;
         case controlNoDpad:
             self.visible = NO;
@@ -113,6 +119,7 @@
         case controlProSwipe:
             self.visible = YES;
             leftJoy.visible = NO;
+            proSwipeRing.visible = YES;
             break;
         default:
             break;
@@ -193,7 +200,7 @@
 
 -(void) releasedControls
 {
-    [leftJoy setOpacity:125];
+    [leftJoy setOpacity:CONTROLS_OPACITY];
 }
 
 -(void) ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event andLocation:(CGPoint)location
@@ -297,7 +304,14 @@
             gestureStartTime = event.timestamp;
             gestureStartPoint = location;
             dpadTouch = touch;
+            [self unschedule:@selector(proSwipeFadeIn:)];
             [self processProSwipeTouch:touch withEvent:event andLocation:location];
+            
+            if (firstTouch) {
+                // set a timer for fade
+                [self schedule:@selector(proSwipeFadeOut:) interval:2];
+                firstTouch = NO;
+            }
         }
         
         if ([self touchWithinJumpHitArea:location]) {
@@ -305,9 +319,9 @@
         
         if ([self touchWithinShootHitArea:location]) {
             [self initShootWithTouch:touch andEvent:event];
-        }	
+        }
 	}
-
+    
 }
 
 -(void) ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event andLocation:(CGPoint)location 
@@ -336,7 +350,6 @@
                 [player prone];
             }
             gestureTouch = nil;
-            
         }
         
     } else if([self getControlType] == controlDpad) {
@@ -378,6 +391,9 @@
             
             dpadTouch = nil;
             [self releasedControls];
+            if(!proSwipeRing.visible) {
+                 [self schedule:@selector(proSwipeFadeIn:) interval:CONTROLS_IDLE_TILL_REAPPEAR];
+             }
         }
         
         if (touch == shootTouch) {
@@ -531,6 +547,9 @@
                 } else {
                     midPointAnchor += (travel + CONTROLS_MAX_TRAVEL);
                 }
+                if(proSwipeRing.visible) {
+                    proSwipeRing.position = ccp(midPointAnchor, proSwipeRing.position.y);
+                }
             }
         }
     }
@@ -572,6 +591,7 @@
     }
 }
 
+
 -(bool) touchWithinJumpHitArea:(CGPoint)point {
     CGSize size = [[CCDirector sharedDirector] winSize];
     return CGRectContainsPoint(CGRectMake(aButtonTouchArea.origin.x, size.height - aButtonTouchArea.origin.y, aButtonTouchArea.size.width, aButtonTouchArea.size.height), point);
@@ -580,6 +600,21 @@
 -(bool) touchWithinShootHitArea:(CGPoint)point {
     CGSize size = [[CCDirector sharedDirector] winSize];
     return CGRectContainsPoint(CGRectMake(bButtonTouchArea.origin.x, size.height - bButtonTouchArea.origin.y, bButtonTouchArea.size.width, bButtonTouchArea.size.height), point);
+}
+
+-(void) proSwipeFadeOut:(ccTime)deltaTime {
+    id fadeAction = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:0];
+    id hideAction = [CCHide action];
+    [proSwipeRing runAction:[CCSequence actions:fadeAction, hideAction, nil]];
+    [self unschedule:@selector(proSwipeFadeOut:)];
+}
+
+-(void) proSwipeFadeIn:(ccTime)deltaTime {
+    id fadeAction = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:CONTROLS_OPACITY];
+    id showAction = [CCShow action];
+    [proSwipeRing runAction:[CCSequence actions:showAction, fadeAction, nil]];
+    [self unschedule:@selector(proSwipeFadeIn:)];
+    firstTouch = YES;
 }
 
 
