@@ -47,10 +47,10 @@
         [self addChild:rightBut];
         [self addChild:proSwipeRing];
         
-        northMoveArea = CGRectMake(-35, 181, 220, 110); // 40 increase
-        southMoveArea = CGRectMake(-35, 71, 220, 110); // done
-        eastMoveArea = CGRectMake(76, 181, 110, 220); // done 
-        westMoveArea = CGRectMake(-35, 181, 110, 220);
+        northMoveArea = CGRectMake(-5, 181, 220, 110); // 40 increase
+        southMoveArea = CGRectMake(-5, 71, 220, 110); // done
+        eastMoveArea = CGRectMake(106, 181, 110, 220); // done 
+        westMoveArea = CGRectMake(-5, 181, 110, 220);
         
         // This could perhaps be improved using just angle from centre of dpap
         // North is up, south is right, and so on...
@@ -630,13 +630,14 @@
 	[Shared drawCGRect:dpadTouchArea];
     [Shared drawCGRect:aButtonTouchArea];
     [Shared drawCGRect:bButtonTouchArea];
-	//[Shared drawTriangle: northMoveArea direction:@"north"];
-	//[Shared drawTriangle: southMoveArea direction:@"south"];
-	//[Shared drawTriangle: eastMoveArea direction:@"east"];
-	//[Shared drawTriangle: westMoveArea direction:@"west"];
+	[Shared drawTriangle: northMoveArea direction:@"north"];
+	[Shared drawTriangle: southMoveArea direction:@"south"];
+    [Shared drawTriangle: eastMoveArea direction:@"east"];
+	[Shared drawTriangle: westMoveArea direction:@"west"];
 	//[Shared drawCGRect: jumpArea];
 	//[Shared drawCGRect: shootArea];
 }
 */
+
 
 @end

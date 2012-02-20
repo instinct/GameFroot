@@ -10,7 +10,7 @@
 #import "Shared.h"
 #import "Constants.h"
 
-#define CONTROLS_INIT_X 76
+#define CONTROLS_INIT_X 106
 #define CONTROLS_INIT_Y 66
 #define CONTROLS_OPACITY 125
 
