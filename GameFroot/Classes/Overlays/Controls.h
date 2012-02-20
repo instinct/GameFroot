@@ -15,7 +15,7 @@
 
 // Pro swipe constants
 #define CONTROLS_MAX_TRAVEL 70
-#define CONTROLS_DEAD_SPOT_SIZE 15
+#define CONTROLS_DEAD_SPOT_SIZE 10
 #define CONTROLS_PRONE_TRIGGER 80
 
 @class Player;
@@ -72,6 +72,12 @@
 -(void) ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event andLocation:(CGPoint)location;
 -(void) ccTouchMoved:(UITouch *)touch withEvent:(UIEvent *)event andLocation:(CGPoint)location;
 -(void) ccTouchCancelled:(UITouch *)touch withEvent:(UIEvent *)event andLocation:(CGPoint)location;
--(void) processProSwipeTouch:(UITouch *)touch withEvent:(UIEvent *)event andLocation:(CGPoint)location; 
+-(void) processProSwipeTouch:(UITouch *)touch withEvent:(UIEvent *)event andLocation:(CGPoint)location;
+-(bool) touchWithinJumpHitArea:(CGPoint)point;
+-(bool) touchWithinShootHitArea:(CGPoint)point;
+-(void) initShootWithTouch:(UITouch*)touch andEvent:(UIEvent*)event;
+-(void) initJumpWithTouch:(UITouch*)touch;
+-(void) endShoot;
+-(void) endJump;
 
 @end

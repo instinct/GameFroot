@@ -228,16 +228,11 @@
 			}
 			
 		} else if (location.y > size.height - (size.height * 0.40f)) {
-			// Jump
-			[player jump];
-			jumpTouch = touch;
+			[self initJumpWithTouch:touch];
 			
 		} else {
 			// Shoot
-			if (event.timestamp - lastShoot > player.shootDelay) {
-				[player shoot];
-				lastShoot = event.timestamp;
-			}
+			[self initShootWithTouch:touch andEvent:event];
 			
 			// Control swipe
 			gestureStartPoint = location;
@@ -289,21 +284,11 @@
 		} else if ([self dpadB:location]) {
 			
 			if ((dpadTouch == nil) || (dpadTouch != jumpTouch)) {
-				[player jump];
-				jumpTouch = touch;
-                
-				[rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_down.png"]];
+				[self initJumpWithTouch:touch];
 			}
             
 		} else if ([self dpadA:location]) {
-			
-			if (event.timestamp - lastShoot > player.shootDelay) {
-				[player shoot];
-				lastShoot = event.timestamp;
-				shootTouch = touch;
-				
-				[leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_down.png"]];
-			}
+			[self initShootWithTouch:touch andEvent:event];
 		}
 	} else {
         
@@ -315,19 +300,11 @@
             [self processProSwipeTouch:touch withEvent:event andLocation:location];
         }
         
-        if (CGRectContainsPoint(CGRectMake(aButtonTouchArea.origin.x, size.height - aButtonTouchArea.origin.y, aButtonTouchArea.size.width, aButtonTouchArea.size.height), location)) {
-            [rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_down.png"]];
-            jumpTouch = touch;
-            [player jump];
-        }
+        if ([self touchWithinJumpHitArea:location]) {
+            [self initJumpWithTouch:touch];        }
         
-        if (CGRectContainsPoint(CGRectMake(bButtonTouchArea.origin.x, size.height - bButtonTouchArea.origin.y, bButtonTouchArea.size.width, bButtonTouchArea.size.height), location)) {
-             [leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_down.png"]];
-            shootTouch = touch;
-            if (event.timestamp - lastShoot > player.shootDelay) {
-				[player shoot];
-				lastShoot = event.timestamp;
-			}
+        if ([self touchWithinShootHitArea:location]) {
+            [self initShootWithTouch:touch andEvent:event];
         }	
 	}
 
@@ -346,8 +323,7 @@
             rightTouch = nil;
             
         } else if (touch == jumpTouch) {
-            [player resetJump];
-            jumpTouch = nil;
+            [self endJump];
             
         } else if (touch == gestureTouch) {
             
@@ -372,23 +348,18 @@
             [player stop];
             
             if (touch == jumpTouch) {
-                [player resetJump];
-                jumpTouch = nil;
+                [self endJump];
             }
-            
+    
             dpadTouch = nil;
-            
             [self releasedControls];
         }
         
         if (touch == jumpTouch) {
-            [player resetJump];
-            jumpTouch = nil;
-            [rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_up.png"]];
+            [self endJump];
             
         } else if (touch == shootTouch) {
-            shootTouch = nil;
-            [leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_up.png"]];
+            [self endShoot];
         }
     } else {
     	 if (touch == dpadTouch) {
@@ -398,8 +369,7 @@
             [player stop];
              
              // Detect swipe
-             CGFloat diffY = gestureStartPoint.y - location.y;	
-             //CCLOG(@"swipes, diffX:%f, diffY:%f", diffX, diffY);
+             CGFloat diffY = gestureStartPoint.y - location.y;
              
              if (diffY > CONTROLS_PRONE_TRIGGER) {
                  // swipe down
@@ -407,56 +377,20 @@
              }
             
             dpadTouch = nil;
-            
             [self releasedControls];
         }
         
         if (touch == shootTouch) {
-            shootTouch = nil;
-            [leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_up.png"]];
+            [self endShoot];
            
             
         } else if (touch == jumpTouch) {
-            jumpTouch = nil;
-            [player resetJump];
-             [rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_up.png"]];
+            [self endJump];
         }
     }
 }
 
--(void) processProSwipeTouch:(UITouch *)touch withEvent:(UIEvent *)event andLocation:(CGPoint)location {
-    
-    if (dpadTouch == jumpTouch) {
-        [player resetJump];
-        jumpTouch = nil;
-    }
-    
-    if (touch == dpadTouch) {
-        
-        // Process movement
-        float travel = location.x - midPointAnchor;
-        // move if greater than dead spot size
-        if(ABS(travel) > CONTROLS_DEAD_SPOT_SIZE) {
-            if(travel > 0) {
-                [player moveRight];  
-            } else if(travel < 0) {
-                [player moveLeft];  
-            } else {
-                [player stop];  
-            }
-            
-            // if size of swipe is greater than max travel,
-            // move anchorpoint.
-            if(ABS(travel) > CONTROLS_MAX_TRAVEL) {
-                if (travel > 0) {
-                    midPointAnchor += (travel - CONTROLS_MAX_TRAVEL); 
-                } else {
-                    midPointAnchor += (travel + CONTROLS_MAX_TRAVEL);
-                }
-            }
-        }
-    }
-}
+
 
 -(void) ccTouchMoved:(UITouch *)touch withEvent:(UIEvent *)event andLocation:(CGPoint)location
 {
@@ -516,28 +450,43 @@
 				[player prone];
 				leftJoy.rotation = 90;
 				if (dpadTouch == jumpTouch) {
-					[player resetJump];
-					jumpTouch = nil;
+					[self endJump];
 				}
 				
 			} else if ([self dpadEast:location]) {
 				[player moveRight];
 				leftJoy.rotation = 0;
 				if (dpadTouch == jumpTouch) {
-					[player resetJump];
-					jumpTouch = nil;
+					[self endJump];
 				}
 				
 			} else if ([self dpadWest:location]) {
 				[player moveLeft];
 				leftJoy.rotation = 180;
 				if (dpadTouch == jumpTouch) {
-					[player resetJump];
-					jumpTouch = nil;
+					[self endJump];
 				}
 			}
 		}
 	} else {
+        
+        // detect if any shoot or jump touches are now over
+        // the other buttons
+        
+        if (touch == shootTouch) {
+            if ([self touchWithinJumpHitArea:location]) {
+                [self endShoot];
+                [self initJumpWithTouch:touch];
+            }
+        }
+        
+        if(touch == jumpTouch) {
+            if ([self touchWithinShootHitArea:location]) {
+                [self endJump];
+                [self initShootWithTouch:touch andEvent:event];
+            }
+        }
+        
         [self processProSwipeTouch:touch withEvent:event andLocation:location];
     }
 }
@@ -552,6 +501,85 @@
         [player stop];
         rightTouch = nil;
     }
+}
+
+-(void) processProSwipeTouch:(UITouch *)touch withEvent:(UIEvent *)event andLocation:(CGPoint)location {
+    
+    if (dpadTouch == jumpTouch) {
+        [self endJump];
+    }
+    
+    if (touch == dpadTouch) {
+        
+        // Process movement
+        float travel = location.x - midPointAnchor;
+        // move if greater than dead spot size
+        if(ABS(travel) > CONTROLS_DEAD_SPOT_SIZE) {
+            if(travel > 0) {
+                [player moveRight];  
+            } else if(travel < 0) {
+                [player moveLeft];  
+            } else {
+                [player stop];  
+            }
+            
+            // if size of swipe is greater than max travel,
+            // move anchorpoint.
+            if(ABS(travel) > CONTROLS_MAX_TRAVEL) {
+                if (travel > 0) {
+                    midPointAnchor += (travel - CONTROLS_MAX_TRAVEL); 
+                } else {
+                    midPointAnchor += (travel + CONTROLS_MAX_TRAVEL);
+                }
+            }
+        }
+    }
+}
+
+-(void) initShootWithTouch:(UITouch*)touch andEvent:(UIEvent*)event {
+    if (event.timestamp - lastShoot > player.shootDelay) {
+        [player shoot];
+        lastShoot = event.timestamp;
+        shootTouch = touch;
+        if(self.visible) {
+            [leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_down.png"]];
+        }
+
+    }
+}
+
+-(void) initJumpWithTouch:(UITouch*)touch {
+    if(self.visible) {
+        [rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_down.png"]];
+    }
+    jumpTouch = touch;
+    [player jump];
+}
+
+-(void) endShoot {
+    shootTouch = nil;
+    if(self.visible) {
+         [leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_up.png"]];
+    }
+   
+}
+
+-(void) endJump {
+    jumpTouch = nil;
+    [player resetJump];
+    if (self.visible) {
+        [rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_up.png"]]; 
+    }
+}
+
+-(bool) touchWithinJumpHitArea:(CGPoint)point {
+    CGSize size = [[CCDirector sharedDirector] winSize];
+    return CGRectContainsPoint(CGRectMake(aButtonTouchArea.origin.x, size.height - aButtonTouchArea.origin.y, aButtonTouchArea.size.width, aButtonTouchArea.size.height), point);
+}
+
+-(bool) touchWithinShootHitArea:(CGPoint)point {
+    CGSize size = [[CCDirector sharedDirector] winSize];
+    return CGRectContainsPoint(CGRectMake(bButtonTouchArea.origin.x, size.height - bButtonTouchArea.origin.y, bButtonTouchArea.size.width, bButtonTouchArea.size.height), point);
 }
 
 
