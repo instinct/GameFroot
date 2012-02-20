@@ -217,9 +217,7 @@ GameLayer *instance;
 			//CCLOG(@"%@ == %@ ? %i", cachedDate, [Shared getLevelDate], [cachedDate isEqualToString:[Shared getLevelDate]]);
 			if ([cachedDate isEqualToString:[Shared getLevelDate]]) {
 				// Level not changed since last download, so use cached contents
-				
-                // !!IMPORTANT: disabled level cached for now since the publish_date is not updated anymore.
-                //ignoreCache = NO;
+                ignoreCache = NO;
 			}
 		}
 		
