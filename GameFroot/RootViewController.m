@@ -59,6 +59,8 @@
 	// Since this method should return YES in at least 1 orientation, 
 	// we return YES only in the Portrait orientation
 	//
+    // We still want the Notification center to be the correct orientation 
+     [[UIApplication sharedApplication] setStatusBarOrientation: interfaceOrientation animated:NO];
 	return ( interfaceOrientation == UIInterfaceOrientationPortrait );
 	
 #elif GAME_AUTOROTATION==kGameAutorotationCCDirector
