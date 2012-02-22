@@ -75,7 +75,7 @@
 	CCParticleSystem *particle;
 	int fuel;
 	
-	float scrollOnProne, scrollOnProneMax;
+	float scrollOnProne, scrollOnProneMax, scrollOnProneDelay, scrollOnProneDelayCount;
 	
 	BOOL pressedJump;
 	

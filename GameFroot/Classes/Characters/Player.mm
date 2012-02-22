@@ -1379,14 +1379,19 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 {
 	if (type == kGameObjectPlayer) {
 		if (action == PRONE) {
-			CGSize winSize = [[CCDirector sharedDirector] winSize];
+            CGSize winSize = [[CCDirector sharedDirector] winSize];
 			CGPoint localPoint = [[GameLayer getInstance] convertToMapCoordinates:point];
 			
 			if (scrollOnProne == 0) {
-				scrollOnProneMax = (winSize.height - localPoint.y);
+				scrollOnProneMax = (winSize.height - localPoint.y); 
+                scrollOnProneDelay = 150;
 			}
 			
-			scrollOnProne += 4;
+            scrollOnProneDelayCount += 1;
+            if (scrollOnProneDelayCount >= scrollOnProneDelay) {
+                scrollOnProne += 1.5;
+            }
+			
 			if (scrollOnProne > scrollOnProneMax) scrollOnProne = scrollOnProneMax;
 			
 			[[GameLayer getInstance] setViewpointCenter:ccp(point.x,point.y - scrollOnProne/CC_CONTENT_SCALE_FACTOR())];
@@ -1394,6 +1399,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		} else if (scrollOnProne > 0) {
 			scrollOnProne -= 4;
 			if (scrollOnProne < 0) scrollOnProne = 0;
+            scrollOnProneDelayCount = 0;
 			
 			[[GameLayer getInstance] setViewpointCenter:ccp(point.x,point.y - scrollOnProne/CC_CONTENT_SCALE_FACTOR())];
 			
