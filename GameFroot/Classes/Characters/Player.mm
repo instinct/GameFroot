@@ -1384,7 +1384,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			
 			if (scrollOnProne == 0) {
 				scrollOnProneMax = (winSize.height - localPoint.y); 
-                scrollOnProneDelay = 150;
+                scrollOnProneDelay = 60;
 			}
 			
             scrollOnProneDelayCount += 1;
@@ -1394,6 +1394,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			
 			if (scrollOnProne > scrollOnProneMax) scrollOnProne = scrollOnProneMax;
 			
+            CCLOG(@">>>>> %f, %f, %f, %f", scrollOnProne, scrollOnProneMax, winSize.height, localPoint.y);
+            
 			[[GameLayer getInstance] setViewpointCenter:ccp(point.x,point.y - scrollOnProne/CC_CONTENT_SCALE_FACTOR())];
 			
 		} else if (scrollOnProne > 0) {

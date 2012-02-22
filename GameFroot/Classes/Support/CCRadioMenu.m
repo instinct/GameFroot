@@ -15,6 +15,27 @@
     selectedItem_ = item;    
 }
 
+-(CCMenuItem *) itemForTouch: (UITouch *) touch
+{
+	CGPoint touchLocation = [touch locationInView: [touch view]];
+	touchLocation = [[CCDirector sharedDirector] convertToGL: touchLocation];
+	
+	CCMenuItem* item;
+	CCARRAY_FOREACH(children_, item){
+		// ignore invisible and disabled items: issue #779, #866
+		if ( [item visible] && [item isEnabled] ) {
+			
+			CGPoint local = [item convertToNodeSpace:touchLocation];
+			CGRect r = [item rect];
+			r.origin = CGPointZero;
+			
+			if( CGRectContainsPoint( r, local ) )
+				return item;
+		}
+	}
+	return nil;
+}
+
 -(BOOL) ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event {
  
     if ( state_ != kCCMenuStateWaiting ) return NO;

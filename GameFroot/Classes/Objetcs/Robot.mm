@@ -11,9 +11,16 @@
 #import "GameLayer.h"
 #import "Bullet.h"
 #import "SimpleAudioEngine.h"
+#include <objc/runtime.h>
 
 #define FLASH_VELOCITY_FACTOR	50.0f
-#define DELAY_FACTOR			2000.0f
+#define DELAY_FACTOR			1000.0f
+
+void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
+{
+	//[self messageSelf:command];
+    [self performSelector:@selector(messageSelf:) withObject:command];
+}
 
 @implementation Robot
 
@@ -113,11 +120,10 @@
 	}
     
 	facingLeft = YES;
-	
 	onMessage = NO;
 	onTouchStart = NO;
 	onInShot = NO;
-	
+    onOutShot = NO;
 	walkNode = CGPointZero;
 	
 	msgCommands = [[CCArray array] retain];
@@ -129,20 +135,20 @@
 	timerCommands = [[CCArray array] retain];
 	
 	mapRect = CGRectMake(0,0,[GameLayer getInstance].mapWidth*MAP_TILE_WIDTH,[GameLayer getInstance].mapHeight*MAP_TILE_HEIGHT);
-		
-	int totalEvents = [behavior count];
+    
+    int totalEvents = [behavior count];
 	for (int i=0; i<totalEvents; i++) {
 		NSDictionary *event = (NSDictionary *)[behavior objectAtIndex:i];
 		//CCLOG(@"%@", event);
 		
 		NSString *nameEvent = [event objectForKey:@"event"];
 		
-		if ([nameEvent isEqualToString:@"onSpawn"]) {
-			[self resolve:i];
-			
-		} else if ([nameEvent isEqualToString:@"onMessage"]) {
+		if ([nameEvent isEqualToString:@"onMessage"]) {
 			[msgName addObject:[event objectForKey:@"messageName"]];
 			[msgCommands addObject:[event objectForKey:@"commands"]];
+            
+            SEL sel = sel_registerName([[NSString stringWithFormat:@"%@:command:", [event objectForKey:@"messageName"]] UTF8String]);
+            class_addMethod([self class], sel, (IMP)runDelayedMessage, "v@:@@");
 			
 		} else if ([nameEvent isEqualToString:@"onDie"]) {
 			onDieCommands = [event objectForKey:@"commands"];
@@ -151,79 +157,105 @@
 	}
 }
 
+-(void) onSpawn
+{
+    int totalEvents = [behavior count];
+	for (int i=0; i<totalEvents; i++) {
+		NSDictionary *event = (NSDictionary *)[behavior objectAtIndex:i];
+		//CCLOG(@"%@", event);
+		
+		NSString *nameEvent = [event objectForKey:@"event"];
+		
+		if ([nameEvent isEqualToString:@"onSpawn"]) {
+			[self resolve:i];
+        }
+    }    
+}
+
+-(void) inShot
+{
+    int totalEvents = [behavior count];
+    for (int i=0; i<totalEvents; i++) {
+        NSDictionary *event = (NSDictionary *)[behavior objectAtIndex:i];
+        //CCLOG(@"%@", event);
+        
+        NSString *nameEvent = [event objectForKey:@"event"];
+        
+        if ([nameEvent isEqualToString:@"onInShot"]) {
+            [self resolve:i];
+        }
+        
+        onInShot = YES;
+        onOutShot = NO;
+    }
+}
+
+-(void) outShot
+{
+    int totalEvents = [behavior count];
+    for (int i=0; i<totalEvents; i++) {
+        NSDictionary *event = (NSDictionary *)[behavior objectAtIndex:i];
+        //CCLOG(@"%@", event);
+        
+        NSString *nameEvent = [event objectForKey:@"event"];
+        
+        if ([nameEvent isEqualToString:@"onOutShot"]) {
+            [self resolve:i];
+        }
+        
+        onOutShot = YES;
+        onInShot = NO;
+    }
+}
+
+-( BOOL )isInsideScreen:( CGPoint )pos {
+#if ROBOT_TRACK_ALWAYS == 1
+    return( YES );
+#else
+    CGSize winSize = [ [ CCDirector sharedDirector ] winSize ];
+    CGRect rect;
+    
+    rect = CGRectMake( -self.contentSize.width - ROBOT_TRACK_RANGE, 
+                      -self.contentSize.height - ROBOT_TRACK_RANGE,
+                      winSize.width + ( self.contentSize.width * 2 ) + ( ROBOT_TRACK_RANGE * 2 ),
+                      winSize.height + ( self.contentSize.height * 2 ) + ( ROBOT_TRACK_RANGE * 2 ) );
+    return( CGRectContainsPoint( rect , pos ) );
+#endif
+}
+
 -(void) update:(ccTime)dt
 {
 	if (removed) return;
 	
-	CGSize winsize = [[CCDirector sharedDirector] winSize];
 	CGPoint pos = [[GameLayer getInstance] convertToMapCoordinates:self.position];
 	
-	if (!CGRectContainsPoint(mapRect, self.position)) {
-		[self remove];
-	}
-	
+	//if (!CGRectContainsPoint(mapRect, self.position)) {
+	//	[self remove];
+	//}
+    
     if (invisible) return;
     
     if (freezed && (body->IsActive())) body->SetActive(NO);
     else if (!freezed && (!body->IsActive())) body->SetActive(YES);
     
-	if (pos.x + self.contentSize.width < 0) {
-		if (self.visible) {
+    //CCLOG(@"Robot.position: %f,%f", self.position.x, self.position.y);
+    
+	if ( [ self isInsideScreen:pos ] == NO ) {
+        if (self.visible) {
 			self.visible = NO;
 			onInShot = NO;
-			[self stopAllActions];
-			
 		}
-		return;
-		
-		
-	} else if (pos.x - self.contentSize.width > winsize.width) {
-		if (self.visible) {
-			self.visible = NO;
-			onInShot = NO;
-			[self stopAllActions];
-		}
-		return;
-		
-	} else if (pos.y + self.contentSize.height < 0) {
-		if (self.visible) {
-			self.visible = NO;
-			onInShot = NO;
-			[self stopAllActions];
-			
-		}
-		return;
-		
-		
-	} else if (pos.y - self.contentSize.height > winsize.height) {
-		if (self.visible) {
-			self.visible = NO;
-			onInShot = NO;
-			[self stopAllActions];
-		}
-		return;
-		
+        
+        if (!onOutShot) [self outShot];
+        
 	} else {
 		if (!self.visible) self.visible = YES;
 		
-		if (!onInShot) {
-			int totalEvents = [behavior count];
-			for (int i=0; i<totalEvents; i++) {
-				NSDictionary *event = (NSDictionary *)[behavior objectAtIndex:i];
-				//CCLOG(@"%@", event);
-				
-				NSString *nameEvent = [event objectForKey:@"event"];
-				
-				if ([nameEvent isEqualToString:@"onInShot"]) {
-					[self resolve:i];
-				}
-				
-				onInShot = YES;
-			}
-		}
+		if (!onInShot) [self inShot];
 	}
 
 	//if (walkNode != CGPointZero) {
+    // TODO: walk node to position
 	//}
 	
 	b2Vec2 current = body->GetLinearVelocity();
@@ -596,11 +628,40 @@
 	}
 }
 
+-(NSNumber *) coordinateXOfNode:(NSDictionary *)command 
+{
+    //CCLOG(@"Robot.coordinateXOfNode: %@", command);
+    
+    NSDictionary *node = [command objectForKey:@"node"];
+    NSMutableArray *position = [self runMethod:[node objectForKey:@"token"] withObject:node];
+    
+    float x = [[position objectAtIndex:0] floatValue];
+    
+    //CCLOG(@"Robot.coordinateXOfNode: %f", x);
+    return [NSNumber numberWithFloat:x];
+}
+
+-(NSNumber *) coordinateYOfNode:(NSDictionary *)command 
+{
+    //CCLOG(@"Robot.coordinateYOfNode: %@", command);
+    
+    NSDictionary *node = [command objectForKey:@"node"];
+    NSMutableArray *position = [self runMethod:[node objectForKey:@"token"] withObject:node];
+    
+    float y = [[position objectAtIndex:1] floatValue];
+    
+    //CCLOG(@"Robot.coordinateYOfNode: %f", y);
+    return [NSNumber numberWithFloat:y];
+}
+
 -(NSMutableArray *) thisLocation:(NSDictionary *)obj
 {
+    CGPoint position = [[GameLayer getInstance] convertToMapCoordinates:self.position];
+     
 	NSMutableArray *pos = [NSMutableArray arrayWithCapacity:2];
-	[pos addObject:[NSNumber numberWithFloat:self.position.x]];
-	[pos addObject:[NSNumber numberWithFloat:self.position.y]];
+	[pos addObject:[NSNumber numberWithFloat:position.x]];
+	[pos addObject:[NSNumber numberWithFloat:position.y]];
+    
 	return pos;
 }
 
@@ -652,16 +713,28 @@
 	else return [NSNumber numberWithFloat:(float)(arc4random()%high) + low];
 }
 
--(CGPoint) locationOfInstance:(NSDictionary *)obj 
+-(NSMutableArray *) locationOfInstance:(NSDictionary *)obj 
 {
+    //CCLOG(@"Robot.locationOfInstance: %@", obj);
+    
 	NSDictionary *instance = [obj objectForKey:@"instance"];
 	NSString *token = [instance objectForKey:@"token"];
 	
 	if ([token isEqualToString:@"player"]) {
-		return [[GameLayer getInstance] playerPosition];
-		
+		CGPoint position = [[GameLayer getInstance] convertToMapCoordinates:[[GameLayer getInstance] playerPosition]];
+        
+        NSMutableArray *pos = [NSMutableArray arrayWithCapacity:2];
+        [pos addObject:[NSNumber numberWithFloat:position.x]];
+        [pos addObject:[NSNumber numberWithFloat:position.y]];
+        
+		return pos;
+        
 	} else {
-		return CGPointZero;
+        NSMutableArray *pos = [NSMutableArray arrayWithCapacity:2];
+        [pos addObject:[NSNumber numberWithFloat:0]];
+        [pos addObject:[NSNumber numberWithFloat:0]];
+        
+		return pos;
 	}
 }
 
@@ -963,6 +1036,7 @@
 
 -(void) changeXvelocity:(NSDictionary *)command 
 {
+    //CCLOG(@"Robot.changeXvelocity: %@", command);
 	float speed;
 	
 	if ([[command objectForKey:@"delta"] isKindOfClass:[NSDictionary class]]) {
@@ -975,7 +1049,9 @@
 		speed = [[command objectForKey:@"delta"] floatValue];
 	}
 	
-	b2Vec2 current = body->GetLinearVelocity();
+    b2Vec2 current = body->GetLinearVelocity();
+    //CCLOG(@"Robot.changeXvelocity: %f to %f", current.x, current.x - speed / FLASH_VELOCITY_FACTOR);
+	
 	b2Vec2 velocity = b2Vec2(current.x + speed / FLASH_VELOCITY_FACTOR, current.y);
 	body->SetLinearVelocity(velocity);
     wasMoving = YES;
@@ -983,6 +1059,7 @@
 
 -(void) changeYvelocity:(NSDictionary *)command 
 {
+    //CCLOG(@"Robot.changeYvelocity: %@", command);
 	float speed;
 	
 	if ([[command objectForKey:@"delta"] isKindOfClass:[NSDictionary class]]) {
@@ -996,7 +1073,9 @@
 	}
 	
 	b2Vec2 current = body->GetLinearVelocity();
-	b2Vec2 velocity = b2Vec2(current.x, current.y - speed / FLASH_VELOCITY_FACTOR);
+    //CCLOG(@"Robot.changeYvelocity: %f to %f", current.y, current.y - speed / FLASH_VELOCITY_FACTOR);
+    
+	b2Vec2 velocity = b2Vec2(current.x, current.y + speed / FLASH_VELOCITY_FACTOR);
 	body->SetLinearVelocity(velocity);
     wasMoving = YES;
 }
@@ -1139,13 +1218,12 @@
 
 -(void) messageSelf:(NSDictionary *)command 
 {
+    //CCLOG(@"Robot.messageSelf: %@", command);
 	[self receiveMessage:[command objectForKey:@"message"]];
 }
 
 -(void) messageSelfAfterDelay:(NSDictionary *)command 
-{
-	delayedMessage = command;
-	
+{	
 	float delay;
 	
 	if ([[command objectForKey:@"delay"] isKindOfClass:[NSDictionary class]]) {
@@ -1158,7 +1236,16 @@
 		delay = [[command objectForKey:@"delay"] floatValue];
 	}
 	
-    [self scheduleOnce:@selector(_delayedMessage) delay:delay/DELAY_FACTOR];
+    NSString *message = [command objectForKey:@"message"];
+    SEL sel = sel_registerName([[NSString stringWithFormat:@"%@:command:", message] UTF8String]);
+    
+    //CCLOG(@"Robot.messageSelfAfterDelay: %@", message);
+    
+    id action = [CCSequence actions:
+                 [CCDelayTime actionWithDuration:delay/DELAY_FACTOR],
+                 [CCCallFuncND actionWithTarget:self selector:sel data:command],
+                 nil];
+	[self runAction: action];
 }
 
 -(void) _delayedMessage
@@ -1629,18 +1716,9 @@
 	onMessage = NO;
 	onTouchStart = NO;
 	onInShot = NO;
+    onOutShot = YES;
     
-    int totalEvents = [behavior count];
-	for (int i=0; i<totalEvents; i++) {
-		NSDictionary *event = (NSDictionary *)[behavior objectAtIndex:i];
-		//CCLOG(@"%@", event);
-		
-		NSString *nameEvent = [event objectForKey:@"event"];
-		
-		if ([nameEvent isEqualToString:@"onSpawn"]) {
-			[self resolve:i];
-        }
-    }
+    [self onSpawn];
 }
 
 -(void) remove

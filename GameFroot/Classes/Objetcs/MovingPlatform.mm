@@ -272,11 +272,25 @@
 	}
 }
 
+-( BOOL )isInsideScreen:( CGPoint )pos {
+#if PLATFORM_TRACK_ALWAYS == 1
+    return( YES );
+#else
+    CGSize winSize = [ [ CCDirector sharedDirector ] winSize ];
+    CGRect rect;
+    
+    rect = CGRectMake( -self.contentSize.width - PLATFORM_TRACK_RANGE, 
+                      -self.contentSize.height - PLATFORM_TRACK_RANGE,
+                      winSize.width + ( self.contentSize.width * 2 ) + ( PLATFORM_TRACK_RANGE * 2 ),
+                      winSize.height + ( self.contentSize.height * 2 ) + ( PLATFORM_TRACK_RANGE * 2 ) );
+    return( CGRectContainsPoint( rect , pos ) );
+#endif
+}
+
+
 -(void) update:(ccTime)dt
 {
 	if (removed) return;
-	
-	CGSize winsize = [[CCDirector sharedDirector] winSize];
 	
 	//CCLOG(@"Moving platform visible:%i, paused:%i, awake:%i, active:%i", self.visible, paused, body->IsAwake(), body->IsActive());
 	
@@ -285,44 +299,17 @@
 	
 	//CCLOG(@"%f,%f - %f, %f", posOrig.x, posOrig.y, self.contentSize.width, winsize.width);
 	
-	if ((posOrig.x + self.contentSize.width < 0) && (posFinal.x + self.contentSize.width < 0)) {
+	if ( ( [ self isInsideScreen:posOrig ] == NO ) && ( [ self isInsideScreen:posFinal ] == NO ) ) {
+        
 		if (self.visible) {
 			self.visible = NO;
-			[self pause];
-			body->SetActive(false);
-		}
-		return;
-		
-		
-	} else if ((posOrig.x - self.contentSize.width > winsize.width) && (posFinal.x - self.contentSize.width > winsize.width)) {
-		if (self.visible) {
-			self.visible = NO;
-			[self pause];
-			body->SetActive(false);
-		}
-		return;
-	
-	} else if ((posOrig.y + self.contentSize.height < 0) && (posFinal.y + self.contentSize.height < 0)) {
-		if (self.visible) {
-			self.visible = NO;
-			[self pause];
-			body->SetActive(false);
-		}
-		return;
-		
-		
-	} else if ((posOrig.y - self.contentSize.height > winsize.height) && (posFinal.y - self.contentSize.height > winsize.height)) {
-		if (self.visible) {
-			self.visible = NO;
-			[self pause];
-			body->SetActive(false);
+			//[self pause];
 		}
 		return;
 		
 	} else if (!self.visible) {
 		self.visible = YES;
-		[self resume];
-		body->SetActive(true);
+		//[self resume];
 	}
 	
 	[super update:dt];
@@ -334,7 +321,7 @@
 	
 	[self resumeSchedulerAndActions];
 	paused = NO;
-	
+    
 	if (goingForward) {
 		body->SetLinearVelocity(velocity);
 		

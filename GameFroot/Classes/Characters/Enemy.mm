@@ -324,7 +324,7 @@
 
 -(void) changeDirection
 {
-	CCLOG(@"Enemy.changeDirection: %i", direction);
+	//CCLOG(@"Enemy.changeDirection: %i", direction);
 	if (direction == kDirectionRight) [self moveLeft];
 	else if (direction == kDirectionLeft) [self moveRight];
 }

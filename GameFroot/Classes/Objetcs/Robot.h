@@ -8,6 +8,9 @@
 
 #import "GameObject.h"
 
+#define ROBOT_TRACK_RANGE               0             // how much to expand track range beyond visible screen
+#define ROBOT_TRACK_ALWAYS              0               // track even if out of screen
+
 @interface Robot : GameObject {
 	NSArray *behavior;
     NSDictionary *original;
@@ -22,6 +25,7 @@
 	BOOL onMessage;
 	BOOL onTouchStart;
 	BOOL onInShot;
+    BOOL onOutShot;
 	
 	NSArray *onDieCommands;
 	
@@ -61,6 +65,7 @@
 -(void) createBox2dObject:(b2World*)world size:(CGSize)_size;
 
 -(void) setupRobot:(NSDictionary *)data parameters:(NSDictionary *)params;
+-(void) onSpawn;
 -(void) update:(ccTime)dt;
 
 -(void) runCommand: (NSDictionary *)command;

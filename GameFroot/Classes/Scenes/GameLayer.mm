@@ -1124,6 +1124,7 @@ GameLayer *instance;
                 // Set arrat tiles
                 int index = dx + (dy*MAP_TILE_WIDTH);
                 //CCLOG(@"set tile %i at %i", behaviour, index);
+                if ( behaviour == 0 ) behaviour = 1;
                 arrayTiles[index] = behaviour;
 				
 				if (frames > 1) {
@@ -1603,6 +1604,11 @@ GameLayer *instance;
 	[[SimpleAudioEngine sharedEngine] setBackgroundMusicVolume:1.0f];
 	
 	self.isTouchEnabled = YES;
+    
+    // Trigger onSpawn on robots
+    Robot *robot; CCARRAY_FOREACH(robots, robot) {
+		[robot onSpawn];
+	}
 }
 
 - (void)setViewpointCenter:(CGPoint)point {

@@ -34,9 +34,8 @@
 
 #define ENEMY_JUMP_GAIN                 2.00f           // how powerful jumps are
 #define ENEMY_JUMP_DELAY                1.0f            // jump delay after jump ( should be randomized )    
-#define ENEMY_TRACK_RANGE               100             // how much to expand track range beyond visible screen
 #define ENEMY_INITIAL_WEAPON_DELAY      1               // firing weapon will have an initial delay
-
+#define ENEMY_TRACK_RANGE               300             // how much to expand track range beyond visible screen
 #define ENEMY_TRACK_ALWAYS              0               // track even if out of screen
 
 // --------------------------------------------------------------

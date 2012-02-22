@@ -9,6 +9,9 @@
 #import "cocos2d.h"
 #import "GameObject.h"
 
+#define PLATFORM_TRACK_RANGE               0               // how much to expand track range beyond visible screen
+#define PLATFORM_TRACK_ALWAYS              0               // track even if out of screen
+
 @interface MovingPlatform : GameObject {
 	
 	b2Vec2 origPosition;
