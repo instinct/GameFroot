@@ -182,7 +182,10 @@
 
 -(void) resetControls
 {
-	[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_normal.png"]];
+    [self unschedule:@selector(proSwipeFadeIn:)];
+    [self unschedule:@selector(proSwipeFadeOut:)];
+    
+    [leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_normal.png"]];
 	leftJoy.rotation = 0;
 	
 	[rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_up.png"]];
@@ -196,6 +199,8 @@
 	jumpTouch = nil;
 	shootTouch = nil;
 	dpadTouch = nil;
+    [self setControlType:controlType];
+    
 }
 
 -(void) pressedControls

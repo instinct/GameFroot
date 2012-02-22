@@ -54,9 +54,8 @@
 		// Initialise properties dictionary
 		NSString *mainBundlePath = [[NSBundle mainBundle] bundlePath];
 		NSString *plistPath = [mainBundlePath stringByAppendingPathComponent:@"properties.plist"];
-		properties = [[[NSDictionary alloc] initWithContentsOfFile:plistPath] retain];
-		
-		//
+		properties = [[[NSDictionary alloc] initWithContentsOfFile:plistPath] retain];        
+    
 		CCSprite *top = [CCSprite spriteWithFile:@"top-bar.png"];
 		[top setPosition:ccp(size.width/2, size.height - top.contentSize.height/2)];
 		[self addChild:top z:1];
@@ -259,62 +258,6 @@
 	[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
 }
 
--(void) gameDetailBack:(id)sender {
-    
-    welcome.visible = NO;
-	featured.visible = NO;
-	playing.visible = NO;
-	browse.visible = NO;
-	myGames.visible = NO;
-	more.visible = NO;
-    gameDetail.visible = NO;
-	
-    CCNode *previousPage = selectedPage;
-    selectedPage = gameDetail;
-    
-    if(previousPage == featured) {
-        [self loadFeatured];
-    } else if(previousPage == playing) {
-        [self loadPlaying];
-    } else if(previousPage == browse) {
-        [self loadBrowse];
-    } else if(previousPage == myGames) {
-        [self loadMyGames];
-    } else {
-        [self loadFeatured];
-    }
-}
-
--(void) gameDetailPlay:(id)sender {
-    
-     // Add level to favourites
-     for (uint i = 0; i < [jsonDataPlaying count]; i++) {
-         NSDictionary *ld = [jsonDataPlaying objectAtIndex:i];
-         int levelId = [[ld objectForKey:@"id"] intValue];
-         if (levelId == [Shared getLevelID]) {
-             [jsonDataPlaying removeObjectAtIndex:i];
-             break;
-         }
-     }
-    
-    // if we havn't already retrieved the level data get it now
-    // need to check correct json data depending on where we've come from
-    
-
-     NSString *author = [[Shared getLevel] objectForKey:@"author"];
-     
-     //CCLOG(@">>>>>> %@, %@", author, [author class]);
-     if ([author isMemberOfClass:[NSNull class]]) {
-         [[Shared getLevel] setObject:userName forKey:@"author"];
-     }
-    
-    [jsonDataPlaying insertObject:[Shared getLevel] atIndex:0];
-    
-    //CCLOG(@"Add favourite: %@", [[Shared getLevel] description]);
-    //CCLOG(@"Favourites: %@", [jsonDataPlaying description]);
-    
-    [self selectedLevel:sender];
-}
 
 // Selected featured buttons
 -(void) featured1:(id)sender {
@@ -442,6 +385,78 @@
 }
 
 #pragma mark -
+#pragma mark Game Detail event handlers
+
+
+-(void) gameDetailBack:(id)sender {
+    
+    welcome.visible = NO;
+	featured.visible = NO;
+	playing.visible = NO;
+	browse.visible = NO;
+	myGames.visible = NO;
+	more.visible = NO;
+    gameDetail.visible = NO;
+	
+    CCNode *previousPage = selectedPage;
+    selectedPage = gameDetail;
+    
+    if(previousPage == featured) {
+        [self loadFeatured];
+    } else if(previousPage == playing) {
+        [self loadPlaying];
+    } else if(previousPage == browse) {
+        [self loadBrowse];
+    } else if(previousPage == myGames) {
+        [self loadMyGames];
+    } else {
+        [self loadFeatured];
+    }
+}
+
+-(void) gameDetailPlay:(id)sender {
+    
+    // Add level to favourites
+    for (uint i = 0; i < [jsonDataPlaying count]; i++) {
+        NSDictionary *ld = [jsonDataPlaying objectAtIndex:i];
+        int levelId = [[ld objectForKey:@"id"] intValue];
+        if (levelId == [Shared getLevelID]) {
+            [jsonDataPlaying removeObjectAtIndex:i];
+            break;
+        }
+    }
+    
+    // if we havn't already retrieved the level data get it now
+    // need to check correct json data depending on where we've come from
+    
+    
+    NSString *author = [[Shared getLevel] objectForKey:@"author"];
+    
+    //CCLOG(@">>>>>> %@, %@", author, [author class]);
+    if ([author isMemberOfClass:[NSNull class]]) {
+        [[Shared getLevel] setObject:userName forKey:@"author"];
+    }
+    
+    [jsonDataPlaying insertObject:[Shared getLevel] atIndex:0];
+    
+    //CCLOG(@"Add favourite: %@", [[Shared getLevel] description]);
+    //CCLOG(@"Favourites: %@", [jsonDataPlaying description]);
+    
+    [self selectedLevel:sender];
+}
+
+
+-(void) like:(id)sender {
+    
+}
+
+-(void) unlike:(id)sender {
+    
+}
+
+
+
+#pragma mark -
 #pragma mark Connection
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
@@ -542,42 +557,48 @@
         
     [Loader hideAsynchronousLoader];
     
-    // TODO: Refactor into SWScrollView
-    
+    // non spritesheet enitites
     CCLabelTTF *placeHolderText = [CCLabelTTF labelWithString:@"Game detail screen" fontName:@"HelveticaNeue-Bold" fontSize:16];
+    
     placeHolderText.color = ccc3(255,255,255);
     
     // Add top menu and buttons
-    CCMenuItemSprite *topNavBackButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"placeholder_back_arrow.png"] selectedSprite:[CCSprite spriteWithFile:@"placeholder_back_arrow.png"] target:self selector:@selector(gameDetailBack:)];
-    CCMenuItemSprite *topNavPlayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"placeholder_play_arrow.png"] selectedSprite:[CCSprite spriteWithFile:@"placeholder_play_arrow.png"] target:self selector:@selector(gameDetailPlay:)];    
+    CCMenuItemSprite *topNavBackButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"placeholder_back_arrow.png"]
+ selectedSprite:[CCSprite spriteWithSpriteFrameName:@"placeholder_back_arrow.png"] target:self selector:@selector(gameDetailBack:)];
+    CCMenuItemSprite *topNavPlayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"placeholder_play_arrow.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"placeholder_play_arrow.png"] target:self selector:@selector(gameDetailPlay:)];    
     CCMenu *topNav = [CCMenu menuWithItems:topNavBackButton, topNavPlayButton, nil];
     
+    
     // Add some stuff to the content area    
-    CCMenuItemSprite *contentPlayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"placeholder_play.png"] selectedSprite:[CCSprite spriteWithFile:@"placeholder_play.png"] target:self selector:@selector(gameDetailPlay:)];
+    CCMenuItemSprite *contentPlayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"placeholder_play.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"placeholder_play.png"] target:self selector:@selector(gameDetailPlay:)];
     CCMenu *contentMenu = [CCMenu menuWithItems:contentPlayButton, nil];
     
-    // Add placeholder ratings section.
-    CCSprite *ratingsPlaceholder = [CCSprite spriteWithFile:@"rate_controls_mockup.png"];
+    // Like buttons
+    CCMenuItem *likeButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"like_button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"like_button_sel.png"] target:self selector:@selector(like:)];
+    
+    CCMenuItem *unlikeButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"unlike_button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"unlike_button_sel.png"] target:self selector:@selector(unlike:)];
+
+    CCRadioMenu *likeMenu = [CCRadioMenu menuWithItems:likeButton, unlikeButton,nil];
+    [likeMenu alignItemsHorizontally];
     
     CCNode *container = [CCNode node];
-    //CCLayerColor *container = [CCLayerColor layerWithColor:ccc4(255,0,0,255)];
     
     // parenting
-    [container addChild:placeHolderText];
-    [container addChild:ratingsPlaceholder];
     [container addChild:topNav];
     [container addChild:contentMenu];
+    [container addChild:placeHolderText];
+    [container addChild:likeMenu];
     
     // position stuff
     placeHolderText.position = ccp(size.width/2, size.height/2 + size.height/2 + 100);
     [topNav alignItemsHorizontallyWithPadding:20];
     topNav.position = ccp(size.width/2, size.height - topNavBackButton.contentSize.height/2 - 20 + size.height/2);
     contentMenu.position = ccp(size.width/2,size.height/2 + size.height/2 - 20);
-    ratingsPlaceholder.position = ccp(size.width/2, 0 + size.height/2 - 20);
+    likeMenu.position = ccp(size.width/2, 0 + size.height/2 + 100);
     
     // Calculate size of the layer
     // NOTE! cocos2d layers don't get size according to his cildren
-    CGSize sizeScroll = CGSizeMake(size.width, (topNav.position.y + topNav.contentSize.height/2) - (ratingsPlaceholder.position.y) + 20);
+    CGSize sizeScroll = CGSizeMake(size.width, (topNav.position.y + topNav.contentSize.height/2) - (likeMenu.position.y) + 120);
     CGSize sizeView = CGSizeMake(size.width, size.height - (45 + 50)); // Screen size minus bottom and top navigation margins
     //CCLOG(@"scroll: %f,%f", sizeScroll.width, sizeScroll.height);
     //CCLOG(@"view: %f,%f", sizeView.width, sizeView.height);
@@ -591,7 +612,7 @@
     if(ratingsAnchorEnabled) {
         // Scroll to ratings section
         [gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height)) animated:NO];
-        [gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height) + sizeScroll.height - ratingsPlaceholder.contentSize.height - 20) animated:YES];
+        [gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height) + sizeScroll.height - likeMenu.contentSize.height - 20) animated:YES];
         ratingsAnchorEnabled = NO;
     } else {
         // Scroll to top

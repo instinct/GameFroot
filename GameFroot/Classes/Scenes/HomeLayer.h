@@ -8,6 +8,7 @@
 
 #import "cocos2d.h"
 #import "SWTableView.h"
+#import "CCRadioMenu.h"
 #import "CCUIViewWrapper.h"
 #import "FBConnect.h"
 
