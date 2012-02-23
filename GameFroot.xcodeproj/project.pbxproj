@@ -287,8 +287,6 @@
 		1643B5BA14D9B0BC00A67057 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B4E214D9B0BC00A67057 /* Default@2x.png */; };
 		1643B5BB14D9B0BC00A67057 /* dialogue_background-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B4E314D9B0BC00A67057 /* dialogue_background-hd.png */; };
 		1643B5BC14D9B0BC00A67057 /* dialogue_background.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B4E414D9B0BC00A67057 /* dialogue_background.png */; };
-		1643B5BD14D9B0BC00A67057 /* dpad_buttons.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1643B4E514D9B0BC00A67057 /* dpad_buttons.plist */; };
-		1643B5BE14D9B0BC00A67057 /* dpad_buttons.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B4E614D9B0BC00A67057 /* dpad_buttons.png */; };
 		1643B5BF14D9B0BC00A67057 /* fps_images.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B4E714D9B0BC00A67057 /* fps_images.png */; };
 		1643B5C714D9B0BC00A67057 /* hud_spritesheet-hd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1643B4EF14D9B0BC00A67057 /* hud_spritesheet-hd.plist */; };
 		1643B5C814D9B0BC00A67057 /* hud_spritesheet-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B4F014D9B0BC00A67057 /* hud_spritesheet-hd.png */; };
@@ -446,8 +444,6 @@
 		16935D9014EE664200E55F75 /* btn-try-again-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 16935D8514EE664100E55F75 /* btn-try-again-hd.png */; };
 		16935D9114EE664200E55F75 /* title-game-over-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 16935D8614EE664100E55F75 /* title-game-over-hd.png */; };
 		16935D9214EE664200E55F75 /* title-you-win-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 16935D8714EE664200E55F75 /* title-you-win-hd.png */; };
-		16935D9514EE66D600E55F75 /* dpad_buttons-hd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 16935D9314EE66D600E55F75 /* dpad_buttons-hd.plist */; };
-		16935D9614EE66D600E55F75 /* dpad_buttons-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 16935D9414EE66D600E55F75 /* dpad_buttons-hd.png */; };
 		169FA26214E1DE2C00E671F5 /* placeholder_game_menu_help-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 169FA26014E1DE2C00E671F5 /* placeholder_game_menu_help-hd.png */; };
 		169FA26314E1DE2C00E671F5 /* placeholder_game_menu_play-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 169FA26114E1DE2C00E671F5 /* placeholder_game_menu_play-hd.png */; };
 		2230953914DB6CB600D7D219 /* GameMenu.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2230953814DB6CB600D7D219 /* GameMenu.mm */; };
@@ -868,8 +864,6 @@
 		1643B4E214D9B0BC00A67057 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "Resources/Default@2x.png"; sourceTree = "<group>"; };
 		1643B4E314D9B0BC00A67057 /* dialogue_background-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "dialogue_background-hd.png"; path = "Resources/dialogue_background-hd.png"; sourceTree = "<group>"; };
 		1643B4E414D9B0BC00A67057 /* dialogue_background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dialogue_background.png; path = Resources/dialogue_background.png; sourceTree = "<group>"; };
-		1643B4E514D9B0BC00A67057 /* dpad_buttons.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = dpad_buttons.plist; path = Resources/dpad_buttons.plist; sourceTree = "<group>"; };
-		1643B4E614D9B0BC00A67057 /* dpad_buttons.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dpad_buttons.png; path = Resources/dpad_buttons.png; sourceTree = "<group>"; };
 		1643B4E714D9B0BC00A67057 /* fps_images.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = fps_images.png; path = Resources/fps_images.png; sourceTree = "<group>"; };
 		1643B4EF14D9B0BC00A67057 /* hud_spritesheet-hd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "hud_spritesheet-hd.plist"; path = "Resources/hud_spritesheet-hd.plist"; sourceTree = "<group>"; };
 		1643B4F014D9B0BC00A67057 /* hud_spritesheet-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "hud_spritesheet-hd.png"; path = "Resources/hud_spritesheet-hd.png"; sourceTree = "<group>"; };
@@ -1148,8 +1142,6 @@
 		16935D8514EE664100E55F75 /* btn-try-again-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "btn-try-again-hd.png"; sourceTree = "<group>"; };
 		16935D8614EE664100E55F75 /* title-game-over-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "title-game-over-hd.png"; sourceTree = "<group>"; };
 		16935D8714EE664200E55F75 /* title-you-win-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "title-you-win-hd.png"; sourceTree = "<group>"; };
-		16935D9314EE66D600E55F75 /* dpad_buttons-hd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "dpad_buttons-hd.plist"; path = "Resources/dpad_buttons-hd.plist"; sourceTree = "<group>"; };
-		16935D9414EE66D600E55F75 /* dpad_buttons-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "dpad_buttons-hd.png"; path = "Resources/dpad_buttons-hd.png"; sourceTree = "<group>"; };
 		169FA26014E1DE2C00E671F5 /* placeholder_game_menu_help-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "placeholder_game_menu_help-hd.png"; sourceTree = "<group>"; };
 		169FA26114E1DE2C00E671F5 /* placeholder_game_menu_play-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "placeholder_game_menu_play-hd.png"; sourceTree = "<group>"; };
 		2230953414DB68DB00D7D219 /* GameMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameMenu.h; path = ../Scenes/GameMenu.h; sourceTree = "<group>"; };
@@ -1276,10 +1268,6 @@
 				1643B4E214D9B0BC00A67057 /* Default@2x.png */,
 				1643B4E314D9B0BC00A67057 /* dialogue_background-hd.png */,
 				1643B4E414D9B0BC00A67057 /* dialogue_background.png */,
-				16935D9314EE66D600E55F75 /* dpad_buttons-hd.plist */,
-				16935D9414EE66D600E55F75 /* dpad_buttons-hd.png */,
-				1643B4E514D9B0BC00A67057 /* dpad_buttons.plist */,
-				1643B4E614D9B0BC00A67057 /* dpad_buttons.png */,
 				1643B4E714D9B0BC00A67057 /* fps_images.png */,
 				1643B4EF14D9B0BC00A67057 /* hud_spritesheet-hd.plist */,
 				1643B4F014D9B0BC00A67057 /* hud_spritesheet-hd.png */,
@@ -2511,8 +2499,6 @@
 				1643B5BA14D9B0BC00A67057 /* Default@2x.png in Resources */,
 				1643B5BB14D9B0BC00A67057 /* dialogue_background-hd.png in Resources */,
 				1643B5BC14D9B0BC00A67057 /* dialogue_background.png in Resources */,
-				1643B5BD14D9B0BC00A67057 /* dpad_buttons.plist in Resources */,
-				1643B5BE14D9B0BC00A67057 /* dpad_buttons.png in Resources */,
 				1643B5BF14D9B0BC00A67057 /* fps_images.png in Resources */,
 				1643B5C714D9B0BC00A67057 /* hud_spritesheet-hd.plist in Resources */,
 				1643B5C814D9B0BC00A67057 /* hud_spritesheet-hd.png in Resources */,
@@ -2582,8 +2568,6 @@
 				16935D9014EE664200E55F75 /* btn-try-again-hd.png in Resources */,
 				16935D9114EE664200E55F75 /* title-game-over-hd.png in Resources */,
 				16935D9214EE664200E55F75 /* title-you-win-hd.png in Resources */,
-				16935D9514EE66D600E55F75 /* dpad_buttons-hd.plist in Resources */,
-				16935D9614EE66D600E55F75 /* dpad_buttons-hd.png in Resources */,
 				163938F814F1109E00E663E3 /* option-btn-hd.png in Resources */,
 				163938F914F1109E00E663E3 /* option-btn.png in Resources */,
 				22FD013B14F4634100E3F1E0 /* game_detail-hd.plist in Resources */,
