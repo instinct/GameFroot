@@ -12,6 +12,7 @@
 
 #define CONTROLS_INIT_X 106
 #define CONTROLS_INIT_Y 66
+#define CONTROLS_OFFSET_FROM_ORIGIN 45
 #define CONTROLS_OPACITY 125
 
 // Pro swipe constants
@@ -26,11 +27,19 @@
 
 @interface Controls : CCSpriteBatchNode 
 {
+    
+    //Control sprites
+    CCSprite *dpadLeft;
+    CCSprite *dpadRight;
+    CCSprite *dpadUp;
+    CCSprite *dpadDown;
+    CCSprite *aButton;
+    CCSprite *bButton;
+    CCSprite *psLeft;
+    CCSprite *psRight;
+    CCSprite *psProne;
+    
     // DPad
-    CCSprite *leftJoy;
-    CCSprite *proSwipeRing;
-	CCSprite *leftBut;
-	CCSprite *rightBut;
 	CGRect northMoveArea;
 	CGRect southMoveArea;
 	CGRect eastMoveArea;
@@ -84,5 +93,12 @@
 -(void) initJumpWithTouch:(UITouch*)touch;
 -(void) endShoot;
 -(void) endJump;
+-(void) setDpadControlVisible:(bool)visibility;
+-(void) setDpadControlOpacity:(float)opacity;
+-(void) setProSwipeControlVisible:(bool)visibility;
+-(void) setProSwipeControlOpacity:(float)opacity;
+-(void) setControlsOpacity:(float)opacity;
+-(void) setControlsVisible:(bool)visibility;
+-(void) setProSwipeControlsPosition:(float)delta;
 
 @end

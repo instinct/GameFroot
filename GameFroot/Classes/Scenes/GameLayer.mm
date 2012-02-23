@@ -326,7 +326,7 @@ GameLayer *instance;
 		[hudSpriteSheet.textureAtlas.texture setAliasTexParameters];
 		[hud addChild:hudSpriteSheet z:10];
 		
-		controls = [Controls controlsWithFile:@"dpad_buttons.png"];
+		controls = [Controls controlsWithFile:@"controls.png"];
 		[controls.textureAtlas.texture setAliasTexParameters];
 		[hud addChild:controls z:500];
 		

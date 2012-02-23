@@ -139,7 +139,7 @@
 	
 	// Init spritesheets
 	[[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"hud_spritesheet.plist"];
-	[[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"dpad_buttons.plist"];
+	[[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"controls.plist"];
     [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"game_detail.plist"];
 	[[GB2ShapeCache sharedShapeCache] addShapesWithFile:@"shapes.plist"];
 	

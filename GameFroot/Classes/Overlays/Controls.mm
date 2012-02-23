@@ -19,33 +19,48 @@
 
 -(void) setup 
 {
-    if (!leftJoy) { // Be sure we don't recreate them again when restaring the game
+    if (!dpadLeft) { // Be sure we don't recreate them again when restaring the game
 
         CGSize size = [[CCDirector sharedDirector] winSize];
         firstTouch = YES;
 
         dpadInitialPosition = ccp(CONTROLS_INIT_X,CONTROLS_INIT_Y);
         
-        leftJoy = [CCSprite spriteWithSpriteFrameName:@"d_pad_normal.png"];
-        [leftJoy setOpacity:CONTROLS_OPACITY];
-        leftJoy.position = dpadInitialPosition;    
+        // Set up control sprites
         
-        proSwipeRing = [CCSprite spriteWithSpriteFrameName:@"ring.png"];
-        [proSwipeRing setOpacity:CONTROLS_OPACITY];
-
+        dpadLeft = [CCSprite spriteWithSpriteFrameName:@"dpad_side.png"];
+        dpadLeft.flipX = YES;
+        dpadRight = [CCSprite spriteWithSpriteFrameName:@"dpad_side.png"];
+        dpadUp = [CCSprite spriteWithSpriteFrameName:@"dpad_up.png"];
+        dpadDown = [CCSprite spriteWithSpriteFrameName:@"dpad_down.png"];
+        aButton = [CCSprite spriteWithSpriteFrameName:@"a_button.png"];
+        bButton = [CCSprite spriteWithSpriteFrameName:@"b_button.png"];
+        psLeft = [CCSprite spriteWithSpriteFrameName:@"left.png"];
+        psRight = [CCSprite spriteWithSpriteFrameName:@"right.png"];
+        psProne = [CCSprite spriteWithSpriteFrameName:@"prone_icon.png"];
         
-        leftBut = [CCSprite spriteWithSpriteFrameName:@"b_button_up.png"];
-        [leftBut setOpacity:CONTROLS_OPACITY];
-        leftBut.position = ccp(330,56);
+        [self setControlsOpacity:CONTROLS_OPACITY];
         
-        rightBut = [CCSprite spriteWithSpriteFrameName:@"a_button_up.png"];
-        [rightBut setOpacity:CONTROLS_OPACITY];
-        rightBut.position = ccp(424,56);
+        //position elements
+        aButton.position = ccp(424,56);
+        bButton.position = ccp(330,56);
+        dpadLeft.position = ccp(CONTROLS_INIT_X - CONTROLS_OFFSET_FROM_ORIGIN,CONTROLS_INIT_Y);
+        dpadRight.position = ccp(CONTROLS_INIT_X + CONTROLS_OFFSET_FROM_ORIGIN,CONTROLS_INIT_Y);
+        dpadUp.position = ccp(CONTROLS_INIT_X,CONTROLS_INIT_Y + CONTROLS_OFFSET_FROM_ORIGIN);
+        dpadDown.position = ccp(CONTROLS_INIT_X,CONTROLS_INIT_Y - CONTROLS_OFFSET_FROM_ORIGIN);
+        psRight.position = dpadRight.position;
+        psLeft.position = dpadLeft.position;
+        psProne.position = ccp(CONTROLS_INIT_X,CONTROLS_INIT_Y);
         
-        [self addChild:leftJoy];
-        [self addChild:leftBut];
-        [self addChild:rightBut];
-        [self addChild:proSwipeRing];
+        [self addChild:dpadLeft];
+        [self addChild:dpadRight];
+        [self addChild:dpadUp];
+        [self addChild:dpadDown];
+        [self addChild:aButton];
+        [self addChild:bButton];
+        [self addChild:psLeft];
+        [self addChild:psRight];
+        [self addChild:psProne];
         
         northMoveArea = CGRectMake(-5, 181, 220, 110); // 40 increase
         southMoveArea = CGRectMake(-5, 71, 220, 110); // done
@@ -64,12 +79,11 @@
 
         // The area within which the dpad will track touches, roughly half the screen.
         dpadTouchArea = CGRectMake(0, size.height, size.width/2 + 20, size.height);
-        aButtonTouchArea = CGRectMake(rightBut.position.x - (rightBut.contentSize.width/2) - 20, size.height, rightBut.contentSize.width + 45, size.height);
-        bButtonTouchArea = CGRectMake(leftBut.position.x - (leftBut.contentSize.width/2) - 35, size.height, leftBut.contentSize.width + 45, size.height);
+        aButtonTouchArea = CGRectMake(aButton.position.x - (aButton.contentSize.width/2) - 20, size.height, aButton.contentSize.width + 45, size.height);
+        bButtonTouchArea = CGRectMake(bButton.position.x - (bButton.contentSize.width/2) - 35, size.height, bButton.contentSize.width + 45, size.height);
         
         // TODO: Change to center on visuals when availible.
-        midPointAnchor = (dpadTouchArea.origin.x + dpadTouchArea.size.width/2);
-        proSwipeRing.position = ccp(dpadTouchArea.size.width/2, dpadTouchArea.size.height/2 - 50);
+        midPointAnchor = (CONTROLS_INIT_X);
         
         jumpArea = aButtonTouchArea;
         shootArea = bButtonTouchArea;
@@ -112,18 +126,17 @@
     switch (type) {
         case controlDpad:
             self.visible = YES;
-            leftJoy.visible = YES;
-            leftJoy.position = dpadInitialPosition;
-            proSwipeRing.visible = NO;
+            [self setDpadControlVisible:YES];
+            [self setProSwipeControlVisible:NO];
             break;
         case controlNoDpad:
             self.visible = NO;
             break;
         case controlProSwipe:
             self.visible = YES;
-            leftJoy.visible = NO;
-            proSwipeRing.visible = YES;
-            proSwipeRing.opacity = CONTROLS_OPACITY;
+            [self setDpadControlVisible:NO];
+            [self setProSwipeControlVisible:YES];            
+            [self setProSwipeControlOpacity:CONTROLS_OPACITY];
             firstTouch = YES;
             break;
         default:
@@ -185,11 +198,7 @@
     [self unschedule:@selector(proSwipeFadeIn:)];
     [self unschedule:@selector(proSwipeFadeOut:)];
     
-    [leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_normal.png"]];
-	leftJoy.rotation = 0;
-	
-	[rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_up.png"]];
-	[leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_up.png"]];
+    [self setControlsOpacity:CONTROLS_OPACITY];
 	
 	gestureTouch = nil;
 	gestureStartTime = 0;
@@ -201,16 +210,6 @@
 	dpadTouch = nil;
     [self setControlType:controlType];
     
-}
-
--(void) pressedControls
-{
-    [leftJoy setOpacity:80];
-}
-
--(void) releasedControls
-{
-    [leftJoy setOpacity:CONTROLS_OPACITY];
 }
 
 -(void) ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event andLocation:(CGPoint)location
@@ -266,45 +265,27 @@
                 jumpTouch = dpadTouch;
             }
             
-			[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_horizontal.png"]];
-			leftJoy.rotation = -90;
-            
-            [self pressedControls];
+			dpadUp.opacity = 255;
 			
 		} else if ([self dpadSouth:location]) {
 			[player prone];
 			dpadTouch = touch;
-			
-			[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_horizontal.png"]];
-			leftJoy.rotation = 90;
-            
-            [self pressedControls];
+			dpadDown.opacity = 255;
 			
 		} else if ([self dpadEast:location]) {
 			[player moveRight];
 			dpadTouch = touch;
-			
-			[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_horizontal.png"]];
-			leftJoy.rotation = 0;
-            
-            [self pressedControls];
+            dpadRight.opacity = 255;
 			
 		} else if ([self dpadWest:location]) {
 			[player moveLeft];
 			dpadTouch = touch;
+            dpadLeft.opacity = 255;
 			
-			[leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_horizontal.png"]];
-			leftJoy.rotation = 180;
+		} else if ([self touchWithinJumpHitArea:location]) {
+			[self initJumpWithTouch:touch];
             
-            [self pressedControls];
-			
-		} else if ([self dpadB:location]) {
-			
-			if ((dpadTouch == nil) || (dpadTouch != jumpTouch)) {
-				[self initJumpWithTouch:touch];
-			}
-            
-		} else if ([self dpadA:location]) {
+		} else if ([self touchWithinShootHitArea:location]) {
 			[self initShootWithTouch:touch andEvent:event];
 		}
 	} else {
@@ -365,8 +346,6 @@
     } else if([self getControlType] == controlDpad) {
         
         if (touch == dpadTouch) {
-            [leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_normal.png"]];
-            leftJoy.rotation = 0;
             
             [player stop];
             
@@ -375,7 +354,7 @@
             }
     
             dpadTouch = nil;
-            [self releasedControls];
+            [self setDpadControlOpacity:CONTROLS_OPACITY];
         }
         
         if (touch == jumpTouch) {
@@ -383,11 +362,11 @@
             
         } else if (touch == shootTouch) {
             [self endShoot];
+            
         }
     } else {
     	 if (touch == dpadTouch) {
-            [leftJoy setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"d_pad_normal.png"]];
-            leftJoy.rotation = 0;
+             [self setDpadControlOpacity:CONTROLS_OPACITY];
             
             [player stop];
              
@@ -396,12 +375,15 @@
              
              if (diffY > CONTROLS_PRONE_TRIGGER) {
                  // swipe down
+                 if(psProne.visible) {
+                     [self setProSwipeControlOpacity:CONTROLS_OPACITY];
+                     psProne.opacity = 255;
+                 }
                  [player prone];
              }
             
             dpadTouch = nil;
-            [self releasedControls];
-            if(!proSwipeRing.visible) {
+            if(!psLeft.visible) {
                  [self schedule:@selector(proSwipeFadeIn:) interval:CONTROLS_IDLE_TILL_REAPPEAR];
              }
         }
@@ -462,6 +444,8 @@
 	} else if([self getControlType] == controlDpad) {
         
 		if (touch == dpadTouch) {
+            
+            [self setDpadControlOpacity:CONTROLS_OPACITY];
 			
 			if (([self dpadNorth:location]) && ((dpadTouch != jumpTouch))) {
 				if ([Shared isSimulator]) {
@@ -470,30 +454,46 @@
                     jumpTouch = touch;
                 }
                 
-				leftJoy.rotation = -90;
+				dpadUp.opacity = 255;
 				
 			} else if ([self dpadSouth:location]) {
 				[player prone];
-				leftJoy.rotation = 90;
+				dpadDown.opacity = 255;
 				if (dpadTouch == jumpTouch) {
 					[self endJump];
 				}
 				
 			} else if ([self dpadEast:location]) {
 				[player moveRight];
-				leftJoy.rotation = 0;
+				dpadRight.opacity = 255;
 				if (dpadTouch == jumpTouch) {
 					[self endJump];
 				}
 				
 			} else if ([self dpadWest:location]) {
 				[player moveLeft];
-				leftJoy.rotation = 180;
+                dpadLeft.opacity = 255;
 				if (dpadTouch == jumpTouch) {
 					[self endJump];
 				}
 			}
 		}
+        
+        if (touch == shootTouch) {
+            if ([self touchWithinJumpHitArea:location]) {
+                [self endShoot];
+                [self initJumpWithTouch:touch];
+            }
+        }
+        
+        if(touch == jumpTouch) {
+            if ([self touchWithinShootHitArea:location]) {
+                [self endJump];
+                [self initShootWithTouch:touch andEvent:event];
+            }
+        }
+
+        
 	} else {
         
         // detect if any shoot or jump touches are now over
@@ -541,25 +541,38 @@
         float travel = location.x - midPointAnchor;
         // move if greater than dead spot size
         if(ABS(travel) > CONTROLS_DEAD_SPOT_SIZE) {
+            
+            if(psLeft.visible) {
+                [self setProSwipeControlOpacity:CONTROLS_OPACITY];
+            }
+            
             if(travel > 0) {
-                [player moveRight];  
+                if (psRight.visible) {
+                     psRight.opacity = 255;
+                }
+                [player moveRight];
+                
             } else if(travel < 0) {
-                [player moveLeft];  
+                if (psLeft.visible) {
+                    psLeft.opacity = 255;
+                }
+                [player moveLeft];
             } else {
+                
                 [player stop];  
             }
             
             // if size of swipe is greater than max travel,
             // move anchorpoint.
             if(ABS(travel) > CONTROLS_MAX_TRAVEL) {
+                float delta;
                 if (travel > 0) {
-                    midPointAnchor += (travel - CONTROLS_MAX_TRAVEL); 
+                    delta = (travel - CONTROLS_MAX_TRAVEL);
                 } else {
-                    midPointAnchor += (travel + CONTROLS_MAX_TRAVEL);
+                   delta = (travel + CONTROLS_MAX_TRAVEL);
                 }
-                if(proSwipeRing.visible) {
-                    proSwipeRing.position = ccp(midPointAnchor, proSwipeRing.position.y);
-                }
+                midPointAnchor += delta;
+                [self setProSwipeControlsPosition:delta];
             }
         }
     }
@@ -571,7 +584,7 @@
         lastShoot = event.timestamp;
         shootTouch = touch;
         if(self.visible) {
-            [leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_down.png"]];
+            bButton.opacity = 255;
         }
 
     }
@@ -579,7 +592,7 @@
 
 -(void) initJumpWithTouch:(UITouch*)touch {
     if(self.visible) {
-        [rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_down.png"]];
+        aButton.opacity = 255;
     }
     jumpTouch = touch;
     [player jump];
@@ -588,7 +601,7 @@
 -(void) endShoot {
     shootTouch = nil;
     if(self.visible) {
-         [leftBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"b_button_up.png"]];
+        bButton.opacity = CONTROLS_OPACITY;
     }
    
 }
@@ -597,7 +610,7 @@
     jumpTouch = nil;
     [player resetJump];
     if (self.visible) {
-        [rightBut setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"a_button_up.png"]]; 
+        aButton.opacity = CONTROLS_OPACITY;
     }
 }
 
@@ -613,18 +626,76 @@
 }
 
 -(void) proSwipeFadeOut:(ccTime)deltaTime {
-    id fadeAction = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:0];
-    id hideAction = [CCHide action];
-    [proSwipeRing runAction:[CCSequence actions:fadeAction, hideAction, nil]];
+    id fadeAction1 = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:0];
+    id hideAction1 = [CCHide action];
+    id fadeAction2 = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:0];
+    id hideAction2 = [CCHide action];
+    id fadeAction3 = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:0];
+    id hideAction3 = [CCHide action];
+    [psLeft runAction:[CCSequence actions:fadeAction1, hideAction1, nil]];
+    [psRight runAction:[CCSequence actions:fadeAction2, hideAction2, nil]];
+    [psProne runAction:[CCSequence actions:fadeAction3, hideAction3, nil]];
     [self unschedule:@selector(proSwipeFadeOut:)];
 }
 
 -(void) proSwipeFadeIn:(ccTime)deltaTime {
-    id fadeAction = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:CONTROLS_OPACITY];
-    id showAction = [CCShow action];
-    [proSwipeRing runAction:[CCSequence actions:showAction, fadeAction, nil]];
+    id fadeAction1 = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:CONTROLS_OPACITY];
+    id showAction1 = [CCShow action];
+    id fadeAction2 = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:CONTROLS_OPACITY];
+    id showAction2 = [CCShow action];
+    id fadeAction3 = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:CONTROLS_OPACITY];
+    id showAction3 = [CCShow action];
+    [psLeft runAction:[CCSequence actions:showAction1, fadeAction1, nil]];
+    [psRight runAction:[CCSequence actions:showAction2, fadeAction2, nil]];
+    [psProne runAction:[CCSequence actions:showAction3, fadeAction3, nil]];
     [self unschedule:@selector(proSwipeFadeIn:)];
     firstTouch = YES;
+}
+
+-(void) setDpadControlVisible:(bool)visibility {
+    dpadLeft.visible = visibility;
+    dpadRight.visible = visibility;
+    dpadUp.visible = visibility;
+    dpadDown.visible = visibility;
+}
+
+-(void) setDpadControlOpacity:(float)opacity {
+    dpadLeft.opacity = opacity;
+    dpadRight.opacity = opacity;
+    dpadUp.opacity = opacity;
+    dpadDown.opacity = opacity;
+}
+
+-(void) setProSwipeControlVisible:(bool)visibility {
+    psLeft.visible = visibility;
+    psRight.visible = visibility;
+    psProne.visible = visibility;
+}
+
+-(void) setProSwipeControlOpacity:(float)opacity {
+    psLeft.opacity = opacity;
+    psRight.opacity = opacity;
+    psProne.opacity = opacity;
+}
+
+-(void) setControlsOpacity:(float)opacity {
+    aButton.opacity = opacity;
+    bButton.opacity = opacity;
+    [self setDpadControlOpacity:opacity];
+    [self setProSwipeControlOpacity:opacity];
+}
+
+-(void) setControlsVisible:(bool)visibility {
+    aButton.visible = visibility;
+    bButton.visible = visibility;
+    [self setDpadControlVisible:visibility];
+    [self setProSwipeControlVisible:visibility];
+}
+
+-(void) setProSwipeControlsPosition:(float)delta {
+    psLeft.position = ccpAdd(psLeft.position, ccp(delta, 0));
+    psRight.position = ccpAdd(psRight.position, ccp(delta, 0));
+    psProne.position = ccpAdd(psProne.position, ccp(delta, 0));
 }
 
 
@@ -643,6 +714,5 @@
 	//[Shared drawCGRect: shootArea];
 }
 */
-
 
 @end
