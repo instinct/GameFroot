@@ -111,6 +111,8 @@
     int arrayTiles[10000];
     
     Robot *robotMultiChoice;
+    
+    int serverUsed;
 }
 
 @property(nonatomic,assign) Controls *controls;

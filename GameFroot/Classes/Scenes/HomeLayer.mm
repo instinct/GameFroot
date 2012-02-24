@@ -47,7 +47,10 @@
 	// always call "super" init
 	// Apple recommends to re-assign "self" with the "super" return value
 	if( (self=[super initWithColor:ccc4(52,52,52,255)])) {
-
+        
+        // Check what server to use, if staging or live
+        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+        serverUsed = [prefs integerForKey:@"server"];
         
 		CGSize size = [[CCDirector sharedDirector] winSize];	
 			
@@ -198,7 +201,6 @@
 		jsonDataMyGames = nil;
 		userName = nil;
 		
-		NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 		jsonDataPlaying = [[prefs objectForKey:@"favourites"] mutableCopy];
 		if (!jsonDataPlaying) {
 			jsonDataPlaying = [[NSMutableArray arrayWithCapacity:1] retain];
@@ -235,6 +237,11 @@
 	}
 	
 	return self;
+}
+
+-(NSString *) returnServer
+{
+    return serverUsed == 1 ? [properties objectForKey:@"server_live"] : [properties objectForKey:@"server_staging"];
 }
 
 -(void) updatePlayedBadge {
@@ -641,14 +648,14 @@
 	
 	if (jsonDataFeatured == nil) {
 				
-		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels", [properties objectForKey:@"server_json"]];
+		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels", [self returnServer]];
 		CCLOG(@"Load levels: %@",levelsURL);
         
         NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
        
 		NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
 		jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] retain];
-		//CCLOG(@"Levels: %@", [jsonData description]);
+		//CCLOG(@"Levels: %@", [jsonDataFeatured description]);
 		
 		if(!jsonDataFeatured)
 		{
@@ -809,7 +816,7 @@
 	
 	if (jsonDataBrowse == nil) {
 		
-		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels", [properties objectForKey:@"server_json"]];
+		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels", [self returnServer]];
 		CCLOG(@"Load levels: %@",levelsURL);
 		
 		NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
@@ -884,7 +891,7 @@
 	
 	if (jsonDataMyGames == nil) {
 	
-		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_user_levels", [properties objectForKey:@"server_json"]];
+		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_user_levels", [self returnServer]];
 		CCLOG(@"Load levels: %@",levelsURL);
 		
 		NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
@@ -1063,10 +1070,10 @@
 	//NSString *email = [result objectForKey:@"email"];
 	//NSString *facebookid = [result objectForKey:@"id"];
 	//NSString *key = [NSString stringWithFormat:@"%@%@", facebookid, email];
-	//NSString *userLoginURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=ios_login&email=%@&code=%@", [properties objectForKey:@"server_json"], email, [Shared md5:key]];
+	//NSString *userLoginURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=ios_login&email=%@&code=%@", [self returnServer], email, [Shared md5:key]];
 	//NSString *stringData = [Shared stringWithContentsOfURL:userLoginURL ignoreCache:YES];
 	
-	NSString *userLoginURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=ios_login", [properties objectForKey:@"server_json"]];
+	NSString *userLoginURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=ios_login", [self returnServer]];
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSString *post = [NSString stringWithFormat:@"token=%@", [defaults objectForKey:@"FBAccessTokenKey"]];
 	NSString *stringData = [Shared stringWithContentsOfPostURL:userLoginURL post:post];
@@ -1114,10 +1121,47 @@
 
 -(void) _loadMore {
 	[Loader hideAsynchronousLoader];
-	
+    
+    CCMenuItemToggle *serverOptions = [CCMenuItemToggle itemWithTarget:self selector:@selector(server:) items:
+             [CCMenuItemFont itemFromString: @"Staging"],
+             [CCMenuItemFont itemFromString: @"Live"],
+            nil];
+    [serverOptions setSelectedIndex:serverUsed];
+    
+    CCMenu *menu = [CCMenu menuWithItems:serverOptions, nil];
+    
+    [more addChild:menu];
+    
+    CGSize size = [[CCDirector sharedDirector] winSize];
+    
+    [menu setPosition:ccp(size.width/2, size.height/2)];
+    
 	loading = NO;
 	more.visible = YES;
 }
+-(void) server:(id)sender {
+    serverUsed = [sender selectedIndex];
+    
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+	[prefs setInteger:serverUsed forKey:@"server"];
+	[prefs synchronize];
+    
+    if (jsonDataFeatured != nil) [jsonDataFeatured release];
+	if (jsonDataBrowse != nil) [jsonDataBrowse release];
+	if (jsonDataMyGames != nil) [jsonDataMyGames release];
+    
+    jsonDataFeatured = nil;
+    jsonDataBrowse = nil;
+    jsonDataMyGames = nil;
+    
+    // Reset favourites
+    [jsonDataPlaying removeAllObjects];
+    [prefs setObject:jsonDataPlaying forKey:@"favourites"];
+    [prefs synchronize];
+    
+    [self updatePlayedBadge];
+}
+    
 
 #pragma mark -
 #pragma mark SWTableView

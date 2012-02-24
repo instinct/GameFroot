@@ -933,23 +933,24 @@
     // ********************
     // check for firing solution
     // ********************
-    
-    if ( ( playerPos.y == tilePos.y ) || ( playerPos.y - 1 == tilePos.y ) ) {
-        // shoot if facing correct
-        if ( ( ( playerPos.x < tilePos.x ) && ( direction == kDirectionLeft ) ) ||
-            ( ( playerPos.x > tilePos.x ) && ( direction == kDirectionRight ) ) ) {
-            shootTimer -= dt;
-            if ( shootTimer <= 0 ) {
-                [ self shoot ];
-                shootTimer = shootDelay;
-            } 
-        }
-    } else {
+    if ((behaviour & BEHAVIOUR_SHOOTING) > 0) {
+        if ( ( playerPos.y == tilePos.y ) || ( playerPos.y - 1 == tilePos.y ) ) {
+            // shoot if facing correct
+            if ( ( ( playerPos.x < tilePos.x ) && ( direction == kDirectionLeft ) ) ||
+                ( ( playerPos.x > tilePos.x ) && ( direction == kDirectionRight ) ) ) {
+                shootTimer -= dt;
+                if ( shootTimer <= 0 ) {
+                    [ self shoot ];
+                    shootTimer = shootDelay;
+                } 
+            }
+        } else {
 #if ENEMY_INITIAL_WEAPON_DELAY
-        shootTimer = shootDelay;
+            shootTimer = shootDelay;
 #else
-        shootTimer -= dt;
+            shootTimer -= dt;
 #endif
+        }
     }
     
     // ********************

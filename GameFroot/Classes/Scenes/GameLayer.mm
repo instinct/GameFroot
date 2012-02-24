@@ -205,6 +205,10 @@ GameLayer *instance;
         
 		instance = self;
 		
+        // Check what server to use, if staging or live
+        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+        serverUsed = [prefs integerForKey:@"server"];
+        
 		// Check if we need to download the level data or use cache
 		ignoreCache = YES;		
 		NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -404,6 +408,11 @@ GameLayer *instance;
 	return self;
 }
 
+-(NSString *) returnServer
+{
+    return serverUsed == 1 ? [properties objectForKey:@"server_live"] : [properties objectForKey:@"server_staging"];
+}
+
 -(void)music: (id)sender {
 	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	[prefs setInteger:[sender selectedIndex] forKey:@"music"];
@@ -559,7 +568,7 @@ GameLayer *instance;
 	data = [[NSMutableDictionary dictionary] retain];
 	[data setObject:[NSNumber numberWithInt:gameID] forKey:@"gameID"];
 	
-	NSString *gameURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=json&map_id=%d", [properties objectForKey:@"server_json"], gameID];
+	NSString *gameURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=json&map_id=%d", [self returnServer], gameID];
 	CCLOG(@"Load level: %@, ignore cache: %i", gameURL, ignoreCache);
 	
 	NSString *stringData = [Shared stringWithContentsOfURL:gameURL ignoreCache:ignoreCache];
@@ -571,7 +580,7 @@ GameLayer *instance;
 		return;
 	}
 	
-	CCLOG(@"%@", [jsonData description]);
+	//CCLOG(@"%@", [jsonData description]);
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Load Header Data
@@ -581,7 +590,7 @@ GameLayer *instance;
 	{
 		NSArray *bgMusics = [[headerData objectForKey:@"background"] objectForKey:@"music"];
 		if ((bgMusics != nil) && [bgMusics isKindOfClass:[NSArray class]] && [bgMusics count] > 0) {
-			NSString *trackURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_music_url&id=%d", [properties objectForKey:@"server_json"], [[bgMusics objectAtIndex:0] intValue]];
+			NSString *trackURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_music_url&id=%d", [self returnServer], [[bgMusics objectAtIndex:0] intValue]];
 			//CCLOG(@"Level music url '%@'", trackURL);
 			NSString *track = [Shared stringWithContentsOfURL:trackURL ignoreCache:ignoreCache];
 			[data setObject:track forKey:@"bgmusic"];
@@ -667,6 +676,7 @@ GameLayer *instance;
 		
 		for(uint i = 0; i < [characterElements count]; i++)
 		{
+            //CCLOG(@"Enemy: %@", [characterElements objectAtIndex:i]);
 			NSMutableDictionary *characterData = [[NSMutableDictionary alloc] init];
 			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"health"] intValue]] forKey:@"health"];
 			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"num"] intValue]] forKey:@"type"];
@@ -843,7 +853,7 @@ GameLayer *instance;
 	CGSize size = [[CCDirector sharedDirector] winSize];
 	
 	/*
-	NSString *backgroundFilename = [NSString stringWithFormat:@"%@wp-content/plugins/game_data/backgrounds/full/%@.png", [properties objectForKey:@"server_json"], [data objectForKey:@"mapBackground"]];
+	NSString *backgroundFilename = [NSString stringWithFormat:@"%@wp-content/plugins/game_data/backgrounds/full/%@.png", [self returnServer], [data objectForKey:@"mapBackground"]];
 	CCLOG(@"Load background level: %@", backgroundFilename);
 	
 	// Load Background
@@ -883,8 +893,8 @@ GameLayer *instance;
 	{
 		if (customTiles) {
 			int gameID = (int)[[data objectForKey:@"gameID"] intValue];
-			//NSString *tilesFilename = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_tilesheet&id=%d", [properties objectForKey:@"server_json"], gameID];
-			NSString *tilesFilename = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_game_animations&id=%d", [properties objectForKey:@"server_json"], gameID];
+			//NSString *tilesFilename = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_tilesheet&id=%d", [self returnServer], gameID];
+			NSString *tilesFilename = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_game_animations&id=%d", [self returnServer], gameID];
 			CCLOG(@"Load spritesheet tiles: %@", tilesFilename);
 			spriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:tilesFilename ignoreCache:ignoreCache]];
 			
@@ -908,6 +918,7 @@ GameLayer *instance;
 	}
 }
 
+/* DEPRECATED!!
 -(void) createDelimiterAt:(CGPoint)_poition size:(CGSize)_size
 {
 	b2BodyDef playerBodyDef;
@@ -927,6 +938,7 @@ GameLayer *instance;
 	fixtureDef.isSensor = true;
 	body->CreateFixture(&fixtureDef);
 }
+*/
 
 -(int) getTileAt:(CGPoint)position
 {
@@ -1121,7 +1133,9 @@ GameLayer *instance;
 				[sprite setAnchorPoint:ccp(0.5,0.5)];
 				[spriteSheet addChild:sprite z:zorder];
                 
-                // Set arrat tiles
+                if (behaviour == 0) continue; // Ignore TERRAIN_BACKGROUND
+                    
+                // Set array tiles
                 int index = dx + (dy*MAP_TILE_WIDTH);
                 //CCLOG(@"set tile %i at %i", behaviour, index);
                 if ( behaviour == 0 ) behaviour = 1;
@@ -1151,6 +1165,7 @@ GameLayer *instance;
 					[sprite runAction:repeatAction];
 				}
 				
+                /* DEPRECATED!!
 				// If background tile, check if there is already a foreground tile so we ignore collision 
 				if (zorder == 0) {
 					NSPredicate *predicate = [NSPredicate predicateWithFormat:@"positionX = %i AND positionY = %i AND zorder=1", dx, dy];
@@ -1158,7 +1173,7 @@ GameLayer *instance;
 					//CCLOG(@"%@", repeatedArray);
 					if ([repeatedArray count] > 0) behaviour = 100 + dx;
 				}
-				
+				*/
 				
 				if (behaviour != initialType) {
 					// Detected a change on tile type
@@ -1186,6 +1201,7 @@ GameLayer *instance;
 								block.contentSize = CGSizeMake(MAP_TILE_WIDTH * countTiles, MAP_TILE_HEIGHT);
 								//CCLOG(@"------->%f, %f", block.contentSize.width, block.contentSize.height);
 								
+                                /* DEPRECATED!!
 								if ((initialType == 1) && (countTiles > 1)) {
 									NSPredicate *predicate = [NSPredicate predicateWithFormat:@"positionX = %i AND positionY = %i", prevXPos, y-1];
 									NSArray *repeatedArray = [arTiles filteredArrayUsingPredicate:predicate];
@@ -1196,6 +1212,7 @@ GameLayer *instance;
 										[self createDelimiterAt:ccp(block.position.x + ((MAP_TILE_WIDTH * countTiles) / 2.0f), block.position.y + MAP_TILE_HEIGHT) size:CGSizeMake(MAP_TILE_WIDTH/4, MAP_TILE_HEIGHT/10)];
 									}
 								}
+                                */
 							}
 							
 						}
@@ -1238,6 +1255,7 @@ GameLayer *instance;
 								block.contentSize = CGSizeMake(MAP_TILE_WIDTH * countTiles, MAP_TILE_HEIGHT);
 								//CCLOG(@"------->%f, %f", block.contentSize.width, block.contentSize.height);
 								
+                                /* DEPRECATED!!
 								if ((initialType == 1) && (countTiles > 1)) {
 									NSPredicate *predicate = [NSPredicate predicateWithFormat:@"positionX = %i AND positionY = %i", prevXPos, y-1];
 									NSArray *repeatedArray = [arTiles filteredArrayUsingPredicate:predicate];
@@ -1248,6 +1266,7 @@ GameLayer *instance;
 										[self createDelimiterAt:ccp(block.position.x + ((MAP_TILE_WIDTH * countTiles) / 2.0f), block.position.y + MAP_TILE_HEIGHT) size:CGSizeMake(MAP_TILE_WIDTH/4, MAP_TILE_HEIGHT/10)];
 									}
 								}
+                                */
 							}
 							
 						}
@@ -1288,6 +1307,7 @@ GameLayer *instance;
 				block.contentSize = CGSizeMake(MAP_TILE_WIDTH * countTiles, MAP_TILE_HEIGHT);
 				//CCLOG(@"------->%f, %f", block.contentSize.width, block.contentSize.height);
 				
+                /* DEPRECATED!!
 				if ((initialType == 1) && (countTiles > 1)) {
 					NSPredicate *predicate = [NSPredicate predicateWithFormat:@"positionX = %i AND positionY = %i", prevXPos, y-1];
 					NSArray *repeatedArray = [arTiles filteredArrayUsingPredicate:predicate];
@@ -1298,6 +1318,7 @@ GameLayer *instance;
 						[self createDelimiterAt:ccp(block.position.x + ((MAP_TILE_WIDTH * countTiles) / 2.0f), block.position.y + MAP_TILE_HEIGHT) size:CGSizeMake(MAP_TILE_WIDTH/4, MAP_TILE_HEIGHT/10)];
 					}
 				}
+                */
 			}
 			
 		}
@@ -1445,7 +1466,7 @@ GameLayer *instance;
 	BOOL custom = NO;
 	NSString *playerFilename;
 	if (playerID > 10) {
-		playerFilename = [NSString stringWithFormat:@"%@wp-content/characters/character%d.png", [properties objectForKey:@"server_json"], playerID];
+		playerFilename = [NSString stringWithFormat:@"%@wp-content/characters/character%d.png", [self returnServer], playerID];
 		
 		custom = ignoreCache;
 		if ([cached objectForKey:playerFilename] != nil) {
@@ -1465,7 +1486,7 @@ GameLayer *instance;
 		}	
 		
 	} else {
-		//playerFilename = [NSString stringWithFormat:@"%@wp-content/characters/player_%d.png", [properties objectForKey:@"server_json"], playerID];
+		//playerFilename = [NSString stringWithFormat:@"%@wp-content/characters/player_%d.png", [self returnServer], playerID];
 		//playerSpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:playerFilename ignoreCache:custom || ignoreCache]];
 		
 		CCLOG(@"Player spritesheet: %@", [NSString stringWithFormat:@"player_%i.png", playerID]);
@@ -1513,7 +1534,7 @@ GameLayer *instance;
 		BOOL custom = NO;
 		NSString *enemyFilename;
 		if (enemyID > 10) {
-			enemyFilename = [NSString stringWithFormat:@"%@wp-content/characters/enemy%d.png", [properties objectForKey:@"server_json"], enemyID];
+			enemyFilename = [NSString stringWithFormat:@"%@wp-content/characters/enemy%d.png", [self returnServer], enemyID];
 			
 			custom = ignoreCache;
 			if ([cached objectForKey:enemyFilename] != nil) {
@@ -1533,7 +1554,7 @@ GameLayer *instance;
 			}
 			
 		} else {
-			//enemyFilename = [NSString stringWithFormat:@"%@wp-content/characters/enemy_sheet%d.png", [properties objectForKey:@"server_json"], enemyID];
+			//enemyFilename = [NSString stringWithFormat:@"%@wp-content/characters/enemy_sheet%d.png", [self returnServer], enemyID];
 			//enemySpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:enemyFilename ignoreCache:custom || ignoreCache]];
 			
 			CCLOG(@"Enemy spritesheet: %@", [NSString stringWithFormat:@"enemy_sheet%i.png", enemyID]);
