@@ -22,26 +22,39 @@
 		
 		CGSize size = [[CCDirector sharedDirector] winSize];
         
-		CCMenuItemSprite *resumeButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-resume.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-resume-off.png"] target:self selector:@selector(pauseGame)];
-		
-        CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-main-menu.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-main-menu-off.png"] target:self selector:@selector(quitGame)];
-		
-		musicButton = [CCMenuItemToggle itemWithTarget:self selector:@selector(music:) items:
-					   [CCMenuItemImage itemFromNormalImage:@"btn-music-on.png" selectedImage:@"btn-music-on.png"],
-					   [CCMenuItemImage itemFromNormalImage:@"btn-music-off.png" selectedImage:@"btn-music-off.png"],
-					   nil];
-		
-		
-        // Create controls menu
+        // Add background guide
+        CCSprite *background = [CCSprite spriteWithFile:@"pause_menu_template.png"];
+        background.position = ccp(size.width/2, size.height/2);
+        [self addChild:background];
         
-        CCSprite *controlsLabel = [CCSprite spriteWithFile:@"label-controls.png"];
-       
+        //\\//\\// Add main menu stuff //\\//\\//
         
-        control_option1 = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-controls_ps.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-controls_ps_sel.png"] target:self selector:@selector(controllerButtonPressed:)];
+        CCMenuItemSprite *continueButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"continue.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"continue_pressed.png"] target:self selector:@selector(pauseGame)];
         
-        control_option2 = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-controls_dp.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-controls_dp_sel.png"] target:self selector:@selector(controllerButtonPressed:)];
+        CCMenuItemSprite *quitButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"quit.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"quit.png"] target:self selector:@selector(quitGame)];
         
-        control_option3 = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-controls_hz.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-controls_hz_sel.png"] target:self selector:@selector(controllerButtonPressed:)];
+        CCMenu *bottomMenu = [CCMenu menuWithItems:quitButton,continueButton, nil];
+        bottomMenu.position = ccp(size.width*bottomMenu.scaleX*0.5, size.height*bottomMenu.scaleY*0.138);
+        [bottomMenu alignItemsHorizontallyWithPadding:150];
+        [self addChild:bottomMenu];
+        
+        //\\//\\// add music button //\\//\\//
+        
+        musicButton = [CCMenuItemToggle itemWithTarget:self selector:@selector(music:) items:
+                       [CCMenuItemImage itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"music_off.png"]selectedSprite:[CCSprite spriteWithSpriteFrameName:@"music_off.png"]],                      [CCMenuItemImage itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"music_on.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"music_on.png"]],
+                       nil];
+        
+        CCMenu *musicMenu = [CCMenu menuWithItems:musicButton, nil];
+        musicMenu.position = ccp(size.width*musicMenu.scaleX*0.18, size.height*musicMenu.scaleY*0.63);
+        [self addChild:musicMenu];
+        
+        //\\//\\// add controls submenu //\\//\\//
+        
+        control_option1 = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"pro_swipe_off.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"pro_swipe_on.png"] target:self selector:@selector(controllerButtonPressed:)];
+        
+        control_option2 = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"dpad_off.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"dpad_on.png"] target:self selector:@selector(controllerButtonPressed:)];
+        
+        control_option3 = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"hit_zones_off.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"hit_zones_on.png"] target:self selector:@selector(controllerButtonPressed:)];
         
         control_option1.tag = (int)controlProSwipe;
         control_option2.tag = (int)controlDpad;
@@ -49,34 +62,19 @@
         
         CCMenu *controlsMenu = [CCMenu menuWithItems:control_option1, control_option2, control_option3, nil];
         [controlsMenu alignItemsHorizontally];
-        controlsMenu.position = ccp(size.width/2 + 70, size.height/2 - 80);
-        controlsLabel.position = ccp(controlsMenu.position.x - 170, controlsMenu.position.y);
-        [self addChild:controlsLabel];
+        controlsMenu.position = ccp(size.width*controlsMenu.scaleX*0.487, size.height*controlsMenu.scaleY*0.348);
         [self addChild:controlsMenu];
         
-		// Read saved settings
+        //\\//\\//  pause menu state //\\//\\//
+        
+        // Read saved settings
 		NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 		int musicPref = [prefs integerForKey:@"music"];
-        //if ([Shared isDebugging]) CCLOG(@"Music preference: %i", musicPref);
 		[musicButton setSelectedIndex: musicPref];
 
-		// set the selected control method
+        // set the selected control method
         //if ([Shared isDebugging]) CCLOG(@"DPad preference: %i", dpadPref);
         [self setControlButtonSelected:[[GameLayer getInstance].controls getControlType]];
-		
-		CCMenu *menuPause = [CCMenu menuWithItems:resumeButton, backButton, musicButton, nil];
-		
-        //menuPause.scale = 0.75;
-		menuPause.position = ccp(size.width*menuPause.scaleX*0.5, size.height*menuPause.scaleY*0.6);
-		[menuPause alignItemsVertically];
-		
-        [self addChild:menuPause];
-        
-        CCMenuItemSprite *restartButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-replay.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-replay.png"] target:self selector:@selector(restartGameFromPause)];
-		[restartButton setScale:0.75];		
-		CCMenu *menuRestart = [CCMenu menuWithItems:restartButton, nil];
-		menuRestart.position = ccp(size.width/2, size.height/2 - 130);
-		[self addChild:menuRestart];
 	}
 	return self;
 }
@@ -96,18 +94,18 @@
 }
 
 -(void)setControlButtonSelected:(GameControlType)tag {
-    control_option1.normalImage = [CCSprite spriteWithFile:@"btn-controls_ps.png"];
-    control_option2.normalImage = [CCSprite spriteWithFile:@"btn-controls_dp.png"];
-    control_option3.normalImage = [CCSprite spriteWithFile:@"btn-controls_hz.png"];
+    control_option1.normalImage = [CCSprite spriteWithSpriteFrameName:@"pro_swipe_off.png"];
+    control_option2.normalImage = [CCSprite spriteWithSpriteFrameName:@"dpad_off.png"];
+    control_option3.normalImage = [CCSprite spriteWithSpriteFrameName:@"hit_zones_off.png"];
     switch (tag) {
         case controlProSwipe:
-            control_option1.normalImage = [CCSprite spriteWithFile:@"btn-controls_ps_sel.png"];
+            control_option1.normalImage = [CCSprite spriteWithSpriteFrameName:@"pro_swipe_on.png"];
             break;
         case controlDpad:
-            control_option2.normalImage = [CCSprite spriteWithFile:@"btn-controls_dp_sel.png"];
+            control_option2.normalImage = [CCSprite spriteWithSpriteFrameName:@"dpad_on.png"];
             break;
         case controlNoDpad:
-            control_option3.normalImage = [CCSprite spriteWithFile:@"btn-controls_hz_sel.png"];
+            control_option3.normalImage = [CCSprite spriteWithSpriteFrameName:@"hit_zones_on.png"];
             break;
         default:
             break;

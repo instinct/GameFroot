@@ -302,7 +302,7 @@ GameLayer *instance;
 		CCMenu *menu = [CCMenu menuWithItems:pauseBtn, nil];
 		//[menu setPosition:ccp(size.width - pauseBtn.contentSize.width/2, size.height - pauseBtn.contentSize.height*2)];
 		[menu setPosition:ccp(size.width/2 + pauseBtn.contentSize.width + 20.0f, size.height - pauseBtn.contentSize.height + 5.0f)];
-		[hud addChild:menu z:1001];
+		[hud addChild:menu z:5];
 		
 		livesLabel = [CCLabelBMFont labelWithString:@"00xHD" fntFile:@"hud.fnt"];
 		[livesLabel setPosition: ccp(livesLabel.contentSize.width/2 + 5, size.height - livesLabel.contentSize.height/2)];

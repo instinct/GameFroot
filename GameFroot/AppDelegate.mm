@@ -141,6 +141,7 @@
 	[[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"hud_spritesheet.plist"];
 	[[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"controls.plist"];
     [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"game_detail.plist"];
+    [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"pause_screen.plist"];
 	[[GB2ShapeCache sharedShapeCache] addShapesWithFile:@"shapes.plist"];
 	
 	// Init audio
