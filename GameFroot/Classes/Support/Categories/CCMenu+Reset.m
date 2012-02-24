@@ -83,4 +83,16 @@ BOOL touchCanceled;
 	}
 }
 
+-(void) ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event
+{
+    //if (touchCanceled || (state_ != kCCMenuStateTrackingTouch)) return;
+    
+	NSAssert(state_ == kCCMenuStateTrackingTouch, @"[Menu ccTouchEnded] -- invalid state");
+	
+	[selectedItem_ unselected];
+	[selectedItem_ activate];
+	
+	state_ = kCCMenuStateWaiting;
+}
+
 @end

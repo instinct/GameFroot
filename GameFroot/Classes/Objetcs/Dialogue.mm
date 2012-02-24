@@ -16,10 +16,14 @@
 
 -(void) setupDialogue:(NSString *)_text
 {
+    //CCLOG(@"Dialogue.setupDialogue: %@", _text);
+    
 	//text = @"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";	
 	//text = @"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";	
 	//text = @"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor.";
-	text = [_text retain];	
+	
+    if ([_text length] < 200) text = [_text retain];
+    else text = [_text substringToIndex:200];
 	
 	[[CCTouchDispatcher sharedDispatcher] addTargetedDelegate:self priority:TOUCH_PRIORITY swallowsTouches:YES];
 
