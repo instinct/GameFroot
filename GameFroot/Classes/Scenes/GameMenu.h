@@ -9,13 +9,12 @@
 #import "cocos2d.h"
 #import "GameLayer.h"
 #import "Shared.h"
+#import "AGProgressBar.h"
 
 @interface GameMenu : CCLayer {
     @private
-        CCSprite *_loadingTitle;
-        CCSprite *_progressBar;
-        CCSprite *_progressBarBack;
         CCMenuItemSprite *_playButton;
+        AGProgressBar *_progressBar;
         bool playMode;
 }
 

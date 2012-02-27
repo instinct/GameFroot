@@ -9,6 +9,8 @@
 #import "GameMenu.h"
 #import "HomeLayer.h"
 
+#define MAIN_MENU_PROGRESS_BAR_LENGTH 410
+
 @implementation GameMenu
 
 - (id)init {
@@ -19,49 +21,50 @@
         playMode = NO;
         
         // Loading base assets
-
-        CCSprite *bg = [CCSprite spriteWithFile:@"loading-bg.png"];
+        
+        CCSprite *bg = [CCSprite spriteWithFile:@"blue-bg.png"];
         [bg setScale:CC_CONTENT_SCALE_FACTOR()];
         [bg setPosition:ccp(size.width*0.5,size.height*0.5)];
         [self addChild:bg];
         
         CCLabelBMFont *level = [CCLabelBMFont labelWithString:[Shared getLevelTitle] fntFile:@"Chicago.fnt"];
+        level.scale = 2;
         [level setPosition:ccp(size.width*0.5,size.height*0.8)];
         [self addChild:level];
         
+        NSString *authorTextPrefix = @"By ";
+        CCLabelBMFont *author = [CCLabelBMFont labelWithString:[authorTextPrefix stringByAppendingString:[[Shared getLevel] valueForKey:@"author"]] fntFile:@"Chicago.fnt"];
+        author.position = ccpSub(level.position, ccp(0,40));
+        [self addChild:author];
+        
         // Loading menu items
         
-        _playButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"placeholder_game_menu_play.png"] selectedSprite:[CCSprite spriteWithFile:@"placeholder_game_menu_play.png"] target:self selector:@selector(_onPlay:)];
+        _playButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"play_button_03.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"play_pressed_03.png"] target:self selector:@selector(_onPlay:)];
         
-        CCMenuItemSprite *helpButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"placeholder_game_menu_help.png"] selectedSprite:[CCSprite spriteWithFile:@"placeholder_game_menu_help.png"] target:self selector:@selector(_onHelp:)];
+        CCMenuItemSprite *helpButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"help_button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"help_pressed.png"] target:self selector:@selector(_onHelp:)];
         
-        CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"btn-main-menu2.png"] selectedSprite:[CCSprite spriteWithFile:@"btn-main-menu2.png"] target:self selector:@selector(backMenu:)];
-		[backButton setScale:0.75];	
+        CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"back_button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"back_pressed.png"] target:self selector:@selector(backMenu:)];
         
-        CCMenu *mainMenu = [CCMenu menuWithItems:_playButton, helpButton, backButton, nil];
-        [mainMenu alignItemsVerticallyWithPadding:4.0f];
+        CCMenu *mainMenu = [CCMenu menuWithItems:backButton, _playButton, helpButton, nil];
+        mainMenu.position = ccp(size.width*0.5, size.height*0.4);
+        helpButton.position = ccpSub(helpButton.position, ccp(0,(4*CC_CONTENT_SCALE_FACTOR())));
+        [mainMenu alignItemsHorizontallyWithPadding:30];
         [self addChild:mainMenu];
         
+        CCSprite *inactive_play = [CCSprite spriteWithSpriteFrameName:@"play_deactived.png"];
+        inactive_play.position = ccpAdd(mainMenu.position, _playButton.position);
+        [self addChild:inactive_play];
+        
         // Loading progress bar assets
-               
-        _loadingTitle = [CCSprite spriteWithFile:@"loading-title.png"];
-        [_loadingTitle setScale:CC_CONTENT_SCALE_FACTOR()];
-        [_loadingTitle setPosition:ccp(size.width*0.5,size.height*0.2)];
-        _loadingTitle.scale = 0.6f * CC_CONTENT_SCALE_FACTOR();
+        _progressBar = [AGProgressBar progressBarWithFile:@"main_menu.png"];
+		[_progressBar.textureAtlas.texture setAliasTexParameters];
+        [_progressBar setupWithFrameNamesLeft:@"bar_left.png" right:@"bar_right.png" middle:@"bar_middle.png" andBackgroundLeft:@"loading_bar_back_left.png" right:@"loading_bar_back_right.png" middle:@"loading_bar_back.png" andWidth:(MAIN_MENU_PROGRESS_BAR_LENGTH)];
         
-        _progressBarBack = [CCSprite spriteWithFile:@"loading-bar-bg.png"];
-        [_progressBarBack setScale:CC_CONTENT_SCALE_FACTOR()];
-        [_progressBarBack setPosition:ccp(size.width*0.5,size.height*0.1)];
-
-        _progressBar = [CCSprite spriteWithFile:@"loading-bar-overlay.png"];
-        [_progressBar setScale:CC_CONTENT_SCALE_FACTOR()];
-        [_progressBar setPosition:ccp(size.width*0.225,size.height*0.1075)];
-        [_progressBar setAnchorPoint:ccp(0,0.5)];
+        _progressBar.position = ccp(size.width*0.06,size.height*0.13);
         
-        [self hideProgressBar];
-        [self addChild:_loadingTitle];
-        [self addChild:_progressBarBack];
+        //[self hideProgressBar];
         [self addChild:_progressBar z:10];
+        [self hideProgressBar];
     }
     return self;
 }
@@ -90,14 +93,10 @@
 }
 
 -(void) showProgressBar {
-    _loadingTitle.visible = YES;
-    _progressBarBack.visible = YES;
     _progressBar.visible = YES;
 }
 
 -(void) hideProgressBar {
-    _loadingTitle.visible = NO;
-    _progressBarBack.visible = NO;
     _progressBar.visible = NO;
 }
 
@@ -108,7 +107,7 @@
 
 -(void) setProgressBar:(float)percent
 {
-	[_progressBar setTextureRect:CGRectMake(0,0,263*(float)(percent / 100.0f),18/CC_CONTENT_SCALE_FACTOR())];
+    [_progressBar setPercent:percent];
 }
 
 @end

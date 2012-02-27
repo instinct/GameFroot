@@ -142,6 +142,7 @@
 	[[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"controls.plist"];
     [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"game_detail.plist"];
     [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"pause_screen.plist"];
+    [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"main_menu.plist"];
 	[[GB2ShapeCache sharedShapeCache] addShapesWithFile:@"shapes.plist"];
 	
 	// Init audio
