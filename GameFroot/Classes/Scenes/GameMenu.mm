@@ -27,13 +27,14 @@
         [bg setPosition:ccp(size.width*0.5,size.height*0.5)];
         [self addChild:bg];
         
-        CCLabelBMFont *level = [CCLabelBMFont labelWithString:[Shared getLevelTitle] fntFile:@"Chicago.fnt"];
-        level.scale = 2;
+        CCLabelBMFont *level = [CCLabelBMFont labelWithString:[Shared getLevelTitle] fntFile:@"Chicpix2.fnt"];
+        [level.textureAtlas.texture setAliasTexParameters];
         [level setPosition:ccp(size.width*0.5,size.height*0.8)];
         [self addChild:level];
         
         NSString *authorTextPrefix = @"By ";
-        CCLabelBMFont *author = [CCLabelBMFont labelWithString:[authorTextPrefix stringByAppendingString:[[Shared getLevel] valueForKey:@"author"]] fntFile:@"Chicago.fnt"];
+        CCLabelBMFont *author = [CCLabelBMFont labelWithString:[authorTextPrefix stringByAppendingString:[[Shared getLevel] valueForKey:@"author"]] fntFile:@"Chicpix.fnt"];
+        [author.textureAtlas.texture setAliasTexParameters];
         author.position = ccpSub(level.position, ccp(0,40));
         [self addChild:author];
         

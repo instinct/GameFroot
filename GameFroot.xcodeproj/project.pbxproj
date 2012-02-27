@@ -424,6 +424,12 @@
 		165906BD14E2B38E00321213 /* Controls.mm in Sources */ = {isa = PBXBuildFile; fileRef = 165906BC14E2B38D00321213 /* Controls.mm */; };
 		165BEB0114E2FC5100CF9A2B /* Pause.mm in Sources */ = {isa = PBXBuildFile; fileRef = 165BEB0014E2FC5100CF9A2B /* Pause.mm */; };
 		166977F714E280DE0081176B /* rate_controls_mockup-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 166977F614E280DE0081176B /* rate_controls_mockup-hd.png */; };
+		167016E214FC3430006E90A4 /* Chicpix-hd.fnt in Resources */ = {isa = PBXBuildFile; fileRef = 167016E014FC3430006E90A4 /* Chicpix-hd.fnt */; };
+		167016E314FC3430006E90A4 /* Chicpix-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 167016E114FC3430006E90A4 /* Chicpix-hd.png */; };
+		167016E814FC343D006E90A4 /* Chicpix2-hd.fnt in Resources */ = {isa = PBXBuildFile; fileRef = 167016E414FC343D006E90A4 /* Chicpix2-hd.fnt */; };
+		167016E914FC343D006E90A4 /* Chicpix2-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 167016E514FC343D006E90A4 /* Chicpix2-hd.png */; };
+		167016EA14FC343D006E90A4 /* Chicpix2.fnt in Resources */ = {isa = PBXBuildFile; fileRef = 167016E614FC343D006E90A4 /* Chicpix2.fnt */; };
+		167016EB14FC343D006E90A4 /* Chicpix2.png in Resources */ = {isa = PBXBuildFile; fileRef = 167016E714FC343D006E90A4 /* Chicpix2.png */; };
 		16935D8814EE664200E55F75 /* btn-main-menu-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 16935D7D14EE663F00E55F75 /* btn-main-menu-hd.png */; };
 		16935D8914EE664200E55F75 /* btn-main-menu-off-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 16935D7E14EE663F00E55F75 /* btn-main-menu-off-hd.png */; };
 		16935D8A14EE664200E55F75 /* btn-main-menu2-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 16935D7F14EE663F00E55F75 /* btn-main-menu2-hd.png */; };
@@ -1113,6 +1119,12 @@
 		165BEAFF14E2FC5100CF9A2B /* Pause.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pause.h; sourceTree = "<group>"; };
 		165BEB0014E2FC5100CF9A2B /* Pause.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Pause.mm; sourceTree = "<group>"; };
 		166977F614E280DE0081176B /* rate_controls_mockup-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "rate_controls_mockup-hd.png"; sourceTree = "<group>"; };
+		167016E014FC3430006E90A4 /* Chicpix-hd.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "Chicpix-hd.fnt"; path = "Resources/Chicpix-hd.fnt"; sourceTree = "<group>"; };
+		167016E114FC3430006E90A4 /* Chicpix-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Chicpix-hd.png"; path = "Resources/Chicpix-hd.png"; sourceTree = "<group>"; };
+		167016E414FC343D006E90A4 /* Chicpix2-hd.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "Chicpix2-hd.fnt"; path = "Resources/Chicpix2-hd.fnt"; sourceTree = "<group>"; };
+		167016E514FC343D006E90A4 /* Chicpix2-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Chicpix2-hd.png"; path = "Resources/Chicpix2-hd.png"; sourceTree = "<group>"; };
+		167016E614FC343D006E90A4 /* Chicpix2.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Chicpix2.fnt; path = Resources/Chicpix2.fnt; sourceTree = "<group>"; };
+		167016E714FC343D006E90A4 /* Chicpix2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Chicpix2.png; path = Resources/Chicpix2.png; sourceTree = "<group>"; };
 		16935D7D14EE663F00E55F75 /* btn-main-menu-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "btn-main-menu-hd.png"; sourceTree = "<group>"; };
 		16935D7E14EE663F00E55F75 /* btn-main-menu-off-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "btn-main-menu-off-hd.png"; sourceTree = "<group>"; };
 		16935D7F14EE663F00E55F75 /* btn-main-menu2-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "btn-main-menu2-hd.png"; sourceTree = "<group>"; };
@@ -1229,10 +1241,6 @@
 		1643B24F14D9B00F00A67057 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				22F8D1CD14F5B52600780B13 /* controls-hd.plist */,
-				22F8D1CE14F5B52600780B13 /* controls-hd.png */,
-				22F8D1CF14F5B52600780B13 /* controls.plist */,
-				22F8D1D014F5B52600780B13 /* controls.png */,
 				1643B42D14D9B0BC00A67057 /* backgrounds */,
 				1643B44414D9B0BC00A67057 /* characters */,
 				1643B45B14D9B0BC00A67057 /* facebook */,
@@ -1242,12 +1250,22 @@
 				1643B48C14D9B0BC00A67057 /* tiles */,
 				1643B49414D9B0BC00A67057 /* weapons */,
 				1643B4A014D9B0BC00A67057 /* welcome */,
+				22F8D1CD14F5B52600780B13 /* controls-hd.plist */,
+				22F8D1CE14F5B52600780B13 /* controls-hd.png */,
+				22F8D1CF14F5B52600780B13 /* controls.plist */,
+				22F8D1D014F5B52600780B13 /* controls.png */,
 				1643B4D914D9B0BC00A67057 /* Chicago-hd.fnt */,
 				1643B4DA14D9B0BC00A67057 /* Chicago-hd.png */,
 				1643B4DB14D9B0BC00A67057 /* Chicago.fnt */,
 				1643B4DC14D9B0BC00A67057 /* Chicago.png */,
 				1643B4DE14D9B0BC00A67057 /* Chicpix.fnt */,
 				1643B4DF14D9B0BC00A67057 /* Chicpix.png */,
+				167016E014FC3430006E90A4 /* Chicpix-hd.fnt */,
+				167016E114FC3430006E90A4 /* Chicpix-hd.png */,
+				167016E414FC343D006E90A4 /* Chicpix2-hd.fnt */,
+				167016E514FC343D006E90A4 /* Chicpix2-hd.png */,
+				167016E614FC343D006E90A4 /* Chicpix2.fnt */,
+				167016E714FC343D006E90A4 /* Chicpix2.png */,
 				1643B4E014D9B0BC00A67057 /* Default-hd.png */,
 				1643B4E114D9B0BC00A67057 /* Default.png */,
 				1643B4E214D9B0BC00A67057 /* Default@2x.png */,
@@ -2543,6 +2561,12 @@
 				226838C414FB3C0500D1EB94 /* main_menu-hd.png in Resources */,
 				226838C514FB3C0500D1EB94 /* main_menu.plist in Resources */,
 				226838C614FB3C0500D1EB94 /* main_menu.png in Resources */,
+				167016E214FC3430006E90A4 /* Chicpix-hd.fnt in Resources */,
+				167016E314FC3430006E90A4 /* Chicpix-hd.png in Resources */,
+				167016E814FC343D006E90A4 /* Chicpix2-hd.fnt in Resources */,
+				167016E914FC343D006E90A4 /* Chicpix2-hd.png in Resources */,
+				167016EA14FC343D006E90A4 /* Chicpix2.fnt in Resources */,
+				167016EB14FC343D006E90A4 /* Chicpix2.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
