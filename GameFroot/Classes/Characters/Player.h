@@ -87,12 +87,16 @@
     int defaultWeapon;
     
     BOOL restarting;
+    
+    CGPoint safePositon;
+    BOOL autoSafepoint;
 }
 
 @property (nonatomic,assign) int action;
 @property (nonatomic, assign) BOOL ignoreGravity;
 @property (nonatomic, assign) float shootDelay;
 @property (nonatomic,assign) int shootDamage;
+@property (nonatomic,assign) BOOL autoSafepoint;
 
 -(void) setupPlayer:(int)_playerID properties:(NSDictionary *)properties;
 -(void) removeWeapon;

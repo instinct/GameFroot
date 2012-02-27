@@ -10,6 +10,7 @@
 #import "GameLayer.h"
 #import "Robot.h"
 #import "CCLabelBMFontMultiline.h"
+#import "Dialogue.h"
 
 #define TOUCH_PRIORITY		-10000
 
@@ -30,7 +31,7 @@
     
     for (int i=0; i < count; i++) {
         NSDictionary *choice = [choices objectAtIndex:i];
-        text = [text stringByAppendingString:[NSString stringWithFormat:@"\n%@", [choice objectForKey:@"choiceText"]]];
+        text = [text stringByAppendingString:[NSString stringWithFormat:@"\n%i - %@", i+1, [choice objectForKey:@"choiceText"]]];
         
         CCSprite *button = [CCSprite spriteWithFile:@"option-btn.png"];
         CCSprite *buttonSelected = [CCSprite spriteWithFile:@"option-btn.png"];

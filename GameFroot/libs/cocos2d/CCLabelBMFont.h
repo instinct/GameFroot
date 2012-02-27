@@ -71,7 +71,7 @@ typedef struct _BMFontPadding {
 
 enum {
 	// how many characters are supported
-	kCCBMFontMaxChars = 2048, //256,
+	kCCBMFontMaxChars = 65536, //256,
 };
 
 /** CCBMFontConfiguration has parsed configuration of the the .fnt file

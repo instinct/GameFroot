@@ -23,6 +23,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 @synthesize ignoreGravity;
 @synthesize shootDelay;
 @synthesize shootDamage;
+@synthesize autoSafepoint;
 
 -(void) setupPlayer:(int)_playerID properties:(NSDictionary *)properties
 {
@@ -1058,7 +1059,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 }
 
 -(void) resetPosition
-{		
+{	
 	if (lose) {
 		[[GameLayer getInstance] loseGame];
 		lose = NO;
@@ -1069,7 +1070,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	} else {
         
         if (win) win = NO;
-		
+     
 		self.visible = YES;
 		
 		[[GameLayer getInstance] removeBullets];
@@ -1078,10 +1079,17 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		float spriteWidth = self.batchNode.texture.contentSize.width / 8;
 		float spriteHeight = self.batchNode.texture.contentSize.height / 2;
 		
-		CGPoint pos = ccp(initialX * MAP_TILE_WIDTH, (([GameLayer getInstance].mapHeight - initialY - 1) * MAP_TILE_HEIGHT));
-		pos.x += spriteWidth/2.0f;
-		pos.y += spriteHeight/2.0f;
-		
+		CGPoint pos;
+        
+        // Auto safe position
+        if (autoSafepoint && (!CGPointEqualToPoint(safePositon, CGPointZero))) pos = safePositon;
+        else {
+            pos = ccp(initialX * MAP_TILE_WIDTH, (([GameLayer getInstance].mapHeight - initialY - 1) * MAP_TILE_HEIGHT));
+            pos.x += spriteWidth/2.0f;
+            pos.y += spriteHeight/2.0f;
+		}
+        //
+
 		self.position = pos;
 		self.scaleX = 1;
 		direction = kDirectionNone;
@@ -1119,6 +1127,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 -(void) restart
 {
     restarting = YES;
+    
+    safePositon = CGPointZero;
     
     if (startsWithJetpack) [self addJetpack];
     else [self removeJetpack];
@@ -1419,6 +1429,14 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	}
 	[super setPosition:point];
     
+    if (type == kGameObjectPlayer) {
+        b2Vec2 velocity = body->GetLinearVelocity( );
+        if ((lround(velocity.y) == 0) && !jumping && !dying) {
+            safePositon = self.position;
+            //CCLOG(@">>>>>>>>> Player safe position: %f,%f", safePositon.x, safePositon.y);
+        }
+    }
+    
     /*
     CGPoint mapPos = [self getTilePosition];
     int tileInFront = 0;
@@ -1430,42 +1448,6 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 
 // handle player collisions
 
--( void )handlePreSolve:( contactData )data { 
-    GameObject* object = ( GameObject* )data.object;;
-    b2Vec2 velocity;
-    
-    switch ( object.type ) {
-            
-        case kGameObjectCloud:
-            if ( data.position == CONTACT_IS_ABOVE ) data.contact->SetEnabled( false );
-            break;
-            
-        case kGameObjectMovingPlatform:
-            velocity = ( ( MovingPlatform* )object ).body->GetLinearVelocity( );
-            switch ( data.position ) {
-                case CONTACT_IS_BELOW:
-                    [ self displaceHorizontally:velocity.x ];
-                    break;
-                default:
-                    break;
-            }
-            break;
-            
-        case kGameObjectRobot:
-            if ( ( ( Robot* )object ).solid == NO ) {
-                data.contact->SetEnabled(false);
-            } else {
-                if ( data.position == CONTACT_IS_BELOW ) velocity = ( ( Robot* )object ).body->GetLinearVelocity();
-                if ( velocity.x != 0 ) [ self displaceHorizontally:velocity.x ];
-            }
-            
-            break;
-            
-        default:
-            break;
-    }
-}
-
 -( void )handleBeginCollision:( contactData )data {
     GameObject* object = ( GameObject* )data.object;;
     b2Vec2 velocity;
@@ -1474,8 +1456,12 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             
         case kGameObjectEnemy:
         case kGameObjectPlatform:
+            if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ];
+            break;
+        
         case kGameObjectCloud:
             if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ];
+            if (self.position.y - self.size.height*self.anchorPoint.y < object.position.y + object.size.height*(1.0f-object.anchorPoint.y)) data.contact->SetEnabled( false );
             break;
             
         case kGameObjectKiller:
@@ -1526,6 +1512,66 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             
         case kGameObjectSwitch:
             [ self setTouchingSwitch:( Switch* )object ];
+            break;
+            
+        default:
+            break;
+    }
+}
+
+-( void )handlePreSolve:( contactData )data { 
+    GameObject* object = ( GameObject* )data.object;;
+    b2Vec2 velocity;
+    
+    switch ( object.type ) {
+            
+        case kGameObjectCloud:
+            //if ( data.position == CONTACT_IS_ABOVE ) data.contact->SetEnabled( false );
+            if (self.position.y - self.size.height*self.anchorPoint.y < object.position.y + object.size.height*(1.0f-object.anchorPoint.y)) data.contact->SetEnabled( false );
+            else {
+                b2Vec2 current = self.body->GetLinearVelocity();
+                if (current.y < 0) [self hitsFloor];
+            }
+            break;
+            
+        case kGameObjectMovingPlatform:
+            velocity = ( ( MovingPlatform* )object ).body->GetLinearVelocity( );
+            switch ( data.position ) {
+                case CONTACT_IS_BELOW:
+                    [ self displaceHorizontally:velocity.x ];
+                    break;
+                default:
+                    break;
+            }
+            break;
+            
+        case kGameObjectRobot:
+            if ( ( ( Robot* )object ).solid == NO ) {
+                data.contact->SetEnabled(false);
+            } else {
+                if ( data.position == CONTACT_IS_BELOW ) velocity = ( ( Robot* )object ).body->GetLinearVelocity();
+                if ( velocity.x != 0 ) [ self displaceHorizontally:velocity.x ];
+            }
+            break;
+            
+        default:
+            break;
+    }
+}
+
+-( void )handlePostSolve:( contactData )data { 
+    GameObject* object = ( GameObject* )data.object;;
+    b2Vec2 velocity;
+    
+    switch ( object.type ) {
+            
+        case kGameObjectCloud:
+            //if ( data.position == CONTACT_IS_ABOVE ) data.contact->SetEnabled( false );
+            if (self.position.y - self.size.height*self.anchorPoint.y < object.position.y + object.size.height*(1.0f-object.anchorPoint.y)) data.contact->SetEnabled( false );
+            else {
+                b2Vec2 current = self.body->GetLinearVelocity();
+                if (current.y < 0) [self hitsFloor];
+            }
             break;
             
         default:

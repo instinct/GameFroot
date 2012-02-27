@@ -703,30 +703,6 @@ CONTACT_IS ContactListener::solveContactPosition( b2Contact* contact ) {
     return( CONTACT_IS_UNDEFINED );
 }
 
-// PreSolve can be called several times
-// Primary use is to ignore collisions
-
-void ContactListener::PreSolve(b2Contact *contact, const b2Manifold *oldManifold) {
-	GameObject *o1 = (GameObject*)contact->GetFixtureA()->GetBody()->GetUserData();
-	GameObject *o2 = (GameObject*)contact->GetFixtureB()->GetBody()->GetUserData();
-	
-    if (!contact->IsTouching()) return;
-    
-    contactData data;
-    
-    data.contact = contact;
-    data.position = solveContactPosition( contact );
-    
-    // handle o1 contact
-    data.object = o2;
-    [ o1 handlePreSolve:data ];
-    
-    // handle o2 contact
-    data.object = o1;
-    [ o2 handlePreSolve:data ];
-    
-}
-
 // BeginContact is only called once
 
 void ContactListener::BeginContact(b2Contact *contact) {
@@ -755,6 +731,50 @@ void ContactListener::BeginContact(b2Contact *contact) {
     
 }
 
+// PreSolve can be called several times
+// Primary use is to ignore collisions
+
+void ContactListener::PreSolve(b2Contact *contact, const b2Manifold *oldManifold) {
+	GameObject *o1 = (GameObject*)contact->GetFixtureA()->GetBody()->GetUserData();
+	GameObject *o2 = (GameObject*)contact->GetFixtureB()->GetBody()->GetUserData();
+	
+    if (!contact->IsTouching()) return;
+    
+    contactData data;
+    
+    data.contact = contact;
+    data.position = solveContactPosition( contact );
+    
+    // handle o1 contact
+    data.object = o2;
+    [ o1 handlePreSolve:data ];
+    
+    // handle o2 contact
+    data.object = o1;
+    [ o2 handlePreSolve:data ];
+    
+}
+
+void ContactListener::PostSolve(b2Contact *contact, const b2ContactImpulse *impulse) {
+    GameObject *o1 = (GameObject*)contact->GetFixtureA()->GetBody()->GetUserData();
+	GameObject *o2 = (GameObject*)contact->GetFixtureB()->GetBody()->GetUserData();
+	
+    if (!contact->IsTouching()) return;
+    
+    contactData data;
+    
+    data.contact = contact;
+    data.position = solveContactPosition( contact );
+    
+    // handle o1 contact
+    data.object = o2;
+    [ o1 handlePostSolve:data ];
+    
+    // handle o2 contact
+    data.object = o1;
+    [ o2 handlePostSolve:data ];
+}
+
 // EndContact is only called once
 
 void ContactListener::EndContact(b2Contact *contact) {
@@ -773,9 +793,5 @@ void ContactListener::EndContact(b2Contact *contact) {
     // handle o2 contact
     data.object = o1;
     [ o2 handleEndCollision:data ];
-    
-}
-
-void ContactListener::PostSolve(b2Contact *contact, const b2ContactImpulse *impulse) {
     
 }

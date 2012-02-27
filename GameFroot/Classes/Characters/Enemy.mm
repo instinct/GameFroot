@@ -770,12 +770,21 @@
     // bottom tile must be solid ground
     tile = [ self tileType:x y:( y - 1 ) ];
     if ( ( tile != TILE_TYPE_SOLID ) && ( tile != TILE_TYPE_CLOUD ) ) return( NO );
-    // tile +1 above ground must be free
-    tile = [ self tileType:x y:y ];
-    if ( tile != TILE_TYPE_NONE ) return( NO );
+    
+    if (tilePos.y > 0) {
+        // tile +1 above ground must be free
+        tile = [ self tileType:x y:y ];
+        if ( tile != TILE_TYPE_NONE ) return( NO );
+    }
+    
+    return ( YES ); // Not sure we need next condition since enemies are 2 tiles high
+    
+        
+    /*
     // tile +2 above ground must be free
     tile = [ self tileType:x y:( y + 1 ) ];
-    return( tile == TILE_TYPE_NONE );
+    return( (tile == TILE_TYPE_NONE) || ( tile == TILE_TYPE_CLOUD ) );
+    */
 }
 
 // --------------------------------------------------------------
@@ -960,7 +969,6 @@
     if ( jumping ) {
         // check for advanced jump handling ( ex changing direction mid jump
         
-        
         [ super update:dt ];
         return;
     }
@@ -969,9 +977,6 @@
         [ super update:dt ];
         return;
     }
-    
-    
-    
     
     
     // ********************
@@ -1033,29 +1038,6 @@
 // --------------------------------------------------------------
 // handle enemy collisions
 
-// presolve is mainly for disabling collision
-
--( void )handlePreSolve:( contactData )data {
-    GameObject* object = ( GameObject* )data.object;
-    
-    // case handling
-    switch ( object.type ) {
-            
-        case kGameObjectEnemy:
-            data.contact->SetEnabled( false );
-            break;
-            
-        case kGameObjectCloud:
-            if ( data.position == CONTACT_IS_ABOVE ) data.contact->SetEnabled( false );
-            break;
-            
-        default:
-            break;
-            
-    }
-}
-
-// --------------------------------------------------------------
 -( void )handleBeginCollision:( contactData )data {
     GameObject* object = ( GameObject* )data.object;
     
@@ -1068,8 +1050,16 @@
 			// [ self resetForces];
             // [ self stop ];
             break;
-            
+        
         case kGameObjectCloud:
+            //if ( data.position == CONTACT_IS_ABOVE ) data.contact->SetEnabled( false );
+            if (self.position.y - self.size.height*self.anchorPoint.y < object.position.y + object.size.height*(1.0f-object.anchorPoint.y)) data.contact->SetEnabled( false );
+            else {
+                b2Vec2 current = self.body->GetLinearVelocity();
+                if (current.y < 0) [self hitsFloor];
+            }
+            break;
+            
         case kGameObjectPlatform:
         case kGameObjectKiller:
             // enemy landed on something
@@ -1092,6 +1082,53 @@
             break;
     }
     
+}
+
+// presolve is mainly for disabling collision
+
+-( void )handlePreSolve:( contactData )data {
+    GameObject* object = ( GameObject* )data.object;
+    
+    // case handling
+    switch ( object.type ) {
+            
+        case kGameObjectEnemy:
+            data.contact->SetEnabled( false );
+            break;
+            
+        case kGameObjectCloud:
+            //if ( data.position == CONTACT_IS_ABOVE ) data.contact->SetEnabled( false );
+            if (self.position.y - self.size.height*self.anchorPoint.y < object.position.y + object.size.height*(1.0f-object.anchorPoint.y)) data.contact->SetEnabled( false );
+            else {
+                b2Vec2 current = self.body->GetLinearVelocity();
+                if (current.y < 0) [self hitsFloor];
+            }
+            break;
+            
+        default:
+            break;
+            
+    }
+}
+
+-( void )handlePostSolve:( contactData )data { 
+    GameObject* object = ( GameObject* )data.object;;
+    b2Vec2 velocity;
+    
+    switch ( object.type ) {
+            
+        case kGameObjectCloud:
+            //if ( data.position == CONTACT_IS_ABOVE ) data.contact->SetEnabled( false );
+            if (self.position.y - self.size.height*self.anchorPoint.y < object.position.y + object.size.height*(1.0f-object.anchorPoint.y)) data.contact->SetEnabled( false );
+            else {
+                b2Vec2 current = self.body->GetLinearVelocity();
+                if (current.y < 0) [self hitsFloor];
+            }
+            break;
+            
+        default:
+            break;
+    }
 }
 
 - (void) dealloc
