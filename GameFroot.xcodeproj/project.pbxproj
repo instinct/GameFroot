@@ -433,11 +433,7 @@
 		16935D9014EE664200E55F75 /* btn-try-again-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 16935D8514EE664100E55F75 /* btn-try-again-hd.png */; };
 		16935D9114EE664200E55F75 /* title-game-over-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 16935D8614EE664100E55F75 /* title-game-over-hd.png */; };
 		16935D9214EE664200E55F75 /* title-you-win-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 16935D8714EE664200E55F75 /* title-you-win-hd.png */; };
-		169FA26214E1DE2C00E671F5 /* placeholder_game_menu_help-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 169FA26014E1DE2C00E671F5 /* placeholder_game_menu_help-hd.png */; };
-		169FA26314E1DE2C00E671F5 /* placeholder_game_menu_play-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 169FA26114E1DE2C00E671F5 /* placeholder_game_menu_play-hd.png */; };
 		2230953914DB6CB600D7D219 /* GameMenu.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2230953814DB6CB600D7D219 /* GameMenu.mm */; };
-		2230953C14DB909800D7D219 /* placeholder_game_menu_help.png in Resources */ = {isa = PBXBuildFile; fileRef = 2230953A14DB909800D7D219 /* placeholder_game_menu_help.png */; };
-		2230953D14DB909800D7D219 /* placeholder_game_menu_play.png in Resources */ = {isa = PBXBuildFile; fileRef = 2230953B14DB909800D7D219 /* placeholder_game_menu_play.png */; };
 		22386E0914F6DF8500C81C82 /* pause_menu_template-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 22386E0814F6DF8500C81C82 /* pause_menu_template-hd.png */; };
 		22386E0F14F6E47B00C81C82 /* pause_screen-hd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 22386E0B14F6E47900C81C82 /* pause_screen-hd.plist */; };
 		22386E1014F6E47B00C81C82 /* pause_screen-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 22386E0C14F6E47900C81C82 /* pause_screen-hd.png */; };
@@ -1125,12 +1121,8 @@
 		16935D8514EE664100E55F75 /* btn-try-again-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "btn-try-again-hd.png"; sourceTree = "<group>"; };
 		16935D8614EE664100E55F75 /* title-game-over-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "title-game-over-hd.png"; sourceTree = "<group>"; };
 		16935D8714EE664200E55F75 /* title-you-win-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "title-you-win-hd.png"; sourceTree = "<group>"; };
-		169FA26014E1DE2C00E671F5 /* placeholder_game_menu_help-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "placeholder_game_menu_help-hd.png"; sourceTree = "<group>"; };
-		169FA26114E1DE2C00E671F5 /* placeholder_game_menu_play-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "placeholder_game_menu_play-hd.png"; sourceTree = "<group>"; };
 		2230953414DB68DB00D7D219 /* GameMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameMenu.h; path = ../Scenes/GameMenu.h; sourceTree = "<group>"; };
 		2230953814DB6CB600D7D219 /* GameMenu.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GameMenu.mm; path = ../Scenes/GameMenu.mm; sourceTree = "<group>"; };
-		2230953A14DB909800D7D219 /* placeholder_game_menu_help.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = placeholder_game_menu_help.png; sourceTree = "<group>"; };
-		2230953B14DB909800D7D219 /* placeholder_game_menu_play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = placeholder_game_menu_play.png; sourceTree = "<group>"; };
 		22386E0814F6DF8500C81C82 /* pause_menu_template-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pause_menu_template-hd.png"; sourceTree = "<group>"; };
 		22386E0B14F6E47900C81C82 /* pause_screen-hd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "pause_screen-hd.plist"; sourceTree = "<group>"; };
 		22386E0C14F6E47900C81C82 /* pause_screen-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pause_screen-hd.png"; sourceTree = "<group>"; };
@@ -1687,10 +1679,6 @@
 				22386E0814F6DF8500C81C82 /* pause_menu_template-hd.png */,
 				163938F614F1109E00E663E3 /* option-btn-hd.png */,
 				163938F714F1109E00E663E3 /* option-btn.png */,
-				169FA26014E1DE2C00E671F5 /* placeholder_game_menu_help-hd.png */,
-				2230953A14DB909800D7D219 /* placeholder_game_menu_help.png */,
-				169FA26114E1DE2C00E671F5 /* placeholder_game_menu_play-hd.png */,
-				2230953B14DB909800D7D219 /* placeholder_game_menu_play.png */,
 				16935D7D14EE663F00E55F75 /* btn-main-menu-hd.png */,
 				16935D7E14EE663F00E55F75 /* btn-main-menu-off-hd.png */,
 				16935D7F14EE663F00E55F75 /* btn-main-menu2-hd.png */,
@@ -2511,10 +2499,6 @@
 				1643B5E714D9B0BC00A67057 /* teleporter-item.png in Resources */,
 				1643B6A714D9B1E400A67057 /* FBConnect.bundle in Resources */,
 				1643B6A814D9B1E400A67057 /* FBDialog.bundle in Resources */,
-				2230953C14DB909800D7D219 /* placeholder_game_menu_help.png in Resources */,
-				2230953D14DB909800D7D219 /* placeholder_game_menu_play.png in Resources */,
-				169FA26214E1DE2C00E671F5 /* placeholder_game_menu_help-hd.png in Resources */,
-				169FA26314E1DE2C00E671F5 /* placeholder_game_menu_play-hd.png in Resources */,
 				22D3A6DA14E2276B00EAB052 /* rate_controls_mockup.png in Resources */,
 				166977F714E280DE0081176B /* rate_controls_mockup-hd.png in Resources */,
 				1616ADDA14E8098D004FF504 /* weapon_0_single.png in Resources */,
