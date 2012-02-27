@@ -53,8 +53,9 @@ typedef struct _contactData {
 -(void) destroy;
 
 // collision handling
--( void )handlePreSolve:( contactData )data;
 -( void )handleBeginCollision:( contactData )data;
+-( void )handlePreSolve:( contactData )data;
+-( void )handlePostSolve:( contactData )data;
 -( void )handleEndCollision:( contactData )data;
 
 @end

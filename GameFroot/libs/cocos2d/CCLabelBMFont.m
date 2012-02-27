@@ -528,7 +528,7 @@ typedef struct _KerningHashElement
 	
 	for(NSUInteger i=0; i<stringLen; i++) {
 		unichar c = [string_ characterAtIndex:i];
-		NSAssert( c < kCCBMFontMaxChars, @"LabelBMFont: character outside bounds");
+		//NSAssert( c < kCCBMFontMaxChars, @"LabelBMFont: character outside bounds");
 		
 		if (c == '\n') {
 			nextFontPositionX = 0;

@@ -298,6 +298,7 @@ GameLayer *instance;
 		ammo = 100;
 		timerEnabled = NO;
 		lock = NO;
+        checkpoints = NO;
 		
 		pauseBtn = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"pause.png"] selectedSprite:[CCSprite spriteWithFile:@"pause.png"] target:self selector:@selector(pauseGame)];
 		[[(CCSprite *)pauseBtn.normalImage texture] setAliasTexParameters];
@@ -1132,13 +1133,10 @@ GameLayer *instance;
 				[sprite setPosition:pos];
 				[sprite setAnchorPoint:ccp(0.5,0.5)];
 				[spriteSheet addChild:sprite z:zorder];
-                
-                if (behaviour == 0) continue; // Ignore TERRAIN_BACKGROUND
                     
                 // Set array tiles
                 int index = dx + (dy*MAP_TILE_WIDTH);
                 //CCLOG(@"set tile %i at %i", behaviour, index);
-                if ( behaviour == 0 ) behaviour = 1;
                 arrayTiles[index] = behaviour;
 				
 				if (frames > 1) {
@@ -1403,6 +1401,12 @@ GameLayer *instance;
 				[item setupRobot:robot parameters:[dict objectForKey:@"robotParameters"]];
 				[item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
 				[spriteSheet addChild:item z:zorder];
+  
+                NSRange range = [[robot description] rangeOfString: @"triggerCheckpoint"];
+                if (range.location != NSNotFound)
+                {
+                    checkpoints = YES;
+                }
 				
 				[robots addObject:item];
 				
@@ -1413,6 +1417,7 @@ GameLayer *instance;
 				[checkPoint createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
 				[checkPoint setupCheckPointWithX:dx andY:dy tileId:tileNum frames:frames];
 				[spriteSheet addChild:checkPoint z:zorder];
+                checkpoints = YES;
 				
 			} else {
 				// Tile sprite
@@ -1514,6 +1519,9 @@ GameLayer *instance;
 	[player setupPlayer:playerID properties:dict];
     [player createBox2dObject:world size:CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR())];
 	[playerSpriteSheet addChild:player z:LAYER_PLAYER];
+    
+    player.autoSafepoint = !checkpoints;
+    if (player.autoSafepoint) CCLOG(@"Player uses auto-safe points!");
     
     [controls setPlayer:player];
 }

@@ -113,6 +113,8 @@
     Robot *robotMultiChoice;
     
     int serverUsed;
+    
+    BOOL checkpoints;
 }
 
 @property(nonatomic,assign) Controls *controls;
