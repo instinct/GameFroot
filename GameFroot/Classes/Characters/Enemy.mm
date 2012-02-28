@@ -227,7 +227,7 @@
 	playerBodyDef.allowSleep = true;
 	playerBodyDef.fixedRotation = true;
 	playerBodyDef.type = b2_dynamicBody;
-	playerBodyDef.position = b2Vec2(((self.position.x - 30)/PTM_RATIO), (self.position.y - 0)/PTM_RATIO);
+	playerBodyDef.position = b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO);
 	playerBodyDef.userData = self;
 	body = world->CreateBody(&playerBodyDef);
 	
@@ -459,7 +459,7 @@
 		removed = NO;
 		immortal = NO;
 		
-		body->SetTransform(b2Vec2(((self.position.x - 30)/PTM_RATIO), (self.position.y - 0)/PTM_RATIO),0);
+		body->SetTransform(b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO),0);
 		self.visible = YES;
 	}
 }
@@ -489,7 +489,7 @@
 	immortal = NO;
 	
 	[self createBox2dObject:[GameLayer getInstance].world size:size];
-	body->SetTransform(b2Vec2(((self.position.x - 30)/PTM_RATIO), (self.position.y - 0)/PTM_RATIO),0);
+	body->SetTransform(b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO),0);
 	self.visible = YES;
 }
 
@@ -1061,15 +1061,12 @@
 			[ self hit:self.collideTakeDamage];
 			// [ self resetForces];
             // [ self stop ];
+            if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ];
             break;
         
         case kGameObjectCloud:
-            //if ( data.position == CONTACT_IS_ABOVE ) data.contact->SetEnabled( false );
+            if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ];
             if (self.position.y - self.size.height*self.anchorPoint.y < object.position.y + object.size.height*(1.0f-object.anchorPoint.y)) data.contact->SetEnabled( false );
-            else {
-                b2Vec2 current = self.body->GetLinearVelocity();
-                if (current.y < 0) [self hitsFloor];
-            }
             break;
             
         case kGameObjectPlatform:

@@ -243,13 +243,17 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 	if ( [ self isInsideScreen:pos ] == NO ) {
         if (self.visible) {
 			self.visible = NO;
+            body->SetActive( false );
 			onInShot = NO;
 		}
         
         if (!onOutShot) [self outShot];
         
 	} else {
-		if (!self.visible) self.visible = YES;
+		if (!self.visible) {
+            self.visible = YES;
+            body->SetActive( true );
+        }
 		
 		if (!onInShot) [self inShot];
 	}

@@ -108,7 +108,7 @@
 	BOOL ignoreCache;
     CGPoint originalPosition;
     
-    int arrayTiles[10000];
+    int arrayTiles[100000];
     
     Robot *robotMultiChoice;
     

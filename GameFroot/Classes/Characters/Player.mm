@@ -371,7 +371,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	playerBodyDef.allowSleep = false;
 	playerBodyDef.fixedRotation = true;
 	playerBodyDef.type = b2_dynamicBody;
-	playerBodyDef.position = b2Vec2(((self.position.x)/PTM_RATIO), (self.position.y + 0)/PTM_RATIO);
+	playerBodyDef.position = b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO);
 	playerBodyDef.userData = self;
 	body = world->CreateBody(&playerBodyDef);
 	
@@ -1093,7 +1093,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		direction = kDirectionNone;
 		facingLeft = NO;
 		
-		body->SetTransform(b2Vec2(((self.position.x - 30)/PTM_RATIO), (self.position.y + 0)/PTM_RATIO),0);
+		body->SetTransform(b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO),0);
 		
 		self.opacity = 255;
 		if (type == kGameObjectPlayer) {
@@ -1203,7 +1203,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	
 	self.position = pos;
 	
-	body->SetTransform(b2Vec2(((self.position.x - 30)/PTM_RATIO), (self.position.y + 0)/PTM_RATIO),0);
+	body->SetTransform(b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO),0);
 	
 	id blinkAction = [CCSequence actions:
 					  [CCFadeIn actionWithDuration:1.0],
@@ -1243,7 +1243,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 {
 	self.position = auxPos;
 	
-	body->SetTransform(b2Vec2(((self.position.x - 30)/PTM_RATIO), (self.position.y + 0)/PTM_RATIO),0);
+	body->SetTransform(b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO),0);
 }
 
 -(void) hitsFloor

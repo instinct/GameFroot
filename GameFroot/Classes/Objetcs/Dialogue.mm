@@ -9,61 +9,35 @@
 #import "Dialogue.h"
 #import "GameLayer.h"
 #import "CCLabelBMFontMultiline.h"
-#import <CoreText/CoreText.h>
 
 #define TOUCH_PRIORITY		-10000
 
 @implementation Dialogue
 
-+(NSArray *) findPageSplits:(NSString*)string size:(CGSize)size font:(UIFont*)font
-{
-    NSMutableArray* result = [[NSMutableArray alloc] initWithCapacity:32];
-    CTFontRef fnt = CTFontCreateWithName((CFStringRef)font.fontName, font.pointSize,NULL);
-    CFAttributedStringRef str = CFAttributedStringCreate(kCFAllocatorDefault, 
-                                                         (CFStringRef)string, 
-                                                         (CFDictionaryRef)[NSDictionary dictionaryWithObjectsAndKeys:(id)fnt,kCTFontAttributeName,nil]);
-    CTFramesetterRef fs = CTFramesetterCreateWithAttributedString(str);
-    CFRange r = {0,0};
-    CFRange res = {0,0};
-    NSInteger str_len = [string length];
-    do {
-        CTFramesetterSuggestFrameSizeWithConstraints(fs,r, NULL, size, &res);
-        r.location += res.length;
-        
-        NSString *pageString = [string substringWithRange:NSMakeRange(res.location, res.length)];
-        NSString *trimmedString = [pageString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-        
-        [result addObject:trimmedString];
-        
-    } while(r.location < str_len);
-    CFRelease(fs);
-    CFRelease(str);
-    CFRelease(fnt);
-    return result;
-} 
 
 -(void) setupDialogue:(NSString *)_text
 {
     //CCLOG(@"Dialogue.setupDialogue: %@", _text);
     
+    text = [_text retain];
+    
     background = [CCSprite spriteWithFile:@"dialogue_background.png"];
 	[background setAnchorPoint:ccp(0,0)];
 	[background setPosition:ccp(10, 10)];
     
-    UIFont *font = [UIFont fontWithName:@"Arial" size:18.0f];
-    pages = [Dialogue findPageSplits:_text size:CGSizeMake(background.contentSize.width - 10, background.contentSize.height - 10) font:font];    
-    [pages retain];
-    numPages = [pages count];
-    selectPage = 0;
-	
 	[[CCTouchDispatcher sharedDispatcher] addTargetedDelegate:self priority:TOUCH_PRIORITY swallowsTouches:YES];
 	
-	label = [CCLabelBMFontMultiline labelWithString:[pages objectAtIndex:0] fntFile:@"Chicago.fnt" width:background.contentSize.width - 20 alignment:LeftAlignment];
+	label = [CCLabelBMFontMultiline labelWithString:text fntFile:@"Chicago.fnt" width:background.contentSize.width - 30 alignment:LeftAlignment];
 	[label.textureAtlas.texture setAliasTexParameters];
     
     [label setAnchorPoint:ccp(0,1)];
-    [label setPosition: ccp(20, background.contentSize.height + 5)];
+    [label setPosition: ccp(25, background.contentSize.height + 8)];
     
+    selectPage = 0;
+    numPages = label.contentSize.height / background.contentSize.height;
+    float exact = label.contentSize.height / background.contentSize.height;
+    if (exact > (float)numPages) numPages++;
+        
     [self addChild:background z:1];
 	[self addChild:label z:2];
 	
@@ -81,7 +55,7 @@
     if (selectPage < numPages - 1) {
         // Display next page
         selectPage++;
-        [label setString:[pages objectAtIndex:selectPage]];
+        [label setPosition:ccp(label.position.x, label.position.y + background.contentSize.height - 4)];
         
         return YES;
         
@@ -98,9 +72,18 @@
     }
 }
 
+- (void) visit 
+{
+	glEnable(GL_SCISSOR_TEST);
+	glScissor(10*CC_CONTENT_SCALE_FACTOR(), 10*CC_CONTENT_SCALE_FACTOR(), background.contentSize.height*CC_CONTENT_SCALE_FACTOR(), background.contentSize.width*CC_CONTENT_SCALE_FACTOR());
+	[super visit];
+	glDisable(GL_SCISSOR_TEST);
+    
+}
+
 - (void)dealloc
 {
-    [pages release];
+    [text release];
     [super dealloc];
 }
 

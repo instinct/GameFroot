@@ -11,14 +11,13 @@
 @class CCLabelBMFontMultiline;
 
 @interface Dialogue : CCNode <CCTargetedTouchDelegate> {
+    NSString *text;
 	CCSprite *background;
-    NSArray *pages;
     int numPages;
     int selectPage;
     CCLabelBMFontMultiline *label;
 }
 
-+(NSArray *) findPageSplits:(NSString*)string size:(CGSize)size font:(UIFont*)font;
 -(void) setupDialogue:(NSString *)_text;
 
 @end

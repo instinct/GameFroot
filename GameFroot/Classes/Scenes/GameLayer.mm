@@ -609,6 +609,7 @@ GameLayer *instance;
 	
 	if(!jsonData)
 	{
+        [[CCDirector sharedDirector] replaceScene:[HomeLayer scene]];
 		return;
 	}
 	
