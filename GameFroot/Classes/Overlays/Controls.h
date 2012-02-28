@@ -10,6 +10,7 @@
 #import "Shared.h"
 #import "Constants.h"
 
+// general constants
 #define CONTROLS_INIT_X 106
 #define CONTROLS_INIT_Y 66
 #define CONTROLS_OFFSET_FROM_ORIGIN 45
@@ -22,6 +23,13 @@
 #define CONTROLS_TIME_TILL_FADE 2
 #define CONTROLS_FADE_DURATION 1
 #define CONTROLS_IDLE_TILL_REAPPEAR 2
+
+// hit zone constants
+#define CONTROLS_SIDE_ZONE_BOUNDRY 0.25f
+#define CONTROLS_SIDE_TOP_ZONE_BOUNDRY 0.35f
+#define CONTROLS_MIDDLE_TOP_ZONE_BOUNDRY 0.40f
+#define CONTROLS_HZ_IDLE_TILL_REAPPEAR 2
+#define CONTROLS_HZ_TIME_TILL_FADE 2
 
 @class Player;
 
@@ -38,6 +46,8 @@
     CCSprite *psLeft;
     CCSprite *psRight;
     CCSprite *psProne;
+    CCSprite *hitZoneLeftJump;
+    CCSprite *hitZoneRightJump;
     
     // DPad
 	CGRect northMoveArea;
@@ -100,5 +110,8 @@
 -(void) setControlsOpacity:(float)opacity;
 -(void) setControlsVisible:(bool)visibility;
 -(void) setProSwipeControlsPosition:(float)delta;
+-(void) setHitZonesGuidesVisible:(bool)visibility;
+-(void) setHitZoneArrowPosition;
+-(void) setDpadArrowPosition;
 
 @end

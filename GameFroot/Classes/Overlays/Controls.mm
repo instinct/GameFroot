@@ -38,16 +38,22 @@
         psLeft = [CCSprite spriteWithSpriteFrameName:@"left.png"];
         psRight = [CCSprite spriteWithSpriteFrameName:@"right.png"];
         psProne = [CCSprite spriteWithSpriteFrameName:@"prone_icon.png"];
+        hitZoneLeftJump = [CCSprite spriteWithSpriteFrameName:@"dpad_side.png"];
+        hitZoneLeftJump.flipX = YES;
+        hitZoneLeftJump.rotation = 45;
+        hitZoneLeftJump.position = ccp((size.width*CONTROLS_SIDE_ZONE_BOUNDRY)/2,size.height/2 + 40);
+        hitZoneLeftJump.opacity = CONTROLS_OPACITY;
+        hitZoneRightJump = [CCSprite spriteWithSpriteFrameName:@"dpad_side.png"];
+        hitZoneRightJump.position = ccp((size.width - (size.width*CONTROLS_SIDE_ZONE_BOUNDRY/2)),size.height/2 + 40);
+        hitZoneRightJump.rotation = -45;
+        hitZoneRightJump.opacity = CONTROLS_OPACITY;
         
         [self setControlsOpacity:CONTROLS_OPACITY];
         
         //position elements
         aButton.position = ccp(424,56);
         bButton.position = ccp(330,56);
-        dpadLeft.position = ccp(CONTROLS_INIT_X - CONTROLS_OFFSET_FROM_ORIGIN,CONTROLS_INIT_Y);
-        dpadRight.position = ccp(CONTROLS_INIT_X + CONTROLS_OFFSET_FROM_ORIGIN,CONTROLS_INIT_Y);
-        dpadUp.position = ccp(CONTROLS_INIT_X,CONTROLS_INIT_Y + CONTROLS_OFFSET_FROM_ORIGIN);
-        dpadDown.position = ccp(CONTROLS_INIT_X,CONTROLS_INIT_Y - CONTROLS_OFFSET_FROM_ORIGIN);
+        [self setDpadArrowPosition];
         psRight.position = dpadRight.position;
         psLeft.position = dpadLeft.position;
         psProne.position = ccp(CONTROLS_INIT_X,CONTROLS_INIT_Y);
@@ -61,6 +67,8 @@
         [self addChild:psLeft];
         [self addChild:psRight];
         [self addChild:psProne];
+        [self addChild:hitZoneLeftJump];
+        [self addChild:hitZoneRightJump];
         
         northMoveArea = CGRectMake(-5, 181, 220, 110); // 40 increase
         southMoveArea = CGRectMake(-5, 71, 220, 110); // done
@@ -115,7 +123,8 @@
     if(type != controlType) {
         [self unschedule:@selector(proSwipeFadeIn:)];
         [self unschedule:@selector(proSwipeFadeOut:)];
-        
+        [self unschedule:@selector(hitZoneGuidesFadeOut:)];
+        [self unschedule:@selector(hitZoneGuidesFadeIn:)];
         NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
         [prefs setInteger:(int)type forKey:@"controlType"];
         [prefs synchronize];
@@ -123,21 +132,27 @@
         CCLOG(@"Control type set. Incoming value: %i", type);
         CCLOG(@"value stored in defaults: %i", [prefs integerForKey:@"controlType"]);
     }
+    aButton.visible = YES;
+    bButton.visible = YES;
+    firstTouch = YES;
     switch (type) {
         case controlDpad:
-            self.visible = YES;
-            [self setDpadControlVisible:YES];
             [self setProSwipeControlVisible:NO];
+            [self setHitZonesGuidesVisible:NO];
+            [self setDpadControlVisible:YES];
             break;
         case controlNoDpad:
-            self.visible = NO;
+            [self setProSwipeControlVisible:NO];
+            [self setDpadControlVisible:NO];
+            [self setHitZonesGuidesVisible:YES];
+            aButton.visible = NO;
+            bButton.visible = NO;
             break;
         case controlProSwipe:
-            self.visible = YES;
             [self setDpadControlVisible:NO];
+            [self setHitZonesGuidesVisible:NO];
             [self setProSwipeControlVisible:YES];            
             [self setProSwipeControlOpacity:CONTROLS_OPACITY];
-            firstTouch = YES;
             break;
         default:
             break;
@@ -197,6 +212,8 @@
 {
     [self unschedule:@selector(proSwipeFadeIn:)];
     [self unschedule:@selector(proSwipeFadeOut:)];
+    [self unschedule:@selector(hitZoneGuidesFadeIn:)];
+    [self unschedule:@selector(hitZoneGuidesFadeOut:)];
     
     [self setControlsOpacity:CONTROLS_OPACITY];
 	
@@ -218,9 +235,15 @@
     
     if ([self getControlType] == controlNoDpad) {
 		
-		if (location.x < size.width * 0.25f) {
+        [self unschedule:@selector(hitZoneGuidesFadeIn:)];
+        if (firstTouch) {
+            [self schedule:@selector(hitZoneGuidesFadeOut:) interval:CONTROLS_HZ_TIME_TILL_FADE];
+            firstTouch = NO;
+        }
+        
+		if (location.x < size.width * CONTROLS_SIDE_ZONE_BOUNDRY) {
 			
-			if (location.y > size.height * 0.35f) {
+			if (location.y > size.height * CONTROLS_SIDE_TOP_ZONE_BOUNDRY) {
 				// Jump left
 				[player jumpDirection:kDirectionLeft];
 				jumpTouch = touch;
@@ -231,8 +254,8 @@
 				leftTouch = touch;
 			}
 			
-		} else if (location.x > size.width - (size.width * 0.25f)) {
-			if (location.y > size.height * 0.35f) {
+		} else if (location.x > size.width - (size.width * CONTROLS_SIDE_ZONE_BOUNDRY)) {
+			if (location.y > size.height * CONTROLS_SIDE_TOP_ZONE_BOUNDRY) {
 				// Jump right
 				[player jumpDirection:kDirectionRight];
 				jumpTouch = touch;
@@ -243,7 +266,7 @@
 				rightTouch = touch;
 			}
 			
-		} else if (location.y > size.height - (size.height * 0.40f)) {
+		} else if (location.y > size.height - (size.height * CONTROLS_MIDDLE_TOP_ZONE_BOUNDRY)) {
 			[self initJumpWithTouch:touch];
 			
 		} else {
@@ -300,7 +323,7 @@
             
             if (firstTouch) {
                 // set a timer for fade
-                [self schedule:@selector(proSwipeFadeOut:) interval:2];
+                [self schedule:@selector(proSwipeFadeOut:) interval:CONTROLS_TIME_TILL_FADE];
                 firstTouch = NO;
             }
         }
@@ -318,6 +341,10 @@
 -(void) ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event andLocation:(CGPoint)location 
 {
     if ([self getControlType] == controlNoDpad) {
+        
+        if (!hitZoneLeftJump.visible) {
+            [self schedule:@selector(hitZoneGuidesFadeIn:) interval:CONTROLS_HZ_IDLE_TILL_REAPPEAR];
+        }
         
         if (touch == leftTouch) {
             if (rightTouch == nil) [player stop];
@@ -522,7 +549,6 @@
     if (touch == leftTouch) {
         [player stop];
         leftTouch = nil;
-        
     } else if (touch == rightTouch) {
         [player stop];
         rightTouch = nil;
@@ -625,6 +651,45 @@
     return CGRectContainsPoint(CGRectMake(bButtonTouchArea.origin.x, size.height - bButtonTouchArea.origin.y, bButtonTouchArea.size.width, bButtonTouchArea.size.height), point);
 }
 
+-(void) hitZoneGuidesFadeOut:(ccTime)deltaTime {
+    id fadeAction1 = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:0];
+    id hideAction1 = [CCHide action];
+    id fadeAction2 = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:0];
+    id hideAction2 = [CCHide action];
+    id fadeAction3 = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:0];
+    id hideAction3 = [CCHide action];
+    id fadeAction4 = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:0];
+    id hideAction4 = [CCHide action];
+    id fadeAction5 = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:0];
+    id hideAction5 = [CCHide action];
+    [dpadLeft runAction:[CCSequence actions:fadeAction1, hideAction1, nil]];
+    [dpadRight runAction:[CCSequence actions:fadeAction2, hideAction2, nil]];
+    [dpadUp runAction:[CCSequence actions:fadeAction3, hideAction3, nil]];
+    [hitZoneRightJump runAction:[CCSequence actions:fadeAction4, hideAction4, nil]];
+    [hitZoneLeftJump runAction:[CCSequence actions:fadeAction5, hideAction5, nil]];
+    [self unschedule:@selector(hitZoneGuidesFadeOut:)];    
+}
+
+-(void) hitZoneGuidesFadeIn:(ccTime)deltaTime {
+    id fadeAction1 = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:CONTROLS_OPACITY];
+    id showAction1 = [CCShow action];
+    id fadeAction2 = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:CONTROLS_OPACITY];
+    id showAction2 = [CCShow action];
+    id fadeAction3 = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:CONTROLS_OPACITY];
+    id showAction3 = [CCShow action];
+    id fadeAction4 = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:CONTROLS_OPACITY];
+    id showAction4 = [CCShow action];
+    id fadeAction5 = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:CONTROLS_OPACITY];
+    id showAction5 = [CCShow action];
+    [dpadLeft runAction:[CCSequence actions:showAction1, fadeAction1, nil]];
+    [dpadRight runAction:[CCSequence actions:showAction2, fadeAction2, nil]];
+    [dpadUp runAction:[CCSequence actions:showAction3, fadeAction3, nil]];
+    [hitZoneLeftJump runAction:[CCSequence actions:showAction4, fadeAction4, nil]];
+    [hitZoneRightJump runAction:[CCSequence actions:showAction5, fadeAction5, nil]];
+    [self unschedule:@selector(hitZoneGuidesFadeIn:)];
+    firstTouch = YES; 
+}
+
 -(void) proSwipeFadeOut:(ccTime)deltaTime {
     id fadeAction1 = [CCFadeTo actionWithDuration:CONTROLS_FADE_DURATION opacity:0];
     id hideAction1 = [CCHide action];
@@ -652,7 +717,21 @@
     firstTouch = YES;
 }
 
+-(void) setHitZonesGuidesVisible:(bool)visibility {
+    if (visibility) {
+        [self setHitZoneArrowPosition];
+    }
+    dpadLeft.visible = visibility;
+    dpadRight.visible = visibility;
+    dpadUp.visible = visibility;
+    hitZoneRightJump.visible = visibility;
+    hitZoneLeftJump.visible = visibility;
+}
+
 -(void) setDpadControlVisible:(bool)visibility {
+    if(visibility) {
+        [self setDpadArrowPosition];
+    }
     dpadLeft.visible = visibility;
     dpadRight.visible = visibility;
     dpadUp.visible = visibility;
@@ -683,6 +762,8 @@
     bButton.opacity = opacity;
     [self setDpadControlOpacity:opacity];
     [self setProSwipeControlOpacity:opacity];
+    hitZoneLeftJump.opacity = opacity;
+    hitZoneRightJump.opacity = opacity;
 }
 
 -(void) setControlsVisible:(bool)visibility {
@@ -690,12 +771,28 @@
     bButton.visible = visibility;
     [self setDpadControlVisible:visibility];
     [self setProSwipeControlVisible:visibility];
+    hitZoneLeftJump.visible = visibility;
+    hitZoneRightJump.visible = visibility;
 }
 
 -(void) setProSwipeControlsPosition:(float)delta {
     psLeft.position = ccpAdd(psLeft.position, ccp(delta, 0));
     psRight.position = ccpAdd(psRight.position, ccp(delta, 0));
     psProne.position = ccpAdd(psProne.position, ccp(delta, 0));
+}
+
+-(void) setDpadArrowPosition {
+    dpadLeft.position = ccp(CONTROLS_INIT_X - CONTROLS_OFFSET_FROM_ORIGIN,CONTROLS_INIT_Y);
+    dpadRight.position = ccp(CONTROLS_INIT_X + CONTROLS_OFFSET_FROM_ORIGIN,CONTROLS_INIT_Y);
+    dpadUp.position = ccp(CONTROLS_INIT_X,CONTROLS_INIT_Y + CONTROLS_OFFSET_FROM_ORIGIN);
+    dpadDown.position = ccp(CONTROLS_INIT_X,CONTROLS_INIT_Y - CONTROLS_OFFSET_FROM_ORIGIN);
+}
+
+-(void) setHitZoneArrowPosition {
+    CGSize size = [[CCDirector sharedDirector] winSize];
+    dpadLeft.position = ccp((size.width*CONTROLS_SIDE_ZONE_BOUNDRY)/2,size.height/2 - 90); 
+    dpadRight.position = ccp((size.width - (size.width*CONTROLS_SIDE_ZONE_BOUNDRY/2)),size.height/2 - 90);
+    dpadUp.position = ccp(size.width/2,(size.height-(size.height*CONTROLS_MIDDLE_TOP_ZONE_BOUNDRY/2)));
 }
 
 
