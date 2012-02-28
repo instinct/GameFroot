@@ -132,6 +132,8 @@
         CCLOG(@"Control type set. Incoming value: %i", type);
         CCLOG(@"value stored in defaults: %i", [prefs integerForKey:@"controlType"]);
     }
+    [self setControlsVisible:YES];
+    [self setControlsOpacity:CONTROLS_OPACITY];
     aButton.visible = YES;
     bButton.visible = YES;
     firstTouch = YES;
@@ -575,12 +577,14 @@
             if(travel > 0) {
                 if (psRight.visible) {
                      psRight.opacity = 255;
+                     psLeft.opacity = CONTROLS_OPACITY;
                 }
                 [player moveRight];
                 
             } else if(travel < 0) {
                 if (psLeft.visible) {
                     psLeft.opacity = 255;
+                    psRight.opacity = CONTROLS_OPACITY;
                 }
                 [player moveLeft];
             } else {
@@ -609,7 +613,7 @@
         [player shoot];
         lastShoot = event.timestamp;
         shootTouch = touch;
-        if(self.visible) {
+        if(bButton.visible) {
             bButton.opacity = 255;
         }
 
@@ -617,7 +621,7 @@
 }
 
 -(void) initJumpWithTouch:(UITouch*)touch {
-    if(self.visible) {
+    if(aButton.visible) {
         aButton.opacity = 255;
     }
     jumpTouch = touch;
@@ -626,7 +630,7 @@
 
 -(void) endShoot {
     shootTouch = nil;
-    if(self.visible) {
+    if(bButton.visible) {
         bButton.opacity = CONTROLS_OPACITY;
     }
    
@@ -635,7 +639,7 @@
 -(void) endJump {
     jumpTouch = nil;
     [player resetJump];
-    if (self.visible) {
+    if (aButton.visible) {
         aButton.opacity = CONTROLS_OPACITY;
     }
 }
