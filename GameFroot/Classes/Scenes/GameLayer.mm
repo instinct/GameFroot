@@ -173,12 +173,27 @@ GameLayer *instance;
 }
 
 -(void) draw {
+    
+    /*
+    if (DEBUG_WORLD) {
+        glColor4f(1, 1, 1, 1);
+        
+        for (int x = 0; x < mapWidth; x++) {
+            ccDrawLine(ccp(x*MAP_TILE_WIDTH*REDUCE_FACTOR, 0), ccp(x*MAP_TILE_WIDTH*REDUCE_FACTOR, mapHeight*MAP_TILE_HEIGHT*REDUCE_FACTOR));
+        }
+        
+        for (int y = 0; y < mapHeight; y++) {
+            ccDrawLine(ccp(0, y*MAP_TILE_HEIGHT*REDUCE_FACTOR), ccp(mapWidth*MAP_TILE_WIDTH*REDUCE_FACTOR, y*MAP_TILE_HEIGHT*REDUCE_FACTOR));
+        }
+    }
+    */
+    
 	glDisable(GL_TEXTURE_2D);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	
+    
 	world->DrawDebugData();
-	
+    
 	glEnable(GL_TEXTURE_2D);
 	glEnableClientState(GL_COLOR_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -546,6 +561,22 @@ GameLayer *instance;
 			break;
 	}
 	
+    /*
+    if (DEBUG_WORLD) {
+        for (int x = 0; x < mapWidth; x++) {
+            for (int y = 0; y < mapHeight; y++) {
+                if ((x > 14) && (x < 20)) { // ((x > 40) && (x < 50)) || 
+                    if ((mapHeight-y-1) > 15) {
+                        CCLabelTTF *label = [CCLabelTTF labelWithString:[NSString stringWithFormat:@"%i,%i",x,(mapHeight-y-1)] fontName:@"Arial" fontSize:8.0f];
+                        [self addChild:label];
+                        [label setPosition:ccp(x*MAP_TILE_WIDTH*REDUCE_FACTOR + label.contentSize.width, y*MAP_TILE_HEIGHT*REDUCE_FACTOR + label.contentSize.height)];
+                    }
+                }
+            }
+        }
+    }
+    */
+    
 	partsLoaded++;
 	float percent = ((float)partsLoaded / (float)parts) * 100.0f;
 	
@@ -943,7 +974,7 @@ GameLayer *instance;
 
 -(int) getTileAt:(CGPoint)position
 {
-    int pos = position.x + (position.y*MAP_TILE_WIDTH);
+    int pos = position.x + position.y*mapWidth;
     if ((pos >= 0) && (pos < 100000)) {
         //CCLOG(@"get tile at: %f, %f => %i = %i", position.x, position.y, pos, arrayTiles[pos]);
         return arrayTiles[pos];
@@ -1135,8 +1166,8 @@ GameLayer *instance;
 				[spriteSheet addChild:sprite z:zorder];
                     
                 // Set array tiles
-                int index = dx + (dy*MAP_TILE_WIDTH);
-                //CCLOG(@"set tile %i at %i", behaviour, index);
+                int index = dx + (dy*mapWidth);
+                //CCLOG(@"set tile %i at %i,%i (%i)", behaviour, dx, dy, index);
                 arrayTiles[index] = behaviour;
 				
 				if (frames > 1) {
@@ -1508,16 +1539,17 @@ GameLayer *instance;
 	
 	//CCLOG(@"Player size: %f,%f", spriteWidth,spriteHeight);
 	
+    CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
 	CGPoint pos = ccp(dx * MAP_TILE_WIDTH, ((mapHeight - dy - 1) * MAP_TILE_HEIGHT));
-	pos.x += spriteWidth/2.0f;
-	pos.y += spriteHeight/2.0f; // - 18.0f; // leave player to fall a few pixels
-	
-	// Create player		
+	pos.x += hitArea.width/2.0f;
+	pos.y += hitArea.height/2.0f;
+    
+	// Create player
 	player = [Player spriteWithBatchNode:playerSpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];        
-	player.position = pos;
+	[player setPosition:pos];
 	[player setAnchorPoint:ccp(0.41,0.33)];
 	[player setupPlayer:playerID properties:dict];
-    [player createBox2dObject:world size:CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR())];
+    [player createBox2dObject:world size:hitArea];
 	[playerSpriteSheet addChild:player z:LAYER_PLAYER];
     
     player.autoSafepoint = !checkpoints;
@@ -1577,16 +1609,17 @@ GameLayer *instance;
 		float spriteWidth = enemySpriteSheet.texture.contentSize.width / 8;
 		float spriteHeight = enemySpriteSheet.texture.contentSize.height / 2;
 		
-		CGPoint pos = ccp(dx * MAP_TILE_WIDTH, ((mapHeight - dy - 1) * MAP_TILE_HEIGHT));
-		pos.x += spriteWidth/2.0f;
-		pos.y += spriteHeight/2.0f - 18.0f;
+        CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
+        CGPoint pos = ccp(dx * MAP_TILE_WIDTH, ((mapHeight - dy - 1) * MAP_TILE_HEIGHT));
+        pos.x += hitArea.width/2.0f;
+        pos.y += hitArea.height/2.0f;
 		
 		// Create player		
 		Enemy *enemy = [Enemy spriteWithBatchNode:enemySpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];        
-		enemy.position = pos;
+		[enemy setPosition:pos];
 		[enemy setAnchorPoint:ccp(0.41,0.33)];
 		[enemy setupEnemy:enemyID properties:dict player:player];
-		[enemy createBox2dObject:world size:CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR())];
+		[enemy createBox2dObject:world size:hitArea];
 		[enemySpriteSheet addChild:enemy z:LAYER_PLAYER];
 		
 		[enemies addObject:enemy];

@@ -39,6 +39,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	win = NO;
 	scrollOnProne = 0;
 	hasWeapon = NO;
+    safePositon = self.position;
     
     initialX = originalX = [[properties objectForKey:@"positionX"] intValue];
 	initialY = originalY = [[properties objectForKey:@"positionY"] intValue];
@@ -370,7 +371,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	playerBodyDef.allowSleep = false;
 	playerBodyDef.fixedRotation = true;
 	playerBodyDef.type = b2_dynamicBody;
-	playerBodyDef.position = b2Vec2(((self.position.x - 30)/PTM_RATIO), (self.position.y + 0)/PTM_RATIO);
+	playerBodyDef.position = b2Vec2(((self.position.x)/PTM_RATIO), (self.position.y + 0)/PTM_RATIO);
 	playerBodyDef.userData = self;
 	body = world->CreateBody(&playerBodyDef);
 	
@@ -1075,18 +1076,15 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		
 		[[GameLayer getInstance] removeBullets];
 		[[GameLayer getInstance] resetControls];
-		
-		float spriteWidth = self.batchNode.texture.contentSize.width / 8;
-		float spriteHeight = self.batchNode.texture.contentSize.height / 2;
-		
-		CGPoint pos;
         
         // Auto safe position
+        CGPoint pos;
         if (autoSafepoint && (!CGPointEqualToPoint(safePositon, CGPointZero))) pos = safePositon;
         else {
+            CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
             pos = ccp(initialX * MAP_TILE_WIDTH, (([GameLayer getInstance].mapHeight - initialY - 1) * MAP_TILE_HEIGHT));
-            pos.x += spriteWidth/2.0f;
-            pos.y += spriteHeight/2.0f;
+            pos.x += hitArea.width/2.0f;
+            pos.y += hitArea.height/2.0f;
 		}
         //
 
