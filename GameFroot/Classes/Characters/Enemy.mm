@@ -442,12 +442,10 @@
 		lives = 1;
 		health = topHealth;
 		
-		float spriteWidth = self.batchNode.texture.contentSize.width / 8;
-		float spriteHeight = self.batchNode.texture.contentSize.height / 2;
-		
-		CGPoint pos = ccp(initialX * MAP_TILE_WIDTH, (([GameLayer getInstance].mapHeight - initialY - 1) * MAP_TILE_HEIGHT));
-		pos.x += spriteWidth/2.0f;
-		pos.y += spriteHeight/2.0f - 18.0f;
+        CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
+        CGPoint pos = ccp(initialX * MAP_TILE_WIDTH, (([GameLayer getInstance].mapHeight - initialY - 1) * MAP_TILE_HEIGHT));
+        pos.x += hitArea.width/2.0f;
+        pos.y += hitArea.height/2.0f;
 		
 		self.position = pos;
 		self.scaleX = 1;
@@ -473,12 +471,10 @@
 	lives = 1;
 	health = topHealth;
 	
-	float spriteWidth = self.batchNode.texture.contentSize.width / 8;
-	float spriteHeight = self.batchNode.texture.contentSize.height / 2;
-	
-	CGPoint pos = ccp(initialX * MAP_TILE_WIDTH, (([GameLayer getInstance].mapHeight - initialY - 1) * MAP_TILE_HEIGHT));
-	pos.x += spriteWidth/2.0f;
-	pos.y += spriteHeight/2.0f - 18.0f;
+	CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
+    CGPoint pos = ccp(initialX * MAP_TILE_WIDTH, (([GameLayer getInstance].mapHeight - initialY - 1) * MAP_TILE_HEIGHT));
+    pos.x += hitArea.width/2.0f;
+    pos.y += hitArea.height/2.0f;
 	
 	self.position = pos;
 	self.scaleX = 1;
@@ -769,22 +765,38 @@
     
     // bottom tile must be solid ground
     tile = [ self tileType:x y:( y - 1 ) ];
+    
+    //CCLOG(@"----------------------------------");
+    //CCLOG(@"Direction: %i", direction);
+    
+    //if ( direction == kDirectionLeft ) CCLOG(@"tileWalkable: %i,%i = %i", (int)tilePos.x-x, (int)tilePos.y-(y-1), tile);
+    //else CCLOG(@"tileWalkable: %i,%i = %i", (int)tilePos.x+x, (int)tilePos.y-(y-1), tile);
+    
     if ( ( tile != TILE_TYPE_SOLID ) && ( tile != TILE_TYPE_CLOUD ) ) return( NO );
     
     if (tilePos.y > 0) {
         // tile +1 above ground must be free
         tile = [ self tileType:x y:y ];
-        if ( tile != TILE_TYPE_NONE ) return( NO );
+        
+        //if ( direction == kDirectionLeft ) CCLOG(@"tileWalkable: %i,%i = %i", (int)tilePos.x-x, (int)tilePos.y-y, tile);
+        //else CCLOG(@"tileWalkable: %i,%i = %i", (int)tilePos.x+x, (int)tilePos.y-y, tile);
+        
+        //if ( tile != TILE_TYPE_NONE ) return( NO );
+        if ( tile == TILE_TYPE_SOLID ) return( NO );
+    }
+        
+    if (tilePos.y > 1) {
+        // tile +2 above ground must be free
+        tile = [ self tileType:x y:( y + 1 ) ];
+        
+        //if ( direction == kDirectionLeft ) CCLOG(@"tileWalkable: %i,%i = %i", (int)tilePos.x-x, (int)tilePos.y-(y+1), tile);
+        //else CCLOG(@"tileWalkable: %i,%i = %i", (int)tilePos.x+x, (int)tilePos.y-(y+1), tile);
+        
+        //return( tile == TILE_TYPE_NONE );
+        return( tile != TILE_TYPE_SOLID );
     }
     
-    return ( YES ); // Not sure we need next condition since enemies are 2 tiles high
-    
-        
-    /*
-    // tile +2 above ground must be free
-    tile = [ self tileType:x y:( y + 1 ) ];
-    return( (tile == TILE_TYPE_NONE) || ( tile == TILE_TYPE_CLOUD ) );
-    */
+    return ( YES );
 }
 
 // --------------------------------------------------------------
