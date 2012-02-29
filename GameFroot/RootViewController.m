@@ -50,9 +50,28 @@
     adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierPortrait;
     [self.view addSubview:adBannerView];
     adBannerView.frame = CGRectOffset(adBannerView.frame, 0, 380);
+    adBannerView.hidden = YES;
+}
+
+- (void) showBanner {
+    adBannerView.hidden = NO;
+}
+
+- (void) hideBanner {
+    adBannerView.hidden = YES;
 }
 
 
+#pragma mark -
+#pragma mark ADBannerViewDelegate methods
+
+- (void)bannerViewDidLoadAd:(ADBannerView *)banner {
+    
+}
+
+- (BOOL)bannerViewActionShouldBegin:(ADBannerView *)banner willLeaveApplication:(BOOL)willLeave {
+    return YES;
+}
 
 // Override to allow orientations other than the default portrait orientation.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {

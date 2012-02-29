@@ -15,5 +15,8 @@
 }
 
 - (void) createBannerView;
+- (void) showBanner;
+- (void) hideBanner;
+
 
 @end
