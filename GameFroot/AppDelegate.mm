@@ -115,6 +115,9 @@
 	
 	// make the OpenGLView a child of the view controller
 	[viewController setView:glView];
+    
+    // init iAd banner
+    [viewController createBannerView];
 	
 	// make the View Controller a child of the main window
 	[window addSubview: viewController.view];

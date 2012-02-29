@@ -452,6 +452,7 @@
 		226838C414FB3C0500D1EB94 /* main_menu-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 226838BF14FB3C0500D1EB94 /* main_menu-hd.png */; };
 		226838C514FB3C0500D1EB94 /* main_menu.plist in Resources */ = {isa = PBXBuildFile; fileRef = 226838C014FB3C0500D1EB94 /* main_menu.plist */; };
 		226838C614FB3C0500D1EB94 /* main_menu.png in Resources */ = {isa = PBXBuildFile; fileRef = 226838C114FB3C0500D1EB94 /* main_menu.png */; };
+		2299CFAC14FDD123005C7F14 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2299CFAB14FDD123005C7F14 /* iAd.framework */; };
 		22D3A6DA14E2276B00EAB052 /* rate_controls_mockup.png in Resources */ = {isa = PBXBuildFile; fileRef = 22D3A6D914E2276B00EAB052 /* rate_controls_mockup.png */; };
 		22F8D1D114F5B52600780B13 /* controls-hd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 22F8D1CD14F5B52600780B13 /* controls-hd.plist */; };
 		22F8D1D214F5B52600780B13 /* controls-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 22F8D1CE14F5B52600780B13 /* controls-hd.png */; };
@@ -1149,6 +1150,7 @@
 		226838BF14FB3C0500D1EB94 /* main_menu-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "main_menu-hd.png"; sourceTree = "<group>"; };
 		226838C014FB3C0500D1EB94 /* main_menu.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = main_menu.plist; sourceTree = "<group>"; };
 		226838C114FB3C0500D1EB94 /* main_menu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = main_menu.png; sourceTree = "<group>"; };
+		2299CFAB14FDD123005C7F14 /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
 		22D3A6D914E2276B00EAB052 /* rate_controls_mockup.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rate_controls_mockup.png; sourceTree = "<group>"; };
 		22F8D1CD14F5B52600780B13 /* controls-hd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "controls-hd.plist"; sourceTree = "<group>"; };
 		22F8D1CE14F5B52600780B13 /* controls-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "controls-hd.png"; sourceTree = "<group>"; };
@@ -1167,6 +1169,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2299CFAC14FDD123005C7F14 /* iAd.framework in Frameworks */,
 				1643B23F14D9B00F00A67057 /* QuartzCore.framework in Frameworks */,
 				1643B24114D9B00F00A67057 /* OpenGLES.framework in Frameworks */,
 				1643B24314D9B00F00A67057 /* OpenAL.framework in Frameworks */,
@@ -1203,6 +1206,7 @@
 		1643B23D14D9B00F00A67057 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2299CFAB14FDD123005C7F14 /* iAd.framework */,
 				1643B75C14D9BA2000A67057 /* SystemConfiguration.framework */,
 				1643B75D14D9BA2000A67057 /* CFNetwork.framework */,
 				1643B23E14D9B00F00A67057 /* QuartzCore.framework */,

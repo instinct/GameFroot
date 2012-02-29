@@ -34,12 +34,24 @@
  }
  */
 
-/*
+
  // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+/*
  - (void)viewDidLoad {
 	[super viewDidLoad];
+     
  }
  */
+
+- (void) createBannerView {
+    adBannerView = [[ADBannerView alloc] initWithFrame:CGRectZero];
+    [adBannerView setRequiredContentSizeIdentifiers:[NSSet setWithObjects:ADBannerContentSizeIdentifierPortrait, nil]];
+    [adBannerView setDelegate:self];
+    adBannerView.currentContentSizeIdentifier = ADBannerContentSizeIdentifierPortrait;
+    [self.view addSubview:adBannerView];
+    adBannerView.frame = CGRectOffset(adBannerView.frame, 0, 380);
+}
+
 
 
 // Override to allow orientations other than the default portrait orientation.
@@ -141,6 +153,7 @@
 
 - (void)viewDidUnload {
     [super viewDidUnload];
+    [adBannerView release];
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;
 }
