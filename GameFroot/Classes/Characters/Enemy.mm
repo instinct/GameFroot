@@ -444,7 +444,7 @@
 		
         CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
         CGPoint pos = ccp(initialX * MAP_TILE_WIDTH, (([GameLayer getInstance].mapHeight - initialY - 1) * MAP_TILE_HEIGHT));
-        pos.x += hitArea.width/2.0f;
+        pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
         pos.y += hitArea.height/2.0f;
 		
 		self.position = pos;
@@ -473,7 +473,7 @@
 	
 	CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
     CGPoint pos = ccp(initialX * MAP_TILE_WIDTH, (([GameLayer getInstance].mapHeight - initialY - 1) * MAP_TILE_HEIGHT));
-    pos.x += hitArea.width/2.0f;
+    pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
     pos.y += hitArea.height/2.0f;
 	
 	self.position = pos;
@@ -920,7 +920,7 @@
     CGPoint jumpPos;
     CGPoint playerPos;
     
-	if ( removed ) return;
+    if (paused || removed) return;
 	
     // check if visible, otherwise kill all AI
 	CGPoint pos = [ [ GameLayer getInstance ] convertToMapCoordinates:self.position ];
@@ -1061,7 +1061,7 @@
 			[ self hit:self.collideTakeDamage];
 			// [ self resetForces];
             // [ self stop ];
-            if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ];
+            data.contact->SetEnabled( false );
             break;
         
         case kGameObjectCloud:
@@ -1100,7 +1100,8 @@
     
     // case handling
     switch ( object.type ) {
-            
+        
+        case kGameObjectPlayer:
         case kGameObjectEnemy:
             data.contact->SetEnabled( false );
             break;

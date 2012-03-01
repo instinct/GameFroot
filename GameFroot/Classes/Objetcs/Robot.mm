@@ -1661,6 +1661,18 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 #pragma mark -
 #pragma mark Events
 
+-(void) resume 
+{
+	[self resumeSchedulerAndActions];
+	paused = NO;
+}
+
+-(void) pause 
+{
+	[self pauseSchedulerAndActions];	
+	paused = YES;
+}
+
 -(void) touched:(id)sender
 {
 	//CCLOG(@"Robot.touched: %@", behavior);

@@ -56,6 +56,7 @@
     BOOL frozen;
     
     NSString *name;
+    BOOL paused;
 }
 
 @property (nonatomic, assign) BOOL solid;
@@ -77,5 +78,8 @@
 -(void) touched:(id)sender;
 -(void) finished:(id)sender;
 -(void) hit:(int)force;
+
+-(void) pause;
+-(void) resume;
 
 @end

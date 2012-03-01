@@ -991,6 +991,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 
 -(void) hit:(int)force 
 {
+    return;
+    
 	health -= force;
 	if (health <= 0) health = 0;
 	[[GameLayer getInstance] setHealth:health];
@@ -1083,7 +1085,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
         else {
             CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
             pos = ccp(initialX * MAP_TILE_WIDTH, (([GameLayer getInstance].mapHeight - initialY - 1) * MAP_TILE_HEIGHT));
-            pos.x += hitArea.width/2.0f;
+            pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
             pos.y += hitArea.height/2.0f;
 		}
         //
@@ -1193,13 +1195,11 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 -(void) _changePosition
 {
 	[self stop];
-	
-	float spriteWidth = self.batchNode.texture.contentSize.width / 11;
-	float spriteHeight = self.batchNode.texture.contentSize.height;
-	
-	CGPoint pos = ccp(auxX * MAP_TILE_WIDTH, (([GameLayer getInstance].mapHeight - auxY - 1) * MAP_TILE_HEIGHT));
-	pos.x += spriteWidth/2.0f;
-	pos.y += spriteHeight/2.0f;
+	    
+    CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
+    CGPoint pos = ccp(auxX * MAP_TILE_WIDTH, (([GameLayer getInstance].mapHeight - auxY - 1) * MAP_TILE_HEIGHT));
+    pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
+    pos.y += hitArea.height/2.0f;
 	
 	self.position = pos;
 	
@@ -1309,7 +1309,6 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	[self pauseSchedulerAndActions];
     paused = YES;
 }
-
 
 -(void) update:(ccTime)dt
 {
@@ -1452,7 +1451,6 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     
     switch ( object.type ) {
             
-        case kGameObjectEnemy:
         case kGameObjectPlatform:
             if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ];
             break;

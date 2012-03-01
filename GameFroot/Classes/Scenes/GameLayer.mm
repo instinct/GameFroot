@@ -216,7 +216,7 @@ GameLayer *instance;
 	// Apple recommends to re-assign "self" with the "super" return value
 	if( (self=[super init])) {
 		
-        CCLOG(@"GameLayer.init: %@", self);
+        //CCLOG(@"GameLayer.init: %@", self);
         
 		instance = self;
 		
@@ -230,10 +230,10 @@ GameLayer *instance;
 		NSArray *paths = NSSearchPathForDirectoriesInDomains(SAVE_FOLDER, NSUserDomainMask, YES);
 		NSString *documentsDirectory = [paths objectAtIndex:0];
 		NSString *resource = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"cachedLevel%i",[Shared getLevelID]]];
-		//CCLOG(@"Find if level cache is expired: %@", resource);
+		CCLOG(@"Find if level cache is expired: %@", resource);
 		if ([fileManager fileExistsAtPath:resource]) {
 			NSString *cachedDate = [NSString stringWithContentsOfFile:resource encoding:NSASCIIStringEncoding error:nil];
-			//CCLOG(@"%@ == %@ ? %i", cachedDate, [Shared getLevelDate], [cachedDate isEqualToString:[Shared getLevelDate]]);
+			CCLOG(@"%@ == %@ ? %i", cachedDate, [Shared getLevelDate], [cachedDate isEqualToString:[Shared getLevelDate]]);
 			if ([cachedDate isEqualToString:[Shared getLevelDate]]) {
 				// Level not changed since last download, so use cached contents
                 ignoreCache = NO;
@@ -1542,7 +1542,7 @@ GameLayer *instance;
 	
     CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
 	CGPoint pos = ccp(dx * MAP_TILE_WIDTH, ((mapHeight - dy - 1) * MAP_TILE_HEIGHT));
-	pos.x += hitArea.width/2.0f;
+	pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
 	pos.y += hitArea.height/2.0f;
     
 	// Create player
@@ -1612,7 +1612,7 @@ GameLayer *instance;
 		
         CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
         CGPoint pos = ccp(dx * MAP_TILE_WIDTH, ((mapHeight - dy - 1) * MAP_TILE_HEIGHT));
-        pos.x += hitArea.width/2.0f;
+        pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
         pos.y += hitArea.height/2.0f;
 		
 		// Create player		
@@ -1646,7 +1646,7 @@ GameLayer *instance;
 	NSString *documentsDirectory = [paths objectAtIndex:0];
 	NSString *resource = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"cachedLevel%i",[Shared getLevelID]]];
 	[published writeToFile:resource atomically:YES encoding:NSASCIIStringEncoding error:nil];
-	//CCLOG(@"Write level cache: %@ on: %@", published, resource);
+	CCLOG(@"Write level cache: %@ on: %@", published, resource);
 	
 	// Start updater
 	[self scheduleUpdate];
@@ -1701,6 +1701,11 @@ GameLayer *instance;
 	return [self convertToWorldSpace:ccp(point.x*REDUCE_FACTOR, point.y*REDUCE_FACTOR)];
 }
 
+-(BOOL) isPaused
+{
+    return paused;
+}
+
 -(void) pause
 {
 	// Stop updater
@@ -1714,6 +1719,10 @@ GameLayer *instance;
 	
 	MovingPlatform *platform; CCARRAY_FOREACH(movingPlatforms, platform) {
 		[platform pause];
+	}
+    
+    Robot *robot; CCARRAY_FOREACH(robots, robot) {
+		[robot pause];
 	}
 }
 

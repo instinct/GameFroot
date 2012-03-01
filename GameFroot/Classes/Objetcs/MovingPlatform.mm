@@ -290,7 +290,7 @@
 
 -(void) update:(ccTime)dt
 {
-	if (removed) return;
+	if (paused || removed) return;
 	
 	//CCLOG(@"Moving platform visible:%i, paused:%i, awake:%i, active:%i", self.visible, paused, body->IsAwake(), body->IsActive());
 	

@@ -17,8 +17,6 @@
 
 -(void) setupDialogue:(NSString *)_text
 {
-    //CCLOG(@"Dialogue.setupDialogue: %@", _text);
-    
     text = [_text retain];
     
     background = [CCSprite spriteWithFile:@"dialogue_background.png"];
@@ -37,17 +35,21 @@
     numPages = label.contentSize.height / background.contentSize.height;
     float exact = label.contentSize.height / background.contentSize.height;
     if (exact > (float)numPages) numPages++;
+    
+    //CCLOG(@"Dialogue.setupDialogue: %@, pages: %i", _text, numPages);
         
     [self addChild:background z:1];
 	[self addChild:label z:2];
 	
 	[[GameLayer getInstance] addOverlay:self];
 	
-	[[CCDirector sharedDirector] pause];
-	//[[CCDirector sharedDirector] stopAnimation];
-	[[GameLayer getInstance] stopPlayer];
-	[[GameLayer getInstance] pause];
-	[[GameLayer getInstance] resetControls];
+    if (![[GameLayer getInstance] isPaused]) {
+        [[CCDirector sharedDirector] pause];
+        //[[CCDirector sharedDirector] stopAnimation];
+        [[GameLayer getInstance] stopPlayer];
+        [[GameLayer getInstance] pause];
+        [[GameLayer getInstance] resetControls];
+    }
 }
 
 -(BOOL) ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event
@@ -55,11 +57,9 @@
     if (selectPage < numPages - 1) {
         // Display next page
         selectPage++;
-        [label setPosition:ccp(label.position.x, label.position.y + background.contentSize.height - 4)];
+        [label setPosition:ccp(label.position.x, label.position.y + background.contentSize.height - 6)];
         
-        return YES;
-        
-    } else {
+    } else if ([[GameLayer getInstance] isPaused]) {
         [[CCTouchDispatcher sharedDispatcher] removeDelegate:self];
         
         [[CCDirector sharedDirector] resume];
@@ -68,8 +68,13 @@
         
         [[GameLayer getInstance] removeOverlay:self];
         
-        return YES;
+    } else {
+        [[CCTouchDispatcher sharedDispatcher] removeDelegate:self];
+        [[GameLayer getInstance] removeOverlay:self];
+        
     }
+    
+    return YES;
 }
 
 - (void) visit 

@@ -155,6 +155,7 @@
 
 -(void) initControls;
 -(void) initGame;
+-(BOOL) isPaused;
 -(void) pause;
 -(void) resume;
 -(void) resetElements;
