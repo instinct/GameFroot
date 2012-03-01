@@ -54,8 +54,8 @@ typedef struct _contactData {
 
 // collision handling
 -( void )handleBeginCollision:( contactData )data;
--( void )handlePreSolve:( contactData )data;
--( void )handlePostSolve:( contactData )data;
+-( void )handlePreSolve:( contactData )data manifold:(const b2Manifold *)oldManifold;
+-( void )handlePostSolve:( contactData )data impulse:(const b2ContactImpulse *)impulse;
 -( void )handleEndCollision:( contactData )data;
 
 @end

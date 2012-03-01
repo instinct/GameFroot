@@ -57,7 +57,7 @@
     if (selectPage < numPages - 1) {
         // Display next page
         selectPage++;
-        [label setPosition:ccp(label.position.x, label.position.y + background.contentSize.height - 6)];
+        [label setPosition:ccp(label.position.x, label.position.y + background.contentSize.height)];
         
     } else if ([[GameLayer getInstance] isPaused]) {
         [[CCTouchDispatcher sharedDispatcher] removeDelegate:self];

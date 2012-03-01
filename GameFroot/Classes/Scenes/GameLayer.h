@@ -158,7 +158,7 @@
 -(BOOL) isPaused;
 -(void) pause;
 -(void) resume;
--(void) resetElements;
+-(void) resetScheduledElements;
 -(void) addBullet:(CCSpriteBatchNode *)bullet;
 -(void) removeBullet:(CCSpriteBatchNode *)bullet;
 -(void) removeBullets;

@@ -747,11 +747,11 @@ void ContactListener::PreSolve(b2Contact *contact, const b2Manifold *oldManifold
     
     // handle o1 contact
     data.object = o2;
-    [ o1 handlePreSolve:data ];
+    [ o1 handlePreSolve:data manifold:oldManifold];
     
     // handle o2 contact
     data.object = o1;
-    [ o2 handlePreSolve:data ];
+    [ o2 handlePreSolve:data manifold:oldManifold];
     
 }
 
@@ -768,11 +768,11 @@ void ContactListener::PostSolve(b2Contact *contact, const b2ContactImpulse *impu
     
     // handle o1 contact
     data.object = o2;
-    [ o1 handlePostSolve:data ];
+    [ o1 handlePostSolve:data impulse:impulse];
     
     // handle o2 contact
     data.object = o1;
-    [ o2 handlePostSolve:data ];
+    [ o2 handlePostSolve:data impulse:impulse];
 }
 
 // EndContact is only called once

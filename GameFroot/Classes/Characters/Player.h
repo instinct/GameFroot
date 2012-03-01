@@ -78,15 +78,12 @@
 	float scrollOnProne, scrollOnProneMax, scrollOnProneDelay, scrollOnProneDelayCount;
 	
 	BOOL pressedJump;
-	
-	BOOL helpFall;
     
     BOOL startsWithWeapon;
     BOOL hasWeapon;
     BOOL startsWithJetpack;
     int defaultWeapon;
     
-    BOOL restarting;
     
     CGPoint safePositon;
     BOOL autoSafepoint;
@@ -130,9 +127,10 @@
 -(void) changeToPosition:(CGPoint)pos;
 -(void) setTouchingSwitch:(Switch *) touchingSwitch_;
 -(void) resetForces;
+-(BOOL) isBelowCloud:(GameObject *) object;
+-(BOOL) isMoonWalking;
 
 -(void) restart;
-
 -(void) pause;
 -(void) resume;
 

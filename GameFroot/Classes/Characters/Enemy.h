@@ -38,6 +38,8 @@
 #define ENEMY_TRACK_RANGE               300             // how much to expand track range beyond visible screen
 #define ENEMY_TRACK_ALWAYS              0               // track even if out of screen
 
+#define ENEMY_BLOCKS_PLAYER             0               // check if enemies can block player or not
+
 // --------------------------------------------------------------
 
 @interface Enemy : Player {

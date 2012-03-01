@@ -133,12 +133,7 @@
 	b2BodyDef bulletBodyDef;
 	bulletBodyDef.allowSleep = false;
 	bulletBodyDef.fixedRotation = true;
-	
 	bulletBodyDef.bullet = true;
-	
-	// If bullet is kinematic, it won't collide with static objects (platforms)
-	// If bullet is dynamic, it will fall with gravity, so ignore gravity for this kind
-	//bulletBodyDef.type = b2_kinematicBody;
 	bulletBodyDef.type = b2_dynamicBody;
 	
 	bulletBodyDef.position = b2Vec2((self.position.x/PTM_RATIO), self.position.y/PTM_RATIO);

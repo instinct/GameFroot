@@ -233,8 +233,6 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 	//	[self remove];
 	//}
     
-    if (invisible) return;
-    
     if (freezed && (body->IsActive())) body->SetActive(NO);
     else if (!freezed && (!body->IsActive())) body->SetActive(YES);
     
@@ -251,7 +249,7 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
         
 	} else {
 		if (!self.visible) {
-            self.visible = YES;
+            if (!invisible) self.visible = YES;
             body->SetActive( true );
         }
 		

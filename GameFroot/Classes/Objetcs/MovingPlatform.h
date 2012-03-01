@@ -26,10 +26,13 @@
 	BOOL paused;
 	BOOL stopped;
 	BOOL startedOff;
+    
+    BOOL isCloud;
 }
 
 @property (nonatomic, assign) BOOL goingForward;
 @property (nonatomic, assign) b2Vec2 velocity;
+@property (nonatomic, assign) BOOL isCloud;
 
 -(void) createBox2dObject:(b2World*)world size:(CGSize)_size;
 -(void) moveVertically:(float)_translationInPixels duration:(float)_duration;

@@ -23,7 +23,6 @@
         // Loading base assets
         
         CCSprite *bg = [CCSprite spriteWithFile:@"blue-bg.png"];
-        [bg setScale:CC_CONTENT_SCALE_FACTOR()];
         [bg setPosition:ccp(size.width*0.5,size.height*0.5)];
         [self addChild:bg];
         

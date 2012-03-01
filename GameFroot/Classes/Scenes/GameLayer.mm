@@ -151,7 +151,7 @@ GameLayer *instance;
 	//Iterate over the bodies in the physics world
 	for (b2Body* b = world->GetBodyList(); b; b = b->GetNext()) {
 		if (b->GetUserData() != NULL) {
-			//Synchronize the AtlasSprites position and rotation with the corresponding body
+			//Synchronize the sprites position and rotation with the corresponding body
 			GameObject *sprite = (GameObject*)b->GetUserData();
 			[sprite update:dt];
 		}
@@ -314,7 +314,8 @@ GameLayer *instance;
 		timerEnabled = NO;
 		lock = NO;
         checkpoints = NO;
-		
+		paused = YES;
+        
 		pauseBtn = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"pause.png"] selectedSprite:[CCSprite spriteWithFile:@"pause.png"] target:self selector:@selector(pauseGame)];
 		[[(CCSprite *)pauseBtn.normalImage texture] setAliasTexParameters];
 		((CCSprite *)pauseBtn.normalImage).opacity = 100;
@@ -488,7 +489,7 @@ GameLayer *instance;
     
     [hud show];
     [scene show];
-    paused = NO;
+    if (paused) [self resume];
     
     [player immortal];
 }
@@ -520,7 +521,7 @@ GameLayer *instance;
     
     [hud show];
     [scene show];
-    paused = NO;
+    if (paused) [self resume];
     
     [player immortal];
 }
@@ -1094,8 +1095,9 @@ GameLayer *instance;
 				[platform createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
 				[movingPlatforms addObject:platform];
 				
-				if (behaviour == 3) [platform setType:kGameObjectKiller];
-				
+				if (behaviour == 1) platform.isCloud = NO;
+				else if (behaviour == 3) [platform setType:kGameObjectKiller];
+                
 				if (frames > 1) {
 					// Set animation (if frames)
 					float speed = 0.1f;
@@ -1647,10 +1649,7 @@ GameLayer *instance;
 	NSString *resource = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"cachedLevel%i",[Shared getLevelID]]];
 	[published writeToFile:resource atomically:YES encoding:NSASCIIStringEncoding error:nil];
 	CCLOG(@"Write level cache: %@ on: %@", published, resource);
-	
-	// Start updater
-	[self scheduleUpdate];
-	
+    
 	// Start camera follow (fails with scaled contents!! use viewpoint center)
 	//[self runAction:[CCFollow actionWithTarget:player worldBoundary:CGRectMake(0, 0, mapWidth*MAP_TILE_WIDTH, mapHeight*MAP_TILE_HEIGHT)]];
 	
@@ -1708,41 +1707,48 @@ GameLayer *instance;
 
 -(void) pause
 {
-	// Stop updater
-	[self unscheduleUpdate];
-	if (timerEnabled) [self unschedule:@selector(timer:)];
-	paused = YES;
-	
-	Enemy *enemy; CCARRAY_FOREACH(enemies, enemy) {
-		[enemy pause];
-	}
-	
-	MovingPlatform *platform; CCARRAY_FOREACH(movingPlatforms, platform) {
-		[platform pause];
-	}
-    
-    Robot *robot; CCARRAY_FOREACH(robots, robot) {
-		[robot pause];
-	}
+    if (!paused) {
+        CCLOG(@"GameLayer.pause");
+        // Stop updater
+        [self unscheduleUpdate];
+        if (timerEnabled) [self unschedule:@selector(timer:)];
+        paused = YES;
+        
+        Enemy *enemy; CCARRAY_FOREACH(enemies, enemy) {
+            [enemy pause];
+        }
+        
+        MovingPlatform *platform; CCARRAY_FOREACH(movingPlatforms, platform) {
+            [platform pause];
+        }
+        
+        Robot *robot; CCARRAY_FOREACH(robots, robot) {
+            [robot pause];
+        }
+    }
 }
 
 -(void) resume
 {
-	// Start updater
-	[self scheduleUpdate];
-	if (timerEnabled) [self schedule:@selector(timer:) interval:1.0f];
-	paused = NO;
-	
-	Enemy *enemy; CCARRAY_FOREACH(enemies, enemy) {
-		[enemy resume];
-	}
-	
-	MovingPlatform *platform; CCARRAY_FOREACH(movingPlatforms, platform) {
-		[platform resume];
-	}
+    if (paused) {
+        CCLOG(@"GameLayer.resume");
+        // Start updater
+        [self scheduleUpdate];
+        if (timerEnabled) [self schedule:@selector(timer:) interval:1.0f];
+        paused = NO;
+        
+        Enemy *enemy; CCARRAY_FOREACH(enemies, enemy) {
+            [enemy resume];
+        }
+        
+        MovingPlatform *platform; CCARRAY_FOREACH(movingPlatforms, platform) {
+            [platform resume];
+        }
+    }
 }
 
--(void) resetElements {	
+-(void) resetScheduledElements {
+    CCLOG(@"GameLayer.resetScheduledElements");
 	MovingPlatform *platform; CCARRAY_FOREACH(movingPlatforms, platform) {
 		[platform resetStatus:false];
 	}
@@ -2309,6 +2315,8 @@ GameLayer *instance;
 
 -(void) restartGame
 {
+    CCLOG(@"GameLayer.restartGame");
+    
 	lock = NO;
 	
 	[self removeBullets];

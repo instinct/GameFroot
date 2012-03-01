@@ -10,7 +10,8 @@
 #import "GameLayer.h"
 #import "Constants.h"
 #import "Bullet.h"
-#import "GB2ShapeCache.h"
+#import "MovingPlatform.h"
+//#import "GB2ShapeCache.h"
 
 #define BAR_LIVE_WIDTH	43
 
@@ -828,16 +829,6 @@
 }
 
 // --------------------------------------------------------------
-// check if moonwalking
-
--( BOOL )isMoonWalking {
-    b2Vec2 vel = body->GetLinearVelocity( );
-    if ( ( vel.x < 0 ) && ( direction == kDirectionRight ) ) return( YES );
-    if ( ( vel.x > 0 ) && ( direction == kDirectionLeft ) ) return( YES );
-    return( NO );    
-}
-
-// --------------------------------------------------------------
 // check for jump up solution 
 
 -( CGPoint )jumpUpSolution {
@@ -1061,12 +1052,20 @@
 			[ self hit:self.collideTakeDamage];
 			// [ self resetForces];
             // [ self stop ];
-            data.contact->SetEnabled( false );
+           
+            if (ENEMY_BLOCKS_PLAYER) data.contact->SetEnabled( false );
+            else if ( data.position == CONTACT_IS_ABOVE ) [ player hitsFloor ];
+            
             break;
         
         case kGameObjectCloud:
             if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ];
-            if (self.position.y - self.size.height*self.anchorPoint.y < object.position.y + object.size.height*(1.0f-object.anchorPoint.y)) data.contact->SetEnabled( false );
+            else if ( [self isBelowCloud:object] ) data.contact->SetEnabled( false );
+            break;
+ 
+        case kGameObjectMovingPlatform:
+            if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ];
+            else if ( [self isBelowCloud:object] && (( MovingPlatform* )object ).isCloud ) data.contact->SetEnabled( false );
             break;
             
         case kGameObjectPlatform:
@@ -1095,20 +1094,19 @@
 
 // presolve is mainly for disabling collision
 
--( void )handlePreSolve:( contactData )data {
+-( void )handlePreSolve:( contactData )data manifold:(const b2Manifold *)oldManifold {
     GameObject* object = ( GameObject* )data.object;
     
     // case handling
     switch ( object.type ) {
         
-        case kGameObjectPlayer:
+        //case kGameObjectPlayer:
         case kGameObjectEnemy:
             data.contact->SetEnabled( false );
             break;
             
         case kGameObjectCloud:
-            //if ( data.position == CONTACT_IS_ABOVE ) data.contact->SetEnabled( false );
-            if (self.position.y - self.size.height*self.anchorPoint.y < object.position.y + object.size.height*(1.0f-object.anchorPoint.y)) data.contact->SetEnabled( false );
+            if ( [self isBelowCloud:object]) data.contact->SetEnabled( false );
             else {
                 b2Vec2 current = self.body->GetLinearVelocity();
                 if (current.y < 0) [self hitsFloor];
@@ -1121,15 +1119,14 @@
     }
 }
 
--( void )handlePostSolve:( contactData )data { 
-    GameObject* object = ( GameObject* )data.object;;
+-( void )handlePostSolve:( contactData )data impulse:(const b2ContactImpulse *)impulse { 
+    GameObject* object = ( GameObject* )data.object;
     b2Vec2 velocity;
     
     switch ( object.type ) {
             
         case kGameObjectCloud:
-            //if ( data.position == CONTACT_IS_ABOVE ) data.contact->SetEnabled( false );
-            if (self.position.y - self.size.height*self.anchorPoint.y < object.position.y + object.size.height*(1.0f-object.anchorPoint.y)) data.contact->SetEnabled( false );
+            if ( [self isBelowCloud:object] ) data.contact->SetEnabled( false );
             else {
                 b2Vec2 current = self.body->GetLinearVelocity();
                 if (current.y < 0) [self hitsFloor];

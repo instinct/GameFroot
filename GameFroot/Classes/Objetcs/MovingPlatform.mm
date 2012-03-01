@@ -13,6 +13,7 @@
 
 @synthesize goingForward;
 @synthesize velocity;
+@synthesize isCloud;
 
 - (id) init 
 {
@@ -22,6 +23,7 @@
 		paused = NO;
 		stopped = NO;
 		startedOff = NO;
+        isCloud = YES;
 	}
 	return self;
 }
@@ -291,27 +293,20 @@
 -(void) update:(ccTime)dt
 {
 	if (paused || removed) return;
-	
-	//CCLOG(@"Moving platform visible:%i, paused:%i, awake:%i, active:%i", self.visible, paused, body->IsAwake(), body->IsActive());
-	
-	CGPoint posOrig = [[GameLayer getInstance] convertToMapCoordinates:ccp(origPosition.x *PTM_RATIO,origPosition.y *PTM_RATIO)];
-	CGPoint posFinal = [[GameLayer getInstance] convertToMapCoordinates:ccp(finalPosition.x *PTM_RATIO,finalPosition.y *PTM_RATIO)];
-	
-	//CCLOG(@"%f,%f - %f, %f", posOrig.x, posOrig.y, self.contentSize.width, winsize.width);
-	
-	if ( ( [ self isInsideScreen:posOrig ] == NO ) && ( [ self isInsideScreen:posFinal ] == NO ) ) {
-        
-		if (self.visible) {
-			self.visible = NO;
-			//[self pause];
-		}
-		return;
 		
-	} else if (!self.visible) {
-		self.visible = YES;
-		//[self resume];
+    // check if visible, otherwise hide
+	CGPoint pos = [ [ GameLayer getInstance ] convertToMapCoordinates:self.position ];
+    if ( [ self isInsideScreen:pos ] == NO ) {
+        if ( self.visible ) {
+			self.visible = NO;
+		}
+        
+	} else {
+        if ( !self.visible ) {
+            self.visible = YES;
+        }
 	}
-	
+    
 	[super update:dt];
 }
 
