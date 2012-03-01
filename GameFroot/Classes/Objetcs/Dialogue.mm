@@ -37,7 +37,7 @@
     if (exact > (float)numPages) numPages++;
     
     //CCLOG(@"Dialogue.setupDialogue: %@, pages: %i", _text, numPages);
-        
+    
     [self addChild:background z:1];
 	[self addChild:label z:2];
 	

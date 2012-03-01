@@ -1053,7 +1053,7 @@
 			// [ self resetForces];
             // [ self stop ];
            
-            if (ENEMY_BLOCKS_PLAYER) data.contact->SetEnabled( false );
+            if (!ENEMY_BLOCKS_PLAYER) data.contact->SetEnabled( false );
             else if ( data.position == CONTACT_IS_ABOVE ) [ player hitsFloor ];
             
             break;
@@ -1100,7 +1100,10 @@
     // case handling
     switch ( object.type ) {
         
-        //case kGameObjectPlayer:
+        case kGameObjectPlayer:
+            if (!ENEMY_BLOCKS_PLAYER) data.contact->SetEnabled( false );
+            break;
+            
         case kGameObjectEnemy:
             data.contact->SetEnabled( false );
             break;
