@@ -1427,12 +1427,20 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     if (type == kGameObjectPlayer) {
         b2Vec2 velocity = body->GetLinearVelocity( );
         if ((lround(velocity.y) == 0) && !jumping && !dying) {
-            safePositon = self.position;
-            //CCLOG(@">>>>>>>>> Player safe position: %f,%f", safePositon.x, safePositon.y);
+            // Check there is a solid block under the player
+            CGPoint mapPos = [self getTilePosition];
+            int tileUnder = [[GameLayer getInstance] getTileAt:ccp(mapPos.x, mapPos.y + 1)];
+            //CCLOG(@">>>>> %f,%f => %i", mapPos.x, mapPos.y, tileUnder);
+            
+            if ((tileUnder == TILE_TYPE_SOLID) || (tileUnder == TILE_TYPE_CLOUD)) {
+                safePositon = self.position;
+                //CCLOG(@">>>>>>>>> Player safe position: %f,%f", safePositon.x, safePositon.y);
+            }
         }
     }
     
     /*
+    // Testing tile position in front of player
     CGPoint mapPos = [self getTilePosition];
     int tileInFront = 0;
     if (facingLeft) tileInFront = [[GameLayer getInstance] getTileAt:ccp(mapPos.x-1, mapPos.y)];

@@ -118,13 +118,10 @@
 	}
 }
 
--(CGPoint) getTilePosition {
-    int dx = (self.position.x - size.width/2.0f) * CC_CONTENT_SCALE_FACTOR() / (MAP_TILE_WIDTH * CC_CONTENT_SCALE_FACTOR());
-    int dy = [GameLayer getInstance].mapHeight - ((self.position.y - size.height/2.0f) * CC_CONTENT_SCALE_FACTOR() / (MAP_TILE_HEIGHT * CC_CONTENT_SCALE_FACTOR()));
-    
-    // seems to work better
-    //int dx = self.position.x * CC_CONTENT_SCALE_FACTOR() / MAP_TILE_WIDTH * CC_CONTENT_SCALE_FACTOR();
-    //int dy = [ GameLayer getInstance ].mapHeight - ( self.position.y * CC_CONTENT_SCALE_FACTOR() / MAP_TILE_HEIGHT * CC_CONTENT_SCALE_FACTOR() );
+-(CGPoint) getTilePosition 
+{
+    int dx = self.position.x * CC_CONTENT_SCALE_FACTOR() / MAP_TILE_WIDTH * CC_CONTENT_SCALE_FACTOR();
+    int dy = [ GameLayer getInstance ].mapHeight - ( self.position.y * CC_CONTENT_SCALE_FACTOR() / MAP_TILE_HEIGHT * CC_CONTENT_SCALE_FACTOR() );
     
     return ccp(dx,dy);
 }
