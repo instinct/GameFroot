@@ -51,6 +51,8 @@
     collideGiveDamage = [[properties objectForKey:@"collideGiveDamage"] intValue];
     behaviour = [[properties objectForKey:@"behaviour"] intValue];
     
+    CCLOG(@"Enemy.setupEnemy: %@", properties);
+    
 	float spriteWidth = self.batchNode.texture.contentSize.width / 8;
 	float spriteHeight = self.batchNode.texture.contentSize.height / 2;
 	
@@ -915,6 +917,7 @@
 	
     // check if visible, otherwise kill all AI
 	CGPoint pos = [ [ GameLayer getInstance ] convertToMapCoordinates:self.position ];
+    
     if ( [ self isInsideScreen:pos ] == NO ) {
         // probably wait for ongoing jumps to expire
 		if ( self.visible ) {
@@ -924,6 +927,11 @@
             direction = kDirectionNone; // direction controls scan
 		}
 		return;
+    
+    } else if ( self.position.y - size.height*self.anchorPoint.y < MAP_TILE_HEIGHT ) {
+        // kill enemy on bottom floor
+        [self die];
+        
 	} else {
         if ( !self.visible ) {
             self.visible = YES;

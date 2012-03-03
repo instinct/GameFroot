@@ -29,7 +29,7 @@
         
         //\\//\\// Add main menu stuff //\\//\\//
         
-        CCMenuItemSprite *continueButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"continue.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"continue_pressed.png"] target:self selector:@selector(pauseGame)];
+        CCMenuItemSprite *continueButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"continue.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"continue_pressed.png"] target:self selector:@selector(resumeGame)];
         
         CCMenuItemSprite *quitButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"quit.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"quit.png"] target:self selector:@selector(quitGame)];
         
@@ -84,9 +84,9 @@
     [[GameLayer getInstance] quitGame];
 }
 
--(void) pauseGame
+-(void) resumeGame
 {
-    [[GameLayer getInstance] pauseGame];
+    [[GameLayer getInstance] resumeGame];
 }
 
 -(void)music: (id)sender {

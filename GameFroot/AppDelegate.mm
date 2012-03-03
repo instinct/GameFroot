@@ -168,10 +168,12 @@
 }
 
 
-- (void)applicationWillResignActive:(UIApplication *)application {
+- (void)applicationWillResignActive:(UIApplication *)application 
+{
     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"firstlaunch"];
-	[[CCDirector sharedDirector] pause];
-    if ([Shared isPlaying]) [[GameLayer getInstance] pause];
+    
+	if (![Shared isPaused])[[CCDirector sharedDirector] pause];
+    if ([Shared isPlaying] && ![Shared isPaused]) [[GameLayer getInstance] pause];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
@@ -183,8 +185,8 @@
 
 -(void) resumeGame:(NSTimer *) sender 
 {
-	[[CCDirector sharedDirector] resume];
-    if ([Shared isPlaying]) [[GameLayer getInstance] resume];
+	if (![Shared isPaused]) [[CCDirector sharedDirector] resume];
+    if ([Shared isPlaying] && ![Shared isPaused]) [[GameLayer getInstance] resume];
 }
 
 // Pre 4.2 support

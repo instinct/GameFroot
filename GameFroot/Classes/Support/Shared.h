@@ -29,6 +29,8 @@
 +(int) getNextLevelID;
 +(BOOL) isPlaying;
 +(void) setPlaying: (BOOL)_value;
++(BOOL) isPaused;
++(void) setPaused: (BOOL)_value;
 +(NSString *) getOSVersion;
 +(void) detectOSVersion;
 +(BOOL) isMultitaskingSupported;

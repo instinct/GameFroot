@@ -20,6 +20,7 @@ static NSString *device = @"";
 static NSMutableDictionary *levelData = nil;
 static int nextLevelID = 0;
 static BOOL playing = NO;
+static BOOL paused = YES;
 static BOOL welcomeShown = NO;
 static BOOL simulator = NO;
 
@@ -99,8 +100,16 @@ static BOOL simulator = NO;
 
 +(void) setPlaying: (BOOL)_value {
 	playing = _value;
+    if (!playing) paused = YES;
 }
 
++(BOOL) isPaused {
+    return paused;
+}
+
++(void) setPaused: (BOOL)_value {
+    paused = _value;
+}
 
 +(NSString *) getOSVersion {
 	return osVersion;

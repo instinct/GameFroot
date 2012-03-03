@@ -78,6 +78,7 @@
     BOOL ratingsAnchorEnabled;
     
     int serverUsed;
+    BOOL gameDetailLoaded;
 }
 
 // returns a CCScene that contains the HomeLayer as the only child

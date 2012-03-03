@@ -2293,24 +2293,29 @@ GameLayer *instance;
 -(void) pauseGame
 {
 	if (lock) return;
-	
-	if (paused) {
-		[[CCDirector sharedDirector] resume];
-		[pauseCover hide];
-		paused = NO;
-		((CCSprite *)pauseBtn.normalImage).opacity = 100;
-		
-		[[SimpleAudioEngine sharedEngine] setBackgroundMusicVolume:1.0f];
-		
-	} else {
-		[pauseCover show];
-		[[CCDirector sharedDirector] pause];
-		paused = YES;
-		((CCSprite *)pauseBtn.normalImage).opacity = 255;
-		
-		[[SimpleAudioEngine sharedEngine] setBackgroundMusicVolume:0.2f];
-	}
+
+    [Shared setPaused:YES];
     
+    [pauseCover show];
+    [[CCDirector sharedDirector] pause];
+    paused = YES;
+    ((CCSprite *)pauseBtn.normalImage).opacity = 0;
+		
+    [[SimpleAudioEngine sharedEngine] setBackgroundMusicVolume:0.2f];
+}
+
+-(void) resumeGame
+{
+	if (lock) return;
+	
+    [Shared setPaused:NO];
+    
+    [[CCDirector sharedDirector] resume];
+    [pauseCover hide];
+    paused = NO;
+    ((CCSprite *)pauseBtn.normalImage).opacity = 100;
+		
+    [[SimpleAudioEngine sharedEngine] setBackgroundMusicVolume:1.0f];
 }
 
 -(void) restartGame
@@ -2356,7 +2361,7 @@ GameLayer *instance;
 
 -(void) restartGameFromPause
 {
-    [self pauseGame];
+    [self resumeGame];
     [self restartGame];
 }
 

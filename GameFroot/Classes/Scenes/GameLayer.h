@@ -220,6 +220,7 @@
 -(void) winGame;
 -(void) quitGame;
 -(void) pauseGame;
+-(void) resumeGame;
 -(void) restartGame;
 -(void) restartGameFromPause;
 

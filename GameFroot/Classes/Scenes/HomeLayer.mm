@@ -214,6 +214,7 @@
 		loading = NO;
         displayingDeleteButton = NO;
         ratingsAnchorEnabled = NO;
+        gameDetailLoaded = NO;
         
 		if([[NSUserDefaults standardUserDefaults] boolForKey:@"firstlaunch"] && ![Shared getWelcomeShown]) {
             // Do some stuff on first launch
@@ -570,8 +571,7 @@
     placeHolderText.color = ccc3(255,255,255);
     
     // Add top menu and buttons
-    CCMenuItemSprite *topNavBackButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"placeholder_back_arrow.png"]
- selectedSprite:[CCSprite spriteWithSpriteFrameName:@"placeholder_back_arrow.png"] target:self selector:@selector(gameDetailBack:)];
+    CCMenuItemSprite *topNavBackButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"placeholder_back_arrow.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"placeholder_back_arrow.png"] target:self selector:@selector(gameDetailBack:)];
     CCMenuItemSprite *topNavPlayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"placeholder_play_arrow.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"placeholder_play_arrow.png"] target:self selector:@selector(gameDetailPlay:)];    
     CCMenu *topNav = [CCMenu menuWithItems:topNavBackButton, topNavPlayButton, nil];
     
@@ -631,17 +631,19 @@
     loading = NO;
     gameDetailSV.visible = YES;
 	gameDetail.visible = YES;
+    gameDetailLoaded = YES;
 }
 
 #pragma mark -
 #pragma mark Featured
 
 -(void) loadFeatured {
-	if (selectedPage == featured) return;
+	if ((selectedPage == featured) && !gameDetailLoaded) return;
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	selectedPage = featured;
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadFeatured)];
 	loading = YES;
+    gameDetailLoaded = NO;
 }
 
 -(void) _loadFeatured {
@@ -722,11 +724,12 @@
 #pragma mark Playing
 
 -(void) loadPlaying {
-	if (selectedPage == playing) return;
+	if ((selectedPage == playing) && !gameDetailLoaded) return;
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	selectedPage = playing;
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadPlaying)];
 	loading = YES;
+    gameDetailLoaded = NO;
 }
 
 -(void) _loadPlaying {
