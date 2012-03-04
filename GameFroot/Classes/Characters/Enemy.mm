@@ -497,6 +497,12 @@
 	self.visible = YES;
 }
 
+-(void) resetForces
+{
+	body->SetLinearVelocity(b2Vec2(0,0));
+	body->SetAngularVelocity(0);
+}
+
 /*
 -(void) update:(ccTime)dt
 {
@@ -660,27 +666,42 @@
 // AI actions
 // --------------------------------------------------------------
 
+-(void) stop
+{
+    // make sure we can call this each frame
+    if ( ( direction == kDirectionNone ) && ( moving == NO ) ) return; 
+	if ( dying || immortal ) return;
+    b2Vec2 vel = body->GetLinearVelocity();
+    body->SetLinearVelocity(b2Vec2(horizontalSpeedOffset, vel.y));
+    [self setState:STAND];
+    moving = NO;
+    direction = kDirectionNone;
+}
+
+-(BOOL) isFacingPlayer
+{
+    if ((self.position.x > player.position.x) && (facingLeft == YES)) return YES;
+    else if ((self.position.x < player.position.x) && (facingLeft == NO)) return YES;
+    else return NO;
+}
+
 -( void )faceRight {
     // make sure we can call this each frame
-    if ( ( direction == kDirectionRight ) && ( moving == NO ) ) return; 
+    if ( ( !facingLeft ) && ( moving == NO ) ) return; 
 	if ( dying || immortal ) return;
     // stand and look right
     self.scaleX = 1;
-    [ self setState:STAND ];
-    moving = NO;
-    direction = kDirectionRight;
+    [self stop];
     facingLeft = NO;
 }
 
 -( void )faceLeft {
     // make sure we can call this each frame
-    if ( ( direction == kDirectionLeft ) && ( moving == NO ) ) return;
+    if ( ( facingLeft ) && ( moving == NO ) ) return;
 	if ( dying || immortal ) return;
     // stand and look left
     self.scaleX = -1;
-    [ self setState:STAND ];
-    moving = NO;
-    direction = kDirectionLeft;
+    [self stop];
     facingLeft = YES;
 }
 
@@ -714,6 +735,15 @@
     moving = YES;
     direction = kDirectionLeft;
     facingLeft = YES;
+}
+
+-(BOOL) isStaticWalking {
+    if ( dying || immortal || jumping ) return ( NO );
+    
+    b2Vec2 vel = body->GetLinearVelocity( );
+    if ( (fabsf(roundf(vel.x)) == 0) && ( action != STAND) ) return( YES );
+    
+    return( NO );
 }
 
 // --------------------------------------------------------------
@@ -770,33 +800,17 @@
     // bottom tile must be solid ground
     tile = [ self tileType:x y:( y - 1 ) ];
     
-    //CCLOG(@"----------------------------------");
-    //CCLOG(@"Direction: %i", direction);
-    
-    //if ( direction == kDirectionLeft ) CCLOG(@"tileWalkable: %i,%i = %i", (int)tilePos.x-x, (int)tilePos.y-(y-1), tile);
-    //else CCLOG(@"tileWalkable: %i,%i = %i", (int)tilePos.x+x, (int)tilePos.y-(y-1), tile);
-    
     if ( ( tile != TILE_TYPE_SOLID ) && ( tile != TILE_TYPE_CLOUD ) ) return( NO );
     
     if (tilePos.y > 0) {
         // tile +1 above ground must be free
         tile = [ self tileType:x y:y ];
-        
-        //if ( direction == kDirectionLeft ) CCLOG(@"tileWalkable: %i,%i = %i", (int)tilePos.x-x, (int)tilePos.y-y, tile);
-        //else CCLOG(@"tileWalkable: %i,%i = %i", (int)tilePos.x+x, (int)tilePos.y-y, tile);
-        
-        //if ( tile != TILE_TYPE_NONE ) return( NO );
         if ( tile == TILE_TYPE_SOLID ) return( NO );
     }
         
     if (tilePos.y > 1) {
         // tile +2 above ground must be free
         tile = [ self tileType:x y:( y + 1 ) ];
-        
-        //if ( direction == kDirectionLeft ) CCLOG(@"tileWalkable: %i,%i = %i", (int)tilePos.x-x, (int)tilePos.y-(y+1), tile);
-        //else CCLOG(@"tileWalkable: %i,%i = %i", (int)tilePos.x+x, (int)tilePos.y-(y+1), tile);
-        
-        //return( tile == TILE_TYPE_NONE );
         return( tile != TILE_TYPE_SOLID );
     }
     
@@ -910,30 +924,6 @@
 
 // --------------------------------------------------------------
 
-
--(void) stopLeft
-{
-    [self stop];
-    self.scaleX = -1;
-    direction = kDirectionNone;
-    facingLeft = YES;
-}
-
--(void) stopRight
-{
-    [self stop];
-    self.scaleX = 1;
-    direction = kDirectionNone;
-    facingLeft = NO;
-}
-
--(BOOL) facingPlayer
-{
-    if ((self.position.x > player.position.x) && (facingLeft == YES)) return YES;
-    else if ((self.position.x < player.position.x) && (facingLeft == NO)) return YES;
-    else return NO;
-}
-
 -(void) update:( ccTime )dt {
     CGPoint jumpPos;
     CGPoint playerPos;
@@ -983,7 +973,7 @@
     // check for firing solution
     // ********************
     if ((behaviour & BEHAVIOUR_SHOOTING) > 0) {
-        if ( [self facingPlayer] && ( ( playerPos.y == tilePos.y ) || ( playerPos.y - 1 == tilePos.y ) ) ) {
+        if ( ( playerPos.y == tilePos.y ) || ( playerPos.y - 1 == tilePos.y ) ) {
             
             if ((behaviour & BEHAVIOUR_WALKING) == 0) {
                 // If not walking, face player
@@ -992,7 +982,7 @@
             }
             
             // shoot if facing correct
-            if ( ( playerPos.x < tilePos.x  ) || ( playerPos.x > tilePos.x ) ) {
+            if ( [ self isFacingPlayer ] ) {
                 shootTimer -= dt;
                 if ( shootTimer <= 0 ) {
                     [ self shoot ];
@@ -1014,7 +1004,7 @@
     if ((behaviour & BEHAVIOUR_JUMPING) > 0) {
         // if a jump is ongoing or just finished, wait for sequence to complete
         if ( jumping ) {
-            // check for advanced jump handling ( ex changing direction mid jump
+            // check for advanced jump handling ( ex changing direction mid jump )
             
             [ super update:dt ];
             return;
@@ -1030,51 +1020,44 @@
     // handle walking
     // ********************
     if ( ((behaviour & BEHAVIOUR_WALKING) > 0) && ((behaviour & BEHAVIOUR_JUMPING) == 0) ) {
-		if (tilePos.x > playerPos.x + ENEMY_WALKING_STOPAHEAD) {
-			if (direction != kDirectionLeft) {
-				[self moveLeft];
-			}
-			
-		} else if (tilePos.x < playerPos.x - ENEMY_WALKING_STOPAHEAD) {
-			if (direction != kDirectionRight) {
-				[self moveRight];
-			}
-			
-		} else {
-			// Enemy and player on same level and close enough
-			if (tilePos.x > playerPos.x) {
-				[self stopLeft];
-				
-			} else if (tilePos.x <= playerPos.x) {
-				[self stopRight];
-			}			
-		}
-	}
-    
-    if ((behaviour & BEHAVIOUR_JUMPING) > 0) {
-        if ( direction == kDirectionNone ) {
-            if ( tilePos.x > playerPos.x ) {
-                [ self moveLeft ];
-            } else {
-                [ self moveRight ];
+		
+        if ((behaviour & BEHAVIOUR_SHOOTING) == 0) {
+            // Try to hit the player
+            if (tilePos.y == playerPos.y) {
+                if (playerPos.x < tilePos.x) [self moveLeft];
+                else if (playerPos.x > tilePos.x) [self moveRight];
+            }
+            
+        } else {
+            // Stops ENEMY_WALKING_STOPAHEAD tiles in front of player
+            if (tilePos.x > playerPos.x + ENEMY_WALKING_STOPAHEAD) {
+                if (direction != kDirectionLeft) [self moveLeft];
+                
+            } else if (tilePos.x < playerPos.x - ENEMY_WALKING_STOPAHEAD) {
+                if (direction != kDirectionRight) [self moveRight];
+                
+            } else if (tilePos.y == playerPos.y) {
+                // Enemy and player on same level and close enough
+                if (playerPos.x < tilePos.x) [self faceLeft];
+                else if (playerPos.x > tilePos.x) [self faceRight];
             }
         }
-    }
-    
-    // ********************
-    // direction check
-    // ********************
-    // if enemy is pushed, the physics engine might result in "moonwalking"
-    if ( [ self isMoonWalking ] == YES ) {
-        if ( ((behaviour & BEHAVIOUR_WALKING) > 0) || ((behaviour & BEHAVIOUR_JUMPING) > 0) ) [ self changeDirection ];
-        else [ self resetForces ];
-    }
+	}
     
     // ********************
     // jump handling
     // ********************
     // search for jump solutions
     if ((behaviour & BEHAVIOUR_JUMPING) > 0) {
+        
+        if ( ( tilePos.y != playerPos.y ) && ( direction == kDirectionNone ) ) {
+            if ( tilePos.x > playerPos.x ) {
+                [ self moveLeft ];
+            } else {
+                [ self moveRight ];
+            }
+        }
+        
         jumpPos = CGPointZero;
         // check if player is above, and jump from any valid position
         if ( playerPos.y < tilePos.y ) {
@@ -1095,9 +1078,41 @@
             
         } else {
             // no jump
-            if ( [ self tileWalkable:1 y:0 ] == NO ) [ self changeDirection ];
+            if (tilePos.y == playerPos.y) {
+                // Enemy and player on same level 
+                
+                if ((behaviour & BEHAVIOUR_SHOOTING) == 0) {
+                    // Try to hit the player
+                    if (tilePos.y == playerPos.y) {
+                        if (playerPos.x < tilePos.x) [self moveLeft];
+                        else if (playerPos.x > tilePos.x) [self moveRight];
+                    }
+                    
+                } else {
+                    // Stops ENEMY_WALKING_STOPAHEAD tiles in front of player
+                    if (tilePos.x > playerPos.x + ENEMY_WALKING_STOPAHEAD) {
+                        if (direction != kDirectionLeft) [self moveLeft];
+                        
+                    } else if (tilePos.x < playerPos.x - ENEMY_WALKING_STOPAHEAD) {
+                        if (direction != kDirectionRight) [self moveRight];
+                        
+                    } else {
+                        // Enemy and player close enough
+                        if (playerPos.x < tilePos.x) [self faceLeft];
+                        else if (playerPos.x > tilePos.x) [self faceRight];
+                    }
+                }
+                
+            } else if ( [ self tileWalkable:1 y:0 ] == NO ) [ self changeDirection ];
         }
     }
+    
+    // ********************
+    // direction check
+    // ********************
+    // if enemy is pushed, the physics engine might result in "moonwalking"
+    if ( [ self isMoonWalking ] == YES ) [ self resetForces ];
+    if ( [ self isStaticWalking ] == YES ) [ self stop ];
     
     // done
 	[ super update:dt ];

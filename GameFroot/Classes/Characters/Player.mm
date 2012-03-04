@@ -444,11 +444,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 -(BOOL) isMoonWalking {
     b2Vec2 vel = body->GetLinearVelocity( );
     
-    //if ( ( vel.x < 0 ) && ( direction == kDirectionRight ) ) return( YES );
-    //if ( ( vel.x > 0 ) && ( direction == kDirectionLeft ) ) return( YES );
-    
-    if ( ( vel.x < 0 ) && ( direction != kDirectionLeft ) ) return( YES );
-    if ( ( vel.x > 0 ) && ( direction != kDirectionRight ) ) return( YES );
+    if ( ( vel.x < 0 ) && ( !facingLeft || ( action == STAND ) ) ) return( YES );
+    if ( ( vel.x > 0 ) && ( facingLeft || ( action == STAND  ) ) ) return( YES );
     
     return( NO );    
 }
