@@ -153,7 +153,7 @@
 	[[CCDirector sharedDirector] runWithScene: [SplashLayer scene]];
 	
 	// Init FB
-	// Fo rmore info: https://developers.facebook.com/docs/mobile/ios/build/
+	// For more info: https://developers.facebook.com/docs/mobile/ios/build/
 	NSString *mainBundlePath = [[NSBundle mainBundle] bundlePath];
 	NSString *plistPath = [mainBundlePath stringByAppendingPathComponent:@"properties.plist"];
 	NSDictionary *properties = [[NSDictionary alloc] initWithContentsOfFile:plistPath];

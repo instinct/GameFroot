@@ -42,8 +42,8 @@
     score = [[properties objectForKey:@"score"] intValue];
     shootDamage = [[properties objectForKey:@"damage"] intValue];
     weaponName = [properties objectForKey:@"weapon"];
-    shotDelay = [[properties objectForKey:@"shotDelay"] intValue];
-    speed = [[properties objectForKey:@"speed"] intValue] / 32.0;
+    shootDelay = [[properties objectForKey:@"shotDelay"] intValue] / 100.0f;
+    speed = [[properties objectForKey:@"speed"] intValue] / 32.0f;
     //speed = speed <= HORIZONTAL_SPEED ? speed : HORIZONTAL_SPEED;
     multiShot = [[properties objectForKey:@"multiShot"] intValue];
     multiShotDelay = [[properties objectForKey:@"multiShotDelay"] intValue];
@@ -51,7 +51,7 @@
     collideGiveDamage = [[properties objectForKey:@"collideGiveDamage"] intValue];
     behaviour = [[properties objectForKey:@"behaviour"] intValue];
     
-    CCLOG(@"Enemy.setupEnemy: %@", properties);
+    //CCLOG(@"Enemy.setupEnemy: %@", properties);
     
 	float spriteWidth = self.batchNode.texture.contentSize.width / 8;
 	float spriteHeight = self.batchNode.texture.contentSize.height / 2;
@@ -164,56 +164,56 @@
 	switch (weaponID) {
 		case 0: // Pistol
 			
-			shootDamage = 25;
-			shootDelay= 0.5f;
+			//shootDamage = 25;
+			//shootDelay= 0.5f;
 			bulletOffsetY = -2/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
 			
 		case 1: // Auto shotgun
 			
-			shootDamage = 25;
-			shootDelay = 0.2f;
+			//shootDamage = 25;
+			//shootDelay = 0.2f;
 			bulletOffsetY = -5/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
 			
 		case 2: // Laser
 			
-			shootDamage = 50;
-			shootDelay = 0.1f;
+			//shootDamage = 50;
+			//shootDelay = 0.1f;
 			bulletOffsetY = -5/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
 			
 		case 3: // Musket
 			
-			shootDamage = 150;
-			shootDelay = 1.0f;
+			//shootDamage = 150;
+			//shootDelay = 1.0f;
 			bulletOffsetY = 0;
 			
 			break;
 			
 		case 4: // AK 47
 			
-			shootDamage = 70;
-			shootDelay = 0.05f;
+			//shootDamage = 70;
+			//shootDelay = 0.05f;
 			bulletOffsetY = -5/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
 			
 		case 5: // M60
 			
-			shootDamage = 120;
-			shootDelay = 0.05f;
+			//shootDamage = 120;
+			//shootDelay = 0.05f;
 			bulletOffsetY = -5/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
 			
 		case 6: // Rocket Launcher
 			
-			shootDamage = 400;
-			shootDelay = 1.2f;
+			//shootDamage = 400;
+			//shootDelay = 1.2f;
 			bulletOffsetY = 5/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
@@ -399,6 +399,7 @@
 		removed = YES;
 		
 		body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+        [[GameLayer getInstance] destroyBody:body];
         
 		[self setState:STAND];
 		
@@ -412,7 +413,7 @@
 }
 
 -(void) remove {
-	[GameLayer getInstance].world->DestroyBody(body);
+	//[GameLayer getInstance].world->DestroyBody(body);
 	self.visible = NO;
 }
 
@@ -940,7 +941,11 @@
 	}
     
     // check for passive AI
-	if ( behaviour == ENEMY_BEHAVIOUR_NONE ) return;
+	if ( behaviour == ENEMY_BEHAVIOUR_NONE ) {
+        if ( [ self isMoonWalking ] == YES ) [ self resetForces ];
+        [ super update:dt ];
+        return;
+    }
     
     // *****************************
     // AI control     
@@ -955,6 +960,13 @@
     // ********************
     if ((behaviour & BEHAVIOUR_SHOOTING) > 0) {
         if ( ( playerPos.y == tilePos.y ) || ( playerPos.y - 1 == tilePos.y ) ) {
+            
+            if ((behaviour & BEHAVIOUR_WALKING) == 0) {
+                // If not walking, face player
+                if (playerPos.x < tilePos.x) [self faceLeft];
+                else if (playerPos.x > tilePos.x) [self faceRight];
+            }
+            
             // shoot if facing correct
             if ( ( ( playerPos.x < tilePos.x ) && ( direction == kDirectionLeft ) ) ||
                 ( ( playerPos.x > tilePos.x ) && ( direction == kDirectionRight ) ) ) {
@@ -976,28 +988,31 @@
     // ********************
     // check for ongoing jump
     // ********************
-    // if a jump is ongoing or just finished, wait for sequence to complete
-    if ( jumping ) {
-        // check for advanced jump handling ( ex changing direction mid jump
-        
-        [ super update:dt ];
-        return;
+    if ((behaviour & BEHAVIOUR_JUMPING) > 0) {
+        // if a jump is ongoing or just finished, wait for sequence to complete
+        if ( jumping ) {
+            // check for advanced jump handling ( ex changing direction mid jump
+            
+            [ super update:dt ];
+            return;
+        }
+        if ( jumpDelay > 0 ) {
+            jumpDelay -= dt;
+            [ super update:dt ];
+            return;
+        }
     }
-    if ( jumpDelay > 0 ) {
-        jumpDelay -= dt;
-        [ super update:dt ];
-        return;
-    }
-    
     
     // ********************
     // idle handling
     // ********************
-    if ( direction == kDirectionNone ) {
-        if ( self.position.x > player.position.x ) {
-            [ self moveLeft ];
-        } else {
-            [ self moveRight ];
+    if ((behaviour & BEHAVIOUR_WALKING) > 0) {
+        if ( direction == kDirectionNone ) {
+            if ( self.position.x > player.position.x ) {
+                [ self moveLeft ];
+            } else {
+                [ self moveRight ];
+            }
         }
     }
     
@@ -1005,18 +1020,14 @@
     // direction check
     // ********************
     // if enemy is pushed, the physics engine might result in "moonwalking"
-    if ( [ self isMoonWalking ] == YES ) [ self changeDirection ];
-    
-    // ********************
-    // sync, so that tile checking only happens around tile center
-    // ********************    
-    
-    // this does not seems to matter much
+    if ( [ self isMoonWalking ] == YES ) {
+        if ((behaviour & BEHAVIOUR_WALKING) > 0) [ self changeDirection ];
+        else [ self resetForces ];
+    }
     
     // ********************
     // jump handling
     // ********************
-    
     // search for jump solutions
     jumpPos = CGPointZero;
     // check if player is above, and jump from any valid position
@@ -1038,9 +1049,7 @@
     } else {
         // no jump
         if ( [ self tileWalkable:1 y:0 ] == NO ) [ self changeDirection ];
-        
     }
-    
     
     // done
 	[ super update:dt ];
@@ -1058,8 +1067,6 @@
         case kGameObjectPlayer:
 			[ player hit:self.collideGiveDamage];
 			[ self hit:self.collideTakeDamage];
-			// [ self resetForces];
-            // [ self stop ];
            
             if (!ENEMY_BLOCKS_PLAYER) data.contact->SetEnabled( false );
             else if ( data.position == CONTACT_IS_ABOVE ) [ player hitsFloor ];

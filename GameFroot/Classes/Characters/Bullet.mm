@@ -171,6 +171,7 @@
 		
 		removing = YES;
 		body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+        [[GameLayer getInstance] destroyBody:body];
         
 		id dieAction = [CCSequence actions:
 						//[CCHide action],
@@ -183,9 +184,25 @@
 	}
 }
 
+-(void) remove
+{
+	removed = YES;
+	removing = YES;
+    
+	body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+    [[GameLayer getInstance] destroyBody:body];
+    
+	id removeAction = [CCSequence actions:
+                       [CCHide action],
+                       [CCDelayTime actionWithDuration:0.1f],
+                       [CCCallFunc actionWithTarget:self selector:@selector(destroy)],
+                       nil];
+	[self runAction:removeAction];
+}
+
 -(void) destroy
 {
-	[GameLayer getInstance].world->DestroyBody(body);
+	//[GameLayer getInstance].world->DestroyBody(body);
     [spriteSheet removeAllChildrenWithCleanup:YES];
 	[[GameLayer getInstance] removeBullet:spriteSheet];
 }

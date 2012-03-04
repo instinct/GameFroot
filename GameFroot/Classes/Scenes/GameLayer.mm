@@ -132,6 +132,13 @@ GameLayer *instance;
 	
 }
 
+-(void) destroyBody:(b2Body *)body
+{
+    NSValue *value = [NSValue valueWithPointer:body];
+    if (![bodiesToDestroy containsObject:value])
+        [bodiesToDestroy addObject:value];
+}
+
 -(void) update:(ccTime)dt {
 	//It is recommended that a fixed time step is used with Box2D for stability
 	//of the simulation, however, we are using a variable time step here.
@@ -158,6 +165,14 @@ GameLayer *instance;
 	}
 	
 	[player update:dt];
+    
+    // Remove any pending bodies
+    for(NSValue* value in bodiesToDestroy)
+    {
+        b2Body* body = (b2Body*)[value pointerValue];
+        world->DestroyBody(body);
+    }
+	[bodiesToDestroy removeAllObjects];
 }
 
 -(void) timer:(ccTime)dt {
@@ -286,7 +301,8 @@ GameLayer *instance;
 		switches = [[NSMutableDictionary dictionary] retain];
 		bullets = [[CCArray array] retain];
 		cached = [[NSMutableDictionary dictionary] retain];
-		
+		bodiesToDestroy = [[CCArray array] retain];
+        
 		// Init containers
 		scene = [CCParallaxNode node];
 		[self addChild:scene z:-1];
@@ -1771,8 +1787,10 @@ GameLayer *instance;
 
 -(void) removeBullets
 {
-	CCSpriteBatchNode *bullet; CCARRAY_FOREACH(bullets, bullet) {
-		[objects removeChild:bullet cleanup:NO];
+	CCSpriteBatchNode *bulletSpriteSheet; CCARRAY_FOREACH(bullets, bulletSpriteSheet) {
+        Bullet *bullet; CCARRAY_FOREACH(bulletSpriteSheet.children, bullet) {
+            [bullet remove];
+        }
 	}
 	[bullets removeAllObjects];
 }
@@ -2401,6 +2419,7 @@ GameLayer *instance;
     [robotsIds release];
 	[switches release];
 	[cached release];
+    [bodiesToDestroy release];
 	
 	[self removeAllChildrenWithCleanup:YES];
 	

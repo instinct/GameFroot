@@ -443,8 +443,13 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 
 -(BOOL) isMoonWalking {
     b2Vec2 vel = body->GetLinearVelocity( );
-    if ( ( vel.x < 0 ) && ( direction == kDirectionRight ) ) return( YES );
-    if ( ( vel.x > 0 ) && ( direction == kDirectionLeft ) ) return( YES );
+    
+    //if ( ( vel.x < 0 ) && ( direction == kDirectionRight ) ) return( YES );
+    //if ( ( vel.x > 0 ) && ( direction == kDirectionLeft ) ) return( YES );
+    
+    if ( ( vel.x < 0 ) && ( direction != kDirectionLeft ) ) return( YES );
+    if ( ( vel.x > 0 ) && ( direction != kDirectionRight ) ) return( YES );
+    
     return( NO );    
 }
 
@@ -475,7 +480,6 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 -(void) jump
 {	
     if ((action == PRONE) || (action == CROUCH)) {
-        //[self setState:STAND];
         return;
     }
     
@@ -510,7 +514,6 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 -(void) jumpDirection:(GameObjectDirection)dir
 {
     if ((action == PRONE) || (action == CROUCH)) {
-        //[self setState:STAND];
         return;
     }
     
@@ -680,11 +683,13 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 
 -(void) stop
 {
-	b2Vec2 vel = body->GetLinearVelocity();
-	body->SetLinearVelocity(b2Vec2(horizontalSpeedOffset, vel.y));
-	[self setState:STAND];
-	moving = NO;
-	direction = kDirectionNone;
+    if (!dying) {
+        b2Vec2 vel = body->GetLinearVelocity();
+        body->SetLinearVelocity(b2Vec2(horizontalSpeedOffset, vel.y));
+        [self setState:STAND];
+        moving = NO;
+        direction = kDirectionNone;
+    }
 }
 
 -(void) crouch
@@ -1004,8 +1009,6 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 
 -(void) hit:(int)force 
 {
-    return;
-    
 	health -= force;
 	if (health <= 0) health = 0;
 	[[GameLayer getInstance] setHealth:health];
@@ -1264,7 +1267,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     jumping = NO;
     jumpingMoving = NO;
     
-    if (!moving) {
+    if (!moving && !dying) {
         
         if (current.x != 0) {
             //CCLOG(@"Reset X linear velocity");
@@ -1273,7 +1276,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
         
         if ((action != PRONE) && (action != CROUCH) && (!jetpackActivated)) [self setState:STAND];
         
-    } else {
+    } else if (!dying) {
         [self setState:WALK];
     }
 }
@@ -1322,7 +1325,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 
 -(void) update:(ccTime)dt
 {
-    if (paused) return;
+    if (paused || dying) return;
+    
     
 	b2Vec2 current = body->GetLinearVelocity();
 	//CCLOG(@"%f, %i", current.y, action);

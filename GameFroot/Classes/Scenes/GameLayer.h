@@ -74,6 +74,7 @@
 	CCArray *movingPlatforms;
 	CCArray *robots;
 	CCArray *bullets;
+    CCArray *bodiesToDestroy;
 	
 	// HUD
 	Pause *pauseCover;
@@ -152,6 +153,8 @@
 
 #pragma mark -
 #pragma mark Setup
+
+-(void) destroyBody:(b2Body *)body;
 
 -(void) initControls;
 -(void) initGame;

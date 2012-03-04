@@ -1737,24 +1737,13 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 
 -(void) remove
 {
+    [[SimpleAudioEngine sharedEngine] playEffect:@"collect.caf" pitch:1.0f pan:0.0f gain:1.0f];
+    
 	[self stopAllActions];
 	[super remove];
 }
 
 // collision handling
--( void )handlePreSolve:( contactData )data {
-    GameObject* object = ( GameObject* )data.object;
-    
-    // case handling
-    switch ( object.type ) {
-            
-        default:    
-            if ( !self.physics && !self.solid ) data.contact->SetEnabled( false );
-            break;
-            
-    }
-}
-
 -( void )handleBeginCollision:( contactData )data {
     GameObject* object = ( GameObject* )data.object;
     
@@ -1774,6 +1763,19 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
             
         default:
             break;
+    }
+}
+
+-( void )handlePreSolve:( contactData )data {
+    GameObject* object = ( GameObject* )data.object;
+    
+    // case handling
+    switch ( object.type ) {
+            
+        default:    
+            if ( !self.physics && !self.solid ) data.contact->SetEnabled( false );
+            break;
+            
     }
 }
 

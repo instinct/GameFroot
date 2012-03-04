@@ -202,7 +202,6 @@
 		1643B56414D9B0BC00A67057 /* title-game-over.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B48714D9B0BC00A67057 /* title-game-over.png */; };
 		1643B56514D9B0BC00A67057 /* title-you-win.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B48814D9B0BC00A67057 /* title-you-win.png */; };
 		1643B56614D9B0BC00A67057 /* collect.caf in Resources */ = {isa = PBXBuildFile; fileRef = 1643B48A14D9B0BC00A67057 /* collect.caf */; };
-		1643B56714D9B0BC00A67057 /* collect.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1643B48B14D9B0BC00A67057 /* collect.mp3 */; };
 		1643B56814D9B0BC00A67057 /* iphone_items.json in Resources */ = {isa = PBXBuildFile; fileRef = 1643B48D14D9B0BC00A67057 /* iphone_items.json */; };
 		1643B56914D9B0BC00A67057 /* iphone_items.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B48E14D9B0BC00A67057 /* iphone_items.png */; };
 		1643B56A14D9B0BC00A67057 /* iphone_tiles.json in Resources */ = {isa = PBXBuildFile; fileRef = 1643B48F14D9B0BC00A67057 /* iphone_tiles.json */; };
@@ -2407,7 +2406,6 @@
 				1643B56414D9B0BC00A67057 /* title-game-over.png in Resources */,
 				1643B56514D9B0BC00A67057 /* title-you-win.png in Resources */,
 				1643B56614D9B0BC00A67057 /* collect.caf in Resources */,
-				1643B56714D9B0BC00A67057 /* collect.mp3 in Resources */,
 				1643B56814D9B0BC00A67057 /* iphone_items.json in Resources */,
 				1643B56914D9B0BC00A67057 /* iphone_items.png in Resources */,
 				1643B56A14D9B0BC00A67057 /* iphone_tiles.json in Resources */,
