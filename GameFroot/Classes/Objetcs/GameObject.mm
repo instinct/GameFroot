@@ -94,7 +94,7 @@
 	removed = YES;
 	
 	body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
-    [[GameLayer getInstance] destroyBody:body];
+    //[[GameLayer getInstance] destroyBody:body];
     
 	id removeAction = [CCSequence actions:
 					[CCHide action],
@@ -104,7 +104,7 @@
 }
 
 -(void) destroy {
-	//[GameLayer getInstance].world->DestroyBody(body);
+	[GameLayer getInstance].world->DestroyBody(body);
     [self stopAllActions];
 	self.visible = NO;
 }

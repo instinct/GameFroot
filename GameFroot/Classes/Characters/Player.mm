@@ -1550,8 +1550,10 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             if ( ( ( Robot* )object ).solid == NO ) {
                 data.contact->SetEnabled( false );
             } else {
-                if ( data.position == CONTACT_IS_BELOW ) velocity = ( ( Robot* )object ).body->GetLinearVelocity();
-                if ( velocity.x != 0 ) [ self displaceHorizontally:velocity.x ];
+                if ( data.position == CONTACT_IS_BELOW ) {
+                    velocity = ( ( Robot* )object ).body->GetLinearVelocity();
+                    if ( velocity.x != 0 ) [ self displaceHorizontally:velocity.x ];
+                }
             }
             break;
             

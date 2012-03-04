@@ -166,13 +166,15 @@ GameLayer *instance;
 	
 	[player update:dt];
     
+    /*
     // Remove any pending bodies
-    for(NSValue* value in bodiesToDestroy)
+    NSValue *value; CCARRAY_FOREACH(bodiesToDestroy, value) {
     {
         b2Body* body = (b2Body*)[value pointerValue];
         world->DestroyBody(body);
     }
 	[bodiesToDestroy removeAllObjects];
+    */
 }
 
 -(void) timer:(ccTime)dt {
@@ -1781,12 +1783,13 @@ GameLayer *instance;
 
 -(void) removeBullet:(CCSpriteBatchNode *)bullet
 {
-	[bullets removeObject:bullet];
+	if ([bullets containsObject:bullet]) [bullets removeObject:bullet];
 	[objects removeChild:bullet cleanup:YES];
 }
 
 -(void) removeBullets
 {
+    //CCLOG(@"GameLayer.removeBullets");
 	CCSpriteBatchNode *bulletSpriteSheet; CCARRAY_FOREACH(bullets, bulletSpriteSheet) {
         Bullet *bullet; CCARRAY_FOREACH(bulletSpriteSheet.children, bullet) {
             [bullet remove];
@@ -2292,6 +2295,7 @@ GameLayer *instance;
     
     [self restartGameFromPause];
     [self pause];
+    
     [pauseCover hide];
     [hud hide];
     [scene hide];
