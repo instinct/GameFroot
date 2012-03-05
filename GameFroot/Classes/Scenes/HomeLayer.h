@@ -11,6 +11,7 @@
 #import "CCRadioMenu.h"
 #import "CCUIViewWrapper.h"
 #import "FBConnect.h"
+#import "RootViewController.h"
 
 @interface HomeLayer : CCLayerColor <
 	SWTableViewDataSource, 

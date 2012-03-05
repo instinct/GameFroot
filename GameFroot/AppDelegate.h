@@ -20,5 +20,6 @@
 
 @property (nonatomic, retain) UIWindow *window;
 @property (nonatomic, retain) Facebook *facebook;
+@property (nonatomic, readonly) RootViewController *viewController;
 
 @end

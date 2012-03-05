@@ -220,15 +220,18 @@
             // Do some stuff on first launch
             [Shared setWelcomeShown:YES];
             [self loadWelcome];
-        
+            
         } else {
             
             [featuredButton selected]; // Only select navigation button if no welcome screen
             
+            RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
+            [rvc showBanner];
             // If we have come from a game, go to that games' detail page
             if(![Shared getLevel]) {
                 // Load featured panel, out default screen.
                 [self loadFeatured];
+                
             } else {
                 ratingsAnchorEnabled = YES;
                 [self loadGameDetail];
@@ -263,6 +266,8 @@
 
 -(void) selectedLevel:(id)sender {
     [Loader hideAsynchronousLoader];
+    RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
+    [rvc hideBanner];
 	[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
 }
 
@@ -705,10 +710,10 @@
 	total = [tableData count];
 	if (total < 25) loaded = total;
 	
-	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, 280)];
+	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, 230)];
 	
 	tableView.direction = SWScrollViewDirectionVertical;
-	tableView.position = ccp(0,50);
+	tableView.position = ccp(0,(50 + 50));
 	tableView.delegate = self;
 	tableView.verticalFillOrder = SWTableViewFillTopDown;
 	
@@ -749,10 +754,10 @@
 	
 	CGSize size = [[CCDirector sharedDirector] winSize];
 	
-	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, size.height - (45 + 50))];
+	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, size.height - (45 + 50 + 50))];
 	
 	tableView.direction = SWScrollViewDirectionVertical;
-	tableView.position = ccp(0,50);
+	tableView.position = ccp(0,100);
 	tableView.delegate = self;
 	tableView.verticalFillOrder = SWTableViewFillTopDown;
 	
@@ -848,10 +853,10 @@
 	total = [tableData count];
 	if (total < 25) loaded = total;
 	
-	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, size.height - (45 + 45 + 50))];
+	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, size.height - (45 + 45 + 50 + 50))];
 	
 	tableView.direction = SWScrollViewDirectionVertical;
-	tableView.position = ccp(0,50);
+	tableView.position = ccp(0,100);
 	tableView.delegate = self;
 	tableView.verticalFillOrder = SWTableViewFillTopDown;
 	
@@ -918,10 +923,10 @@
 	total = [tableData count];
 	if (total < 25) loaded = total;
 	
-	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, size.height - (45 + 45 + 50))];
+	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, size.height - (45 + 45 + 50 + 50))];
 	
 	tableView.direction = SWScrollViewDirectionVertical;
-	tableView.position = ccp(0,50);
+	tableView.position = ccp(0,100);
 	tableView.delegate = self;
 	tableView.verticalFillOrder = SWTableViewFillTopDown;
 	

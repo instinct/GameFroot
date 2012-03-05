@@ -12,6 +12,8 @@
 
 @interface RootViewController : UIViewController <ADBannerViewDelegate> {
     ADBannerView *adBannerView;
+    bool needsShowBanner;
+    bool bannerLoaded;
 }
 
 - (void) createBannerView;

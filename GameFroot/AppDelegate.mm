@@ -23,6 +23,7 @@
 
 @synthesize window;
 @synthesize facebook;
+@synthesize viewController;
 
 - (void) removeStartupFlicker
 {

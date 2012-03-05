@@ -51,14 +51,20 @@
     [self.view addSubview:adBannerView];
     adBannerView.frame = CGRectOffset(adBannerView.frame, 0, 380);
     adBannerView.hidden = YES;
+    needsShowBanner = NO;
 }
 
 - (void) showBanner {
-    adBannerView.hidden = NO;
+    if (adBannerView.bannerLoaded) {
+        adBannerView.hidden = NO;
+    } else {
+        needsShowBanner = YES;
+    }
 }
 
 - (void) hideBanner {
     adBannerView.hidden = YES;
+    needsShowBanner = NO;
 }
 
 
@@ -66,7 +72,9 @@
 #pragma mark ADBannerViewDelegate methods
 
 - (void)bannerViewDidLoadAd:(ADBannerView *)banner {
-    
+    if(needsShowBanner) {
+        adBannerView.hidden = NO;
+    }
 }
 
 - (BOOL)bannerViewActionShouldBegin:(ADBannerView *)banner willLeaveApplication:(BOOL)willLeave {
