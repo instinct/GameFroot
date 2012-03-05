@@ -452,6 +452,49 @@
 		226838C414FB3C0500D1EB94 /* main_menu-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 226838BF14FB3C0500D1EB94 /* main_menu-hd.png */; };
 		226838C514FB3C0500D1EB94 /* main_menu.plist in Resources */ = {isa = PBXBuildFile; fileRef = 226838C014FB3C0500D1EB94 /* main_menu.plist */; };
 		226838C614FB3C0500D1EB94 /* main_menu.png in Resources */ = {isa = PBXBuildFile; fileRef = 226838C114FB3C0500D1EB94 /* main_menu.png */; };
+		2282739D1504624800F85AC8 /* IG Ammo.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273721504624700F85AC8 /* IG Ammo.mp3 */; };
+		2282739E1504624800F85AC8 /* IG Banana.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273731504624700F85AC8 /* IG Banana.mp3 */; };
+		2282739F1504624800F85AC8 /* IG Big boxes.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273741504624700F85AC8 /* IG Big boxes.mp3 */; };
+		228273A01504624800F85AC8 /* IG Bubbling Lava.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273751504624700F85AC8 /* IG Bubbling Lava.mp3 */; };
+		228273A11504624800F85AC8 /* IG Check Point - Glockenspiel.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273761504624700F85AC8 /* IG Check Point - Glockenspiel.mp3 */; };
+		228273A21504624800F85AC8 /* IG Check Point - Harp.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273771504624700F85AC8 /* IG Check Point - Harp.mp3 */; };
+		228273A31504624800F85AC8 /* IG Check Point - Piano.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273781504624700F85AC8 /* IG Check Point - Piano.mp3 */; };
+		228273A41504624800F85AC8 /* IG Coin.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273791504624700F85AC8 /* IG Coin.mp3 */; };
+		228273A51504624800F85AC8 /* IG Death.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2282737A1504624700F85AC8 /* IG Death.mp3 */; };
+		228273A61504624800F85AC8 /* IG Drink items.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2282737B1504624700F85AC8 /* IG Drink items.mp3 */; };
+		228273A71504624800F85AC8 /* IG Dynamite.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2282737C1504624700F85AC8 /* IG Dynamite.mp3 */; };
+		228273A81504624800F85AC8 /* IG Enemy Damage.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2282737D1504624700F85AC8 /* IG Enemy Damage.mp3 */; };
+		228273A91504624800F85AC8 /* IG Fire Pit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2282737E1504624700F85AC8 /* IG Fire Pit.mp3 */; };
+		228273AA1504624800F85AC8 /* IG Food items.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2282737F1504624700F85AC8 /* IG Food items.mp3 */; };
+		228273AB1504624800F85AC8 /* IG Hero Damage.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273801504624700F85AC8 /* IG Hero Damage.mp3 */; };
+		228273AC1504624800F85AC8 /* IG Jetpack.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273811504624700F85AC8 /* IG Jetpack.mp3 */; };
+		228273AD1504624800F85AC8 /* IG Laser Forcefield.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273821504624700F85AC8 /* IG Laser Forcefield.mp3 */; };
+		228273AE1504624800F85AC8 /* IG Money items.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273831504624700F85AC8 /* IG Money items.mp3 */; };
+		228273AF1504624800F85AC8 /* IG Moving Tiles.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273841504624700F85AC8 /* IG Moving Tiles.mp3 */; };
+		228273B01504624800F85AC8 /* IG Padlock.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273851504624700F85AC8 /* IG Padlock.mp3 */; };
+		228273B11504624800F85AC8 /* IG Pills.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273861504624700F85AC8 /* IG Pills.mp3 */; };
+		228273B21504624800F85AC8 /* IG Speech and speech page changes.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273871504624700F85AC8 /* IG Speech and speech page changes.mp3 */; };
+		228273B31504624800F85AC8 /* IG Spring.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273881504624700F85AC8 /* IG Spring.mp3 */; };
+		228273B41504624800F85AC8 /* IG Star+gem.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273891504624700F85AC8 /* IG Star+gem.mp3 */; };
+		228273B51504624800F85AC8 /* IG Story point.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2282738A1504624700F85AC8 /* IG Story point.mp3 */; };
+		228273B61504624800F85AC8 /* IG Swipe card.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2282738B1504624700F85AC8 /* IG Swipe card.mp3 */; };
+		228273B71504624800F85AC8 /* IG Switches 2.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2282738C1504624700F85AC8 /* IG Switches 2.mp3 */; };
+		228273B81504624800F85AC8 /* IG Switches.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2282738D1504624700F85AC8 /* IG Switches.mp3 */; };
+		228273B91504624800F85AC8 /* IG Teleporter with bell.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2282738E1504624700F85AC8 /* IG Teleporter with bell.mp3 */; };
+		228273BA1504624800F85AC8 /* IG Teleporter without bell - faster.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2282738F1504624700F85AC8 /* IG Teleporter without bell - faster.mp3 */; };
+		228273BB1504624800F85AC8 /* IG Time items.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273901504624700F85AC8 /* IG Time items.mp3 */; };
+		228273BC1504624800F85AC8 /* IG Water.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273911504624800F85AC8 /* IG Water.mp3 */; };
+		228273BD1504624800F85AC8 /* W Change weapon.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273921504624800F85AC8 /* W Change weapon.mp3 */; };
+		228273BE1504624800F85AC8 /* W Dynamite.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273931504624800F85AC8 /* W Dynamite.mp3 */; };
+		228273BF1504624800F85AC8 /* W Flamethrower.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273941504624800F85AC8 /* W Flamethrower.mp3 */; };
+		228273C01504624800F85AC8 /* W Lasergun.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273951504624800F85AC8 /* W Lasergun.mp3 */; };
+		228273C11504624800F85AC8 /* W Machine Gun single shot.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273961504624800F85AC8 /* W Machine Gun single shot.mp3 */; };
+		228273C21504624800F85AC8 /* W Machine gun.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273971504624800F85AC8 /* W Machine gun.mp3 */; };
+		228273C31504624800F85AC8 /* W Pistol.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273981504624800F85AC8 /* W Pistol.mp3 */; };
+		228273C41504624800F85AC8 /* W Rocket launcher boom.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 228273991504624800F85AC8 /* W Rocket launcher boom.mp3 */; };
+		228273C51504624800F85AC8 /* W Rocket launcher launch.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2282739A1504624800F85AC8 /* W Rocket launcher launch.mp3 */; };
+		228273C61504624800F85AC8 /* W Shotgun.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2282739B1504624800F85AC8 /* W Shotgun.mp3 */; };
+		228273C71504624800F85AC8 /* W Sword swoosh.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2282739C1504624800F85AC8 /* W Sword swoosh.mp3 */; };
 		2299CFAC14FDD123005C7F14 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2299CFAB14FDD123005C7F14 /* iAd.framework */; };
 		22D3A6DA14E2276B00EAB052 /* rate_controls_mockup.png in Resources */ = {isa = PBXBuildFile; fileRef = 22D3A6D914E2276B00EAB052 /* rate_controls_mockup.png */; };
 		22F8D1D114F5B52600780B13 /* controls-hd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 22F8D1CD14F5B52600780B13 /* controls-hd.plist */; };
@@ -1150,6 +1193,49 @@
 		226838BF14FB3C0500D1EB94 /* main_menu-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "main_menu-hd.png"; sourceTree = "<group>"; };
 		226838C014FB3C0500D1EB94 /* main_menu.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = main_menu.plist; sourceTree = "<group>"; };
 		226838C114FB3C0500D1EB94 /* main_menu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = main_menu.png; sourceTree = "<group>"; };
+		228273721504624700F85AC8 /* IG Ammo.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Ammo.mp3"; sourceTree = "<group>"; };
+		228273731504624700F85AC8 /* IG Banana.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Banana.mp3"; sourceTree = "<group>"; };
+		228273741504624700F85AC8 /* IG Big boxes.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Big boxes.mp3"; sourceTree = "<group>"; };
+		228273751504624700F85AC8 /* IG Bubbling Lava.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Bubbling Lava.mp3"; sourceTree = "<group>"; };
+		228273761504624700F85AC8 /* IG Check Point - Glockenspiel.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Check Point - Glockenspiel.mp3"; sourceTree = "<group>"; };
+		228273771504624700F85AC8 /* IG Check Point - Harp.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Check Point - Harp.mp3"; sourceTree = "<group>"; };
+		228273781504624700F85AC8 /* IG Check Point - Piano.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Check Point - Piano.mp3"; sourceTree = "<group>"; };
+		228273791504624700F85AC8 /* IG Coin.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Coin.mp3"; sourceTree = "<group>"; };
+		2282737A1504624700F85AC8 /* IG Death.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Death.mp3"; sourceTree = "<group>"; };
+		2282737B1504624700F85AC8 /* IG Drink items.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Drink items.mp3"; sourceTree = "<group>"; };
+		2282737C1504624700F85AC8 /* IG Dynamite.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Dynamite.mp3"; sourceTree = "<group>"; };
+		2282737D1504624700F85AC8 /* IG Enemy Damage.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Enemy Damage.mp3"; sourceTree = "<group>"; };
+		2282737E1504624700F85AC8 /* IG Fire Pit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Fire Pit.mp3"; sourceTree = "<group>"; };
+		2282737F1504624700F85AC8 /* IG Food items.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Food items.mp3"; sourceTree = "<group>"; };
+		228273801504624700F85AC8 /* IG Hero Damage.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Hero Damage.mp3"; sourceTree = "<group>"; };
+		228273811504624700F85AC8 /* IG Jetpack.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Jetpack.mp3"; sourceTree = "<group>"; };
+		228273821504624700F85AC8 /* IG Laser Forcefield.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Laser Forcefield.mp3"; sourceTree = "<group>"; };
+		228273831504624700F85AC8 /* IG Money items.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Money items.mp3"; sourceTree = "<group>"; };
+		228273841504624700F85AC8 /* IG Moving Tiles.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Moving Tiles.mp3"; sourceTree = "<group>"; };
+		228273851504624700F85AC8 /* IG Padlock.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Padlock.mp3"; sourceTree = "<group>"; };
+		228273861504624700F85AC8 /* IG Pills.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Pills.mp3"; sourceTree = "<group>"; };
+		228273871504624700F85AC8 /* IG Speech and speech page changes.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Speech and speech page changes.mp3"; sourceTree = "<group>"; };
+		228273881504624700F85AC8 /* IG Spring.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Spring.mp3"; sourceTree = "<group>"; };
+		228273891504624700F85AC8 /* IG Star+gem.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Star+gem.mp3"; sourceTree = "<group>"; };
+		2282738A1504624700F85AC8 /* IG Story point.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Story point.mp3"; sourceTree = "<group>"; };
+		2282738B1504624700F85AC8 /* IG Swipe card.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Swipe card.mp3"; sourceTree = "<group>"; };
+		2282738C1504624700F85AC8 /* IG Switches 2.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Switches 2.mp3"; sourceTree = "<group>"; };
+		2282738D1504624700F85AC8 /* IG Switches.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Switches.mp3"; sourceTree = "<group>"; };
+		2282738E1504624700F85AC8 /* IG Teleporter with bell.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Teleporter with bell.mp3"; sourceTree = "<group>"; };
+		2282738F1504624700F85AC8 /* IG Teleporter without bell - faster.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Teleporter without bell - faster.mp3"; sourceTree = "<group>"; };
+		228273901504624700F85AC8 /* IG Time items.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Time items.mp3"; sourceTree = "<group>"; };
+		228273911504624800F85AC8 /* IG Water.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "IG Water.mp3"; sourceTree = "<group>"; };
+		228273921504624800F85AC8 /* W Change weapon.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "W Change weapon.mp3"; sourceTree = "<group>"; };
+		228273931504624800F85AC8 /* W Dynamite.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "W Dynamite.mp3"; sourceTree = "<group>"; };
+		228273941504624800F85AC8 /* W Flamethrower.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "W Flamethrower.mp3"; sourceTree = "<group>"; };
+		228273951504624800F85AC8 /* W Lasergun.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "W Lasergun.mp3"; sourceTree = "<group>"; };
+		228273961504624800F85AC8 /* W Machine Gun single shot.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "W Machine Gun single shot.mp3"; sourceTree = "<group>"; };
+		228273971504624800F85AC8 /* W Machine gun.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "W Machine gun.mp3"; sourceTree = "<group>"; };
+		228273981504624800F85AC8 /* W Pistol.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "W Pistol.mp3"; sourceTree = "<group>"; };
+		228273991504624800F85AC8 /* W Rocket launcher boom.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "W Rocket launcher boom.mp3"; sourceTree = "<group>"; };
+		2282739A1504624800F85AC8 /* W Rocket launcher launch.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "W Rocket launcher launch.mp3"; sourceTree = "<group>"; };
+		2282739B1504624800F85AC8 /* W Shotgun.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "W Shotgun.mp3"; sourceTree = "<group>"; };
+		2282739C1504624800F85AC8 /* W Sword swoosh.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "W Sword swoosh.mp3"; sourceTree = "<group>"; };
 		2299CFAB14FDD123005C7F14 /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
 		22D3A6D914E2276B00EAB052 /* rate_controls_mockup.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rate_controls_mockup.png; sourceTree = "<group>"; };
 		22F8D1CD14F5B52600780B13 /* controls-hd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "controls-hd.plist"; sourceTree = "<group>"; };
@@ -1729,6 +1815,49 @@
 		1643B48914D9B0BC00A67057 /* sounds */ = {
 			isa = PBXGroup;
 			children = (
+				228273721504624700F85AC8 /* IG Ammo.mp3 */,
+				228273731504624700F85AC8 /* IG Banana.mp3 */,
+				228273741504624700F85AC8 /* IG Big boxes.mp3 */,
+				228273751504624700F85AC8 /* IG Bubbling Lava.mp3 */,
+				228273761504624700F85AC8 /* IG Check Point - Glockenspiel.mp3 */,
+				228273771504624700F85AC8 /* IG Check Point - Harp.mp3 */,
+				228273781504624700F85AC8 /* IG Check Point - Piano.mp3 */,
+				228273791504624700F85AC8 /* IG Coin.mp3 */,
+				2282737A1504624700F85AC8 /* IG Death.mp3 */,
+				2282737B1504624700F85AC8 /* IG Drink items.mp3 */,
+				2282737C1504624700F85AC8 /* IG Dynamite.mp3 */,
+				2282737D1504624700F85AC8 /* IG Enemy Damage.mp3 */,
+				2282737E1504624700F85AC8 /* IG Fire Pit.mp3 */,
+				2282737F1504624700F85AC8 /* IG Food items.mp3 */,
+				228273801504624700F85AC8 /* IG Hero Damage.mp3 */,
+				228273811504624700F85AC8 /* IG Jetpack.mp3 */,
+				228273821504624700F85AC8 /* IG Laser Forcefield.mp3 */,
+				228273831504624700F85AC8 /* IG Money items.mp3 */,
+				228273841504624700F85AC8 /* IG Moving Tiles.mp3 */,
+				228273851504624700F85AC8 /* IG Padlock.mp3 */,
+				228273861504624700F85AC8 /* IG Pills.mp3 */,
+				228273871504624700F85AC8 /* IG Speech and speech page changes.mp3 */,
+				228273881504624700F85AC8 /* IG Spring.mp3 */,
+				228273891504624700F85AC8 /* IG Star+gem.mp3 */,
+				2282738A1504624700F85AC8 /* IG Story point.mp3 */,
+				2282738B1504624700F85AC8 /* IG Swipe card.mp3 */,
+				2282738C1504624700F85AC8 /* IG Switches 2.mp3 */,
+				2282738D1504624700F85AC8 /* IG Switches.mp3 */,
+				2282738E1504624700F85AC8 /* IG Teleporter with bell.mp3 */,
+				2282738F1504624700F85AC8 /* IG Teleporter without bell - faster.mp3 */,
+				228273901504624700F85AC8 /* IG Time items.mp3 */,
+				228273911504624800F85AC8 /* IG Water.mp3 */,
+				228273921504624800F85AC8 /* W Change weapon.mp3 */,
+				228273931504624800F85AC8 /* W Dynamite.mp3 */,
+				228273941504624800F85AC8 /* W Flamethrower.mp3 */,
+				228273951504624800F85AC8 /* W Lasergun.mp3 */,
+				228273961504624800F85AC8 /* W Machine Gun single shot.mp3 */,
+				228273971504624800F85AC8 /* W Machine gun.mp3 */,
+				228273981504624800F85AC8 /* W Pistol.mp3 */,
+				228273991504624800F85AC8 /* W Rocket launcher boom.mp3 */,
+				2282739A1504624800F85AC8 /* W Rocket launcher launch.mp3 */,
+				2282739B1504624800F85AC8 /* W Shotgun.mp3 */,
+				2282739C1504624800F85AC8 /* W Sword swoosh.mp3 */,
 				1643B48A14D9B0BC00A67057 /* collect.caf */,
 				1643B48B14D9B0BC00A67057 /* collect.mp3 */,
 			);
@@ -2569,6 +2698,49 @@
 				167016EA14FC343D006E90A4 /* Chicpix2.fnt in Resources */,
 				167016EB14FC343D006E90A4 /* Chicpix2.png in Resources */,
 				16A8534A14FF7CB900EEB19D /* blue-bg-hd.png in Resources */,
+				2282739D1504624800F85AC8 /* IG Ammo.mp3 in Resources */,
+				2282739E1504624800F85AC8 /* IG Banana.mp3 in Resources */,
+				2282739F1504624800F85AC8 /* IG Big boxes.mp3 in Resources */,
+				228273A01504624800F85AC8 /* IG Bubbling Lava.mp3 in Resources */,
+				228273A11504624800F85AC8 /* IG Check Point - Glockenspiel.mp3 in Resources */,
+				228273A21504624800F85AC8 /* IG Check Point - Harp.mp3 in Resources */,
+				228273A31504624800F85AC8 /* IG Check Point - Piano.mp3 in Resources */,
+				228273A41504624800F85AC8 /* IG Coin.mp3 in Resources */,
+				228273A51504624800F85AC8 /* IG Death.mp3 in Resources */,
+				228273A61504624800F85AC8 /* IG Drink items.mp3 in Resources */,
+				228273A71504624800F85AC8 /* IG Dynamite.mp3 in Resources */,
+				228273A81504624800F85AC8 /* IG Enemy Damage.mp3 in Resources */,
+				228273A91504624800F85AC8 /* IG Fire Pit.mp3 in Resources */,
+				228273AA1504624800F85AC8 /* IG Food items.mp3 in Resources */,
+				228273AB1504624800F85AC8 /* IG Hero Damage.mp3 in Resources */,
+				228273AC1504624800F85AC8 /* IG Jetpack.mp3 in Resources */,
+				228273AD1504624800F85AC8 /* IG Laser Forcefield.mp3 in Resources */,
+				228273AE1504624800F85AC8 /* IG Money items.mp3 in Resources */,
+				228273AF1504624800F85AC8 /* IG Moving Tiles.mp3 in Resources */,
+				228273B01504624800F85AC8 /* IG Padlock.mp3 in Resources */,
+				228273B11504624800F85AC8 /* IG Pills.mp3 in Resources */,
+				228273B21504624800F85AC8 /* IG Speech and speech page changes.mp3 in Resources */,
+				228273B31504624800F85AC8 /* IG Spring.mp3 in Resources */,
+				228273B41504624800F85AC8 /* IG Star+gem.mp3 in Resources */,
+				228273B51504624800F85AC8 /* IG Story point.mp3 in Resources */,
+				228273B61504624800F85AC8 /* IG Swipe card.mp3 in Resources */,
+				228273B71504624800F85AC8 /* IG Switches 2.mp3 in Resources */,
+				228273B81504624800F85AC8 /* IG Switches.mp3 in Resources */,
+				228273B91504624800F85AC8 /* IG Teleporter with bell.mp3 in Resources */,
+				228273BA1504624800F85AC8 /* IG Teleporter without bell - faster.mp3 in Resources */,
+				228273BB1504624800F85AC8 /* IG Time items.mp3 in Resources */,
+				228273BC1504624800F85AC8 /* IG Water.mp3 in Resources */,
+				228273BD1504624800F85AC8 /* W Change weapon.mp3 in Resources */,
+				228273BE1504624800F85AC8 /* W Dynamite.mp3 in Resources */,
+				228273BF1504624800F85AC8 /* W Flamethrower.mp3 in Resources */,
+				228273C01504624800F85AC8 /* W Lasergun.mp3 in Resources */,
+				228273C11504624800F85AC8 /* W Machine Gun single shot.mp3 in Resources */,
+				228273C21504624800F85AC8 /* W Machine gun.mp3 in Resources */,
+				228273C31504624800F85AC8 /* W Pistol.mp3 in Resources */,
+				228273C41504624800F85AC8 /* W Rocket launcher boom.mp3 in Resources */,
+				228273C51504624800F85AC8 /* W Rocket launcher launch.mp3 in Resources */,
+				228273C61504624800F85AC8 /* W Shotgun.mp3 in Resources */,
+				228273C71504624800F85AC8 /* W Sword swoosh.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
