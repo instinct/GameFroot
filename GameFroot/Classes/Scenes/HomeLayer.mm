@@ -301,6 +301,9 @@
 	myGames.visible = NO;
 	more.visible = NO;
     gameDetail.visible = NO;
+    
+    RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
+    [rvc showBanner];
 	
 	[self loadFeatured];
 }
@@ -324,6 +327,10 @@
 	myGames.visible = NO;
 	more.visible = NO;
     gameDetail.visible = NO;
+    
+    RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
+    [rvc showBanner];
+	
 	
 	[self loadPlaying];
 }
@@ -347,6 +354,10 @@
 	myGames.visible = NO;
 	more.visible = NO;
     gameDetail.visible = NO;
+    
+    RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
+    [rvc showBanner];
+	
 	
 	[self loadBrowse];
 }
@@ -370,6 +381,9 @@
 	if (selectedPage != myGames) myGames.visible = NO;
 	more.visible = NO;
     gameDetail.visible = NO;
+    
+    RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
+    [rvc showBanner];
 	
 	[self loadMyGames];
 }
