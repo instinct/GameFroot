@@ -15,10 +15,6 @@
 
 #define BAR_LIVE_WIDTH	43
 
-#define BEHAVIOUR_JUMPING	1
-#define BEHAVIOUR_WALKING	2
-#define BEHAVIOUR_SHOOTING	4
-
 @implementation Enemy
 
 @synthesize collideTakeDamage;
@@ -44,7 +40,6 @@
     weaponName = [properties objectForKey:@"weapon"];
     shootDelay = [[properties objectForKey:@"shotDelay"] intValue] / 100.0f;
     speed = [[properties objectForKey:@"speed"] intValue] / 32.0f;
-    //speed = speed <= HORIZONTAL_SPEED ? speed : HORIZONTAL_SPEED;
     multiShot = [[properties objectForKey:@"multiShot"] intValue];
     multiShotDelay = [[properties objectForKey:@"multiShotDelay"] intValue];
     collideTakeDamage = [[properties objectForKey:@"collideTakeDamage"] intValue];
@@ -283,48 +278,6 @@
 	}
 }
 
-/*
--(void) moveRight
-{
-	if (!dying && !immortal) {
-		//CCLOG(@"Enemy.moveRight: %i", speed);
-		
-		b2Vec2 current = body->GetLinearVelocity();
-		b2Vec2 velocity = b2Vec2(HORIZONTAL_SPEED - (HORIZONTAL_SPEED - speed) + horizontalSpeedOffset, current.y);
-		body->SetLinearVelocity(velocity);
-		
-		self.scaleX = 1;
-		
-		//if (!jumping) 
-		[self setState:WALK];
-		
-		moving = YES;
-		direction = kDirectionRight;
-		facingLeft = NO;
-	}
-}
-
--(void) moveLeft
-{
-	if (!dying && !immortal) {
-		//CCLOG(@"Enemy.moveLeft: %i", speed);
-		
-		b2Vec2 current = body->GetLinearVelocity();
-		b2Vec2 velocity = b2Vec2(-(HORIZONTAL_SPEED- (HORIZONTAL_SPEED - speed)) + horizontalSpeedOffset, current.y);
-		body->SetLinearVelocity(velocity);
-		
-		self.scaleX = -1;
-		
-		//if (!jumping) 
-		[self setState:WALK];
-		
-		moving = YES;
-		direction = kDirectionLeft;
-		facingLeft = YES;
-	}
-}
-*/
-
 -(void) changeDirection
 {
 	//CCLOG(@"Enemy.changeDirection: %i", direction);
@@ -339,9 +292,6 @@
 		
         if (facingLeft) bulletOffset = ccp(-50/CC_CONTENT_SCALE_FACTOR(), bulletOffsetY);
         else bulletOffset = ccp(50/CC_CONTENT_SCALE_FACTOR(), bulletOffsetY);
-		
-		//if (facingLeft) bulletOffset = ccp(-50/CC_CONTENT_SCALE_FACTOR(), -5/CC_CONTENT_SCALE_FACTOR());
-		//else bulletOffset = ccp(50/CC_CONTENT_SCALE_FACTOR(), -5/CC_CONTENT_SCALE_FACTOR());
 		
 		GameObjectDirection bulletDirection;
 		if (facingLeft) bulletDirection = kDirectionLeft;
@@ -417,26 +367,6 @@
 	self.visible = NO;
 }
 
-/*
--(void) faceRight
-{
-	if (!dying && !immortal) {
-		self.scaleX = 1;
-		direction = kDirectionRight;
-		facingLeft = NO;
-	}
-}
-
--(void) faceLeft
-{
-	if (!dying && !immortal) {
-		self.scaleX = -1;
-		direction = kDirectionLeft;
-		facingLeft = YES;
-	}
-}
-*/
-
 -(void) restartPosition
 {
 	if (removed) {
@@ -465,6 +395,7 @@
 		
 		body->SetTransform(b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO),0);
 		self.visible = YES;
+        body->SetActive( true );
 	}
 }
 
@@ -495,165 +426,15 @@
 	[self createBox2dObject:[GameLayer getInstance].world size:size];
 	body->SetTransform(b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO),0);
 	self.visible = YES;
+    body->SetActive( true );
 }
 
 -(void) resetForces
 {
+    CCLOG(@"Enemy.resetForces");
 	body->SetLinearVelocity(b2Vec2(0,0));
 	body->SetAngularVelocity(0);
 }
-
-/*
--(void) update:(ccTime)dt
-{
-	if (removed) return;
-	
-	//CCLOG(@"Enemy visible:%i, awake:%i, active:%i", self.visible, body->IsAwake(), body->IsActive());
-	
-	CGSize winsize = [[CCDirector sharedDirector] winSize];
-	CGPoint pos = [[GameLayer getInstance] convertToMapCoordinates:self.position];
-	
-	//CCLOG(@"%f,%f - %f, %f", pos.x, pos.y, self.contentSize.height, winsize.height);
-	
-	if (pos.x + self.contentSize.width < 0) {
-		if (self.visible) {
-			self.visible = NO;
-			[self stop];
-			body->SetActive(false);
-		}
-		return;
-	
-		
-	} else if (pos.x - self.contentSize.width > winsize.width) {
-		if (self.visible) {
-			self.visible = NO;
-			[self stop];
-			body->SetActive(false);
-		}
-		return;
-	
-	} else if (pos.y + self.contentSize.height < 0) {
-		if (self.visible) {
-			self.visible = NO;
-			[self stop];
-			body->SetActive(false);
-		}
-		return;
-		
-		
-	} else if (pos.y - self.contentSize.height > winsize.height) {
-		if (self.visible) {
-			self.visible = NO;
-			[self stop];
-			body->SetActive(false);
-		}
-		return;
-		
-	} else if (!self.visible) {
-		self.visible = YES;
-		body->SetActive(true);
-	}
-	
-	// behaviour (bitwise flags)
-	// 1 being jumping
-	// 2 being walking
-	// 4 being shooting
-	
-	// OLD
-	// 1: static
-	// 2: static shooting
-	// 3: walking
-	// 4: walking shooting
-	// 5: clever following
-	
-	if (behaviour == 0) return;
-	
-	if (behaviour == BEHAVIOUR_SHOOTING) {
-		if (self.position.x > player.position.x) {
-			if (direction != kDirectionLeft) {
-				//CCLOG(@"Enemy.update: face left");
-				[self faceLeft];
-			}
-			
-		} else if (self.position.x < player.position.x) {
-			if (direction != kDirectionRight) {
-				//CCLOG(@"Enemy.update: face rigth");
-				[self faceRight];
-			}
-		}
-		
-	} else if ((behaviour & BEHAVIOUR_WALKING) > 0) {
-		if (self.position.x > player.position.x + 200.0f) {
-			if (direction != kDirectionLeft) {
-				//CCLOG(@"Enemy.update: move left");
-				[self moveLeft];
-			}
-			
-		} else if (self.position.x < player.position.x - 200.0f) {
-			if (direction != kDirectionRight) {
-				//CCLOG(@"Enemy.update: move rigth");
-				[self moveRight];
-			}
-			
-		} else if (roundf(self.position.y/100) == roundf(player.position.y/100)) {
-			// Enemy and player on same level and close enough
-			if ((self.position.x > player.position.x) && moving) {
-				//CCLOG(@"Enemy.update: stop");
-				[self stop];
-				self.scaleX = -1;
-				direction = kDirectionNone;
-				facingLeft = YES;
-				
-			} else if ((self.position.x <= player.position.x) && moving) {
-				//CCLOG(@"Enemy.update: stop (2)");
-				[self stop];
-				self.scaleX = 1;
-				direction = kDirectionNone;
-				facingLeft = NO;
-			}
-			
-		} else {
-			if (direction == kDirectionNone) {
-				int rnd = arc4random()%100;
-				if (rnd < 50) {
-					//CCLOG(@"Enemy.update: move rigth (2)");
-					[self moveRight];
-					
-				} else {
-					//CCLOG(@"Enemy.update: move left (2)");
-					[self moveLeft];
-				}
-			}
-		}
-	}
-	
-	if ((behaviour & BEHAVIOUR_SHOOTING) > 0) {
-		if (roundf(self.position.y/100) == roundf(player.position.y/100)) {
-			// Enemy and player on same level
-			int rnd = arc4random()%100;
-			if (rnd < 15) {
-                NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
-				if (timestamp - lastShoot > shootDelay) {
-                    [self shoot];
-                    lastShoot = timestamp;
-                }
-			}
-		}
-	}
-	
-	if (prevPosition.x == self.position.x) {
-		//CCLOG(@"can't move!!");
-		[self setState:STAND];
-		
-	} else {
-		[self setState:WALK];
-	}
-	
-	prevPosition = self.position;
-	
-	[super update:dt];
-}
-*/
 
 - (void)setPosition:(CGPoint)point {
 	[super setPosition:point];
@@ -851,6 +632,8 @@
 -( CGPoint )jumpUpSolution {
     int tile;
     
+    if ([player isJumping]) return( CGPointZero ); // ignore AI if player is jumping
+    
     // check for jump capabilities
     if ( ( behaviour & ENEMY_BEHAVIOUR_JUMPING ) == ENEMY_BEHAVIOUR_NONE ) return( CGPointZero );
     // check for standing on solid ground
@@ -881,6 +664,8 @@
 -( CGPoint )jumpHorizontalSolution {
     int tile;
     
+    if ([player isJumping]) return( CGPointZero ); // ignore AI if player is jumping
+    
     // check for jump capabilities
     if ( ( behaviour & ENEMY_BEHAVIOUR_JUMPING ) == ENEMY_BEHAVIOUR_NONE ) return( CGPointZero );
     // check for standing on solid ground
@@ -902,6 +687,8 @@
 
 -( CGPoint )jumpDownSolution {
     int tile;
+    
+    if ([player isJumping]) return( CGPointZero ); // ignore AI if player is jumping
     
     // check for jump capabilities
     if ( ( behaviour & ENEMY_BEHAVIOUR_JUMPING ) == ENEMY_BEHAVIOUR_NONE ) return( CGPointZero );
@@ -972,13 +759,13 @@
     // ********************
     // check for firing solution
     // ********************
-    if ((behaviour & BEHAVIOUR_SHOOTING) > 0) {
+    if ((behaviour & ENEMY_BEHAVIOUR_SHOOTING) > 0) {
         if ( ( playerPos.y == tilePos.y ) || ( playerPos.y - 1 == tilePos.y ) ) {
             
-            if ((behaviour & BEHAVIOUR_WALKING) == 0) {
+            if ((behaviour & ENEMY_BEHAVIOUR_WALKING) == 0) {
                 // If not walking, face player
-                if (playerPos.x < tilePos.x) [self faceLeft];
-                else if (playerPos.x > tilePos.x) [self faceRight];
+                if (player.position.x < self.position.x) [self faceLeft];
+                else if (player.position.x > self.position.x) [self faceRight];
             }
             
             // shoot if facing correct
@@ -1001,11 +788,10 @@
     // ********************
     // check for ongoing jump
     // ********************
-    if ((behaviour & BEHAVIOUR_JUMPING) > 0) {
+    if ((behaviour & ENEMY_BEHAVIOUR_JUMPING) > 0) {
         // if a jump is ongoing or just finished, wait for sequence to complete
         if ( jumping ) {
             // check for advanced jump handling ( ex changing direction mid jump )
-            
             [ super update:dt ];
             return;
         }
@@ -1019,13 +805,13 @@
     // ********************
     // handle walking
     // ********************
-    if ( ((behaviour & BEHAVIOUR_WALKING) > 0) && ((behaviour & BEHAVIOUR_JUMPING) == 0) ) {
+    if ( ((behaviour & ENEMY_BEHAVIOUR_WALKING) > 0) && ((behaviour & ENEMY_BEHAVIOUR_JUMPING) == 0) ) {
 		
-        if ((behaviour & BEHAVIOUR_SHOOTING) == 0) {
+        if ((behaviour & ENEMY_BEHAVIOUR_SHOOTING) == 0) {
             // Try to hit the player
             if (tilePos.y == playerPos.y) {
-                if (playerPos.x < tilePos.x) [self moveLeft];
-                else if (playerPos.x > tilePos.x) [self moveRight];
+                if (player.position.x < self.position.x) [self moveLeft];
+                else if (player.position.x > self.position.x) [self moveRight];
             }
             
         } else {
@@ -1037,9 +823,9 @@
                 if (direction != kDirectionRight) [self moveRight];
                 
             } else if (tilePos.y == playerPos.y) {
-                // Enemy and player on same level and close enough
-                if (playerPos.x < tilePos.x) [self faceLeft];
-                else if (playerPos.x > tilePos.x) [self faceRight];
+                // Enemy and player on same level and close enough, face player
+                if (player.position.x < self.position.x) [self faceLeft];
+                else if (player.position.x > self.position.x) [self faceRight];
             }
         }
 	}
@@ -1048,10 +834,10 @@
     // jump handling
     // ********************
     // search for jump solutions
-    if ((behaviour & BEHAVIOUR_JUMPING) > 0) {
+    if ((behaviour & ENEMY_BEHAVIOUR_JUMPING) > 0) {
         
         if ( ( tilePos.y != playerPos.y ) && ( direction == kDirectionNone ) ) {
-            if ( tilePos.x > playerPos.x ) {
+            if ( self.position.x > player.position.x ) {
                 [ self moveLeft ];
             } else {
                 [ self moveRight ];
@@ -1081,11 +867,11 @@
             if (tilePos.y == playerPos.y) {
                 // Enemy and player on same level 
                 
-                if ((behaviour & BEHAVIOUR_SHOOTING) == 0) {
+                if ((behaviour & ENEMY_BEHAVIOUR_SHOOTING) == 0) {
                     // Try to hit the player
                     if (tilePos.y == playerPos.y) {
-                        if (playerPos.x < tilePos.x) [self moveLeft];
-                        else if (playerPos.x > tilePos.x) [self moveRight];
+                        if (player.position.x < self.position.x) [self moveLeft];
+                        else if (player.position.x > self.position.x) [self moveRight];
                     }
                     
                 } else {
@@ -1097,13 +883,17 @@
                         if (direction != kDirectionRight) [self moveRight];
                         
                     } else {
-                        // Enemy and player close enough
-                        if (playerPos.x < tilePos.x) [self faceLeft];
-                        else if (playerPos.x > tilePos.x) [self faceRight];
+                        // Enemy and player close enough, face player
+                        if (player.position.x < self.position.x) [self faceLeft];
+                        else if (player.position.x > self.position.x) [self faceRight];
                     }
                 }
                 
-            } else if ( [ self tileWalkable:1 y:0 ] == NO ) [ self changeDirection ];
+            } else if ( [ self tileWalkable:1 y:0 ] == NO ) {
+                // ignore if jumping or falling
+                b2Vec2 vel = body->GetLinearVelocity();
+                if (!jumping && (fabsf(roundf(vel.y)) == 0)) [ self changeDirection ];
+            }
         }
     }
     
