@@ -916,7 +916,7 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
         found = YES;
     }
          
-    if (found) {        
+    if (found) {
         [self scheduleOnce:@selector(_changeToPosition) delay:1.0/60.0];
     }
 }
@@ -945,6 +945,7 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
     if (found) {
 	
         if ([[[command objectForKey:@"instance"] objectForKey:@"token"] isEqualToString:@"player"]) {
+            [[SimpleAudioEngine sharedEngine] playEffect:@"IG Teleporter without bell - faster.caf"];
             [self scheduleOnce:@selector(_changePlayerPosition) delay:1.0/60.0];
         }
     }

@@ -51,6 +51,7 @@
 	if (active) {
 		if (frames > 1) [self setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"tile_%i",tileId] index:0];
 		active = NO;
+        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Switches 2.caf"];
 	}
 }
 
@@ -59,10 +60,11 @@
 	if (active) {
 		if (frames > 1) [self setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"tile_%i",tileId] index:0];
 		active = NO;
-		
+        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Switches 2.caf"];
 	} else {
 		if (frames > 1) [self setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"tile_%i",tileId] index:1];
 		active = YES;
+        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Switches 2.caf"];
 	}
 }
 

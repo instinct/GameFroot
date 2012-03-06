@@ -42,6 +42,7 @@
 	[self addChild:label z:2];
 	
 	[[GameLayer getInstance] addOverlay:self];
+    [[SimpleAudioEngine sharedEngine] playEffect:@"IG Speech and speech page changes.caf"];
 	
     if (![[GameLayer getInstance] isPaused]) {
         [[CCDirector sharedDirector] pause];
@@ -58,6 +59,7 @@
         // Display next page
         selectPage++;
         [label setPosition:ccp(label.position.x, label.position.y + background.contentSize.height)];
+        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Speech and speech page changes.caf"];
         
     } else if ([[GameLayer getInstance] isPaused]) {
         [[CCTouchDispatcher sharedDispatcher] removeDelegate:self];

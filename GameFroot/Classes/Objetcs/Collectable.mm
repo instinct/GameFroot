@@ -42,38 +42,46 @@
 
 -(void) remove
 {
-    [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
+    
 	
 	if (itemType == kCollectableMoney) {
+        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
 		[[GameLayer getInstance] increasePoints:itemValue];
 		[super remove];
 		
 	} else if (itemType == kCollectableAmmo) {
+        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
 		[[GameLayer getInstance] increaseAmmo:itemValue];
 		[super remove];
 		
 	} else if (itemType == kCollectableWeapon) {
+        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
 		if (itemValue < 8) [[GameLayer getInstance] changeWeapon:itemValue-1];
 		else [[GameLayer getInstance] increaseAmmo:itemValue];
 		[super remove];
 	
 	} else if (itemType == kCollectableJetpack) {
+        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
 		[[GameLayer getInstance] jetpack];
 		[super remove];
 	
 	} else if (itemType == kCollectableHealth) {
+        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
 		[[GameLayer getInstance] increaseHealth:itemValue];
 		[super remove];
 		
 	} else if (itemType == kCollectableTime) {
+        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
 		[[GameLayer getInstance] increaseTime:itemValue];
 		[super remove];
 		
 	} else if (itemType == kCollectableLive) {
+        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
 		[[GameLayer getInstance] increaseLive:1];
 		[super remove];
 		
 	} else if (itemType == kCollectableFinal) {
+        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Check Point - Harp.caf" pitch:1.0f pan:0.0f gain:1.0f];
 		[[GameLayer getInstance] winGame];
 		removed = YES;
 	}
