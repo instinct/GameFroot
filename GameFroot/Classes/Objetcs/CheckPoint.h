@@ -8,6 +8,7 @@
 
 #import "cocos2d.h"
 #import "GameObject.h"
+#import "SimpleAudioEngine.h"
 
 @interface CheckPoint : GameObject {
 	int positionX;

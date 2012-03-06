@@ -42,7 +42,7 @@
 
 -(void) remove
 {
-	[[SimpleAudioEngine sharedEngine] playEffect:@"collect.caf" pitch:1.0f pan:0.0f gain:1.0f];
+    [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
 	
 	if (itemType == kCollectableMoney) {
 		[[GameLayer getInstance] increasePoints:itemValue];

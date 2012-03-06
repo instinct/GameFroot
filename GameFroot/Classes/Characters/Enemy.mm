@@ -358,7 +358,9 @@
 -(void) hit:(int)force 
 {
 	//CCLOG(@"Enemy.hit: %i, %i, %i", health, topHealth, force);
-	health -= force;
+	[[SimpleAudioEngine sharedEngine] playEffect:@"IG Enemy Damage.caf" pitch:1.0f pan:0.0f gain:1.0f];
+    
+    health -= force;
 	
 	if (health == 0) {
 		barLeft.visible = NO;

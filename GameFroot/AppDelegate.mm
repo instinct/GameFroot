@@ -151,7 +151,15 @@
 	
 	// Init audio
 	[[CDAudioManager sharedManager] setResignBehavior:kAMRBStopPlay autoHandle:YES];
-	[[SimpleAudioEngine sharedEngine] preloadEffect:@"collect.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Check Point - Harp.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Death.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Enemy Damage.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Hero Damage.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Jetpack.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Speech and speech page changes.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Star and gem.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Switches 2.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Teleporter without bell - faster.caf"];
 	
 	// Run the intro Scene
 	[[CCDirector sharedDirector] runWithScene: [SplashLayer scene]];

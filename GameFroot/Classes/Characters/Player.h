@@ -9,6 +9,8 @@
 #import "cocos2d.h"
 #import "GameObject.h"
 #import "Switch.h"
+#import "SimpleAudioEngine.h"
+#import "SimpleAudioEngine+playEffectLoop.h"
 
 #define TILE_TYPE_NONE                  0
 #define TILE_TYPE_SOLID                 1
@@ -90,7 +92,7 @@
     BOOL hasWeapon;
     BOOL startsWithJetpack;
     int defaultWeapon;
-    
+    int jetpackSoundHandle;
     
     CGPoint safePositon;
     BOOL autoSafepoint;

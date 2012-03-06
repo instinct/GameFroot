@@ -52,6 +52,8 @@
 		used = YES;
 		
 		if (frames > 1) [self setDisplayFrameWithAnimationName:[NSString stringWithFormat:@"item_%i",tileId] index:1];
+        
+        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Check Point - Harp.caf" pitch:1.0f pan:0.0f gain:1.0f];
 		
 		// Don't really remove, keep the object
 		[[GameLayer getInstance] changeInitialPlayerPositionToX:positionX andY:positionY];

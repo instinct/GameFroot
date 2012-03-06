@@ -309,7 +309,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             weapon.visible = YES;
         }
         
-		if (jetpackCollected) [jetpack stopAllActions];
+		if (jetpackCollected) {
+            [jetpack stopAllActions];
+        }
 		
 		self.opacity = 255;
 		
@@ -498,6 +500,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		//body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
 		
 		jetpackActivated = YES;
+        jetpackSoundHandle = [[SimpleAudioEngine sharedEngine] playEffect:@"IG Jetpack.caf" loop:YES];
 		[particle resetSystem];
 		
 		b2Vec2 impulse = b2Vec2(0.0f, fabs(current.y) + JETPACK_IMPULSE);
@@ -567,6 +570,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	} else if (jetpackCollected && !jetpackActivated && !dying && !immortal) {
 		
 		jetpackActivated = YES;
+        jetpackSoundHandle = [[SimpleAudioEngine sharedEngine] playEffect:@"IG Jetpack.caf" loop:YES];
 		[particle resetSystem];
 		
 		if (dir == kDirectionLeft) {
@@ -657,6 +661,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		
 		if (jetpackActivated) {
 			jetpackActivated = NO;
+            [[SimpleAudioEngine sharedEngine] stopEffectWithHandle:jetpackSoundHandle];
 			[particle stopSystem];
 		}
 		
@@ -878,7 +883,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		
 		jetpackCollected = NO;
 		jetpackActivated = NO;
-		
+		[[SimpleAudioEngine sharedEngine] stopEffectWithHandle:jetpackSoundHandle];
 		jetpack.visible = NO;
 		particle.visible = NO;
 		
@@ -960,7 +965,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		[self stopAllActions];
 		if (type == kGameObjectPlayer) {
 			if (hasWeapon) [weapon stopAllActions];
-			if (jetpackCollected) [jetpack stopAllActions];
+			if (jetpackCollected) {
+                [jetpack stopAllActions];
+            }
 		}
 		self.opacity = 0;
 		
@@ -1006,7 +1013,10 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 
 -(void) hit:(int)force 
 {
-	health -= force;
+	
+    [[SimpleAudioEngine sharedEngine] playEffect:@"IG Hero Damage.caf" pitch:1.0f pan:0.0f gain:1.0f];
+    
+    health -= force;
 	if (health <= 0) health = 0;
 	[[GameLayer getInstance] setHealth:health];
 	
@@ -1019,6 +1029,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 {
 	if (!dying && !immortal) {
 		
+        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Death.caf" pitch:1.0f pan:0.0f gain:1.0f];
+        
 		lives--;
 		[[GameLayer getInstance] setLives:lives];
 		
@@ -1039,6 +1051,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		pressedJump = NO;
 		if (jetpackCollected) {
 			jetpackActivated = NO;
+            [[SimpleAudioEngine sharedEngine] stopEffectWithHandle:jetpackSoundHandle];
 			[particle stopSystem];
 		}
 		
@@ -1167,7 +1180,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	[self stopAllActions];
 	if (type == kGameObjectPlayer) {
 		if (hasWeapon) [weapon stopAllActions];
-		if (jetpackCollected) [jetpack stopAllActions];
+		if (jetpackCollected) {
+            [jetpack stopAllActions];
+        }
 	}
 	
 	[[GameLayer getInstance] pause];
@@ -1349,6 +1364,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 				&& (self.position.y + self.size.height*(1.0f-self.anchorPoint.y) < ([GameLayer getInstance].mapHeight * MAP_TILE_HEIGHT))) 
 			{
 				jetpackActivated = YES;
+                jetpackSoundHandle = [[SimpleAudioEngine sharedEngine] playEffect:@"IG Jetpack.caf" loop:YES];
 				[particle resetSystem];
 				
 				b2Vec2 impulse = b2Vec2(0.0f, fabs(current.y) + JETPACK_IMPULSE);

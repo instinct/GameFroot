@@ -1737,7 +1737,7 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 
 -(void) remove
 {
-    [[SimpleAudioEngine sharedEngine] playEffect:@"collect.caf" pitch:1.0f pan:0.0f gain:1.0f];
+    [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and Gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
     
 	[self stopAllActions];
 	[super remove];
