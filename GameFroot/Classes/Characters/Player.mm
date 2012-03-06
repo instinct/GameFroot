@@ -408,7 +408,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			}
 		}
 		
-		if (!jetpackCollected || !jetpackActivated) [self setState:WALK];
+		if (!jumping && (!jetpackCollected || !jetpackActivated)) [self setState:WALK];
 		
 		moving = YES;
 		direction = kDirectionRight;
@@ -435,7 +435,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			}
 		}
 		
-		if (!jetpackCollected || !jetpackActivated) [self setState:WALK];
+		if (!jumping && (!jetpackCollected || !jetpackActivated)) [self setState:WALK];
 		
 		moving = YES;
 		direction = kDirectionLeft;
@@ -446,10 +446,16 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 -(BOOL) isMoonWalking {
     b2Vec2 vel = body->GetLinearVelocity( );
     
+    if (fabsf(roundf(vel.y)) != 0) return( NO );
+    
     if ( ( vel.x < 0 ) && ( !facingLeft || ( action == STAND ) ) ) return( YES );
     if ( ( vel.x > 0 ) && ( facingLeft || ( action == STAND  ) ) ) return( YES );
     
     return( NO );    
+}
+
+-(BOOL) isJumping {
+    return jumping;
 }
 
 -(void) restartMovement {
@@ -1279,7 +1285,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     jumping = NO;
     jumpingMoving = NO;
     
-    if (!moving && !dying) {
+    if (dying) return;
+    
+    if (!moving) {
         
         if (current.x != 0) {
             //CCLOG(@"Reset X linear velocity");
@@ -1288,7 +1296,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
         
         if ((action != PRONE) && (action != CROUCH) && (!jetpackActivated)) [self setState:STAND];
         
-    } else if (!dying) {
+    } else {
         [self setState:WALK];
     }
 }
@@ -1319,6 +1327,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 
 -(void) resetForces
 {
+    CCLOG(@"Player.resetForces");
 	body->SetLinearVelocity(b2Vec2(0,0));
 	body->SetAngularVelocity(0);
 }
