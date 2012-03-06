@@ -160,6 +160,18 @@
     [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Star and gem.caf"];
     [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Switches 2.caf"];
     [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Teleporter without bell - faster.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Ammo.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Coin.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Food items.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"W Change weapon.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"W Lasergun.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"W Machine Gun single shot.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"W Machine gun.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"W Pistol.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"W Rocket launcher boom.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"W Rocket launcher launch.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"W Shotgun.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"W Sword swoosh.caf"];
 	
 	// Run the intro Scene
 	[[CCDirector sharedDirector] runWithScene: [SplashLayer scene]];

@@ -145,7 +145,10 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 -(void) changeWeapon:(int)_weaponID
 {
 	CCLOG(@"Player.changeWeapon: %i", _weaponID);
-	
+    if(hasWeapon) {
+        [[SimpleAudioEngine sharedEngine] playEffect:@"W Change weapon.caf" pitch:1.0f pan:0.0f gain:1.0f];
+    }
+
 	[self removeWeapon];
     
     hasWeapon = YES;
@@ -943,6 +946,37 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			
 		} else if (hasWeapon && ([[GameLayer getInstance] getAmmo] > 0)) {
 			
+            switch (weaponID) {
+                case 0: // Pistol
+                     [[SimpleAudioEngine sharedEngine] playEffect:@"W Pistol.caf"];
+                    break;
+                    
+                case 1: // Auto shotgun
+                    [[SimpleAudioEngine sharedEngine] playEffect:@"W Shotgun.caf"];
+                    break;
+                    
+                case 2: // Laser
+                    [[SimpleAudioEngine sharedEngine] playEffect:@"W Lasergun.caf"];                                  
+                    break;
+                    
+                case 3: // Musket
+                    [[SimpleAudioEngine sharedEngine] playEffect:@"W Shotgun.caf"];
+                    break;
+                    
+                case 4: // AK 47
+                    [[SimpleAudioEngine sharedEngine] playEffect:@"W Machine Gun single shot.caf"];
+                    break;
+                    
+                case 5: // M60
+                    [[SimpleAudioEngine sharedEngine] playEffect:@"W Machine gun.caf"];
+                    break;
+                    
+                case 6: // Rocket Launcher
+                    [[SimpleAudioEngine sharedEngine] playEffect:@"W Rocket launcher launch.caf"];
+                    break;
+            }
+
+            
 			[[GameLayer getInstance] reduceAmmo];
 			
 			CGPoint bulletOffset = ccp(0,0);

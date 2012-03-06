@@ -173,6 +173,11 @@
 		body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
         //[[GameLayer getInstance] destroyBody:body];
         
+        // if rocket then go boom!
+        if(weapon == 6) {
+            [[SimpleAudioEngine sharedEngine] playEffect:@"W Rocket launcher boom.caf"];
+        }
+        
 		id dieAction = [CCSequence actions:
 						//[CCHide action],
 						[CCAnimate actionWithAnimation:explosion],

@@ -45,17 +45,17 @@
     
 	
 	if (itemType == kCollectableMoney) {
-        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
+        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Coin.caf" pitch:1.0f pan:0.0f gain:1.0f];
 		[[GameLayer getInstance] increasePoints:itemValue];
 		[super remove];
 		
 	} else if (itemType == kCollectableAmmo) {
-        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
+        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Ammo.caf" pitch:1.0f pan:0.0f gain:1.0f];
 		[[GameLayer getInstance] increaseAmmo:itemValue];
 		[super remove];
 		
 	} else if (itemType == kCollectableWeapon) {
-        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
+        [[SimpleAudioEngine sharedEngine] playEffect:@"W Change weapon.caf" pitch:1.0f pan:0.0f gain:1.0f];
 		if (itemValue < 8) [[GameLayer getInstance] changeWeapon:itemValue-1];
 		else [[GameLayer getInstance] increaseAmmo:itemValue];
 		[super remove];
