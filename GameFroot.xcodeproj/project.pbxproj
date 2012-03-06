@@ -1234,7 +1234,7 @@
 		226B311D1505619E00BAD02A /* W Rocket launcher launch.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "W Rocket launcher launch.caf"; sourceTree = "<group>"; };
 		226B311E1505619E00BAD02A /* W Shotgun.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "W Shotgun.caf"; sourceTree = "<group>"; };
 		226B311F1505619E00BAD02A /* W Sword swoosh.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "W Sword swoosh.caf"; sourceTree = "<group>"; };
-		226B314B1505772400BAD02A /* SimpleAudioEngine+playEffectLoop.h */ = {isa = PBXFileReference; fileEncoding = 4; path = "SimpleAudioEngine+playEffectLoop.h"; sourceTree = "<group>"; };
+		226B314B1505772400BAD02A /* SimpleAudioEngine+playEffectLoop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SimpleAudioEngine+playEffectLoop.h"; sourceTree = "<group>"; };
 		226B314C1505772400BAD02A /* SimpleAudioEngine+playEffectLoop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SimpleAudioEngine+playEffectLoop.m"; sourceTree = "<group>"; };
 		2299CFAB14FDD123005C7F14 /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
 		22D3A6D914E2276B00EAB052 /* rate_controls_mockup.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rate_controls_mockup.png; sourceTree = "<group>"; };
