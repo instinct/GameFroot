@@ -159,7 +159,7 @@
     [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Speech and speech page changes.caf"];
     [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Star and gem.caf"];
     [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Switches 2.caf"];
-    [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Teleporter without bell - faster.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Transporter.caf"];
     [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Ammo.caf"];
     [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Coin.caf"];
     [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Food items.caf"];
