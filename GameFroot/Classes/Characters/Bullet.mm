@@ -143,7 +143,7 @@
 	body->SetGravityScale(0.0f);
 	
 	b2PolygonShape shape;
-	shape.SetAsBox((32.0f/6.0f)/(PTM_RATIO*CC_CONTENT_SCALE_FACTOR()), (20.0f/6.0f)/(PTM_RATIO*CC_CONTENT_SCALE_FACTOR()));
+	shape.SetAsBox((32.0f/3.0f)/(PTM_RATIO*CC_CONTENT_SCALE_FACTOR()), (20.0f/6.0f)/(PTM_RATIO*CC_CONTENT_SCALE_FACTOR()));
 	b2FixtureDef fixtureDef;
 	fixtureDef.shape = &shape;
 	fixtureDef.density = 1.0;

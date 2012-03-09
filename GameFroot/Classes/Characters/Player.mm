@@ -462,9 +462,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 }
 
 -(void) restartMovement {
+    b2Vec2 current = body->GetLinearVelocity();
 	if (!dying && !immortal && (moving || jumpingMoving)) {
-		b2Vec2 current = body->GetLinearVelocity();
-		
 		if (fabsf(roundf(current.x)) == 0) {
 			
 			if (direction == kDirectionLeft) {
@@ -480,7 +479,10 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             [self resetForces];
         }
         
-	} else if (!jumping && !moving && !jumpingMoving){
+	} else if (!jumping && !moving && !jumpingMoving && (fabsf(roundf(current.y)) == 0)){
+        [self resetForces];
+    
+    } else if ([self isMoonWalking]) {
         [self resetForces];
     }
 }

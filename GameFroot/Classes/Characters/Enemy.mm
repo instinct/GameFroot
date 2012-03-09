@@ -809,26 +809,36 @@
     // ********************
     if ( ((behaviour & ENEMY_BEHAVIOUR_WALKING) > 0) && ((behaviour & ENEMY_BEHAVIOUR_JUMPING) == 0) ) {
 		
-        if ((behaviour & ENEMY_BEHAVIOUR_SHOOTING) == 0) {
-            // Try to hit the player
-            if (tilePos.y == playerPos.y) {
+        if (tilePos.y == playerPos.y) {
+            if ((behaviour & ENEMY_BEHAVIOUR_SHOOTING) == 0) {
+                // Try to hit the player
                 if (player.position.x < self.position.x) [self moveLeft];
                 else if (player.position.x > self.position.x) [self moveRight];
+                
+            } else {
+                // Stops ENEMY_WALKING_STOPAHEAD tiles in front of player
+                if (tilePos.x > playerPos.x + ENEMY_WALKING_STOPAHEAD) {
+                    if (direction != kDirectionLeft) [self moveLeft];
+                    
+                } else if (tilePos.x < playerPos.x - ENEMY_WALKING_STOPAHEAD) {
+                    if (direction != kDirectionRight) [self moveRight];
+                    
+                } else {
+                    // Enemy and player on same level and close enough, face player
+                    if (player.position.x < self.position.x) [self faceLeft];
+                    else if (player.position.x > self.position.x) [self faceRight];
+                }
             }
-            
         } else {
-            // Stops ENEMY_WALKING_STOPAHEAD tiles in front of player
-            if (tilePos.x > playerPos.x + ENEMY_WALKING_STOPAHEAD) {
-                if (direction != kDirectionLeft) [self moveLeft];
+            b2Vec2 current = body->GetLinearVelocity();
+            
+            if (fabsf(roundf(current.x)) == 0) {
+                // Not moving, start randomly
+                int rnd = arc4random() % 2;
+                if (rnd == 0) [self moveLeft];
+                else [self moveRight];
                 
-            } else if (tilePos.x < playerPos.x - ENEMY_WALKING_STOPAHEAD) {
-                if (direction != kDirectionRight) [self moveRight];
-                
-            } else if (tilePos.y == playerPos.y) {
-                // Enemy and player on same level and close enough, face player
-                if (player.position.x < self.position.x) [self faceLeft];
-                else if (player.position.x > self.position.x) [self faceRight];
-            }
+            } else if ( [ self tileWalkable:1 y:0 ] == NO ) [self changeDirection];
         }
 	}
     
