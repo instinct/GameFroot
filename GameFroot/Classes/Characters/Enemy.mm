@@ -933,7 +933,7 @@
 			[ player hit:self.collideGiveDamage];
 			[ self hit:self.collideTakeDamage];
            
-            if (!ENEMY_BLOCKS_PLAYER) data.contact->SetEnabled( false );
+            if (!ENEMY_BLOCKS_PLAYER || dying) data.contact->SetEnabled( false );
             else if ( data.position == CONTACT_IS_ABOVE ) [ player hitsFloor ];
             
             break;
@@ -981,7 +981,7 @@
     switch ( object.type ) {
         
         case kGameObjectPlayer:
-            if (!ENEMY_BLOCKS_PLAYER) data.contact->SetEnabled( false );
+            if (!ENEMY_BLOCKS_PLAYER || dying) data.contact->SetEnabled( false );
             break;
             
         case kGameObjectEnemy:
