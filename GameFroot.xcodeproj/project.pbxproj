@@ -495,6 +495,74 @@
 		226B314D1505772400BAD02A /* SimpleAudioEngine+playEffectLoop.m in Sources */ = {isa = PBXBuildFile; fileRef = 226B314C1505772400BAD02A /* SimpleAudioEngine+playEffectLoop.m */; };
 		228F2E7B1508100E00527338 /* IG Transporter.caf in Resources */ = {isa = PBXBuildFile; fileRef = 228F2E7A1508100E00527338 /* IG Transporter.caf */; };
 		2299CFAC14FDD123005C7F14 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2299CFAB14FDD123005C7F14 /* iAd.framework */; };
+		22D0E1B6150D4C2E00C19BFA /* Desert Theme - 8 bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E162150D4C2E00C19BFA /* Desert Theme - 8 bit.mp3 */; };
+		22D0E1B7150D4C2E00C19BFA /* Desert Theme - BOSS.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E163150D4C2E00C19BFA /* Desert Theme - BOSS.mp3 */; };
+		22D0E1B8150D4C2E00C19BFA /* Desert Theme - Soundscape.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E164150D4C2E00C19BFA /* Desert Theme - Soundscape.mp3 */; };
+		22D0E1B9150D4C2E00C19BFA /* DesertTheme - ALT.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E165150D4C2E00C19BFA /* DesertTheme - ALT.mp3 */; };
+		22D0E1BA150D4C2E00C19BFA /* Dungeon Theme - 8 bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E167150D4C2E00C19BFA /* Dungeon Theme - 8 bit.mp3 */; };
+		22D0E1BB150D4C2E00C19BFA /* Dungeon Theme - ALT.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E168150D4C2E00C19BFA /* Dungeon Theme - ALT.mp3 */; };
+		22D0E1BC150D4C2E00C19BFA /* Dungeon Theme - BOSS.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E169150D4C2E00C19BFA /* Dungeon Theme - BOSS.mp3 */; };
+		22D0E1BD150D4C2E00C19BFA /* Dungeon Theme - Soundscape (inside).mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E16A150D4C2E00C19BFA /* Dungeon Theme - Soundscape (inside).mp3 */; };
+		22D0E1BE150D4C2E00C19BFA /* Dungeon Theme - Soundscape (outside).mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E16B150D4C2E00C19BFA /* Dungeon Theme - Soundscape (outside).mp3 */; };
+		22D0E1BF150D4C2E00C19BFA /* Forest Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E16D150D4C2E00C19BFA /* Forest Theme - 8 Bit.mp3 */; };
+		22D0E1C0150D4C2E00C19BFA /* Forest Theme - ALT.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E16E150D4C2E00C19BFA /* Forest Theme - ALT.mp3 */; };
+		22D0E1C1150D4C2E00C19BFA /* Forest Theme - BOSS.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E16F150D4C2E00C19BFA /* Forest Theme - BOSS.mp3 */; };
+		22D0E1C2150D4C2E00C19BFA /* Forest Theme - Soundscape.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E170150D4C2E00C19BFA /* Forest Theme - Soundscape.mp3 */; };
+		22D0E1C3150D4C2E00C19BFA /* Ice Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E172150D4C2E00C19BFA /* Ice Theme - 8 Bit.mp3 */; };
+		22D0E1C4150D4C2E00C19BFA /* Ice theme - ALT.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E173150D4C2E00C19BFA /* Ice theme - ALT.mp3 */; };
+		22D0E1C5150D4C2E00C19BFA /* Ice Theme - BOSS.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E174150D4C2E00C19BFA /* Ice Theme - BOSS.mp3 */; };
+		22D0E1C6150D4C2E00C19BFA /* Ice theme - Soundscape.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E175150D4C2E00C19BFA /* Ice theme - Soundscape.mp3 */; };
+		22D0E1C7150D4C2E00C19BFA /* Industrial Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E177150D4C2E00C19BFA /* Industrial Theme - 8 Bit.mp3 */; };
+		22D0E1C8150D4C2E00C19BFA /* Industrial Theme - ALT.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E178150D4C2E00C19BFA /* Industrial Theme - ALT.mp3 */; };
+		22D0E1C9150D4C2E00C19BFA /* Industrial theme - BOSS.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E179150D4C2E00C19BFA /* Industrial theme - BOSS.mp3 */; };
+		22D0E1CA150D4C2E00C19BFA /* Industrial Theme - Soundscape.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E17A150D4C2E00C19BFA /* Industrial Theme - Soundscape.mp3 */; };
+		22D0E1CB150D4C2E00C19BFA /* Netwon Theme - Wisdom.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E17C150D4C2E00C19BFA /* Netwon Theme - Wisdom.mp3 */; };
+		22D0E1CC150D4C2E00C19BFA /* Newton Theme - Astrology Tower.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E17D150D4C2E00C19BFA /* Newton Theme - Astrology Tower.mp3 */; };
+		22D0E1CD150D4C2E00C19BFA /* Newton Theme - Black Death2.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E17E150D4C2E00C19BFA /* Newton Theme - Black Death2.mp3 */; };
+		22D0E1CE150D4C2E00C19BFA /* Newton Theme - Look at my fancy wig!.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E17F150D4C2E00C19BFA /* Newton Theme - Look at my fancy wig!.mp3 */; };
+		22D0E1CF150D4C2E00C19BFA /* Newton Theme - Stars.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E180150D4C2E00C19BFA /* Newton Theme - Stars.mp3 */; };
+		22D0E1D0150D4C2E00C19BFA /* Japanese Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E182150D4C2E00C19BFA /* Japanese Theme - 8 Bit.mp3 */; };
+		22D0E1D1150D4C2E00C19BFA /* Japanese theme - ALT.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E183150D4C2E00C19BFA /* Japanese theme - ALT.mp3 */; };
+		22D0E1D2150D4C2E00C19BFA /* Japanese Theme - BOSS.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E184150D4C2E00C19BFA /* Japanese Theme - BOSS.mp3 */; };
+		22D0E1D3150D4C2E00C19BFA /* Japanese Theme - Soundscape.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E185150D4C2E00C19BFA /* Japanese Theme - Soundscape.mp3 */; };
+		22D0E1D4150D4C2E00C19BFA /* Jungle Theme - 8 bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E187150D4C2E00C19BFA /* Jungle Theme - 8 bit.mp3 */; };
+		22D0E1D5150D4C2E00C19BFA /* Jungle Theme - ALT.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E188150D4C2E00C19BFA /* Jungle Theme - ALT.mp3 */; };
+		22D0E1D6150D4C2E00C19BFA /* Jungle Theme - BOSS.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E189150D4C2E00C19BFA /* Jungle Theme - BOSS.mp3 */; };
+		22D0E1D7150D4C2E00C19BFA /* Jungle Theme - Soundscape.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E18A150D4C2E00C19BFA /* Jungle Theme - Soundscape.mp3 */; };
+		22D0E1D8150D4C2E00C19BFA /* Magic Castle - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E18C150D4C2E00C19BFA /* Magic Castle - 8 Bit.mp3 */; };
+		22D0E1D9150D4C2E00C19BFA /* Magic Castle Theme - Boss.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E18D150D4C2E00C19BFA /* Magic Castle Theme - Boss.mp3 */; };
+		22D0E1DA150D4C2E00C19BFA /* Magic Castle Theme - Soundscape.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E18E150D4C2E00C19BFA /* Magic Castle Theme - Soundscape.mp3 */; };
+		22D0E1DB150D4C2E00C19BFA /* Magic Castle Theme - Spells after hours.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E18F150D4C2E00C19BFA /* Magic Castle Theme - Spells after hours.mp3 */; };
+		22D0E1DC150D4C2E00C19BFA /* Pirate Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E191150D4C2E00C19BFA /* Pirate Theme - 8 Bit.mp3 */; };
+		22D0E1DD150D4C2E00C19BFA /* Pirate Theme - Alt.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E192150D4C2E00C19BFA /* Pirate Theme - Alt.mp3 */; };
+		22D0E1DE150D4C2E00C19BFA /* Pirate Theme - Boss.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E193150D4C2E00C19BFA /* Pirate Theme - Boss.mp3 */; };
+		22D0E1DF150D4C2E00C19BFA /* Pirate Theme - Soundscape.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E194150D4C2E00C19BFA /* Pirate Theme - Soundscape.mp3 */; };
+		22D0E1E0150D4C2E00C19BFA /* Sci-Fi BOSS and Tron.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E196150D4C2E00C19BFA /* Sci-Fi BOSS and Tron.mp3 */; };
+		22D0E1E1150D4C2E00C19BFA /* Sci-fi Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E197150D4C2E00C19BFA /* Sci-fi Theme - 8 Bit.mp3 */; };
+		22D0E1E2150D4C2E00C19BFA /* Sci-Fi Theme - ALT.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E198150D4C2E00C19BFA /* Sci-Fi Theme - ALT.mp3 */; };
+		22D0E1E3150D4C2E00C19BFA /* Sky Theme - ALT.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E19A150D4C2E00C19BFA /* Sky Theme - ALT.mp3 */; };
+		22D0E1E4150D4C2E00C19BFA /* Sky Theme - BOSS.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E19B150D4C2E00C19BFA /* Sky Theme - BOSS.mp3 */; };
+		22D0E1E5150D4C2E00C19BFA /* Sky Theme - Soundscape.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E19C150D4C2E00C19BFA /* Sky Theme - Soundscape.mp3 */; };
+		22D0E1E6150D4C2E00C19BFA /* SkyTheme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E19D150D4C2E00C19BFA /* SkyTheme - 8 Bit.mp3 */; };
+		22D0E1E7150D4C2E00C19BFA /* Space Station Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E19F150D4C2E00C19BFA /* Space Station Theme - 8 Bit.mp3 */; };
+		22D0E1E8150D4C2E00C19BFA /* Space Station Theme - Boss.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1A0150D4C2E00C19BFA /* Space Station Theme - Boss.mp3 */; };
+		22D0E1E9150D4C2E00C19BFA /* Spacestation Theme - ALT.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1A1150D4C2E00C19BFA /* Spacestation Theme - ALT.mp3 */; };
+		22D0E1EA150D4C2E00C19BFA /* Spacestation Theme - Soundscape.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1A2150D4C2E00C19BFA /* Spacestation Theme - Soundscape.mp3 */; };
+		22D0E1EB150D4C2E00C19BFA /* Tron Theme.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1A3150D4C2E00C19BFA /* Tron Theme.mp3 */; };
+		22D0E1EC150D4C2E00C19BFA /* Underwater Theme - 8 bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1A5150D4C2E00C19BFA /* Underwater Theme - 8 bit.mp3 */; };
+		22D0E1ED150D4C2E00C19BFA /* Underwater Theme - ALT.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1A6150D4C2E00C19BFA /* Underwater Theme - ALT.mp3 */; };
+		22D0E1EE150D4C2E00C19BFA /* Underwater Theme - BOSS.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1A7150D4C2E00C19BFA /* Underwater Theme - BOSS.mp3 */; };
+		22D0E1EF150D4C2E00C19BFA /* Underwater Theme - Soundscape.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1A8150D4C2E00C19BFA /* Underwater Theme - Soundscape.mp3 */; };
+		22D0E1F0150D4C2E00C19BFA /* Underworld Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1AA150D4C2E00C19BFA /* Underworld Theme - 8 Bit.mp3 */; };
+		22D0E1F1150D4C2E00C19BFA /* Underworld Theme - Alt.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1AB150D4C2E00C19BFA /* Underworld Theme - Alt.mp3 */; };
+		22D0E1F2150D4C2E00C19BFA /* Underworld Theme - Soundscape.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1AC150D4C2E00C19BFA /* Underworld Theme - Soundscape.mp3 */; };
+		22D0E1F3150D4C2E00C19BFA /* War Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1AE150D4C2E00C19BFA /* War Theme - 8 Bit.mp3 */; };
+		22D0E1F4150D4C2E00C19BFA /* War Theme - Boss.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1AF150D4C2E00C19BFA /* War Theme - Boss.mp3 */; };
+		22D0E1F5150D4C2E00C19BFA /* WarTheme - Soundscape.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1B0150D4C2E00C19BFA /* WarTheme - Soundscape.mp3 */; };
+		22D0E1F6150D4C2E00C19BFA /* Western Theme - 8 bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1B2150D4C2E00C19BFA /* Western Theme - 8 bit.mp3 */; };
+		22D0E1F7150D4C2E00C19BFA /* Western Theme - ALT.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1B3150D4C2E00C19BFA /* Western Theme - ALT.mp3 */; };
+		22D0E1F8150D4C2E00C19BFA /* Western Theme - BOSS.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1B4150D4C2E00C19BFA /* Western Theme - BOSS.mp3 */; };
+		22D0E1F9150D4C2E00C19BFA /* Western Theme - Sounscape.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1B5150D4C2E00C19BFA /* Western Theme - Sounscape.mp3 */; };
 		22D3A6DA14E2276B00EAB052 /* rate_controls_mockup.png in Resources */ = {isa = PBXBuildFile; fileRef = 22D3A6D914E2276B00EAB052 /* rate_controls_mockup.png */; };
 		22F8D1D114F5B52600780B13 /* controls-hd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 22F8D1CD14F5B52600780B13 /* controls-hd.plist */; };
 		22F8D1D214F5B52600780B13 /* controls-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 22F8D1CE14F5B52600780B13 /* controls-hd.png */; };
@@ -1235,6 +1303,74 @@
 		226B314C1505772400BAD02A /* SimpleAudioEngine+playEffectLoop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SimpleAudioEngine+playEffectLoop.m"; sourceTree = "<group>"; };
 		228F2E7A1508100E00527338 /* IG Transporter.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IG Transporter.caf"; sourceTree = "<group>"; };
 		2299CFAB14FDD123005C7F14 /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
+		22D0E162150D4C2E00C19BFA /* Desert Theme - 8 bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Desert Theme - 8 bit.mp3"; sourceTree = "<group>"; };
+		22D0E163150D4C2E00C19BFA /* Desert Theme - BOSS.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Desert Theme - BOSS.mp3"; sourceTree = "<group>"; };
+		22D0E164150D4C2E00C19BFA /* Desert Theme - Soundscape.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Desert Theme - Soundscape.mp3"; sourceTree = "<group>"; };
+		22D0E165150D4C2E00C19BFA /* DesertTheme - ALT.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "DesertTheme - ALT.mp3"; sourceTree = "<group>"; };
+		22D0E167150D4C2E00C19BFA /* Dungeon Theme - 8 bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Dungeon Theme - 8 bit.mp3"; sourceTree = "<group>"; };
+		22D0E168150D4C2E00C19BFA /* Dungeon Theme - ALT.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Dungeon Theme - ALT.mp3"; sourceTree = "<group>"; };
+		22D0E169150D4C2E00C19BFA /* Dungeon Theme - BOSS.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Dungeon Theme - BOSS.mp3"; sourceTree = "<group>"; };
+		22D0E16A150D4C2E00C19BFA /* Dungeon Theme - Soundscape (inside).mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Dungeon Theme - Soundscape (inside).mp3"; sourceTree = "<group>"; };
+		22D0E16B150D4C2E00C19BFA /* Dungeon Theme - Soundscape (outside).mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Dungeon Theme - Soundscape (outside).mp3"; sourceTree = "<group>"; };
+		22D0E16D150D4C2E00C19BFA /* Forest Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Forest Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
+		22D0E16E150D4C2E00C19BFA /* Forest Theme - ALT.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Forest Theme - ALT.mp3"; sourceTree = "<group>"; };
+		22D0E16F150D4C2E00C19BFA /* Forest Theme - BOSS.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Forest Theme - BOSS.mp3"; sourceTree = "<group>"; };
+		22D0E170150D4C2E00C19BFA /* Forest Theme - Soundscape.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Forest Theme - Soundscape.mp3"; sourceTree = "<group>"; };
+		22D0E172150D4C2E00C19BFA /* Ice Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Ice Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
+		22D0E173150D4C2E00C19BFA /* Ice theme - ALT.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Ice theme - ALT.mp3"; sourceTree = "<group>"; };
+		22D0E174150D4C2E00C19BFA /* Ice Theme - BOSS.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Ice Theme - BOSS.mp3"; sourceTree = "<group>"; };
+		22D0E175150D4C2E00C19BFA /* Ice theme - Soundscape.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Ice theme - Soundscape.mp3"; sourceTree = "<group>"; };
+		22D0E177150D4C2E00C19BFA /* Industrial Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Industrial Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
+		22D0E178150D4C2E00C19BFA /* Industrial Theme - ALT.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Industrial Theme - ALT.mp3"; sourceTree = "<group>"; };
+		22D0E179150D4C2E00C19BFA /* Industrial theme - BOSS.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Industrial theme - BOSS.mp3"; sourceTree = "<group>"; };
+		22D0E17A150D4C2E00C19BFA /* Industrial Theme - Soundscape.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Industrial Theme - Soundscape.mp3"; sourceTree = "<group>"; };
+		22D0E17C150D4C2E00C19BFA /* Netwon Theme - Wisdom.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Netwon Theme - Wisdom.mp3"; sourceTree = "<group>"; };
+		22D0E17D150D4C2E00C19BFA /* Newton Theme - Astrology Tower.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Newton Theme - Astrology Tower.mp3"; sourceTree = "<group>"; };
+		22D0E17E150D4C2E00C19BFA /* Newton Theme - Black Death2.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Newton Theme - Black Death2.mp3"; sourceTree = "<group>"; };
+		22D0E17F150D4C2E00C19BFA /* Newton Theme - Look at my fancy wig!.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Newton Theme - Look at my fancy wig!.mp3"; sourceTree = "<group>"; };
+		22D0E180150D4C2E00C19BFA /* Newton Theme - Stars.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Newton Theme - Stars.mp3"; sourceTree = "<group>"; };
+		22D0E182150D4C2E00C19BFA /* Japanese Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Japanese Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
+		22D0E183150D4C2E00C19BFA /* Japanese theme - ALT.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Japanese theme - ALT.mp3"; sourceTree = "<group>"; };
+		22D0E184150D4C2E00C19BFA /* Japanese Theme - BOSS.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Japanese Theme - BOSS.mp3"; sourceTree = "<group>"; };
+		22D0E185150D4C2E00C19BFA /* Japanese Theme - Soundscape.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Japanese Theme - Soundscape.mp3"; sourceTree = "<group>"; };
+		22D0E187150D4C2E00C19BFA /* Jungle Theme - 8 bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Jungle Theme - 8 bit.mp3"; sourceTree = "<group>"; };
+		22D0E188150D4C2E00C19BFA /* Jungle Theme - ALT.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Jungle Theme - ALT.mp3"; sourceTree = "<group>"; };
+		22D0E189150D4C2E00C19BFA /* Jungle Theme - BOSS.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Jungle Theme - BOSS.mp3"; sourceTree = "<group>"; };
+		22D0E18A150D4C2E00C19BFA /* Jungle Theme - Soundscape.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Jungle Theme - Soundscape.mp3"; sourceTree = "<group>"; };
+		22D0E18C150D4C2E00C19BFA /* Magic Castle - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Magic Castle - 8 Bit.mp3"; sourceTree = "<group>"; };
+		22D0E18D150D4C2E00C19BFA /* Magic Castle Theme - Boss.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Magic Castle Theme - Boss.mp3"; sourceTree = "<group>"; };
+		22D0E18E150D4C2E00C19BFA /* Magic Castle Theme - Soundscape.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Magic Castle Theme - Soundscape.mp3"; sourceTree = "<group>"; };
+		22D0E18F150D4C2E00C19BFA /* Magic Castle Theme - Spells after hours.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Magic Castle Theme - Spells after hours.mp3"; sourceTree = "<group>"; };
+		22D0E191150D4C2E00C19BFA /* Pirate Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Pirate Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
+		22D0E192150D4C2E00C19BFA /* Pirate Theme - Alt.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Pirate Theme - Alt.mp3"; sourceTree = "<group>"; };
+		22D0E193150D4C2E00C19BFA /* Pirate Theme - Boss.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Pirate Theme - Boss.mp3"; sourceTree = "<group>"; };
+		22D0E194150D4C2E00C19BFA /* Pirate Theme - Soundscape.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Pirate Theme - Soundscape.mp3"; sourceTree = "<group>"; };
+		22D0E196150D4C2E00C19BFA /* Sci-Fi BOSS and Tron.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Sci-Fi BOSS and Tron.mp3"; sourceTree = "<group>"; };
+		22D0E197150D4C2E00C19BFA /* Sci-fi Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Sci-fi Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
+		22D0E198150D4C2E00C19BFA /* Sci-Fi Theme - ALT.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Sci-Fi Theme - ALT.mp3"; sourceTree = "<group>"; };
+		22D0E19A150D4C2E00C19BFA /* Sky Theme - ALT.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Sky Theme - ALT.mp3"; sourceTree = "<group>"; };
+		22D0E19B150D4C2E00C19BFA /* Sky Theme - BOSS.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Sky Theme - BOSS.mp3"; sourceTree = "<group>"; };
+		22D0E19C150D4C2E00C19BFA /* Sky Theme - Soundscape.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Sky Theme - Soundscape.mp3"; sourceTree = "<group>"; };
+		22D0E19D150D4C2E00C19BFA /* SkyTheme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "SkyTheme - 8 Bit.mp3"; sourceTree = "<group>"; };
+		22D0E19F150D4C2E00C19BFA /* Space Station Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Space Station Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
+		22D0E1A0150D4C2E00C19BFA /* Space Station Theme - Boss.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Space Station Theme - Boss.mp3"; sourceTree = "<group>"; };
+		22D0E1A1150D4C2E00C19BFA /* Spacestation Theme - ALT.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Spacestation Theme - ALT.mp3"; sourceTree = "<group>"; };
+		22D0E1A2150D4C2E00C19BFA /* Spacestation Theme - Soundscape.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Spacestation Theme - Soundscape.mp3"; sourceTree = "<group>"; };
+		22D0E1A3150D4C2E00C19BFA /* Tron Theme.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Tron Theme.mp3"; sourceTree = "<group>"; };
+		22D0E1A5150D4C2E00C19BFA /* Underwater Theme - 8 bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Underwater Theme - 8 bit.mp3"; sourceTree = "<group>"; };
+		22D0E1A6150D4C2E00C19BFA /* Underwater Theme - ALT.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Underwater Theme - ALT.mp3"; sourceTree = "<group>"; };
+		22D0E1A7150D4C2E00C19BFA /* Underwater Theme - BOSS.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Underwater Theme - BOSS.mp3"; sourceTree = "<group>"; };
+		22D0E1A8150D4C2E00C19BFA /* Underwater Theme - Soundscape.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Underwater Theme - Soundscape.mp3"; sourceTree = "<group>"; };
+		22D0E1AA150D4C2E00C19BFA /* Underworld Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Underworld Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
+		22D0E1AB150D4C2E00C19BFA /* Underworld Theme - Alt.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Underworld Theme - Alt.mp3"; sourceTree = "<group>"; };
+		22D0E1AC150D4C2E00C19BFA /* Underworld Theme - Soundscape.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Underworld Theme - Soundscape.mp3"; sourceTree = "<group>"; };
+		22D0E1AE150D4C2E00C19BFA /* War Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "War Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
+		22D0E1AF150D4C2E00C19BFA /* War Theme - Boss.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "War Theme - Boss.mp3"; sourceTree = "<group>"; };
+		22D0E1B0150D4C2E00C19BFA /* WarTheme - Soundscape.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "WarTheme - Soundscape.mp3"; sourceTree = "<group>"; };
+		22D0E1B2150D4C2E00C19BFA /* Western Theme - 8 bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Western Theme - 8 bit.mp3"; sourceTree = "<group>"; };
+		22D0E1B3150D4C2E00C19BFA /* Western Theme - ALT.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Western Theme - ALT.mp3"; sourceTree = "<group>"; };
+		22D0E1B4150D4C2E00C19BFA /* Western Theme - BOSS.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Western Theme - BOSS.mp3"; sourceTree = "<group>"; };
+		22D0E1B5150D4C2E00C19BFA /* Western Theme - Sounscape.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Western Theme - Sounscape.mp3"; sourceTree = "<group>"; };
 		22D3A6D914E2276B00EAB052 /* rate_controls_mockup.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rate_controls_mockup.png; sourceTree = "<group>"; };
 		22F8D1CD14F5B52600780B13 /* controls-hd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "controls-hd.plist"; sourceTree = "<group>"; };
 		22F8D1CE14F5B52600780B13 /* controls-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "controls-hd.png"; sourceTree = "<group>"; };
@@ -1741,6 +1877,24 @@
 		1643B46914D9B0BC00A67057 /* music */ = {
 			isa = PBXGroup;
 			children = (
+				22D0E161150D4C2E00C19BFA /* Desert */,
+				22D0E166150D4C2E00C19BFA /* Dungeon */,
+				22D0E16C150D4C2E00C19BFA /* Forest */,
+				22D0E171150D4C2E00C19BFA /* Ice */,
+				22D0E176150D4C2E00C19BFA /* Industrial */,
+				22D0E17B150D4C2E00C19BFA /* Isaac Newton Game */,
+				22D0E181150D4C2E00C19BFA /* Japanese */,
+				22D0E186150D4C2E00C19BFA /* Jungle */,
+				22D0E18B150D4C2E00C19BFA /* Magic Castle */,
+				22D0E190150D4C2E00C19BFA /* Pirate */,
+				22D0E195150D4C2E00C19BFA /* Sci-Fi */,
+				22D0E199150D4C2E00C19BFA /* Sky-heaven */,
+				22D0E19E150D4C2E00C19BFA /* Spacestation */,
+				22D0E1A3150D4C2E00C19BFA /* Tron Theme.mp3 */,
+				22D0E1A4150D4C2E00C19BFA /* Underwater */,
+				22D0E1A9150D4C2E00C19BFA /* Underworld */,
+				22D0E1AD150D4C2E00C19BFA /* War */,
+				22D0E1B1150D4C2E00C19BFA /* Western */,
 				1643B46A14D9B0BC00A67057 /* 8bit */,
 			);
 			name = music;
@@ -2403,6 +2557,192 @@
 			path = Resources/sfx;
 			sourceTree = "<group>";
 		};
+		22D0E161150D4C2E00C19BFA /* Desert */ = {
+			isa = PBXGroup;
+			children = (
+				22D0E162150D4C2E00C19BFA /* Desert Theme - 8 bit.mp3 */,
+				22D0E163150D4C2E00C19BFA /* Desert Theme - BOSS.mp3 */,
+				22D0E164150D4C2E00C19BFA /* Desert Theme - Soundscape.mp3 */,
+				22D0E165150D4C2E00C19BFA /* DesertTheme - ALT.mp3 */,
+			);
+			path = Desert;
+			sourceTree = "<group>";
+		};
+		22D0E166150D4C2E00C19BFA /* Dungeon */ = {
+			isa = PBXGroup;
+			children = (
+				22D0E167150D4C2E00C19BFA /* Dungeon Theme - 8 bit.mp3 */,
+				22D0E168150D4C2E00C19BFA /* Dungeon Theme - ALT.mp3 */,
+				22D0E169150D4C2E00C19BFA /* Dungeon Theme - BOSS.mp3 */,
+				22D0E16A150D4C2E00C19BFA /* Dungeon Theme - Soundscape (inside).mp3 */,
+				22D0E16B150D4C2E00C19BFA /* Dungeon Theme - Soundscape (outside).mp3 */,
+			);
+			path = Dungeon;
+			sourceTree = "<group>";
+		};
+		22D0E16C150D4C2E00C19BFA /* Forest */ = {
+			isa = PBXGroup;
+			children = (
+				22D0E16D150D4C2E00C19BFA /* Forest Theme - 8 Bit.mp3 */,
+				22D0E16E150D4C2E00C19BFA /* Forest Theme - ALT.mp3 */,
+				22D0E16F150D4C2E00C19BFA /* Forest Theme - BOSS.mp3 */,
+				22D0E170150D4C2E00C19BFA /* Forest Theme - Soundscape.mp3 */,
+			);
+			path = Forest;
+			sourceTree = "<group>";
+		};
+		22D0E171150D4C2E00C19BFA /* Ice */ = {
+			isa = PBXGroup;
+			children = (
+				22D0E172150D4C2E00C19BFA /* Ice Theme - 8 Bit.mp3 */,
+				22D0E173150D4C2E00C19BFA /* Ice theme - ALT.mp3 */,
+				22D0E174150D4C2E00C19BFA /* Ice Theme - BOSS.mp3 */,
+				22D0E175150D4C2E00C19BFA /* Ice theme - Soundscape.mp3 */,
+			);
+			path = Ice;
+			sourceTree = "<group>";
+		};
+		22D0E176150D4C2E00C19BFA /* Industrial */ = {
+			isa = PBXGroup;
+			children = (
+				22D0E177150D4C2E00C19BFA /* Industrial Theme - 8 Bit.mp3 */,
+				22D0E178150D4C2E00C19BFA /* Industrial Theme - ALT.mp3 */,
+				22D0E179150D4C2E00C19BFA /* Industrial theme - BOSS.mp3 */,
+				22D0E17A150D4C2E00C19BFA /* Industrial Theme - Soundscape.mp3 */,
+			);
+			path = Industrial;
+			sourceTree = "<group>";
+		};
+		22D0E17B150D4C2E00C19BFA /* Isaac Newton Game */ = {
+			isa = PBXGroup;
+			children = (
+				22D0E17C150D4C2E00C19BFA /* Netwon Theme - Wisdom.mp3 */,
+				22D0E17D150D4C2E00C19BFA /* Newton Theme - Astrology Tower.mp3 */,
+				22D0E17E150D4C2E00C19BFA /* Newton Theme - Black Death2.mp3 */,
+				22D0E17F150D4C2E00C19BFA /* Newton Theme - Look at my fancy wig!.mp3 */,
+				22D0E180150D4C2E00C19BFA /* Newton Theme - Stars.mp3 */,
+			);
+			path = "Isaac Newton Game";
+			sourceTree = "<group>";
+		};
+		22D0E181150D4C2E00C19BFA /* Japanese */ = {
+			isa = PBXGroup;
+			children = (
+				22D0E182150D4C2E00C19BFA /* Japanese Theme - 8 Bit.mp3 */,
+				22D0E183150D4C2E00C19BFA /* Japanese theme - ALT.mp3 */,
+				22D0E184150D4C2E00C19BFA /* Japanese Theme - BOSS.mp3 */,
+				22D0E185150D4C2E00C19BFA /* Japanese Theme - Soundscape.mp3 */,
+			);
+			path = Japanese;
+			sourceTree = "<group>";
+		};
+		22D0E186150D4C2E00C19BFA /* Jungle */ = {
+			isa = PBXGroup;
+			children = (
+				22D0E187150D4C2E00C19BFA /* Jungle Theme - 8 bit.mp3 */,
+				22D0E188150D4C2E00C19BFA /* Jungle Theme - ALT.mp3 */,
+				22D0E189150D4C2E00C19BFA /* Jungle Theme - BOSS.mp3 */,
+				22D0E18A150D4C2E00C19BFA /* Jungle Theme - Soundscape.mp3 */,
+			);
+			path = Jungle;
+			sourceTree = "<group>";
+		};
+		22D0E18B150D4C2E00C19BFA /* Magic Castle */ = {
+			isa = PBXGroup;
+			children = (
+				22D0E18C150D4C2E00C19BFA /* Magic Castle - 8 Bit.mp3 */,
+				22D0E18D150D4C2E00C19BFA /* Magic Castle Theme - Boss.mp3 */,
+				22D0E18E150D4C2E00C19BFA /* Magic Castle Theme - Soundscape.mp3 */,
+				22D0E18F150D4C2E00C19BFA /* Magic Castle Theme - Spells after hours.mp3 */,
+			);
+			path = "Magic Castle";
+			sourceTree = "<group>";
+		};
+		22D0E190150D4C2E00C19BFA /* Pirate */ = {
+			isa = PBXGroup;
+			children = (
+				22D0E191150D4C2E00C19BFA /* Pirate Theme - 8 Bit.mp3 */,
+				22D0E192150D4C2E00C19BFA /* Pirate Theme - Alt.mp3 */,
+				22D0E193150D4C2E00C19BFA /* Pirate Theme - Boss.mp3 */,
+				22D0E194150D4C2E00C19BFA /* Pirate Theme - Soundscape.mp3 */,
+			);
+			path = Pirate;
+			sourceTree = "<group>";
+		};
+		22D0E195150D4C2E00C19BFA /* Sci-Fi */ = {
+			isa = PBXGroup;
+			children = (
+				22D0E196150D4C2E00C19BFA /* Sci-Fi BOSS and Tron.mp3 */,
+				22D0E197150D4C2E00C19BFA /* Sci-fi Theme - 8 Bit.mp3 */,
+				22D0E198150D4C2E00C19BFA /* Sci-Fi Theme - ALT.mp3 */,
+			);
+			path = "Sci-Fi";
+			sourceTree = "<group>";
+		};
+		22D0E199150D4C2E00C19BFA /* Sky-heaven */ = {
+			isa = PBXGroup;
+			children = (
+				22D0E19A150D4C2E00C19BFA /* Sky Theme - ALT.mp3 */,
+				22D0E19B150D4C2E00C19BFA /* Sky Theme - BOSS.mp3 */,
+				22D0E19C150D4C2E00C19BFA /* Sky Theme - Soundscape.mp3 */,
+				22D0E19D150D4C2E00C19BFA /* SkyTheme - 8 Bit.mp3 */,
+			);
+			path = "Sky-heaven";
+			sourceTree = "<group>";
+		};
+		22D0E19E150D4C2E00C19BFA /* Spacestation */ = {
+			isa = PBXGroup;
+			children = (
+				22D0E19F150D4C2E00C19BFA /* Space Station Theme - 8 Bit.mp3 */,
+				22D0E1A0150D4C2E00C19BFA /* Space Station Theme - Boss.mp3 */,
+				22D0E1A1150D4C2E00C19BFA /* Spacestation Theme - ALT.mp3 */,
+				22D0E1A2150D4C2E00C19BFA /* Spacestation Theme - Soundscape.mp3 */,
+			);
+			path = Spacestation;
+			sourceTree = "<group>";
+		};
+		22D0E1A4150D4C2E00C19BFA /* Underwater */ = {
+			isa = PBXGroup;
+			children = (
+				22D0E1A5150D4C2E00C19BFA /* Underwater Theme - 8 bit.mp3 */,
+				22D0E1A6150D4C2E00C19BFA /* Underwater Theme - ALT.mp3 */,
+				22D0E1A7150D4C2E00C19BFA /* Underwater Theme - BOSS.mp3 */,
+				22D0E1A8150D4C2E00C19BFA /* Underwater Theme - Soundscape.mp3 */,
+			);
+			path = Underwater;
+			sourceTree = "<group>";
+		};
+		22D0E1A9150D4C2E00C19BFA /* Underworld */ = {
+			isa = PBXGroup;
+			children = (
+				22D0E1AA150D4C2E00C19BFA /* Underworld Theme - 8 Bit.mp3 */,
+				22D0E1AB150D4C2E00C19BFA /* Underworld Theme - Alt.mp3 */,
+				22D0E1AC150D4C2E00C19BFA /* Underworld Theme - Soundscape.mp3 */,
+			);
+			path = Underworld;
+			sourceTree = "<group>";
+		};
+		22D0E1AD150D4C2E00C19BFA /* War */ = {
+			isa = PBXGroup;
+			children = (
+				22D0E1AE150D4C2E00C19BFA /* War Theme - 8 Bit.mp3 */,
+				22D0E1AF150D4C2E00C19BFA /* War Theme - Boss.mp3 */,
+				22D0E1B0150D4C2E00C19BFA /* WarTheme - Soundscape.mp3 */,
+			);
+			path = War;
+			sourceTree = "<group>";
+		};
+		22D0E1B1150D4C2E00C19BFA /* Western */ = {
+			isa = PBXGroup;
+			children = (
+				22D0E1B2150D4C2E00C19BFA /* Western Theme - 8 bit.mp3 */,
+				22D0E1B3150D4C2E00C19BFA /* Western Theme - ALT.mp3 */,
+				22D0E1B4150D4C2E00C19BFA /* Western Theme - BOSS.mp3 */,
+				22D0E1B5150D4C2E00C19BFA /* Western Theme - Sounscape.mp3 */,
+			);
+			path = Western;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -2429,7 +2769,7 @@
 		1643B23114D9B00F00A67057 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0430;
 			};
 			buildConfigurationList = 1643B23414D9B00F00A67057 /* Build configuration list for PBXProject "GameFroot" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -2736,6 +3076,74 @@
 				226B31491505619E00BAD02A /* W Shotgun.caf in Resources */,
 				226B314A1505619E00BAD02A /* W Sword swoosh.caf in Resources */,
 				228F2E7B1508100E00527338 /* IG Transporter.caf in Resources */,
+				22D0E1B6150D4C2E00C19BFA /* Desert Theme - 8 bit.mp3 in Resources */,
+				22D0E1B7150D4C2E00C19BFA /* Desert Theme - BOSS.mp3 in Resources */,
+				22D0E1B8150D4C2E00C19BFA /* Desert Theme - Soundscape.mp3 in Resources */,
+				22D0E1B9150D4C2E00C19BFA /* DesertTheme - ALT.mp3 in Resources */,
+				22D0E1BA150D4C2E00C19BFA /* Dungeon Theme - 8 bit.mp3 in Resources */,
+				22D0E1BB150D4C2E00C19BFA /* Dungeon Theme - ALT.mp3 in Resources */,
+				22D0E1BC150D4C2E00C19BFA /* Dungeon Theme - BOSS.mp3 in Resources */,
+				22D0E1BD150D4C2E00C19BFA /* Dungeon Theme - Soundscape (inside).mp3 in Resources */,
+				22D0E1BE150D4C2E00C19BFA /* Dungeon Theme - Soundscape (outside).mp3 in Resources */,
+				22D0E1BF150D4C2E00C19BFA /* Forest Theme - 8 Bit.mp3 in Resources */,
+				22D0E1C0150D4C2E00C19BFA /* Forest Theme - ALT.mp3 in Resources */,
+				22D0E1C1150D4C2E00C19BFA /* Forest Theme - BOSS.mp3 in Resources */,
+				22D0E1C2150D4C2E00C19BFA /* Forest Theme - Soundscape.mp3 in Resources */,
+				22D0E1C3150D4C2E00C19BFA /* Ice Theme - 8 Bit.mp3 in Resources */,
+				22D0E1C4150D4C2E00C19BFA /* Ice theme - ALT.mp3 in Resources */,
+				22D0E1C5150D4C2E00C19BFA /* Ice Theme - BOSS.mp3 in Resources */,
+				22D0E1C6150D4C2E00C19BFA /* Ice theme - Soundscape.mp3 in Resources */,
+				22D0E1C7150D4C2E00C19BFA /* Industrial Theme - 8 Bit.mp3 in Resources */,
+				22D0E1C8150D4C2E00C19BFA /* Industrial Theme - ALT.mp3 in Resources */,
+				22D0E1C9150D4C2E00C19BFA /* Industrial theme - BOSS.mp3 in Resources */,
+				22D0E1CA150D4C2E00C19BFA /* Industrial Theme - Soundscape.mp3 in Resources */,
+				22D0E1CB150D4C2E00C19BFA /* Netwon Theme - Wisdom.mp3 in Resources */,
+				22D0E1CC150D4C2E00C19BFA /* Newton Theme - Astrology Tower.mp3 in Resources */,
+				22D0E1CD150D4C2E00C19BFA /* Newton Theme - Black Death2.mp3 in Resources */,
+				22D0E1CE150D4C2E00C19BFA /* Newton Theme - Look at my fancy wig!.mp3 in Resources */,
+				22D0E1CF150D4C2E00C19BFA /* Newton Theme - Stars.mp3 in Resources */,
+				22D0E1D0150D4C2E00C19BFA /* Japanese Theme - 8 Bit.mp3 in Resources */,
+				22D0E1D1150D4C2E00C19BFA /* Japanese theme - ALT.mp3 in Resources */,
+				22D0E1D2150D4C2E00C19BFA /* Japanese Theme - BOSS.mp3 in Resources */,
+				22D0E1D3150D4C2E00C19BFA /* Japanese Theme - Soundscape.mp3 in Resources */,
+				22D0E1D4150D4C2E00C19BFA /* Jungle Theme - 8 bit.mp3 in Resources */,
+				22D0E1D5150D4C2E00C19BFA /* Jungle Theme - ALT.mp3 in Resources */,
+				22D0E1D6150D4C2E00C19BFA /* Jungle Theme - BOSS.mp3 in Resources */,
+				22D0E1D7150D4C2E00C19BFA /* Jungle Theme - Soundscape.mp3 in Resources */,
+				22D0E1D8150D4C2E00C19BFA /* Magic Castle - 8 Bit.mp3 in Resources */,
+				22D0E1D9150D4C2E00C19BFA /* Magic Castle Theme - Boss.mp3 in Resources */,
+				22D0E1DA150D4C2E00C19BFA /* Magic Castle Theme - Soundscape.mp3 in Resources */,
+				22D0E1DB150D4C2E00C19BFA /* Magic Castle Theme - Spells after hours.mp3 in Resources */,
+				22D0E1DC150D4C2E00C19BFA /* Pirate Theme - 8 Bit.mp3 in Resources */,
+				22D0E1DD150D4C2E00C19BFA /* Pirate Theme - Alt.mp3 in Resources */,
+				22D0E1DE150D4C2E00C19BFA /* Pirate Theme - Boss.mp3 in Resources */,
+				22D0E1DF150D4C2E00C19BFA /* Pirate Theme - Soundscape.mp3 in Resources */,
+				22D0E1E0150D4C2E00C19BFA /* Sci-Fi BOSS and Tron.mp3 in Resources */,
+				22D0E1E1150D4C2E00C19BFA /* Sci-fi Theme - 8 Bit.mp3 in Resources */,
+				22D0E1E2150D4C2E00C19BFA /* Sci-Fi Theme - ALT.mp3 in Resources */,
+				22D0E1E3150D4C2E00C19BFA /* Sky Theme - ALT.mp3 in Resources */,
+				22D0E1E4150D4C2E00C19BFA /* Sky Theme - BOSS.mp3 in Resources */,
+				22D0E1E5150D4C2E00C19BFA /* Sky Theme - Soundscape.mp3 in Resources */,
+				22D0E1E6150D4C2E00C19BFA /* SkyTheme - 8 Bit.mp3 in Resources */,
+				22D0E1E7150D4C2E00C19BFA /* Space Station Theme - 8 Bit.mp3 in Resources */,
+				22D0E1E8150D4C2E00C19BFA /* Space Station Theme - Boss.mp3 in Resources */,
+				22D0E1E9150D4C2E00C19BFA /* Spacestation Theme - ALT.mp3 in Resources */,
+				22D0E1EA150D4C2E00C19BFA /* Spacestation Theme - Soundscape.mp3 in Resources */,
+				22D0E1EB150D4C2E00C19BFA /* Tron Theme.mp3 in Resources */,
+				22D0E1EC150D4C2E00C19BFA /* Underwater Theme - 8 bit.mp3 in Resources */,
+				22D0E1ED150D4C2E00C19BFA /* Underwater Theme - ALT.mp3 in Resources */,
+				22D0E1EE150D4C2E00C19BFA /* Underwater Theme - BOSS.mp3 in Resources */,
+				22D0E1EF150D4C2E00C19BFA /* Underwater Theme - Soundscape.mp3 in Resources */,
+				22D0E1F0150D4C2E00C19BFA /* Underworld Theme - 8 Bit.mp3 in Resources */,
+				22D0E1F1150D4C2E00C19BFA /* Underworld Theme - Alt.mp3 in Resources */,
+				22D0E1F2150D4C2E00C19BFA /* Underworld Theme - Soundscape.mp3 in Resources */,
+				22D0E1F3150D4C2E00C19BFA /* War Theme - 8 Bit.mp3 in Resources */,
+				22D0E1F4150D4C2E00C19BFA /* War Theme - Boss.mp3 in Resources */,
+				22D0E1F5150D4C2E00C19BFA /* WarTheme - Soundscape.mp3 in Resources */,
+				22D0E1F6150D4C2E00C19BFA /* Western Theme - 8 bit.mp3 in Resources */,
+				22D0E1F7150D4C2E00C19BFA /* Western Theme - ALT.mp3 in Resources */,
+				22D0E1F8150D4C2E00C19BFA /* Western Theme - BOSS.mp3 in Resources */,
+				22D0E1F9150D4C2E00C19BFA /* Western Theme - Sounscape.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
