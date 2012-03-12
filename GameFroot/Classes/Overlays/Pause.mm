@@ -41,7 +41,7 @@
         //\\//\\// add music button //\\//\\//
         
         musicButton = [CCMenuItemToggle itemWithTarget:self selector:@selector(music:) items:
-                       [CCMenuItemImage itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"music_off.png"]selectedSprite:[CCSprite spriteWithSpriteFrameName:@"music_off.png"]],                      [CCMenuItemImage itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"music_on.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"music_on.png"]],
+                       [CCMenuItemImage itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"music_on.png"]selectedSprite:[CCSprite spriteWithSpriteFrameName:@"music_on.png"]],                      [CCMenuItemImage itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"music_off.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"music_off.png"]],
                        nil];
         
         CCMenu *musicMenu = [CCMenu menuWithItems:musicButton, nil];

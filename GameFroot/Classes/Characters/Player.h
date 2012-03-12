@@ -103,6 +103,9 @@
 @property (nonatomic, assign) float shootDelay;
 @property (nonatomic,assign) int shootDamage;
 @property (nonatomic,assign) BOOL autoSafepoint;
+@property (nonatomic,assign) int health;
+@property (nonatomic,assign) int initialHealth;
+@property (nonatomic,assign) int topHealth;
 
 -(void) setupPlayer:(int)_playerID properties:(NSDictionary *)properties;
 -(void) removeWeapon;

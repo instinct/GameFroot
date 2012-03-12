@@ -547,6 +547,8 @@
 		22D0E1F7150D4C2E00C19BFA /* Western Theme - ALT.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1B3150D4C2E00C19BFA /* Western Theme - ALT.mp3 */; };
 		22D0E1F8150D4C2E00C19BFA /* Western Theme - BOSS.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1B4150D4C2E00C19BFA /* Western Theme - BOSS.mp3 */; };
 		22D0E1F9150D4C2E00C19BFA /* Western Theme - Sounscape.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1B5150D4C2E00C19BFA /* Western Theme - Sounscape.mp3 */; };
+		22D0E201150D81C400C19BFA /* Underworld Theme - Boss.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E200150D81C400C19BFA /* Underworld Theme - Boss.mp3 */; };
+		22D0E203150D81DE00C19BFA /* War Theme - ALT.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E202150D81DE00C19BFA /* War Theme - ALT.mp3 */; };
 		22D3A6DA14E2276B00EAB052 /* rate_controls_mockup.png in Resources */ = {isa = PBXBuildFile; fileRef = 22D3A6D914E2276B00EAB052 /* rate_controls_mockup.png */; };
 		22F8D1D114F5B52600780B13 /* controls-hd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 22F8D1CD14F5B52600780B13 /* controls-hd.plist */; };
 		22F8D1D214F5B52600780B13 /* controls-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 22F8D1CE14F5B52600780B13 /* controls-hd.png */; };
@@ -1339,6 +1341,8 @@
 		22D0E1B3150D4C2E00C19BFA /* Western Theme - ALT.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Western Theme - ALT.mp3"; sourceTree = "<group>"; };
 		22D0E1B4150D4C2E00C19BFA /* Western Theme - BOSS.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Western Theme - BOSS.mp3"; sourceTree = "<group>"; };
 		22D0E1B5150D4C2E00C19BFA /* Western Theme - Sounscape.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Western Theme - Sounscape.mp3"; sourceTree = "<group>"; };
+		22D0E200150D81C400C19BFA /* Underworld Theme - Boss.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Underworld Theme - Boss.mp3"; sourceTree = "<group>"; };
+		22D0E202150D81DE00C19BFA /* War Theme - ALT.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "War Theme - ALT.mp3"; sourceTree = "<group>"; };
 		22D3A6D914E2276B00EAB052 /* rate_controls_mockup.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rate_controls_mockup.png; sourceTree = "<group>"; };
 		22F8D1CD14F5B52600780B13 /* controls-hd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "controls-hd.plist"; sourceTree = "<group>"; };
 		22F8D1CE14F5B52600780B13 /* controls-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "controls-hd.png"; sourceTree = "<group>"; };
@@ -2659,6 +2663,7 @@
 		22D0E1A9150D4C2E00C19BFA /* Underworld */ = {
 			isa = PBXGroup;
 			children = (
+				22D0E200150D81C400C19BFA /* Underworld Theme - Boss.mp3 */,
 				22D0E1AA150D4C2E00C19BFA /* Underworld Theme - 8 Bit.mp3 */,
 				22D0E1AB150D4C2E00C19BFA /* Underworld Theme - Alt.mp3 */,
 				22D0E1AC150D4C2E00C19BFA /* Underworld Theme - Soundscape.mp3 */,
@@ -2669,6 +2674,7 @@
 		22D0E1AD150D4C2E00C19BFA /* War */ = {
 			isa = PBXGroup;
 			children = (
+				22D0E202150D81DE00C19BFA /* War Theme - ALT.mp3 */,
 				22D0E1AE150D4C2E00C19BFA /* War Theme - 8 Bit.mp3 */,
 				22D0E1AF150D4C2E00C19BFA /* War Theme - Boss.mp3 */,
 				22D0E1B0150D4C2E00C19BFA /* WarTheme - Soundscape.mp3 */,
@@ -3072,6 +3078,8 @@
 				22D0E1F7150D4C2E00C19BFA /* Western Theme - ALT.mp3 in Resources */,
 				22D0E1F8150D4C2E00C19BFA /* Western Theme - BOSS.mp3 in Resources */,
 				22D0E1F9150D4C2E00C19BFA /* Western Theme - Sounscape.mp3 in Resources */,
+				22D0E201150D81C400C19BFA /* Underworld Theme - Boss.mp3 in Resources */,
+				22D0E203150D81DE00C19BFA /* War Theme - ALT.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

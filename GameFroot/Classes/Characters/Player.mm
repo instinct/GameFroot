@@ -24,6 +24,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 @synthesize shootDelay;
 @synthesize shootDamage;
 @synthesize autoSafepoint;
+@synthesize health;
+@synthesize initialHealth;
+@synthesize topHealth;
 
 -(void) setupPlayer:(int)_playerID properties:(NSDictionary *)properties
 {

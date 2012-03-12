@@ -41,6 +41,11 @@
 #define VERTICAL_PLATFORM_COLLISION		3
 #define STATIC_OBJECTS_COLLISION		4
 
+#define BG_MUSIC_VOL 0.4f
+#define BG_MUSIC_DIP 0.2f
+
+#define HEALTH_BAR_MAXLENGTH 100.0f
+
 // GameLayer implementation
 @implementation GameLayer
 
@@ -1691,7 +1696,7 @@ GameLayer *instance;
 		if ([values count] > 0) [[SimpleAudioEngine sharedEngine] playBackgroundMusic:[values lastObject] loop:YES];
 	}
 	
-	[[SimpleAudioEngine sharedEngine] setBackgroundMusicVolume:1.0f];
+	[[SimpleAudioEngine sharedEngine] setBackgroundMusicVolume:BG_MUSIC_VOL];
 	
 	self.isTouchEnabled = YES;
     
@@ -2162,8 +2167,8 @@ GameLayer *instance;
 	[livesLabel setString:[NSString stringWithFormat:@"%ixHP", _lives]];
 }
 
--(void) setHealth:(int)_health
-{
+-(void) setHealth:(int)_health {
+    
 	if (_health == 0) {
 		barLeft.visible = NO;
 		barMiddle.visible = NO;
@@ -2174,7 +2179,8 @@ GameLayer *instance;
 		barMiddle.visible = YES;
 		barRight.visible = YES;
 		
-		barMiddle.scaleX = _health;
+        // set pixel increment based on max bar size
+		barMiddle.scaleX = (int)(((float)_health / (float)player.topHealth) * HEALTH_BAR_MAXLENGTH);
 		[barMiddle setPosition:ccp(barLeft.position.x + barLeft.contentSize.width/2, barLeft.position.y)];
 		[barRight setPosition:ccp(barMiddle.position.x + barMiddle.contentSize.width * barMiddle.scaleX, barMiddle.position.y)];
 	}
@@ -2333,7 +2339,7 @@ GameLayer *instance;
     paused = YES;
     ((CCSprite *)pauseBtn.normalImage).opacity = 0;
 		
-    [[SimpleAudioEngine sharedEngine] setBackgroundMusicVolume:0.2f];
+    [[SimpleAudioEngine sharedEngine] setBackgroundMusicVolume:BG_MUSIC_DIP];
 }
 
 -(void) resumeGame
@@ -2347,7 +2353,7 @@ GameLayer *instance;
     paused = NO;
     ((CCSprite *)pauseBtn.normalImage).opacity = 100;
 		
-    [[SimpleAudioEngine sharedEngine] setBackgroundMusicVolume:1.0f];
+    [[SimpleAudioEngine sharedEngine] setBackgroundMusicVolume:BG_MUSIC_VOL];
 }
 
 -(void) restartGame
