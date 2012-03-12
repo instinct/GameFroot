@@ -34,6 +34,7 @@
     NSMutableDictionary *robotsIds;
 	NSMutableDictionary *switches;
 	NSMutableDictionary *cached;
+    NSMutableDictionary *musicData;
 	
 	// Containers
 	CCParallaxNode *scene;

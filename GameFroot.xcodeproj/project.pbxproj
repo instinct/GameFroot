@@ -176,22 +176,6 @@
 		1643B54614D9B0BC00A67057 /* LogoutPressed-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B46614D9B0BC00A67057 /* LogoutPressed-hd.png */; };
 		1643B54714D9B0BC00A67057 /* LogoutPressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B46714D9B0BC00A67057 /* LogoutPressed.png */; };
 		1643B54814D9B0BC00A67057 /* runaround_image.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 1643B46814D9B0BC00A67057 /* runaround_image.jpg */; };
-		1643B54914D9B0BC00A67057 /* Desert Theme - 8 bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1643B46B14D9B0BC00A67057 /* Desert Theme - 8 bit.mp3 */; };
-		1643B54A14D9B0BC00A67057 /* Dungeon Theme - 8 bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1643B46C14D9B0BC00A67057 /* Dungeon Theme - 8 bit.mp3 */; };
-		1643B54B14D9B0BC00A67057 /* Forest Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1643B46D14D9B0BC00A67057 /* Forest Theme - 8 Bit.mp3 */; };
-		1643B54C14D9B0BC00A67057 /* Ice Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1643B46E14D9B0BC00A67057 /* Ice Theme - 8 Bit.mp3 */; };
-		1643B54D14D9B0BC00A67057 /* Industrial Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1643B46F14D9B0BC00A67057 /* Industrial Theme - 8 Bit.mp3 */; };
-		1643B54E14D9B0BC00A67057 /* Japanese Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1643B47014D9B0BC00A67057 /* Japanese Theme - 8 Bit.mp3 */; };
-		1643B54F14D9B0BC00A67057 /* Jungle Theme - 8 bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1643B47114D9B0BC00A67057 /* Jungle Theme - 8 bit.mp3 */; };
-		1643B55014D9B0BC00A67057 /* Magic Castle - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1643B47214D9B0BC00A67057 /* Magic Castle - 8 Bit.mp3 */; };
-		1643B55114D9B0BC00A67057 /* Pirate Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1643B47314D9B0BC00A67057 /* Pirate Theme - 8 Bit.mp3 */; };
-		1643B55214D9B0BC00A67057 /* Sci-fi Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1643B47414D9B0BC00A67057 /* Sci-fi Theme - 8 Bit.mp3 */; };
-		1643B55314D9B0BC00A67057 /* SkyTheme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1643B47514D9B0BC00A67057 /* SkyTheme - 8 Bit.mp3 */; };
-		1643B55414D9B0BC00A67057 /* Space Station Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1643B47614D9B0BC00A67057 /* Space Station Theme - 8 Bit.mp3 */; };
-		1643B55514D9B0BC00A67057 /* Underwater Theme - 8 bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1643B47714D9B0BC00A67057 /* Underwater Theme - 8 bit.mp3 */; };
-		1643B55614D9B0BC00A67057 /* Underworld Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1643B47814D9B0BC00A67057 /* Underworld Theme - 8 Bit.mp3 */; };
-		1643B55714D9B0BC00A67057 /* War Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1643B47914D9B0BC00A67057 /* War Theme - 8 Bit.mp3 */; };
-		1643B55814D9B0BC00A67057 /* Western Theme - 8 bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1643B47A14D9B0BC00A67057 /* Western Theme - 8 bit.mp3 */; };
 		1643B55B14D9B0BC00A67057 /* btn-main-menu-off.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B47E14D9B0BC00A67057 /* btn-main-menu-off.png */; };
 		1643B55C14D9B0BC00A67057 /* btn-main-menu.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B47F14D9B0BC00A67057 /* btn-main-menu.png */; };
 		1643B55D14D9B0BC00A67057 /* btn-main-menu2.png in Resources */ = {isa = PBXBuildFile; fileRef = 1643B48014D9B0BC00A67057 /* btn-main-menu2.png */; };
@@ -860,22 +844,6 @@
 		1643B46614D9B0BC00A67057 /* LogoutPressed-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "LogoutPressed-hd.png"; sourceTree = "<group>"; };
 		1643B46714D9B0BC00A67057 /* LogoutPressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = LogoutPressed.png; sourceTree = "<group>"; };
 		1643B46814D9B0BC00A67057 /* runaround_image.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = runaround_image.jpg; sourceTree = "<group>"; };
-		1643B46B14D9B0BC00A67057 /* Desert Theme - 8 bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Desert Theme - 8 bit.mp3"; sourceTree = "<group>"; };
-		1643B46C14D9B0BC00A67057 /* Dungeon Theme - 8 bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Dungeon Theme - 8 bit.mp3"; sourceTree = "<group>"; };
-		1643B46D14D9B0BC00A67057 /* Forest Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Forest Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
-		1643B46E14D9B0BC00A67057 /* Ice Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Ice Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
-		1643B46F14D9B0BC00A67057 /* Industrial Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Industrial Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
-		1643B47014D9B0BC00A67057 /* Japanese Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Japanese Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
-		1643B47114D9B0BC00A67057 /* Jungle Theme - 8 bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Jungle Theme - 8 bit.mp3"; sourceTree = "<group>"; };
-		1643B47214D9B0BC00A67057 /* Magic Castle - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Magic Castle - 8 Bit.mp3"; sourceTree = "<group>"; };
-		1643B47314D9B0BC00A67057 /* Pirate Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Pirate Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
-		1643B47414D9B0BC00A67057 /* Sci-fi Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Sci-fi Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
-		1643B47514D9B0BC00A67057 /* SkyTheme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "SkyTheme - 8 Bit.mp3"; sourceTree = "<group>"; };
-		1643B47614D9B0BC00A67057 /* Space Station Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Space Station Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
-		1643B47714D9B0BC00A67057 /* Underwater Theme - 8 bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Underwater Theme - 8 bit.mp3"; sourceTree = "<group>"; };
-		1643B47814D9B0BC00A67057 /* Underworld Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Underworld Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
-		1643B47914D9B0BC00A67057 /* War Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "War Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
-		1643B47A14D9B0BC00A67057 /* Western Theme - 8 bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Western Theme - 8 bit.mp3"; sourceTree = "<group>"; };
 		1643B47E14D9B0BC00A67057 /* btn-main-menu-off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "btn-main-menu-off.png"; sourceTree = "<group>"; };
 		1643B47F14D9B0BC00A67057 /* btn-main-menu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "btn-main-menu.png"; sourceTree = "<group>"; };
 		1643B48014D9B0BC00A67057 /* btn-main-menu2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "btn-main-menu2.png"; sourceTree = "<group>"; };
@@ -1895,33 +1863,9 @@
 				22D0E1A9150D4C2E00C19BFA /* Underworld */,
 				22D0E1AD150D4C2E00C19BFA /* War */,
 				22D0E1B1150D4C2E00C19BFA /* Western */,
-				1643B46A14D9B0BC00A67057 /* 8bit */,
 			);
 			name = music;
 			path = Resources/music;
-			sourceTree = "<group>";
-		};
-		1643B46A14D9B0BC00A67057 /* 8bit */ = {
-			isa = PBXGroup;
-			children = (
-				1643B46B14D9B0BC00A67057 /* Desert Theme - 8 bit.mp3 */,
-				1643B46C14D9B0BC00A67057 /* Dungeon Theme - 8 bit.mp3 */,
-				1643B46D14D9B0BC00A67057 /* Forest Theme - 8 Bit.mp3 */,
-				1643B46E14D9B0BC00A67057 /* Ice Theme - 8 Bit.mp3 */,
-				1643B46F14D9B0BC00A67057 /* Industrial Theme - 8 Bit.mp3 */,
-				1643B47014D9B0BC00A67057 /* Japanese Theme - 8 Bit.mp3 */,
-				1643B47114D9B0BC00A67057 /* Jungle Theme - 8 bit.mp3 */,
-				1643B47214D9B0BC00A67057 /* Magic Castle - 8 Bit.mp3 */,
-				1643B47314D9B0BC00A67057 /* Pirate Theme - 8 Bit.mp3 */,
-				1643B47414D9B0BC00A67057 /* Sci-fi Theme - 8 Bit.mp3 */,
-				1643B47514D9B0BC00A67057 /* SkyTheme - 8 Bit.mp3 */,
-				1643B47614D9B0BC00A67057 /* Space Station Theme - 8 Bit.mp3 */,
-				1643B47714D9B0BC00A67057 /* Underwater Theme - 8 bit.mp3 */,
-				1643B47814D9B0BC00A67057 /* Underworld Theme - 8 Bit.mp3 */,
-				1643B47914D9B0BC00A67057 /* War Theme - 8 Bit.mp3 */,
-				1643B47A14D9B0BC00A67057 /* Western Theme - 8 bit.mp3 */,
-			);
-			path = 8bit;
 			sourceTree = "<group>";
 		};
 		1643B47B14D9B0BC00A67057 /* overlays */ = {
@@ -2850,22 +2794,6 @@
 				1643B54614D9B0BC00A67057 /* LogoutPressed-hd.png in Resources */,
 				1643B54714D9B0BC00A67057 /* LogoutPressed.png in Resources */,
 				1643B54814D9B0BC00A67057 /* runaround_image.jpg in Resources */,
-				1643B54914D9B0BC00A67057 /* Desert Theme - 8 bit.mp3 in Resources */,
-				1643B54A14D9B0BC00A67057 /* Dungeon Theme - 8 bit.mp3 in Resources */,
-				1643B54B14D9B0BC00A67057 /* Forest Theme - 8 Bit.mp3 in Resources */,
-				1643B54C14D9B0BC00A67057 /* Ice Theme - 8 Bit.mp3 in Resources */,
-				1643B54D14D9B0BC00A67057 /* Industrial Theme - 8 Bit.mp3 in Resources */,
-				1643B54E14D9B0BC00A67057 /* Japanese Theme - 8 Bit.mp3 in Resources */,
-				1643B54F14D9B0BC00A67057 /* Jungle Theme - 8 bit.mp3 in Resources */,
-				1643B55014D9B0BC00A67057 /* Magic Castle - 8 Bit.mp3 in Resources */,
-				1643B55114D9B0BC00A67057 /* Pirate Theme - 8 Bit.mp3 in Resources */,
-				1643B55214D9B0BC00A67057 /* Sci-fi Theme - 8 Bit.mp3 in Resources */,
-				1643B55314D9B0BC00A67057 /* SkyTheme - 8 Bit.mp3 in Resources */,
-				1643B55414D9B0BC00A67057 /* Space Station Theme - 8 Bit.mp3 in Resources */,
-				1643B55514D9B0BC00A67057 /* Underwater Theme - 8 bit.mp3 in Resources */,
-				1643B55614D9B0BC00A67057 /* Underworld Theme - 8 Bit.mp3 in Resources */,
-				1643B55714D9B0BC00A67057 /* War Theme - 8 Bit.mp3 in Resources */,
-				1643B55814D9B0BC00A67057 /* Western Theme - 8 bit.mp3 in Resources */,
 				1643B55B14D9B0BC00A67057 /* btn-main-menu-off.png in Resources */,
 				1643B55C14D9B0BC00A67057 /* btn-main-menu.png in Resources */,
 				1643B55D14D9B0BC00A67057 /* btn-main-menu2.png in Resources */,

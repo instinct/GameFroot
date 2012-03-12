@@ -640,12 +640,22 @@ GameLayer *instance;
 	NSDictionary *headerData = [jsonData objectForKey:@"meta"];
 	if(headerData)
 	{
-		NSArray *bgMusics = [[headerData objectForKey:@"background"] objectForKey:@"music"];
-		if ((bgMusics != nil) && [bgMusics isKindOfClass:[NSArray class]] && [bgMusics count] > 0) {
-			NSString *trackURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_music_url&id=%d", [self returnServer], [[bgMusics objectAtIndex:0] intValue]];
-			//CCLOG(@"Level music url '%@'", trackURL);
-			NSString *track = [Shared stringWithContentsOfURL:trackURL ignoreCache:ignoreCache];
-			[data setObject:track forKey:@"bgmusic"];
+		musicData = [[NSMutableDictionary alloc] init];
+        NSArray *musicArray = [[headerData objectForKey:@"background"] objectForKey:@"musics"];
+		if ((musicArray != nil) && [musicArray isKindOfClass:[NSArray class]] && [musicArray count] > 0) {
+            
+            for (NSString *mID in musicArray) {
+                NSString *urlRequest = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_music_url&id=%@", [self returnServer], mID];
+                NSString *urlResponse = [Shared stringWithContentsOfURL:urlRequest ignoreCache:ignoreCache];
+                NSString *track = [[urlResponse componentsSeparatedByString:@"/"] lastObject];
+                // add dict entry
+                CCLOG(@"track: %@ key: %@", track, mID);
+                [musicData setObject:track forKey:mID];
+            }
+            
+            // now set the default music
+            NSString *default_music = [[headerData objectForKey:@"background"] objectForKey:@"default_music"];
+            [data setObject:[musicData objectForKey:default_music] forKey:@"bgmusic"];
 			
 		} else {
 			[data setObject:@"" forKey:@"bgmusic"];
@@ -2424,6 +2434,7 @@ GameLayer *instance;
 	[switches release];
 	[cached release];
     [bodiesToDestroy release];
+    [musicData release];
 	
 	[self removeAllChildrenWithCleanup:YES];
 	
