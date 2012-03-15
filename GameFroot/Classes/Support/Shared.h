@@ -43,6 +43,7 @@
 +(CGPoint *) getTrianglePoints: (CGRect) rect direction:(NSString *)direction;
 +(void) moveDocumentFilesToLibrary;
 +(BOOL) isEmpty:(id) object;
++(BOOL) isNumeric:(NSString*) checkText;
 +(NSString *) decode: (NSString *)value;
 +(NSString*) md5: (NSString *)str;
 +(NSString*) sha1: (NSString *)str;

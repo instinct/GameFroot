@@ -343,6 +343,22 @@ CGPoint GBSub(const CGPoint v1, const CGPoint v2) {
         && [(NSArray *) object count] == 0);
 }
 
++(BOOL) isNumeric:(NSString*) checkText
+{
+    
+	NSNumberFormatter* numberFormatter = [[[NSNumberFormatter alloc] init] autorelease];
+    
+	NSNumber* number = [numberFormatter numberFromString:checkText];
+    
+	if (number != nil) {
+		//CCLOG(@"%@ is numeric", checkText);
+		return true;
+	}
+    
+	//CCLOG(@"%@ is not numeric", checkText);
+    return false;
+}
+
 +(NSString *) decode: (NSString *)value {
 	//CCLOG(@"Shared.decode: %@", value);
 	if ([Shared isEmpty:value]) {

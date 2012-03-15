@@ -62,6 +62,8 @@
 @property (nonatomic, assign) BOOL solid;
 @property (nonatomic, assign) BOOL physics;
 @property (nonatomic, assign) BOOL sensor;
+@property (nonatomic, assign) NSDictionary *original;
+@property (nonatomic, assign) NSDictionary *parameters;
 
 -(void) createBox2dObject:(b2World*)world size:(CGSize)_size;
 

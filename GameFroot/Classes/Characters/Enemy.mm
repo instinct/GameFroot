@@ -961,7 +961,7 @@
             }
             break;
             
-        case kGameObjectBullet:
+        case kGameObjectBullet:                
             [ self hit:( ( Bullet* )object ).damage ];
             [ ( Bullet* )object die ];
             break;

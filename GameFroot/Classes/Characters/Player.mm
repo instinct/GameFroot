@@ -50,8 +50,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	health = initialHealth = [[properties objectForKey:@"health"] intValue];
     topHealth = health;
     
-    defaultWeapon = 4; // Use string [properties objectForKey:@"weapon"]
-    startsWithWeapon = [[properties objectForKey:@"hasWeapon"] intValue] == 1;
+    defaultWeapon = [[properties objectForKey:@"weapon"] intValue];
+    startsWithWeapon = [[properties objectForKey:@"hasWeapon"] boolValue];
     startsWithJetpack = [[properties objectForKey:@"hasJetpack"] intValue] == 1;
     
     [[GameLayer getInstance] setLives:lives];

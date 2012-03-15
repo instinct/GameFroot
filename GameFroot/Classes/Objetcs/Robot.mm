@@ -14,7 +14,7 @@
 #include <objc/runtime.h>
 
 #define FLASH_VELOCITY_FACTOR	50.0f
-#define DELAY_FACTOR			1000.0f
+#define DELAY_FACTOR			500.0f
 
 void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 {
@@ -27,6 +27,8 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 @synthesize solid;
 @synthesize physics;
 @synthesize sensor;
+@synthesize original;
+@synthesize parameters;
 
 - (id) init
 {
@@ -165,7 +167,8 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 		//CCLOG(@"%@", event);
 		
 		NSString *nameEvent = [event objectForKey:@"event"];
-		
+		//CCLOG(@"Robot.onSpawn: %@", nameEvent);
+        
 		if ([nameEvent isEqualToString:@"onSpawn"]) {
 			[self resolve:i];
         }
@@ -1097,29 +1100,48 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 
 -(void) spawnNewObject:(NSDictionary *)command 
 {
-	//TODO:
-	/*
+    //CCLOG(@"Robot.spawnNewObject: %@", command);
+    
 	NSDictionary *location = [command objectForKey:@"location"];
 	NSString *token = [location objectForKey:@"token"];
+	NSMutableArray *node = [[self runMethod:token withObject:location] retain];
 	
-	NSMutableArray *node = [self runMethod:token withObject:location];
+	//float x = [[node objectAtIndex:0] floatValue];
+	//float y = [[node objectAtIndex:1] floatValue];
 	
-	float x = [[node objectAtIndex:0] floatValue];
+    NSString *objClass = [[command objectForKey:@"objclass"] objectForKey:@"token"];
+    if ([objClass isEqualToString:@"thisType"]) {
+        //[[GameLayer getInstance] spawnRobot:self pos:ccp(x,y)];
+        
+        id action = [CCSequence actions:
+                     [CCDelayTime actionWithDuration:1.0/60.0],
+                     [CCCallFuncND actionWithTarget:self selector:@selector(_spawnRobot:data:) data:node],
+                     nil];
+        [self runAction: action];
+        
+    } else if ([objClass isEqualToString:@"enemy"]) {
+        //[[GameLayer getInstance] spawnEnemy:ccp(x,y)];
+        
+        id action = [CCSequence actions:
+                     [CCDelayTime actionWithDuration:1.0/60.0],
+                     [CCCallFuncND actionWithTarget:self selector:@selector(_spawnEnemy:data:) data:node],
+                     nil];
+        [self runAction: action];
+    }
+}
+
+-(void) _spawnRobot:(id)selector data:(NSMutableArray *) node {
+    float x = [[node objectAtIndex:0] floatValue];
 	float y = [[node objectAtIndex:1] floatValue];
-	*/
-	
-	/*
-	var pos:Point = this[command.location.token](command.location);
-	
-	var content:Object = this.obj; 
-	content.xpos = pos.x/48;
-	content.ypos = pos.y/48;
-	
-	if(command.objclass.token == "thisType"){
-		play_state.spawnNewObject(content,pos,"robot",this.Solid); 
-		
-	}
-	*/
+    [[GameLayer getInstance] spawnRobot:self pos:ccp(x,y)];
+    [node release];
+}
+
+-(void) _spawnEnemy:(id)selector data:(NSMutableArray *) node {
+    float x = [[node objectAtIndex:0] floatValue];
+	float y = [[node objectAtIndex:1] floatValue];
+    [[GameLayer getInstance] spawnEnemy:ccp(x,y)];
+    [node release];
 }
 
 -(void) shootNewObject:(NSDictionary *)command 
@@ -1240,10 +1262,14 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 	}
 	
     NSString *message = [command objectForKey:@"message"];
+    if ([message isEqualToString:@"check"]) return;
+    
     SEL sel = sel_registerName([[NSString stringWithFormat:@"%@:command:", message] UTF8String]);
     
-    //CCLOG(@"Robot.messageSelfAfterDelay: %@", message);
+    CCLOG(@"Robot.messageSelfAfterDelay: %@ (%f)", message, delay/DELAY_FACTOR);
     
+    [[CCScheduler sharedScheduler] unscheduleSelector:sel forTarget:self];
+     
     id action = [CCSequence actions:
                  [CCDelayTime actionWithDuration:delay/DELAY_FACTOR],
                  [CCCallFuncND actionWithTarget:self selector:sel data:command],
@@ -1732,6 +1758,9 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 	onTouchStart = NO;
 	onInShot = NO;
     onOutShot = YES;
+   
+    [self stopAllActions];
+    if (paused) [self resume];
     
     [self onSpawn];
 }

@@ -726,11 +726,25 @@ GameLayer *instance;
 	[playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"xpos"] intValue]] forKey:@"positionX"];
 	[playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"ypos"] intValue]] forKey:@"positionY"];
     [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"player_jetpack"] intValue]] forKey:@"hasJetpack"];
-    [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"player_weapon"] intValue]] forKey:@"hasWeapon"];
     [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"starting_health"] intValue]] forKey:@"health"];
     [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"starting_lives"] intValue]] forKey:@"lives"];
-    [playerData setObject:[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"chosen_weapon"] forKey:@"weapon"];
-	[data setObject:playerData forKey:@"player"];
+    
+    // Check backward compatibilty with previus API to avoid crashes
+    if ([[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"has_weapon"] != nil)
+        [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"has_weapon"] intValue]] forKey:@"hasWeapon"];
+    else if ([[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"player_weapon"] != nil)
+        [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"player_weapon"] intValue]] forKey:@"hasWeapon"];
+    else 
+        [playerData setObject:[NSNumber numberWithInt:0] forKey:@"has_weapon"];
+    
+    // Check backward compatibilty with previus API to avoid crashes
+    id weapon = [[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"chosen_weapon"];
+    if (![weapon isMemberOfClass:[NSString class]]) 
+        [playerData setObject:[NSNumber numberWithInt:[weapon intValue]] forKey:@"weapon"];
+    else 
+        [playerData setObject:[NSNumber numberWithInt:0] forKey:@"weapon"];
+	
+    [data setObject:playerData forKey:@"player"];
 	//CCLOG(@"Player: %@", [playerData description]);
     
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1526,6 +1540,19 @@ GameLayer *instance;
 	CCLOG(@"Total points level: %i", totalPoints);
 }
 
+-(void) spawnRobot:(Robot *) origen pos:(CGPoint) pos
+{
+    int zorder  = 1;
+    
+    Robot *item = [Robot spriteWithBatchNode:spriteSheet rect:[origen textureRect]];
+    [item setPosition:pos];
+    [item setupRobot:origen.original parameters:origen.parameters];
+    [item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
+    [spriteSheet addChild:item z:zorder];
+    
+    [robots addObject:item];    
+}
+
 -(void) loadPlayer
 {
 	NSDictionary *dict = (NSDictionary *)[data objectForKey:@"player"];
@@ -1660,6 +1687,71 @@ GameLayer *instance;
 		
 		[enemies addObject:enemy];
 	}
+}
+
+-(void) spawnEnemy:(CGPoint) pos
+{
+    NSMutableArray *enemiesList = [data objectForKey:@"characters"];
+    
+    int i = 0;
+
+    NSDictionary *dict = (NSDictionary *)[enemiesList objectAtIndex:i];
+    int enemyID = [[dict objectForKey:@"type"] intValue];
+    CCLOG(@"Enemy id: %i, initial position: %f,%f", enemyID, pos.x, pos.y);
+    
+    CCSpriteBatchNode *enemySpriteSheet;
+    BOOL custom = NO;
+    NSString *enemyFilename;
+    if (enemyID > 10) {
+        enemyFilename = [NSString stringWithFormat:@"%@wp-content/characters/enemy%d.png", [self returnServer], enemyID];
+        
+        custom = ignoreCache;
+        if ([cached objectForKey:enemyFilename] != nil) {
+            custom = NO; // cached on previous steps
+            
+        } else {
+            [cached setObject:@"YES" forKey:enemyFilename];
+        }
+        
+        CCLOG(@"Enemy spritesheet url: %@", enemyFilename);
+        @try {
+            enemySpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:enemyFilename ignoreCache:custom]];
+            
+        } @catch (NSException * e) {
+            CCLOG(@"Enemy Spritesheet not found or error, use default one");
+            enemySpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"enemy_sheet%i.png", arc4random()%11]];
+        }
+        
+    } else {
+        //enemyFilename = [NSString stringWithFormat:@"%@wp-content/characters/enemy_sheet%d.png", [self returnServer], enemyID];
+        //enemySpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:enemyFilename ignoreCache:custom || ignoreCache]];
+        
+        CCLOG(@"Enemy spritesheet: %@", [NSString stringWithFormat:@"enemy_sheet%i.png", enemyID]);
+        enemySpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"enemy_sheet%i.png", enemyID]];
+    }
+    
+    if (REDUCE_FACTOR != 1.0f) [enemySpriteSheet.textureAtlas.texture setAntiAliasTexParameters];
+    else [enemySpriteSheet.textureAtlas.texture setAliasTexParameters];
+    
+    [objects addChild:enemySpriteSheet z:LAYER_PLAYER];
+    
+    float spriteWidth = enemySpriteSheet.texture.contentSize.width / 8;
+    float spriteHeight = enemySpriteSheet.texture.contentSize.height / 2;
+    
+    CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
+    //CGPoint pos = ccp(dx * MAP_TILE_WIDTH, ((mapHeight - dy - 1) * MAP_TILE_HEIGHT));
+    //pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
+    //pos.y += hitArea.height/2.0f;
+    
+    // Create player		
+    Enemy *enemy = [Enemy spriteWithBatchNode:enemySpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];        
+    [enemy setPosition:pos];
+    [enemy setAnchorPoint:ccp(0.41,0.33)];
+    [enemy setupEnemy:enemyID properties:dict player:player];
+    [enemy createBox2dObject:world size:hitArea];
+    [enemySpriteSheet addChild:enemy z:LAYER_PLAYER];
+    
+    [enemies addObject:enemy];
 }
 
 #pragma mark -
