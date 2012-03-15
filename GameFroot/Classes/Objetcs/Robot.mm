@@ -267,7 +267,7 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 	if (current.x > 0) {
 		facingLeft = NO;
 		
-	} else if (current.x < 0) {
+	} else {
 		facingLeft = YES;
 	}
 	
@@ -1152,7 +1152,7 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 -(NSNumber *) isFalling:(id)obj
 {
 	b2Vec2 current = body->GetLinearVelocity();
-	return [NSNumber numberWithBool:current.y < 0];
+	return [NSNumber numberWithBool:current.y < -0.01];
 }
 
 -(void) freezePlayer:(id)obj

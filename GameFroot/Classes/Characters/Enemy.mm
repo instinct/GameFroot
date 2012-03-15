@@ -838,7 +838,11 @@
                 if (rnd == 0) [self moveLeft];
                 else [self moveRight];
                 
-            } else if ( [ self tileWalkable:1 y:0 ] == NO ) [self changeDirection];
+            } else if ( [ self tileWalkable:1 y:0 ] == NO ) {
+                // ignore if jumping or falling
+                b2Vec2 vel = body->GetLinearVelocity();
+                if (!jumping && (fabsf(roundf(vel.y)) == 0)) [ self changeDirection ];
+            }
         }
 	}
     
@@ -992,7 +996,7 @@
             if ( [self isBelowCloud:object]) data.contact->SetEnabled( false );
             else {
                 b2Vec2 current = self.body->GetLinearVelocity();
-                if (current.y < 0) [self hitsFloor];
+                if (current.y < -0.01) [self hitsFloor];
             }
             break;
             
@@ -1012,7 +1016,7 @@
             if ( [self isBelowCloud:object] ) data.contact->SetEnabled( false );
             else {
                 b2Vec2 current = self.body->GetLinearVelocity();
-                if (current.y < 0) [self hitsFloor];
+                if (current.y < -0.01) [self hitsFloor];
             }
             break;
             

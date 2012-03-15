@@ -454,8 +454,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     
     if (fabsf(roundf(vel.y)) != 0) return( NO );
     
-    if ( ( vel.x < 0 ) && ( !facingLeft || ( action == STAND ) ) ) return( YES );
-    if ( ( vel.x > 0 ) && ( facingLeft || ( action == STAND  ) ) ) return( YES );
+    if ( ( vel.x < -0.01 ) && ( !facingLeft || ( action == STAND ) ) ) return( YES );
+    else if ( ( vel.x > 0 ) && ( facingLeft || ( action == STAND  ) ) ) return( YES );
     
     return( NO );    
 }
@@ -1211,7 +1211,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     
     initialX = originalX;
     initialY = originalY;
-    
+ 
+    [self resetForces];
 	[self resetPosition];
 }
 
@@ -1318,8 +1319,14 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 -(void) hitsFloor
 {
 	b2Vec2 current = body->GetLinearVelocity();
-	//CCLOG(@"Player.hitsFloor, jumping:%i, moving:%i, jumpingMoving:%i, vel:%f,%f", jumping, moving, jumpingMoving, current.x, current.y);
+	//CCLOG(@"%@.hitsFloor, jumping:%i, moving:%i, jumpingMoving:%i, vel:%f,%f", [self class], jumping, moving, jumpingMoving, current.x, current.y);
+    //CCLOG(@"%@.hitsFloor: %f", [self class], current.y);
 	
+    if (current.y < -15) {
+        // Apply damage when falling for high altitude
+        [self hit: fabsf(current.y) *  2.5];
+    }
+    
 	canJump = YES;
     jumping = NO;
     jumpingMoving = NO;
@@ -1405,7 +1412,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		if ((current.y > 0) && jumping) {
 			if (!ignoreGravity) [self setState:JUMPING];
 			
-		} else if (current.y < 0) {
+		} else if (current.y < -0.01) {
 			if (!ignoreGravity) [self setState:FALLING];
 			
 			if ((pressedJump && jetpackCollected && !jetpackActivated)
@@ -1595,7 +1602,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             if ( [self isBelowCloud:object] ) data.contact->SetEnabled( false );
             else {
                 b2Vec2 current = self.body->GetLinearVelocity();
-                if (current.y < 0) [self hitsFloor];
+                if (current.y < -0.01) [self hitsFloor];
             }
             break;
             
@@ -1633,7 +1640,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             if ( [self isBelowCloud:object] ) data.contact->SetEnabled( false );
             else {
                 b2Vec2 current = self.body->GetLinearVelocity();
-                if (current.y < 0) [self hitsFloor];
+                if (current.y < -0.01) [self hitsFloor];
             }
             break;
         
@@ -1653,13 +1660,13 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
                     switch ( data.position ) {
                             
                         case CONTACT_IS_ABOVE:
-                            if ( velocity.y < 0 ) [ ( MovingPlatform* )object changeDirection ];
+                            if ( velocity.y < -0.01 ) [ ( MovingPlatform* )object changeDirection ];
                             break;
                         case CONTACT_IS_LEFT:
                             if ( velocity.x > 0 ) [ ( MovingPlatform* )object changeDirection ];
                             break;
                         case CONTACT_IS_RIGHT:
-                            if ( velocity.x < 0 ) [ ( MovingPlatform* )object changeDirection ];
+                            if ( velocity.x < -0.01 ) [ ( MovingPlatform* )object changeDirection ];
                             break;
                         default:
                             break;
