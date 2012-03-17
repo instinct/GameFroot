@@ -487,15 +487,6 @@
     facingLeft = YES;
 }
 
--(BOOL) isStaticWalking {
-    if ( dying || immortal || jumping ) return ( NO );
-    
-    b2Vec2 vel = body->GetLinearVelocity( );
-    if ( (fabsf(roundf(vel.x)) == 0) && ( action != STAND) ) return( YES );
-    
-    return( NO );
-}
-
 // --------------------------------------------------------------
 // jumps should maybe be randomized to make AI fail
 
@@ -810,7 +801,7 @@
                 b2Vec2 vel = body->GetLinearVelocity();
                 
                 if (!jumping && (fabsf(roundf(vel.y)) == 0)) {
-                    if ( [ self tileWalkable:1 y:-1 ] == NO ) [ self changeDirection ];
+                    if (( [ self tileWalkable:1 y:-1 ] == NO ) && !crowded) [ self changeDirection ];
                 }
                 
             }
@@ -961,6 +952,7 @@
             
         case kGameObjectEnemy:
             data.contact->SetEnabled( false );
+            crowded = YES;
             break;
             
         case kGameObjectCloud:
@@ -993,6 +985,24 @@
             
         default:
             break;
+    }
+}
+
+-( void )handleEndCollision:( contactData )data {
+    GameObject* object = ( GameObject* )data.object;
+    b2Vec2 velocity;
+    
+    // case handling
+    switch ( object.type ) {
+            
+        case kGameObjectEnemy:
+            data.contact->SetEnabled( false );
+            crowded = NO;
+            break;
+            
+        default:
+            break;
+            
     }
 }
 

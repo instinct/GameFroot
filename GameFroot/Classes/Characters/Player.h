@@ -141,6 +141,7 @@
 -(void) resetForces;
 -(BOOL) isBelowCloud:(GameObject *) object;
 -(BOOL) isMoonWalking;
+-(BOOL) isStaticWalking;
 -(BOOL) isJumping;
 
 -(void) restart;

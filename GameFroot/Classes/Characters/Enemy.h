@@ -60,6 +60,8 @@
     CGPoint tilePos;                    // current tile position
     float jumpDelay;                    // idle delay after jump finished
     float shootTimer;                   // shoot timer
+    
+    BOOL crowded;
 }
 
 @property (nonatomic,assign) int collideTakeDamage;

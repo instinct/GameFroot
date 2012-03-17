@@ -460,6 +460,15 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     return( NO );    
 }
 
+-(BOOL) isStaticWalking {
+    if ( dying || immortal || jumping ) return ( NO );
+    
+    b2Vec2 vel = body->GetLinearVelocity( );
+    if ( (fabsf(roundf(vel.x)) == 0) && ( action != STAND) ) return( YES );
+    
+    return( NO );
+}
+
 -(BOOL) isJumping {
     return jumping;
 }
@@ -477,15 +486,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 				b2Vec2 velocity = b2Vec2(HORIZONTAL_SPEED + horizontalSpeedOffset, current.y);
 				body->SetLinearVelocity(velocity);
 			}
-            
-		} else if ([self isMoonWalking]) {
-            [self resetForces];
         }
         
 	} else if (!jumping && !moving && !jumpingMoving && (fabsf(roundf(current.y)) == 0)){
-        [self resetForces];
-    
-    } else if ([self isMoonWalking]) {
         [self resetForces];
     }
 }
@@ -1452,6 +1455,14 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		}
 	}
 	
+    // ********************
+    // direction check
+    // ********************
+    // if player is pushed, the physics engine might result in "moonwalking"
+    if ( [ self isMoonWalking ] == YES ) [ self resetForces ];
+    if ( [ self isStaticWalking ] == YES ) [ self stop ];
+    
+    // done
 	[super update:dt];
 }
 
