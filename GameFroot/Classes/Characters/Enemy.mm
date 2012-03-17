@@ -801,7 +801,8 @@
                 b2Vec2 vel = body->GetLinearVelocity();
                 
                 if (!jumping && (fabsf(roundf(vel.y)) == 0)) {
-                    if (( [ self tileWalkable:1 y:-1 ] == NO ) && !crowded) [ self changeDirection ];
+                    int tileType = [self tileType:1 y:-1];
+                    if ( (([self tileWalkable:1 y:-1] == NO) && !crowded) || (tileType == TILE_TYPE_SPIKE) ) [ self changeDirection ];
                 }
                 
             }
