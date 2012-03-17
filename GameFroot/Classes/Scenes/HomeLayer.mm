@@ -1150,8 +1150,17 @@
             nil];
     [serverOptions setSelectedIndex:serverUsed];
     
-    CCMenu *menu = [CCMenu menuWithItems:serverOptions, nil];
+    CCMenuItemToggle *debugOptions = [CCMenuItemToggle itemWithTarget:self selector:@selector(immortal:) items:
+                                       [CCMenuItemFont itemFromString: @"Mortal"],
+                                       [CCMenuItemFont itemFromString: @"Immortal"],
+                                       nil];
     
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    int immortal = [prefs integerForKey:@"immortal"];
+    [debugOptions setSelectedIndex:immortal];
+    
+    CCMenu *menu = [CCMenu menuWithItems:serverOptions, debugOptions, nil];
+    [menu alignItemsVertically];
     [more addChild:menu];
     
     CGSize size = [[CCDirector sharedDirector] winSize];
@@ -1161,6 +1170,7 @@
 	loading = NO;
 	more.visible = YES;
 }
+
 -(void) server:(id)sender {
     serverUsed = [sender selectedIndex];
     
@@ -1184,6 +1194,11 @@
     [self updatePlayedBadge];
 }
     
+-(void) immortal:(id)sender {
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+	[prefs setInteger:[sender selectedIndex] forKey:@"immortal"];
+	[prefs synchronize];
+}
 
 #pragma mark -
 #pragma mark SWTableView

@@ -13,8 +13,9 @@
 
 @interface Robot : GameObject {
 	NSArray *behavior;
-    NSDictionary *original;
+
 	NSDictionary *parameters;
+    NSDictionary *originalData;
     
 	int health;
 	BOOL facingLeft;
@@ -62,12 +63,12 @@
 @property (nonatomic, assign) BOOL solid;
 @property (nonatomic, assign) BOOL physics;
 @property (nonatomic, assign) BOOL sensor;
-@property (nonatomic, assign) NSDictionary *original;
 @property (nonatomic, assign) NSDictionary *parameters;
+@property (nonatomic, assign) NSDictionary *originalData;
 
 -(void) createBox2dObject:(b2World*)world size:(CGSize)_size;
 
--(void) setupRobot:(NSDictionary *)data parameters:(NSDictionary *)params;
+-(void) setupRobot:(NSDictionary *)properties;
 -(void) onSpawn;
 -(void) update:(ccTime)dt;
 

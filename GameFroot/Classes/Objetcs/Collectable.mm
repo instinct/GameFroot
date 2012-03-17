@@ -28,7 +28,7 @@
 	body = world->CreateBody(&playerBodyDef);
 	
 	b2PolygonShape shape;
-	shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0f)/PTM_RATIO);
+	shape.SetAsBox((size.width/4.0)/PTM_RATIO, (size.height/4.0f)/PTM_RATIO);
 	b2FixtureDef fixtureDef;
 	fixtureDef.shape = &shape;
 	fixtureDef.density = 1.0;

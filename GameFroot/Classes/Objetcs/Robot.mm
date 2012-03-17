@@ -14,7 +14,7 @@
 #include <objc/runtime.h>
 
 #define FLASH_VELOCITY_FACTOR	50.0f
-#define DELAY_FACTOR			500.0f
+#define DELAY_FACTOR			1000.0f
 
 void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 {
@@ -27,8 +27,8 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 @synthesize solid;
 @synthesize physics;
 @synthesize sensor;
-@synthesize original;
 @synthesize parameters;
+@synthesize originalData;
 
 - (id) init
 {
@@ -79,13 +79,26 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 	removed = NO;
 }
 
--(void) setupRobot:(NSDictionary *)data parameters:(NSDictionary *)params
+-(void) setupRobot:(NSDictionary *)properties
 {
-	//CCLOG(@"Robot.setupRobot: %@", data);
-	//CCLOG(@"Robot.setupRobot (parameters): %@", params);
+	//CCLOG(@"Robot.setupRobot: %@", properties);
     
-    original = [data retain];
-    parameters = [params retain];
+    if (behavior) [behavior release];
+    if (originalData) [originalData release];
+    if (parameters) [parameters release];
+	if (msgCommands) [msgCommands release];
+	if (msgName) [msgName release];
+	if (andToken) [andToken release];
+	if (orToken) [orToken release];
+	if (timerCommands) [timerCommands release];
+	if (name) [name release];
+    
+    originalData = [properties retain];
+    parameters = [[properties objectForKey:@"robotParameters"] retain];
+    NSDictionary *data = [properties objectForKey:@"robot"];
+    
+    //CCLOG(@"Robot.setupRobot: %@", data);
+    //CCLOG(@"Robot.setupRobot (parameters): %@", parameters);
     
 	// default values
 	health = 100;	
@@ -172,7 +185,10 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 		if ([nameEvent isEqualToString:@"onSpawn"]) {
 			[self resolve:i];
         }
-    }    
+    }
+    
+    [self resumeSchedulerAndActions];
+	paused = NO;
 }
 
 -(void) inShot
@@ -1100,7 +1116,7 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 
 -(void) spawnNewObject:(NSDictionary *)command 
 {
-    //CCLOG(@"Robot.spawnNewObject: %@", command);
+    CCLOG(@"Robot.spawnNewObject: %@", command);
     
 	NSDictionary *location = [command objectForKey:@"location"];
 	NSString *token = [location objectForKey:@"token"];
@@ -1138,9 +1154,13 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 }
 
 -(void) _spawnEnemy:(id)selector data:(NSMutableArray *) node {
-    float x = [[node objectAtIndex:0] floatValue];
-	float y = [[node objectAtIndex:1] floatValue];
-    [[GameLayer getInstance] spawnEnemy:ccp(x,y)];
+    //float x = [[node objectAtIndex:0] floatValue];
+	//float y = [[node objectAtIndex:1] floatValue];
+    
+    int dx = [[originalData objectForKey:@"positionX"] intValue];
+    int dy = [[originalData objectForKey:@"positionY"] intValue];	
+    
+    [[GameLayer getInstance] spawnEnemy:ccp(dx,dy)];
     [node release];
 }
 
@@ -1738,9 +1758,9 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 #pragma mark -
 #pragma mark Reset
 
--(void) resetPosition
+-(void) restart
 {
-    [self setupRobot:original parameters:parameters];
+    [self setupRobot:originalData];
     
 	if (removed) {
 		[self _recreateBody];
@@ -1760,8 +1780,6 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
     onOutShot = YES;
    
     [self stopAllActions];
-    if (paused) [self resume];
-    
     [self onSpawn];
 }
 
@@ -1812,8 +1830,8 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 - (void)dealloc
 {
 	[behavior release];
+    [originalData release];
     [parameters release];
-    [original release];
 	[msgCommands release];
 	[msgName release];
 	[andToken release];

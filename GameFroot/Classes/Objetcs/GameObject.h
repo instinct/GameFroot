@@ -37,17 +37,20 @@ typedef struct _contactData {
 	
 	BOOL firstTimeAdded;
 	CGPoint originalPosition;
+    
+    BOOL spawned;
 }
 
 @property (nonatomic, readwrite) GameObjectType type;
 @property (nonatomic, readwrite) b2Body *body;
 @property (nonatomic, assign) CGSize size;
 @property (nonatomic, assign) BOOL removed;
+@property (nonatomic, assign) BOOL spawned;
 
 -(void) createBox2dObject:(b2World*)world size:(CGSize)size;
 -(void) remove;
 -(CGPoint) getTilePosition;
--(void) resetPosition;
+-(void) restart;
 -(void) update:(ccTime)dt;
 -(void) remove;
 -(void) destroy;

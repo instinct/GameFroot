@@ -1058,7 +1058,10 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 
 -(void) hit:(int)force 
 {
-	
+	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+	int debugImmortal = [prefs integerForKey:@"immortal"];
+    if (debugImmortal) return;
+    
     [[SimpleAudioEngine sharedEngine] playEffect:@"IG Hero Damage.caf" pitch:1.0f pan:0.0f gain:1.0f];
     
     health -= force;
@@ -1602,7 +1605,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             if ( [self isBelowCloud:object] ) data.contact->SetEnabled( false );
             else {
                 b2Vec2 current = self.body->GetLinearVelocity();
-                if (current.y < -0.01) [self hitsFloor];
+                if ((current.y < -0.01) || ((fabsf(roundf(current.y)) == 0) && [self isJumping])) [self hitsFloor];
             }
             break;
             
@@ -1638,10 +1641,6 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             
         case kGameObjectCloud:
             if ( [self isBelowCloud:object] ) data.contact->SetEnabled( false );
-            else {
-                b2Vec2 current = self.body->GetLinearVelocity();
-                if (current.y < -0.01) [self hitsFloor];
-            }
             break;
         
         case kGameObjectMovingPlatform:
@@ -1653,7 +1652,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
                     maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
                 }
                 
-                // We pressing palyer agains another object, so change direction
+                // We pressing player agains another object, so change direction
                 if (maxImpulse > 10.0) {
                     velocity = ( ( MovingPlatform* )object ).body->GetLinearVelocity( );
                     

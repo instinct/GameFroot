@@ -369,65 +369,32 @@
 	self.visible = NO;
 }
 
--(void) restartPosition
-{
-	if (removed) {
-		[self resetPosition];
-		
-	} else {
-		lives = 1;
-		health = topHealth;
-		
-        CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
-        CGPoint pos = ccp(initialX * MAP_TILE_WIDTH, (([GameLayer getInstance].mapHeight - initialY - 1) * MAP_TILE_HEIGHT));
-        pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
-        pos.y += hitArea.height/2.0f;
-		
-		self.position = pos;
-		self.scaleX = 1;
-		direction = kDirectionNone;
-		facingLeft = NO;
-		
-		self.opacity = 255;
-		self.visible = YES;
-		
-		dying = NO;
-		removed = NO;
-		immortal = NO;
-		
-		body->SetTransform(b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO),0);
-		self.visible = YES;
-        body->SetActive( true );
-	}
-}
 
--(void) resetPosition
+-(void) restart
 {
-	if (!removed) return;
-	
-	lives = 1;
-	health = topHealth;
-	
-	CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
+    lives = 1;
+    health = topHealth;
+    
+    CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
     CGPoint pos = ccp(initialX * MAP_TILE_WIDTH, (([GameLayer getInstance].mapHeight - initialY - 1) * MAP_TILE_HEIGHT));
     pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
     pos.y += hitArea.height/2.0f;
-	
-	self.position = pos;
-	self.scaleX = 1;
-	direction = kDirectionNone;
-	facingLeft = NO;
-	
-	self.opacity = 255;
-	self.visible = YES;
-	
-	dying = NO;
-	removed = NO;
-	immortal = NO;
-	
-	[self createBox2dObject:[GameLayer getInstance].world size:size];
-	body->SetTransform(b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO),0);
-	self.visible = YES;
+    
+    self.position = pos;
+    self.scaleX = 1;
+    direction = kDirectionNone;
+    facingLeft = NO;
+    
+    self.opacity = 255;
+    self.visible = YES;
+    
+    dying = NO;
+    removed = NO;
+    immortal = NO;
+    
+    if (removed) [self createBox2dObject:[GameLayer getInstance].world size:size];
+    body->SetTransform(b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO),0);
+    self.visible = YES;
     body->SetActive( true );
 }
 
@@ -841,7 +808,11 @@
             } else if ( [ self tileWalkable:1 y:0 ] == NO ) {
                 // ignore if jumping or falling
                 b2Vec2 vel = body->GetLinearVelocity();
-                if (!jumping && (fabsf(roundf(vel.y)) == 0)) [ self changeDirection ];
+                
+                if (!jumping && (fabsf(roundf(vel.y)) == 0)) {
+                    if ( [ self tileWalkable:1 y:-1 ] == NO ) [ self changeDirection ];
+                }
+                
             }
         }
 	}
@@ -1027,8 +998,6 @@
 
 - (void) dealloc
 {
-	[weaponName release];
-	
 	[super dealloc];
 }
 

@@ -1479,7 +1479,7 @@ GameLayer *instance;
 				// Override other functionality
 				Robot *item = [Robot spriteWithBatchNode:spriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 				[item setPosition:pos];
-				[item setupRobot:robot parameters:[dict objectForKey:@"robotParameters"]];
+				[item setupRobot:dict];
 				[item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
 				[spriteSheet addChild:item z:zorder];
   
@@ -1546,10 +1546,10 @@ GameLayer *instance;
     
     Robot *item = [Robot spriteWithBatchNode:spriteSheet rect:[origen textureRect]];
     [item setPosition:pos];
-    [item setupRobot:origen.original parameters:origen.parameters];
+    [item setupRobot:origen.originalData];
     [item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
     [spriteSheet addChild:item z:zorder];
-    
+    item.spawned = YES;
     [robots addObject:item];    
 }
 
@@ -1689,15 +1689,15 @@ GameLayer *instance;
 	}
 }
 
--(void) spawnEnemy:(CGPoint) pos
+-(void) spawnEnemy:(CGPoint) mapPos
 {
     NSMutableArray *enemiesList = [data objectForKey:@"characters"];
     
-    int i = 0;
+    int i = arc4random() % [enemiesList count];
 
     NSDictionary *dict = (NSDictionary *)[enemiesList objectAtIndex:i];
     int enemyID = [[dict objectForKey:@"type"] intValue];
-    CCLOG(@"Enemy id: %i, initial position: %f,%f", enemyID, pos.x, pos.y);
+    CCLOG(@"Enemy id: %i, initial position: %f,%f", enemyID, mapPos.x, mapPos.y);
     
     CCSpriteBatchNode *enemySpriteSheet;
     BOOL custom = NO;
@@ -1739,9 +1739,9 @@ GameLayer *instance;
     float spriteHeight = enemySpriteSheet.texture.contentSize.height / 2;
     
     CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
-    //CGPoint pos = ccp(dx * MAP_TILE_WIDTH, ((mapHeight - dy - 1) * MAP_TILE_HEIGHT));
-    //pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
-    //pos.y += hitArea.height/2.0f;
+    CGPoint pos = ccp(mapPos.x * MAP_TILE_WIDTH, ((mapHeight - mapPos.y - 1) * MAP_TILE_HEIGHT));
+    pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
+    pos.y += hitArea.height/2.0f;
     
     // Create player		
     Enemy *enemy = [Enemy spriteWithBatchNode:enemySpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];        
@@ -1750,7 +1750,7 @@ GameLayer *instance;
     [enemy setupEnemy:enemyID properties:dict player:player];
     [enemy createBox2dObject:world size:hitArea];
     [enemySpriteSheet addChild:enemy z:LAYER_PLAYER];
-    
+    enemy.spawned = YES;
     [enemies addObject:enemy];
 }
 
@@ -2468,16 +2468,32 @@ GameLayer *instance;
 	[self disableTimer];
 	
 	GameObject *item; CCARRAY_FOREACH(items, item) {
-		[item resetPosition];
+		[item restart];
 	}
 	
+    CCArray *deleteEnemies = [CCArray array];
 	Enemy *enemy; CCARRAY_FOREACH(enemies, enemy) {
-		[enemy restartPosition];
+		if (!enemy.spawned) [enemy restart];
+        else {
+            [deleteEnemies addObject:enemy];
+            [enemy destroy];
+        }
 	}
+    CCARRAY_FOREACH(deleteEnemies, enemy) {
+        [enemies removeObject:enemy];
+    }
     
+    CCArray *deleteRobots = [CCArray array];
     Robot *robot; CCARRAY_FOREACH(robots, robot) {
-		[robot resetPosition];
+		if (!robot.spawned) [robot restart];
+        else {
+            [deleteRobots addObject:robot];
+            [robot destroy];
+        }
 	}
+    CCARRAY_FOREACH(deleteRobots, robot) {
+        [robots removeObject:robot];
+    }
     
     MovingPlatform *platform; CCARRAY_FOREACH(movingPlatforms, platform) {
 		[platform resetStatus:true];

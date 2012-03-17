@@ -69,6 +69,6 @@
 -(void) faceRight;
 -(void) faceLeft;
 -(void) changeDirection;
--(void) restartPosition;
+-(void) restart;
 
 @end

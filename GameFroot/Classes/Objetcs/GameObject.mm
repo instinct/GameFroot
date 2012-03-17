@@ -15,6 +15,7 @@
 @synthesize body;
 @synthesize size;
 @synthesize removed;
+@synthesize spawned;
 
 - (id)init
 {
@@ -22,6 +23,7 @@
     if (self) {
         type = kGameObjectNone;
 		firstTimeAdded = YES;
+        spawned = NO;
     }
     
     return self;
@@ -106,15 +108,26 @@
     
 	id removeAction = [CCSequence actions:
 					[CCHide action],
-					[CCCallFunc actionWithTarget:self selector:@selector(destroy)],
+					[CCCallFunc actionWithTarget:self selector:@selector(destroyBody)],
 					nil];
 	[self runAction:removeAction];
 }
 
--(void) destroy {
+-(void) destroyBody {
 	[GameLayer getInstance].world->DestroyBody(body);
     [self stopAllActions];
 	self.visible = NO;
+}
+
+-(void) destroy {
+    [self stopAllActions];
+	self.visible = NO;
+    [self scheduleOnce:@selector(_destroy) delay:1.0/60];
+}
+
+-(void) _destroy {
+    [GameLayer getInstance].world->DestroyBody(body);
+    [self removeFromParentAndCleanup:YES];
 }
 
 -(void) setPosition:(CGPoint)pos
@@ -135,8 +148,13 @@
     return ccp(dx,dy);
 }
 
--(void) resetPosition
+-(void) restart
 {
+    if (spawned) {
+        [self destroy];
+        return;
+    }
+    
 	if (removed) {
 		[self createBox2dObject:[GameLayer getInstance].world size:size];
 		self.position = originalPosition;
