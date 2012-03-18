@@ -150,7 +150,7 @@
 -(void) loadPlayer;
 -(void) loadEnemies;
 
--(void) spawnRobot:(Robot *) origen pos:(CGPoint) pos;
+-(void) spawnRobot:(Robot *) origen pos:(CGPoint) mapPos;
 -(void) spawnEnemy:(CGPoint) mapPos;
 
 -(void)music: (id)sender;

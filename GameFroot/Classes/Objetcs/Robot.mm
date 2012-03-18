@@ -88,8 +88,6 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
     if (parameters) [parameters release];
 	if (msgCommands) [msgCommands release];
 	if (msgName) [msgName release];
-	if (andToken) [andToken release];
-	if (orToken) [orToken release];
 	if (timerCommands) [timerCommands release];
 	if (name) [name release];
     
@@ -143,9 +141,6 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 	
 	msgCommands = [[CCArray array] retain];
 	msgName = [[CCArray array] retain];
-	
-	andToken = [[CCArray array] retain];
-	orToken = [[CCArray array] retain];
 	
 	timerCommands = [[CCArray array] retain];
 	
@@ -294,6 +289,9 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 {
 	NSString *method;
 	
+    //this is required since if is a reserved keyword!
+	if ([nameMethod isEqualToString:@"if"]) nameMethod = @"conditionIf";
+    
 	if (anObject != nil) method = [NSString stringWithFormat:@"%@:", nameMethod];
 	else method = nameMethod;
 	
@@ -316,20 +314,10 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 
 -(void) runCommand: (NSDictionary *)command
 {
-	
 	//Run the first command within the list:
 	NSString *action = [command objectForKey:@"action"];
 	
-	//this is required since if is a reserved keyword!
-	if ([action isEqualToString:@"if"])
-		action = @"conditionIf";
-	
-	[andToken removeAllObjects];
-	
-	tempObject = command;
-	
-	[self runMethod:action withObject:command];
-	
+    [self runMethod:action withObject:command];
 }
 
 -(void) resolve: (int)num
@@ -393,8 +381,6 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 			NSDictionary *action = (NSDictionary *)[onTrue objectAtIndex:i];
 			NSString *actionTrue = [action objectForKey:@"action"];
 			
-			tempObject = action;
-			
 			[self runMethod:actionTrue withObject:action];
 		}
 	}  
@@ -412,8 +398,6 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 			NSDictionary *action = (NSDictionary *)[onTrue objectAtIndex:i];
 			NSString *actionTrue = [action objectForKey:@"action"];
 			
-			tempObject = action;
-			
 			[self runMethod:actionTrue withObject:action];
 		}
 		
@@ -423,8 +407,6 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 		for (uint i = 0; i < [onFalse count]; i++){
 			NSDictionary *action = (NSDictionary *)[onFalse objectAtIndex:i];
 			NSString *actionTrue = [action objectForKey:@"action"];
-			
-			tempObject = action;
 			
 			[self runMethod:actionTrue withObject:action];
 		}
@@ -677,8 +659,9 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 
 -(NSMutableArray *) thisLocation:(NSDictionary *)obj
 {
-    CGPoint position = [[GameLayer getInstance] convertToMapCoordinates:self.position];
-     
+    //CGPoint position = [[GameLayer getInstance] convertToMapCoordinates:self.position];
+    CGPoint position = self.position;
+    
 	NSMutableArray *pos = [NSMutableArray arrayWithCapacity:2];
 	[pos addObject:[NSNumber numberWithFloat:position.x]];
 	[pos addObject:[NSNumber numberWithFloat:position.y]];
@@ -742,7 +725,8 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 	NSString *token = [instance objectForKey:@"token"];
 	
 	if ([token isEqualToString:@"player"]) {
-		CGPoint position = [[GameLayer getInstance] convertToMapCoordinates:[[GameLayer getInstance] playerPosition]];
+		//CGPoint position = [[GameLayer getInstance] convertToMapCoordinates:[[GameLayer getInstance] playerPosition]];
+        CGPoint position = [[GameLayer getInstance] playerPosition];
         
         NSMutableArray *pos = [NSMutableArray arrayWithCapacity:2];
         [pos addObject:[NSNumber numberWithFloat:position.x]];
@@ -996,6 +980,12 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 	walkNode = ccp(x,y);
 }
 
+-(NSNumber *) walkSpeed:(id)obj
+{
+	b2Vec2 current = body->GetLinearVelocity();
+	return [NSNumber numberWithFloat:current.x * FLASH_VELOCITY_FACTOR];
+}
+
 -(void) setWalkSpeed:(NSDictionary *)command 
 {
 	float speed;
@@ -1120,48 +1110,20 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
     
 	NSDictionary *location = [command objectForKey:@"location"];
 	NSString *token = [location objectForKey:@"token"];
-	NSMutableArray *node = [[self runMethod:token withObject:location] retain];
-	
-	//float x = [[node objectAtIndex:0] floatValue];
-	//float y = [[node objectAtIndex:1] floatValue];
 	
     NSString *objClass = [[command objectForKey:@"objclass"] objectForKey:@"token"];
+    
     if ([objClass isEqualToString:@"thisType"]) {
-        //[[GameLayer getInstance] spawnRobot:self pos:ccp(x,y)];
-        
-        id action = [CCSequence actions:
-                     [CCDelayTime actionWithDuration:1.0/60.0],
-                     [CCCallFuncND actionWithTarget:self selector:@selector(_spawnRobot:data:) data:node],
-                     nil];
-        [self runAction: action];
+        NSMutableArray *node = [self runMethod:token withObject:location];
+        float dx = roundf([[node objectAtIndex:0] floatValue] / 48.0);
+        float dy = roundf([[node objectAtIndex:1] floatValue] / 48.0);
+        [[GameLayer getInstance] spawnRobot:self pos:ccp(dx,dy)];
         
     } else if ([objClass isEqualToString:@"enemy"]) {
-        //[[GameLayer getInstance] spawnEnemy:ccp(x,y)];
-        
-        id action = [CCSequence actions:
-                     [CCDelayTime actionWithDuration:1.0/60.0],
-                     [CCCallFuncND actionWithTarget:self selector:@selector(_spawnEnemy:data:) data:node],
-                     nil];
-        [self runAction: action];
+        int dx = [[originalData objectForKey:@"positionX"] intValue];
+        int dy = [[originalData objectForKey:@"positionY"] intValue];
+        [[GameLayer getInstance] spawnEnemy:ccp(dx,dy)];
     }
-}
-
--(void) _spawnRobot:(id)selector data:(NSMutableArray *) node {
-    float x = [[node objectAtIndex:0] floatValue];
-	float y = [[node objectAtIndex:1] floatValue];
-    [[GameLayer getInstance] spawnRobot:self pos:ccp(x,y)];
-    [node release];
-}
-
--(void) _spawnEnemy:(id)selector data:(NSMutableArray *) node {
-    //float x = [[node objectAtIndex:0] floatValue];
-	//float y = [[node objectAtIndex:1] floatValue];
-    
-    int dx = [[originalData objectForKey:@"positionX"] intValue];
-    int dy = [[originalData objectForKey:@"positionY"] intValue];	
-    
-    [[GameLayer getInstance] spawnEnemy:ccp(dx,dy)];
-    [node release];
 }
 
 -(void) shootNewObject:(NSDictionary *)command 
@@ -1286,7 +1248,7 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
     
     SEL sel = sel_registerName([[NSString stringWithFormat:@"%@:command:", message] UTF8String]);
     
-    CCLOG(@"Robot.messageSelfAfterDelay: %@ (%f)", message, delay/DELAY_FACTOR);
+    //CCLOG(@"Robot.messageSelfAfterDelay: %@ (%f)", message, delay/DELAY_FACTOR);
     
     [[CCScheduler sharedScheduler] unscheduleSelector:sel forTarget:self];
      
@@ -1702,6 +1664,34 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
     else return [NSDictionary dictionary];
 }
 
+-(void) changePlayerWeapon:(NSDictionary *)command
+{
+    //CCLOG(@"Robot.changePlayerWeapon: %@", command);
+    
+    NSString *weapon = [command objectForKey:@"weapon"];
+    
+    if ([weapon isEqualToString:@"pistol"]) {
+		[[GameLayer getInstance] changeWeapon:0];
+        
+	} else if ([weapon isEqualToString:@"autoshotgun"]) {
+		[[GameLayer getInstance] changeWeapon:1];
+        
+	} else if ([weapon isEqualToString:@"laser"]) {		
+		[[GameLayer getInstance] changeWeapon:2];
+		
+	} else if ([weapon isEqualToString:@"musket"]) {		
+		[[GameLayer getInstance] changeWeapon:3];
+    
+    } else if ([weapon isEqualToString:@"ak47"]) {		
+		[[GameLayer getInstance] changeWeapon:4];
+        
+    } else if ([weapon isEqualToString:@"m60"]) {		
+		[[GameLayer getInstance] changeWeapon:5];
+    
+    } else if ([weapon isEqualToString:@"rocket"]) {		
+		[[GameLayer getInstance] changeWeapon:6];
+	}
+}
 
 #pragma mark -
 #pragma mark Events
@@ -1834,8 +1824,6 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
     [parameters release];
 	[msgCommands release];
 	[msgName release];
-	[andToken release];
-	[orToken release];
 	[timerCommands release];
 	[name release];
     
