@@ -1116,7 +1116,7 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 
 -(void) spawnNewObject:(NSDictionary *)command 
 {
-    CCLOG(@"Robot.spawnNewObject: %@", command);
+    //CCLOG(@"Robot.spawnNewObject: %@", command);
     
 	NSDictionary *location = [command objectForKey:@"location"];
 	NSString *token = [location objectForKey:@"token"];

@@ -461,9 +461,12 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 }
 
 -(BOOL) isStaticWalking {
-    if ( dying || immortal || jumping ) return ( NO );
+    if ( dying || immortal || jumping || prone) return ( NO );
     
     b2Vec2 vel = body->GetLinearVelocity( );
+    
+    if (fabsf(roundf(vel.y)) != 0) return( NO );
+    
     if ( (fabsf(roundf(vel.x)) == 0) && ( action != STAND) ) return( YES );
     
     return( NO );
@@ -1400,20 +1403,11 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 {
     if (paused || dying) return;
     
-    
 	b2Vec2 current = body->GetLinearVelocity();
 	//CCLOG(@"%f, %i", current.y, action);
 	
-	//if (ignoreGravity) body->SetGravityScale(0.0f);
-	//else body->SetGravityScale(1.0f);
-	
-	if ((fabsf(roundf(current.y)) == 0) || ignoreGravity) {
-		//CCLOG(@"%f, %i, %i", current.x, action, jumping);
-		if ((fabsf(roundf(current.x)) == 0) && (action != PRONE) && (action != CROUCH) && (!jumping)) {
-			//[self setState:STAND];
-		}
-		
-	} else {
+	if ((fabsf(roundf(current.y)) != 0) && !ignoreGravity) {
+
 		//CCLOG(@"%f, %i", current.y, ignoreGravity);
 		if ((current.y > 0) && jumping) {
 			if (!ignoreGravity) [self setState:JUMPING];

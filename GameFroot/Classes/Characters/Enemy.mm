@@ -19,6 +19,7 @@
 
 @synthesize collideTakeDamage;
 @synthesize collideGiveDamage;
+@synthesize crowded;
 
 -(void) setupEnemy:(int)_playerID properties:(NSDictionary *)properties player:(Player *)_player 
 {
@@ -768,17 +769,29 @@
     if ( ((behaviour & ENEMY_BEHAVIOUR_WALKING) > 0) && ((behaviour & ENEMY_BEHAVIOUR_JUMPING) == 0) ) {
 		
         if (tilePos.y == playerPos.y) {
+            int tileType = [self tileType:1 y:-1];
             if ((behaviour & ENEMY_BEHAVIOUR_SHOOTING) == 0) {
                 // Try to hit the player
-                if (player.position.x < self.position.x) [self moveLeft];
-                else if (player.position.x > self.position.x) [self moveRight];
+                if (tileType != TILE_TYPE_SPIKE) { 
+                    if (player.position.x < self.position.x) {
+                        [self moveLeft];
+                        
+                    } else if (player.position.x > self.position.x) {
+                        [self moveRight];
+                    }
+                    
+                } else {
+                    // Enemy can't reach player, stop facing him
+                    if (player.position.x < self.position.x) [self faceLeft];
+                    else if (player.position.x > self.position.x) [self faceRight];
+                }
                 
             } else {
                 // Stops ENEMY_WALKING_STOPAHEAD tiles in front of player
-                if (tilePos.x > playerPos.x + ENEMY_WALKING_STOPAHEAD) {
+                if ( (tilePos.x > playerPos.x + ENEMY_WALKING_STOPAHEAD) && (tileType != TILE_TYPE_SPIKE) ) {
                     if (direction != kDirectionLeft) [self moveLeft];
                     
-                } else if (tilePos.x < playerPos.x - ENEMY_WALKING_STOPAHEAD) {
+                } else if ( (tilePos.x < playerPos.x - ENEMY_WALKING_STOPAHEAD) && (tileType != TILE_TYPE_SPIKE) ) {
                     if (direction != kDirectionRight) [self moveRight];
                     
                 } else {
@@ -796,15 +809,14 @@
                 if (rnd == 0) [self moveLeft];
                 else [self moveRight];
                 
-            } else if ( [ self tileWalkable:1 y:0 ] == NO ) {
+            } else if ( ( [ self tileWalkable:1 y:0 ] == NO ) && ( [ self tileWalkable:-1 y:0 ] == YES ) ) {
                 // ignore if jumping or falling
                 b2Vec2 vel = body->GetLinearVelocity();
                 
                 if (!jumping && (fabsf(roundf(vel.y)) == 0)) {
                     int tileType = [self tileType:1 y:-1];
-                    if ( (([self tileWalkable:1 y:-1] == NO) && !crowded) || (tileType == TILE_TYPE_SPIKE) ) [ self changeDirection ];
+                    if ( !crowded || (tileType == TILE_TYPE_SPIKE) ) [ self changeDirection ];
                 }
-                
             }
         }
 	}
@@ -884,7 +896,31 @@
     if ( [ self isStaticWalking ] == YES ) [ self stop ];
     
     // done
-	[ super update:dt ];
+    b2Vec2 current = body->GetLinearVelocity();
+	//CCLOG(@"%f, %i", current.y, action);
+	
+	if ((fabsf(roundf(current.y)) != 0) && !ignoreGravity) {
+        
+		//CCLOG(@"%f, %i", current.y, ignoreGravity);
+		if ((current.y > 0) && jumping) {
+			if (!ignoreGravity) {
+                [self setState:JUMPING];
+                crowded = NO;
+            }
+			
+		} else if (current.y < -0.01) {
+			if (!ignoreGravity) {
+                [self setState:FALLING];
+                crowded = NO;
+            }
+		}
+	}
+    
+	if (body->GetType() != b2_staticBody) {
+		self.position = ccp(body->GetPosition().x * PTM_RATIO, body->GetPosition().y * PTM_RATIO);
+		//self.rotation =  -1 * CC_RADIANS_TO_DEGREES(body->GetAngle()); // We don't rotate, so we can save this
+        //body->SetTransform(body->GetPosition(), 0);
+	}
 }
 
 // --------------------------------------------------------------
@@ -905,6 +941,11 @@
             
             break;
         
+        case kGameObjectEnemy:
+            data.contact->SetEnabled( false );
+            if (!(( Enemy* )object ).crowded) crowded = YES;
+            break;
+            
         case kGameObjectCloud:
             if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ];
             else if ( [self isBelowCloud:object] ) data.contact->SetEnabled( false );
@@ -953,7 +994,7 @@
             
         case kGameObjectEnemy:
             data.contact->SetEnabled( false );
-            crowded = YES;
+            if (!(( Enemy* )object ).crowded) crowded = YES;
             break;
             
         case kGameObjectCloud:
@@ -986,24 +1027,6 @@
             
         default:
             break;
-    }
-}
-
--( void )handleEndCollision:( contactData )data {
-    GameObject* object = ( GameObject* )data.object;
-    b2Vec2 velocity;
-    
-    // case handling
-    switch ( object.type ) {
-            
-        case kGameObjectEnemy:
-            data.contact->SetEnabled( false );
-            crowded = NO;
-            break;
-            
-        default:
-            break;
-            
     }
 }
 

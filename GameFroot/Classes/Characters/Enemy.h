@@ -66,6 +66,7 @@
 
 @property (nonatomic,assign) int collideTakeDamage;
 @property (nonatomic,assign) int collideGiveDamage;
+@property (nonatomic,assign) BOOL crowded;
 
 -(void) setupEnemy:(int)_enemyID properties:(NSDictionary *)properties player:(Player *)_player;
 -(void) faceRight;
