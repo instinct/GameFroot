@@ -21,6 +21,7 @@
 @class Controls;
 @class Pause;
 @class Robot;
+@class Enemy;
 @class MultiChoice;
 
 // GameLayer
@@ -75,7 +76,6 @@
 	CCArray *movingPlatforms;
 	CCArray *robots;
 	CCArray *bullets;
-    CCArray *bodiesToDestroy;
 	
 	// HUD
 	Pause *pauseCover;
@@ -150,7 +150,7 @@
 -(void) loadPlayer;
 -(void) loadEnemies;
 
--(void) spawnRobot:(Robot *) origen pos:(CGPoint) mapPos;
+-(void) spawnRobot:(CGRect) rect data:(NSDictionary *) originalData pos:(CGPoint) mapPos;
 -(void) spawnEnemy:(CGPoint) mapPos;
 
 -(void)music: (id)sender;
@@ -158,8 +158,6 @@
 
 #pragma mark -
 #pragma mark Setup
-
--(void) destroyBody:(b2Body *)body;
 
 -(void) initControls;
 -(void) initGame;
@@ -175,6 +173,9 @@
 -(void) addObject:(CCNode *)node;
 -(void) addObject:(CCNode *)node withZOrder:(int)zorder;
 -(void) removeObject:(CCNode *)node;
+
+-(void) destroyEnemy:(Enemy *)enemy;
+-(void) destroyRobot:(Robot *)robot;
 
 -(void) activateSwitch:(NSString *) key;
 -(void) stopPlayer;

@@ -39,6 +39,7 @@ typedef struct _contactData {
 	CGPoint originalPosition;
     
     BOOL spawned;
+    BOOL destroyed;
 }
 
 @property (nonatomic, readwrite) GameObjectType type;

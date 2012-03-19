@@ -11,6 +11,8 @@
 #define ROBOT_TRACK_RANGE               300             // how much to expand track range beyond visible screen
 #define ROBOT_TRACK_ALWAYS              0               // track even if out of screen
 
+#define TRACE_COMMANDS                  0
+
 @interface Robot : GameObject {
 	NSArray *behavior;
 

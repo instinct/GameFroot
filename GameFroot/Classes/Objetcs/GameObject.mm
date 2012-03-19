@@ -24,6 +24,7 @@
         type = kGameObjectNone;
 		firstTimeAdded = YES;
         spawned = NO;
+        destroyed = NO;
     }
     
     return self;
@@ -104,7 +105,6 @@
 	removed = YES;
 	
 	body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
-    //[[GameLayer getInstance] destroyBody:body];
     
 	id removeAction = [CCSequence actions:
 					[CCHide action],
@@ -120,9 +120,14 @@
 }
 
 -(void) destroy {
+    if (destroyed) return;
+        
+    destroyed = YES;
     [self stopAllActions];
 	self.visible = NO;
-    [self scheduleOnce:@selector(_destroy) delay:1.0/60];
+    
+    // Safetly remove body with delay to avoid remove inside box2d step
+    [self scheduleOnce:@selector(_destroy) delay:1.0/60.0];
 }
 
 -(void) _destroy {

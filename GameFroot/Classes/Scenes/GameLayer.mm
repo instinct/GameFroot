@@ -137,15 +137,9 @@ GameLayer *instance;
 	
 }
 
--(void) destroyBody:(b2Body *)body
-{
-    NSValue *value = [NSValue valueWithPointer:body];
-    if (![bodiesToDestroy containsObject:value])
-        [bodiesToDestroy addObject:value];
-}
-
 -(void) update:(ccTime)dt {
-	//It is recommended that a fixed time step is used with Box2D for stability
+    
+    //It is recommended that a fixed time step is used with Box2D for stability
 	//of the simulation, however, we are using a variable time step here.
 	//You need to make an informed choice, the following URL is useful
 	//http://gafferongames.com/game-physics/fix-your-timestep/
@@ -169,17 +163,8 @@ GameLayer *instance;
 		}
 	}
 	
+    // Update player
 	[player update:dt];
-    
-    /*
-    // Remove any pending bodies
-    NSValue *value; CCARRAY_FOREACH(bodiesToDestroy, value) {
-    {
-        b2Body* body = (b2Body*)[value pointerValue];
-        world->DestroyBody(body);
-    }
-	[bodiesToDestroy removeAllObjects];
-    */
 }
 
 -(void) timer:(ccTime)dt {
@@ -308,7 +293,6 @@ GameLayer *instance;
 		switches = [[NSMutableDictionary dictionary] retain];
 		bullets = [[CCArray array] retain];
 		cached = [[NSMutableDictionary dictionary] retain];
-		bodiesToDestroy = [[CCArray array] retain];
         
 		// Init containers
 		scene = [CCParallaxNode node];
@@ -1540,11 +1524,12 @@ GameLayer *instance;
 	CCLOG(@"Total points level: %i", totalPoints);
 }
 
--(void) spawnRobot:(Robot *) origen pos:(CGPoint) mapPos;
+-(void) spawnRobot:(CGRect) rect data:(NSDictionary *) originalData pos:(CGPoint) mapPos;
 {
-    NSMutableArray *values = [NSMutableArray arrayWithCapacity:2];
-    [values insertObject:[origen retain] atIndex:0];
-    [values insertObject:[[NSValue valueWithCGPoint:mapPos] retain] atIndex:1];
+    NSMutableArray *values = [NSMutableArray arrayWithCapacity:3];
+    [values insertObject:[[NSValue valueWithCGRect:rect] retain] atIndex:0];
+    [values insertObject:[originalData retain] atIndex:1];
+    [values insertObject:[[NSValue valueWithCGPoint:mapPos] retain] atIndex:2];
     
     id action = [CCSequence actions:
                  [CCDelayTime actionWithDuration:1.0/60.0],
@@ -1555,28 +1540,38 @@ GameLayer *instance;
 
 -(void) _spawnRobot:(id)selector data:(NSArray *) values
 {
-    Robot *origen = [values objectAtIndex:0];
-    [origen release];
     
-    NSValue *value = [values objectAtIndex:1];
-    [value release];
-    CGPoint mapPos = [value CGPointValue];
+    NSValue *valueRect = [values objectAtIndex:0];
+    [valueRect release];
+    CGRect rect = [valueRect CGRectValue];
+    
+    NSDictionary *originalData = [values objectAtIndex:1];
+    [originalData release];
+    
+    NSValue *valuePos = [values objectAtIndex:2];
+    [valuePos release];
+    CGPoint mapPos = [valuePos CGPointValue];
+    
+    [values release];
     
     int zorder  = 1;
     
-    CCLOG(@"add robot to: %f,%f", mapPos.x, mapPos.y);
+    CCLOG(@"GameLayer.spawnRobot: %f,%f", mapPos.x, mapPos.y);
     
     CGPoint pos = ccp(mapPos.x * MAP_TILE_WIDTH, (mapHeight - mapPos.y - 1) * MAP_TILE_HEIGHT);
     pos.x += MAP_TILE_WIDTH/2.0f;
     pos.y += MAP_TILE_HEIGHT/2.0f;
     
-    Robot *item = [Robot spriteWithBatchNode:spriteSheet rect:[origen textureRect]];
+    Robot *item = [Robot spriteWithBatchNode:spriteSheet rect:rect];
     [item setPosition:pos];
-    [item setupRobot:origen.originalData];
+    [item setupRobot:originalData];
     [item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
     [spriteSheet addChild:item z:zorder];
     item.spawned = YES;
-    [robots addObject:item];    
+    
+    [robots addObject:item];
+    
+    [item onSpawn];
 }
 
 -(void) loadPlayer
@@ -1734,7 +1729,7 @@ GameLayer *instance;
 
     NSDictionary *dict = (NSDictionary *)[enemiesList objectAtIndex:i];
     int enemyID = [[dict objectForKey:@"type"] intValue];
-    CCLOG(@"Enemy id: %i, initial position: %f,%f", enemyID, mapPos.x, mapPos.y);
+    //CCLOG(@"Enemy id: %i, initial position: %f,%f", enemyID, mapPos.x, mapPos.y);
     
     CCSpriteBatchNode *enemySpriteSheet;
     BOOL custom = NO;
@@ -1750,12 +1745,12 @@ GameLayer *instance;
             [cached setObject:@"YES" forKey:enemyFilename];
         }
         
-        CCLOG(@"Enemy spritesheet url: %@", enemyFilename);
+        //CCLOG(@"Enemy spritesheet url: %@", enemyFilename);
         @try {
             enemySpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:enemyFilename ignoreCache:custom]];
             
         } @catch (NSException * e) {
-            CCLOG(@"Enemy Spritesheet not found or error, use default one");
+            //CCLOG(@"Enemy Spritesheet not found or error, use default one");
             enemySpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"enemy_sheet%i.png", arc4random()%11]];
         }
         
@@ -1763,7 +1758,7 @@ GameLayer *instance;
         //enemyFilename = [NSString stringWithFormat:@"%@wp-content/characters/enemy_sheet%d.png", [self returnServer], enemyID];
         //enemySpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:enemyFilename ignoreCache:custom || ignoreCache]];
         
-        CCLOG(@"Enemy spritesheet: %@", [NSString stringWithFormat:@"enemy_sheet%i.png", enemyID]);
+        //CCLOG(@"Enemy spritesheet: %@", [NSString stringWithFormat:@"enemy_sheet%i.png", enemyID]);
         enemySpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"enemy_sheet%i.png", enemyID]];
     }
     
@@ -1788,6 +1783,7 @@ GameLayer *instance;
     [enemy createBox2dObject:world size:hitArea];
     [enemySpriteSheet addChild:enemy z:LAYER_PLAYER];
     enemy.spawned = YES;
+    
     [enemies addObject:enemy];
 }
 
@@ -1965,6 +1961,18 @@ GameLayer *instance;
 -(void) removeObject:(CCNode *)node
 {
 	[objects removeChild:node cleanup:YES];
+}
+
+-(void) destroyEnemy:(Enemy *)enemy
+{
+    [enemies removeObject:enemy];
+    [enemy destroy];
+}
+
+-(void) destroyRobot:(Robot *)robot
+{
+    [robots removeObject:robot];
+    [robot destroy];
 }
 
 
@@ -2508,29 +2516,13 @@ GameLayer *instance;
 		[item restart];
 	}
 	
-    CCArray *deleteEnemies = [CCArray array];
 	Enemy *enemy; CCARRAY_FOREACH(enemies, enemy) {
-		if (!enemy.spawned) [enemy restart];
-        else {
-            [deleteEnemies addObject:enemy];
-            [enemy destroy];
-        }
+        [enemy restart];
 	}
-    CCARRAY_FOREACH(deleteEnemies, enemy) {
-        [enemies removeObject:enemy];
-    }
     
-    CCArray *deleteRobots = [CCArray array];
     Robot *robot; CCARRAY_FOREACH(robots, robot) {
-		if (!robot.spawned) [robot restart];
-        else {
-            [deleteRobots addObject:robot];
-            [robot destroy];
-        }
+        [robot restart];
 	}
-    CCARRAY_FOREACH(deleteRobots, robot) {
-        [robots removeObject:robot];
-    }
     
     MovingPlatform *platform; CCARRAY_FOREACH(movingPlatforms, platform) {
 		[platform resetStatus:true];
@@ -2584,7 +2576,6 @@ GameLayer *instance;
     [robotsIds release];
 	[switches release];
 	[cached release];
-    [bodiesToDestroy release];
     [musicData release];
 	
 	[self removeAllChildrenWithCleanup:YES];

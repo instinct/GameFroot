@@ -19,7 +19,6 @@
 
 @synthesize collideTakeDamage;
 @synthesize collideGiveDamage;
-@synthesize crowded;
 
 -(void) setupEnemy:(int)_playerID properties:(NSDictionary *)properties player:(Player *)_player 
 {
@@ -352,7 +351,6 @@
 		removed = YES;
 		
 		body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
-        //[[GameLayer getInstance] destroyBody:body];
         
 		[self setState:STAND];
 		
@@ -366,13 +364,20 @@
 }
 
 -(void) remove {
-	[GameLayer getInstance].world->DestroyBody(body);
 	self.visible = NO;
+    
+    if (spawned) [[GameLayer getInstance] destroyEnemy:self];
+    else [GameLayer getInstance].world->DestroyBody(body);
 }
 
 
 -(void) restart
 {
+    if (spawned) {
+        [self destroy];
+        return;
+    }
+    
     lives = 1;
     health = topHealth;
     
@@ -390,7 +395,6 @@
     self.visible = YES;
     
     dying = NO;
-    removed = NO;
     immortal = NO;
     
     if (removed) [self createBox2dObject:[GameLayer getInstance].world size:size];
@@ -815,7 +819,7 @@
                 
                 if (!jumping && (fabsf(roundf(vel.y)) == 0)) {
                     int tileType = [self tileType:1 y:-1];
-                    if ( !crowded || (tileType == TILE_TYPE_SPIKE) ) [ self changeDirection ];
+                    if ( !spawned || (tileType == TILE_TYPE_SPIKE) ) [ self changeDirection ];
                 }
             }
         }
@@ -905,13 +909,11 @@
 		if ((current.y > 0) && jumping) {
 			if (!ignoreGravity) {
                 [self setState:JUMPING];
-                crowded = NO;
             }
 			
 		} else if (current.y < -0.01) {
 			if (!ignoreGravity) {
                 [self setState:FALLING];
-                crowded = NO;
             }
 		}
 	}
@@ -943,7 +945,6 @@
         
         case kGameObjectEnemy:
             data.contact->SetEnabled( false );
-            if (!(( Enemy* )object ).crowded) crowded = YES;
             break;
             
         case kGameObjectCloud:
@@ -994,7 +995,6 @@
             
         case kGameObjectEnemy:
             data.contact->SetEnabled( false );
-            if (!(( Enemy* )object ).crowded) crowded = YES;
             break;
             
         case kGameObjectCloud:
