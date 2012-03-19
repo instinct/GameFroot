@@ -1533,9 +1533,35 @@ GameLayer *instance;
 	CCLOG(@"Total points level: %i", totalPoints);
 }
 
--(void) spawnRobot:(Robot *) origen pos:(CGPoint) pos
+-(void) spawnRobot:(Robot *) origen pos:(CGPoint) mapPos;
 {
+    NSMutableArray *values = [NSMutableArray arrayWithCapacity:2];
+    [values insertObject:[origen retain] atIndex:0];
+    [values insertObject:[[NSValue valueWithCGPoint:mapPos] retain] atIndex:1];
+    
+    id action = [CCSequence actions:
+                 [CCDelayTime actionWithDuration:1.0/60.0],
+                 [CCCallFuncND actionWithTarget:self selector:@selector(_spawnRobot:data:) data:[values retain]],
+                 nil];
+    [self runAction: action];
+}
+
+-(void) _spawnRobot:(id)selector data:(NSArray *) values
+{
+    Robot *origen = [values objectAtIndex:0];
+    [origen release];
+    
+    NSValue *value = [values objectAtIndex:1];
+    [value release];
+    CGPoint mapPos = [value CGPointValue];
+    
     int zorder  = 1;
+    
+    CCLOG(@"add robot to: %f,%f", mapPos.x, mapPos.y);
+    
+    CGPoint pos = ccp(mapPos.x * MAP_TILE_WIDTH, (mapHeight - mapPos.y - 1) * MAP_TILE_HEIGHT);
+    pos.x += MAP_TILE_WIDTH/2.0f;
+    pos.y += MAP_TILE_HEIGHT/2.0f;
     
     Robot *item = [Robot spriteWithBatchNode:spriteSheet rect:[origen textureRect]];
     [item setPosition:pos];
@@ -1684,6 +1710,17 @@ GameLayer *instance;
 
 -(void) spawnEnemy:(CGPoint) mapPos
 {
+    id action = [CCSequence actions:
+                 [CCDelayTime actionWithDuration:1.0/60.0],
+                 [CCCallFuncND actionWithTarget:self selector:@selector(_spawnEnemy:data:) data:[[NSValue valueWithCGPoint:mapPos] retain]],
+                 nil];
+    [self runAction: action];
+}
+
+-(void) _spawnEnemy:(id)selector data:(NSValue *) value
+{
+    [value release];
+    CGPoint mapPos = [value CGPointValue];
     NSMutableArray *enemiesList = [data objectForKey:@"characters"];
     
     int i = arc4random() % [enemiesList count];

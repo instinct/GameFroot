@@ -1382,7 +1382,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 
 -(void) resetForces
 {
-    CCLOG(@"Player.resetForces");
+    //CCLOG(@"Player.resetForces");
 	body->SetLinearVelocity(b2Vec2(0,0));
 	body->SetAngularVelocity(0);
 }

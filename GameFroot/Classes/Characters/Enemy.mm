@@ -401,7 +401,7 @@
 
 -(void) resetForces
 {
-    CCLOG(@"Enemy.resetForces");
+    //CCLOG(@"Enemy.resetForces");
 	body->SetLinearVelocity(b2Vec2(0,0));
 	body->SetAngularVelocity(0);
 }

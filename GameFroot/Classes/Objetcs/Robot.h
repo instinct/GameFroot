@@ -30,11 +30,6 @@
 	
 	NSArray *onDieCommands;
 	
-	NSDictionary *tempObject;
-	
-	CCArray *andToken;
-	CCArray *orToken;
-	
 	float auxX, auxY;
 	
 	CCArray *timerCommands;
