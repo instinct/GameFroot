@@ -486,6 +486,154 @@ CGPoint GBSub(const CGPoint v1, const CGPoint v2) {
 	}
 }
 
+/*
+Load music first checks to see if the asset is in the resourses folder (local bundle)
+before consulting the Cache folder to see if it has been previously downloaded. If it
+has been previously downloaded, return a path to the file otherwise load the asset.
+*/
+
++(NSMutableDictionary*) loadMusic:(NSArray*)urls fromServer:(NSString*)server ignoreCache:(BOOL)ignoreCache {
+    CCLOG(@"**** Music loading inited");
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSMutableDictionary *musicData = [[[NSMutableDictionary alloc] init] autorelease];
+     for (NSString *url in urls) {
+         
+         bool cacheNotFound = NO;
+         bool embedded = NO;
+         
+         /*
+         NSString *urlRequest = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_music_url&id=%@", server, mID];
+         NSString *urlResponse = [Shared stringWithContentsOfURL:urlRequest ignoreCache:ignoreCache];
+         */
+         NSString *musicFileName = [[url componentsSeparatedByString:@"/"] lastObject];
+         
+         // Step 1: Check the music exists in the resource bundle
+         NSString *embeddedResource = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:musicFileName];
+         CCLOG(@"MusicCache: Checking resource bundle at: %@ ...", embeddedResource);
+         embedded = [fileManager fileExistsAtPath:embeddedResource];
+         
+         if(embedded) {
+             CCLOG(@"MusicCache: Music track %@ is embedded", musicFileName);
+             // as this is an embedded resource, we just use the filename
+             [musicData setObject:musicFileName forKey:url];
+         } else {
+             CCLOG(@"MusicCache: Music track %@ is NOT embedded", musicFileName);
+                                   
+             /*
+             NSData *result = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&rerror]; 
+             NSString *resultString = [[[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding] autorelease]; 
+             NSLog(@"URL: %@", url);
+             NSLog(@"Request: %@", request);
+             NSLog(@"Result (NSData): %@", result);
+             NSLog(@"Result (NSString): %@", resultString);
+             NSLog(@"Response: %@", response);
+             NSLog(@"Error: %@", rerror);
+              */
+             
+             NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+             NSString *cacheDirectory = [paths objectAtIndex:0];
+             NSString *cacheFileName = [Shared generateMusicFileNameHashForUrl:url andFileName:musicFileName];
+             NSString *staleCacheFileName = nil;
+             
+             if (cacheFileName != nil) {
+                 // we could not contact the server so hash generation failed, just use filename instead
+                 cacheFileName = musicFileName;
+             }
+             
+             // check to see if the file exists
+             NSString *cachedFilePath = [cacheDirectory stringByAppendingPathComponent:cacheFileName];
+             if ([fileManager fileExistsAtPath:cachedFilePath isDirectory:NO] && !ignoreCache) {
+                 // Cached file exists, use this file
+                 CCLOG(@"MusicCache: Cache file exists, using cached version at %@", cachedFilePath);
+                 [musicData setObject:cachedFilePath forKey:url];
+             } else {
+                 cacheNotFound = YES;
+                 // Cached file either dosn't exist or is stale.
+                 CCLOG(@"MusicCache: Cache file dosn't exist or ignoreCache true.");
+             }
+             
+             if (cacheNotFound) {
+                 bool staleCache = NO;
+                 // Check for Cache stale look for file path in cache file names
+                 CCLOG(@"MusicCache: Checking for cache stale...");
+                 NSArray *cacheContents = [fileManager contentsOfDirectoryAtPath:cacheDirectory error:nil];
+                 for (NSString *cf in cacheContents) {
+                     if ([cf hasSuffix:musicFileName]) {
+                         CCLOG(@"MusicCache: stale version found of %@", musicFileName);
+                         staleCache = YES;
+                         staleCacheFileName = cf;
+                     }
+                 }
+                 
+                 // try to download the latest version of the file to the cache
+                 CCLOG(@"MusicCache: downloading music file: %@", musicFileName);
+                 
+                 NSError *error = nil;
+                 BOOL saved = NO;
+                 NSData *musicFileData = [NSData dataWithContentsOfURL:[NSURL URLWithString:url] options:NSDataReadingMapped error:&error];
+                 
+                 if (error == nil) {
+                     CCLOG(@"MusicCache: File %@ downloaded successfullly, attempting to save to: %@", url, cachedFilePath);
+                     saved = [musicFileData writeToFile:cachedFilePath atomically:YES];
+                     if (saved) {
+                        CCLOG(@"MusicCache: cache file %@ saved successfully!", cachedFilePath);
+                        [musicData setObject:cachedFilePath forKey:url]; 
+                     }
+                 }
+                 
+                 // If can't download file, then used cached version if one is availible, even if stale
+                 if (!saved || error != nil) {
+                     CCLOG(@"MusicCache: There was an error downloading or saving %@ !", url);
+                     if (staleCache) {
+                         CCLOG(@"MusicCache: unable to download latest file, using stale version: %@ instead", staleCacheFileName);
+                         [musicData setObject:staleCacheFileName forKey:url];
+                     } else {
+                         // all attemps to load music file have failed, use empty string
+                         [musicData setObject:@"" forKey:url];
+                     }
+                 }
+             }
+         }
+     }
+    return musicData;
+}
+
+/*
+ The cache hashing scheme for the file is as follows:
+ [hashblock].[filename].mp3
+ 
+ [hashblock] is an md5 hash of the filename+filesize+creationdate and is
+ the primary method to identify files and to check cache dirtyness. If
+ the network is unavailible then the cache will just use the filename
+ for comparison.
+*/
+
++(NSString *) generateMusicFileNameHashForUrl:(NSString *)url andFileName:(NSString *)musicFileName {
+    NSError *rerror = nil;
+    NSURLResponse *response = nil;
+    NSString *cacheFileName = nil;
+    
+    CCLOG(@"MusicCache: getting file %@ details..", url);
+    
+    NSURL *musicUrl = [NSURL URLWithString:[url stringByAddingPercentEscapesUsingEncoding:
+                                            NSASCIIStringEncoding]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:musicUrl];
+    [request setHTTPMethod:@"HEAD"];
+    
+    if (rerror == nil && [response isMemberOfClass:[NSHTTPURLResponse class]]) {
+        //NSLog(@"AllHeaderFields: %@", [((NSHTTPURLResponse *)response) allHeaderFields]);
+        
+        // extract the last modifed and the filesize strings to use in the cache hash
+        NSString *modifiedString = [[((NSHTTPURLResponse *)response) allHeaderFields] objectForKey:@"Last-Modified"];
+        NSString *fileSize = [[((NSHTTPURLResponse *)response) allHeaderFields] objectForKey:@"Content-Length"];
+        NSString *fileHash = [Shared md5:[[modifiedString stringByAppendingString:fileSize] stringByAppendingString:musicFileName]];
+        cacheFileName = [NSString stringWithFormat:@"%@-%@", fileHash, musicFileName];
+        CCLOG(@"MusicCache: generated cache filename: %@", cacheFileName);
+
+    }
+    return cacheFileName;
+}
+
 +(CCTexture2D*) getTexture2DFromWeb:(NSString*)url ignoreCache:(BOOL)ignoreCache
 {
 	NSArray *urlComponents = [url componentsSeparatedByString:@"."];
