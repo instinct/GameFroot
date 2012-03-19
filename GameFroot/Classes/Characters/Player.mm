@@ -594,7 +594,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		[particle resetSystem];
 		
 		if (dir == kDirectionLeft) {
-			body->SetLinearVelocity(b2Vec2(0,current.y));
+            [self resetHorizontalSpeed];
 			b2Vec2 impulse = b2Vec2(-HORIZONTAL_SPEED, fabs(current.y) + JETPACK_IMPULSE);
 			body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
 			
@@ -612,7 +612,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			}
 			
 		} else {
-			body->SetLinearVelocity(b2Vec2(0,current.y));
+			[self resetHorizontalSpeed];
 			b2Vec2 impulse = b2Vec2(HORIZONTAL_SPEED, fabs(current.y) + JETPACK_IMPULSE);
 			body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
 			
@@ -636,7 +636,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	} else if (jumping && !dying && !immortal) {
 		//CCLOG(@"Player.jumDirection: change direction in the air");
 		if (dir == kDirectionLeft) {
-			body->SetLinearVelocity(b2Vec2(0,current.y));
+			[self resetHorizontalSpeed];
 			b2Vec2 impulse = b2Vec2(-HORIZONTAL_SPEED, 0.0f);
 			body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
 			
@@ -654,7 +654,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			}
 			
 		} else {
-			body->SetLinearVelocity(b2Vec2(0,current.y));
+			[self resetHorizontalSpeed];
 			b2Vec2 impulse = b2Vec2(HORIZONTAL_SPEED, 0.0f);
 			body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
 			
@@ -687,20 +687,24 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		
 		b2Vec2 current = body->GetLinearVelocity();
 		if (current.y > 0) {
-            
-			//body->SetLinearVelocity(b2Vec2(current.x,0));
-            
             // Delay jump rest to avoid reseting too early (before player actually moves)
             // since this will make the player to not register hitFloor event.
-            [self scheduleOnce:@selector(_resetJump) delay:1.0/60.0f];
+            
+            [self scheduleOnce:@selector(resetVerticalSpeed) delay:1.0/60.0f];
 		}
 	}
 }
 
--(void) _resetJump
+-(void) resetVerticalSpeed
 {
     b2Vec2 current = body->GetLinearVelocity();
     body->SetLinearVelocity(b2Vec2(current.x,0));
+}
+
+-(void) resetHorizontalSpeed
+{
+    b2Vec2 current = body->GetLinearVelocity();
+    body->SetLinearVelocity(b2Vec2(0,current.y));
 }
 
 -(void) stop
@@ -1170,7 +1174,6 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
      
 		self.visible = YES;
 		
-		[[GameLayer getInstance] removeBullets];
 		[[GameLayer getInstance] resetControls];
         
         // Auto safe position
@@ -1189,6 +1192,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		direction = kDirectionNone;
 		facingLeft = NO;
 		
+        // Need to run inmediatly (box2d locked safe)
 		body->SetTransform(b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO),0);
 		
 		self.opacity = 255;
@@ -1258,7 +1262,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	
 	id blinkAction = [CCSequence actions:
 					  [CCFadeOut actionWithDuration:1.0],
-					  [CCCallFunc actionWithTarget:self selector:@selector(_changePosition)],
+					  [CCCallFunc actionWithTarget:self selector:@selector(changePosition)],
 					  nil];
 	[self runAction:blinkAction];
 	
@@ -1285,7 +1289,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	initialY = dy;
 }
 
--(void) _changePosition
+-(void) changePosition
 {
 	[self stop];
 	    
@@ -1296,8 +1300,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	
 	self.position = pos;
 	
-	body->SetTransform(b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO),0);
-	
+	//body->SetTransform(b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO),0);
+	[self markToTransformBody:b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO) angle:0.0];
+    
 	id blinkAction = [CCSequence actions:
 					  [CCFadeIn actionWithDuration:1.0],
 					  nil];
@@ -1323,20 +1328,6 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	[[GameLayer getInstance] resume];
 	
 	immortal = NO;
-}
-
--(void) changeToPosition:(CGPoint)pos
-{
-	auxPos = pos;
-    
-    [self scheduleOnce:@selector(_changeToPosition) delay:1.0/60.0];
-}
-
--(void) _changeToPosition
-{
-	self.position = auxPos;
-	
-	body->SetTransform(b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO),0);
 }
 
 -(void) hitsFloor
@@ -1453,7 +1444,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
 			
 		} else {
-			body->SetLinearVelocity(b2Vec2(current.x,0));
+			[self resetVerticalSpeed];
 		}
 		
 		fuel -= 5;
@@ -1531,16 +1522,16 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
                 //CCLOG(@">>>>>>>>> Player safe position: %f,%f", safePositon.x, safePositon.y);
             }
         }
-    }
     
-    /*
-    // Testing tile position in front of player
-    CGPoint mapPos = [self getTilePosition];
-    int tileInFront = 0;
-    if (facingLeft) tileInFront = [[GameLayer getInstance] getTileAt:ccp(mapPos.x-1, mapPos.y)];
-    else tileInFront = [[GameLayer getInstance] getTileAt:ccp(mapPos.x+1, mapPos.y)];
-    CCLOG(@">>>>> %f,%f => %i", mapPos.x, mapPos.y, tileInFront);
-    */
+        /*
+        // Testing tile position in front of player
+        CGPoint mapPos = [self getTilePosition];
+        int tileInFront = 0;
+        if (facingLeft) tileInFront = [[GameLayer getInstance] getTileAt:ccp(mapPos.x-1, mapPos.y+1)];
+        else tileInFront = [[GameLayer getInstance] getTileAt:ccp(mapPos.x+1, mapPos.y+1)];
+        CCLOG(@">>>>> %f,%f => %i", mapPos.x, mapPos.y, tileInFront);
+        */
+    }
 }
 
 // handle player collisions

@@ -39,7 +39,15 @@ typedef struct _contactData {
 	CGPoint originalPosition;
     
     BOOL spawned;
-    BOOL destroyed;
+    
+    // Manages body transfromations
+    BOOL flagToDestroyBody;
+    BOOL flagToTransformBody;
+    BOOL flagToRecreateBody;
+    CGSize recreateSize;
+    b2Vec2 tranformPosition;
+    float tranformAngle;
+    
 }
 
 @property (nonatomic, readwrite) GameObjectType type;
@@ -49,7 +57,11 @@ typedef struct _contactData {
 @property (nonatomic, assign) BOOL spawned;
 
 -(void) createBox2dObject:(b2World*)world size:(CGSize)size;
--(void) remove;
+-(BOOL) applyPendingBox2dActions;
+-(void) markToDestroyBody;
+-(void) markToTransformBody:(b2Vec2)position angle:(float)angle;
+-(void) markToRecreateBody:(CGSize)size;
+
 -(CGPoint) getTilePosition;
 -(void) restart;
 -(void) update:(ccTime)dt;

@@ -22,7 +22,6 @@
 	CCAnimation *right;
 	CCAnimation *explosion;
 	
-	BOOL removing;
 	int damage;
 	int weapon;
 	

@@ -403,6 +403,7 @@
 		1643B75914D9B78E00A67057 /* CJSONSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1643B75214D9B78E00A67057 /* CJSONSerializer.m */; };
 		1643B75E14D9BA2000A67057 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1643B75C14D9BA2000A67057 /* SystemConfiguration.framework */; };
 		1643B75F14D9BA2000A67057 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1643B75D14D9BA2000A67057 /* CFNetwork.framework */; };
+		165179EF1517683100DDE7D7 /* CCScheduler+BlockAddition.m in Sources */ = {isa = PBXBuildFile; fileRef = 165179EE1517683100DDE7D7 /* CCScheduler+BlockAddition.m */; };
 		165906BD14E2B38E00321213 /* Controls.mm in Sources */ = {isa = PBXBuildFile; fileRef = 165906BC14E2B38D00321213 /* Controls.mm */; };
 		165BEB0114E2FC5100CF9A2B /* Pause.mm in Sources */ = {isa = PBXBuildFile; fileRef = 165BEB0014E2FC5100CF9A2B /* Pause.mm */; };
 		166977F714E280DE0081176B /* rate_controls_mockup-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 166977F614E280DE0081176B /* rate_controls_mockup-hd.png */; };
@@ -1143,6 +1144,8 @@
 		1643B75314D9B78E00A67057 /* JSONRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONRepresentation.h; sourceTree = "<group>"; };
 		1643B75C14D9BA2000A67057 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		1643B75D14D9BA2000A67057 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		165179ED1517683000DDE7D7 /* CCScheduler+BlockAddition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CCScheduler+BlockAddition.h"; sourceTree = "<group>"; };
+		165179EE1517683100DDE7D7 /* CCScheduler+BlockAddition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CCScheduler+BlockAddition.m"; sourceTree = "<group>"; };
 		165906BB14E2B38D00321213 /* Controls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Controls.h; sourceTree = "<group>"; };
 		165906BC14E2B38D00321213 /* Controls.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Controls.mm; sourceTree = "<group>"; };
 		165BEAFF14E2FC5100CF9A2B /* Pause.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pause.h; sourceTree = "<group>"; };
@@ -2268,6 +2271,8 @@
 		1643B6E314D9B49D00A67057 /* Categories */ = {
 			isa = PBXGroup;
 			children = (
+				165179ED1517683000DDE7D7 /* CCScheduler+BlockAddition.h */,
+				165179EE1517683100DDE7D7 /* CCScheduler+BlockAddition.m */,
 				1643B6E414D9B49D00A67057 /* CCArray+Extension.h */,
 				1643B6E514D9B49D00A67057 /* CCArray+Extension.m */,
 				1643B6E614D9B49D00A67057 /* CCDrawingPrimitives+Extension.h */,
@@ -3098,6 +3103,7 @@
 				22FD014114F4723000E3F1E0 /* CCRadioMenu.m in Sources */,
 				226838BB14FB3B8100D1EB94 /* AGProgressBar.m in Sources */,
 				226B314D1505772400BAD02A /* SimpleAudioEngine+playEffectLoop.m in Sources */,
+				165179EF1517683100DDE7D7 /* CCScheduler+BlockAddition.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

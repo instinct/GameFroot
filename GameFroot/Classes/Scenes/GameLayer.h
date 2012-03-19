@@ -167,20 +167,18 @@
 -(void) resetScheduledElements;
 -(void) addBullet:(CCSpriteBatchNode *)bullet;
 -(void) removeBullet:(CCSpriteBatchNode *)bullet;
--(void) removeBullets;
 -(void) addOverlay:(CCNode *)node;
 -(void) removeOverlay:(CCNode *)node;
 -(void) addObject:(CCNode *)node;
 -(void) addObject:(CCNode *)node withZOrder:(int)zorder;
 -(void) removeObject:(CCNode *)node;
 
--(void) destroyEnemy:(Enemy *)enemy;
--(void) destroyRobot:(Robot *)robot;
+-(void) removeEnemy:(Enemy *)enemy;
+-(void) removeRobot:(Robot *)robot;
 
 -(void) activateSwitch:(NSString *) key;
 -(void) stopPlayer;
 -(void) transportPlayerToX:(int)x andY:(int)y;
--(void) transportPlayerToPosition:(CGPoint)pos;
 -(void) changeInitialPlayerPositionToX:(int)x andY:(int)y;
 -(CGPoint) playerPosition;
 -(void) broadcastMessageToRobots:(NSDictionary *)command;

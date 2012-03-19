@@ -11,7 +11,7 @@
 #define ROBOT_TRACK_RANGE               300             // how much to expand track range beyond visible screen
 #define ROBOT_TRACK_ALWAYS              0               // track even if out of screen
 
-#define TRACE_COMMANDS                  1
+#define TRACE_COMMANDS                  0               // Traces all robot scripts commands on the terminal
 
 @interface Robot : GameObject {
 	NSArray *behavior;
@@ -41,8 +41,6 @@
 	BOOL immortal;
 	
 	CGPoint walkNode;
-	
-	NSDictionary *delayedMessage;
 	
 	CGRect mapRect;
     

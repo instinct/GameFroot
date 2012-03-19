@@ -137,6 +137,20 @@ GameLayer *instance;
 	
 }
 
+-(void) cleanup
+{
+    //Iterate over the bodies in the physics world and remove all spawned
+	for (b2Body* b = world->GetBodyList(); b; b = b->GetNext()) {
+		if (b->GetUserData() != NULL) {
+			GameObject *sprite = (GameObject*)b->GetUserData();
+            if (sprite.spawned) {
+                world->DestroyBody(b);
+                [sprite destroy];
+            }
+		}
+	}    
+}
+
 -(void) update:(ccTime)dt {
     
     //It is recommended that a fixed time step is used with Box2D for stability
@@ -149,7 +163,6 @@ GameLayer *instance;
 	
 	// Instruct the world to perform a single step of simulation. It is
 	// generally best to keep the time step and iterations fixed.
-	
 	double delta = dt;
 	//double delta = 1.0 / 60.0;
 	world->Step(delta, velocityIterations, positionIterations);
@@ -157,14 +170,12 @@ GameLayer *instance;
 	//Iterate over the bodies in the physics world
 	for (b2Body* b = world->GetBodyList(); b; b = b->GetNext()) {
 		if (b->GetUserData() != NULL) {
-			//Synchronize the sprites position and rotation with the corresponding body
+            // Synchronize the sprites position and rotation with the corresponding body.
+            // Pending box2d actions will destroy or transform the body if necessary.
 			GameObject *sprite = (GameObject*)b->GetUserData();
-			[sprite update:dt];
+            if ([sprite applyPendingBox2dActions]) [sprite update:dt];
 		}
 	}
-	
-    // Update player
-	[player update:dt];
 }
 
 -(void) timer:(ccTime)dt {
@@ -1860,6 +1871,7 @@ GameLayer *instance;
 {
     if (!paused) {
         CCLOG(@"GameLayer.pause");
+        
         // Stop updater
         [self unscheduleUpdate];
         if (timerEnabled) [self unschedule:@selector(timer:)];
@@ -1883,6 +1895,7 @@ GameLayer *instance;
 {
     if (paused) {
         CCLOG(@"GameLayer.resume");
+        
         // Start updater
         [self scheduleUpdate];
         if (timerEnabled) [self schedule:@selector(timer:) interval:1.0f];
@@ -1894,6 +1907,10 @@ GameLayer *instance;
         
         MovingPlatform *platform; CCARRAY_FOREACH(movingPlatforms, platform) {
             [platform resume];
+        }
+        
+        Robot *robot; CCARRAY_FOREACH(robots, robot) {
+            [robot resume];
         }
     }
 }
@@ -1916,19 +1933,9 @@ GameLayer *instance;
 
 -(void) removeBullet:(CCSpriteBatchNode *)bullet
 {
+    [bullet removeAllChildrenWithCleanup:YES];
 	if ([bullets containsObject:bullet]) [bullets removeObject:bullet];
 	[objects removeChild:bullet cleanup:YES];
-}
-
--(void) removeBullets
-{
-    //CCLOG(@"GameLayer.removeBullets");
-	CCSpriteBatchNode *bulletSpriteSheet; CCARRAY_FOREACH(bullets, bulletSpriteSheet) {
-        Bullet *bullet; CCARRAY_FOREACH(bulletSpriteSheet.children, bullet) {
-            [bullet remove];
-        }
-	}
-	[bullets removeAllObjects];
 }
 
 -(void) addOverlay:(CCNode *)node
@@ -1956,16 +1963,18 @@ GameLayer *instance;
 	[objects removeChild:node cleanup:YES];
 }
 
--(void) destroyEnemy:(Enemy *)enemy
+-(void) removeEnemy:(Enemy *)enemy
 {
     [enemies removeObject:enemy];
-    [enemy destroy];
+    //[enemy destroy];
+    [enemy removeFromParentAndCleanup:YES];
 }
 
--(void) destroyRobot:(Robot *)robot
+-(void) removeRobot:(Robot *)robot
 {
     [robots removeObject:robot];
-    [robot destroy];
+    //[robot destroy];
+    [robot removeFromParentAndCleanup:YES];
 }
 
 
@@ -2010,12 +2019,6 @@ GameLayer *instance;
 {
 	[player changePositionX:x andY:y];
 }
-
--(void) transportPlayerToPosition:(CGPoint)pos
-{
-	[player changeToPosition:pos];
-}
-
 
 -(void) changeInitialPlayerPositionToX:(int)x andY:(int)y
 {
@@ -2492,8 +2495,8 @@ GameLayer *instance;
     
 	lock = NO;
 	
-	[self removeBullets];
-	
+    [self cleanup];
+    
 	[self pause];
 	
 	seconds = 180;

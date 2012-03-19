@@ -24,7 +24,6 @@
         type = kGameObjectNone;
 		firstTimeAdded = YES;
         spawned = NO;
-        destroyed = NO;
     }
     
     return self;
@@ -100,38 +99,61 @@
 	removed = NO;
 }
 
--(void) remove
+-(BOOL) applyPendingBox2dActions
 {
-	removed = YES;
-	
-	body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+    if (flagToDestroyBody) {
+        flagToDestroyBody = NO;
+        [GameLayer getInstance].world->DestroyBody(body);
+        
+        return NO;
+    }  
     
-	id removeAction = [CCSequence actions:
-					[CCHide action],
-					[CCCallFunc actionWithTarget:self selector:@selector(destroyBody)],
-					nil];
-	[self runAction:removeAction];
+    if (flagToTransformBody) {
+        flagToTransformBody = NO;
+        body->SetTransform(tranformPosition, tranformAngle);
+    }
+    
+    if (flagToRecreateBody) {
+        flagToRecreateBody = NO;
+        [GameLayer getInstance].world->DestroyBody(body);
+        [self createBox2dObject:[GameLayer getInstance].world size:recreateSize];
+    }
+    
+    return YES;
 }
 
--(void) destroyBody {
-	[GameLayer getInstance].world->DestroyBody(body);
+-(void) markToDestroyBody
+{
+    flagToDestroyBody = YES;
+}
+
+-(void) markToTransformBody:(b2Vec2)position angle:(float)angle
+{
+    flagToTransformBody = YES;
+    tranformPosition = position;
+    tranformAngle = angle;
+}
+
+-(void) markToRecreateBody:(CGSize)newSize
+{
+    flagToRecreateBody = YES;
+    recreateSize = newSize;
+}
+
+-(void) remove
+{
+    self.visible = NO;
     [self stopAllActions];
-	self.visible = NO;
+    
+    if (removed) return;
+
+	removed = YES;
+	body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+    [self markToDestroyBody];
 }
 
 -(void) destroy {
-    if (destroyed) return;
-        
-    destroyed = YES;
-    [self stopAllActions];
-	self.visible = NO;
-    
-    // Safetly remove body with delay to avoid remove inside box2d step
-    [self scheduleOnce:@selector(_destroy) delay:1.0/60.0];
-}
-
--(void) _destroy {
-    [GameLayer getInstance].world->DestroyBody(body);
+    [self remove];
     [self removeFromParentAndCleanup:YES];
 }
 
@@ -154,22 +176,17 @@
 }
 
 -(void) restart
-{
-    if (spawned) {
-        [self destroy];
-        return;
-    }
-    
+{    
 	if (removed) {
 		[self createBox2dObject:[GameLayer getInstance].world size:size];
 		self.position = originalPosition;
-		body->SetTransform(b2Vec2(((self.position.x)/PTM_RATIO), (self.position.y)/PTM_RATIO),0);
+        [self markToTransformBody:b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO) angle:0.0];
 		self.visible = YES;
 		removed = NO;
 		
 	} else {
 		self.position = originalPosition;
-		body->SetTransform(b2Vec2(((self.position.x)/PTM_RATIO), (self.position.y)/PTM_RATIO),0);
+        [self markToTransformBody:b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO) angle:0.0];
 	}
 }
 

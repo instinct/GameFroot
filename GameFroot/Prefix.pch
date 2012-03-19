@@ -20,5 +20,6 @@
 #import "CCDrawingPrimitives+Extension.h"
 #import "CCSpriteBatchNode+FastChildren.h"
 #import "CCTextureAtlas+Dirty.h"
+#import "CCScheduler+BlockAddition.h"
 
 #endif

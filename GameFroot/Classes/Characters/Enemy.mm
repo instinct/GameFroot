@@ -363,36 +363,29 @@
 	if (!dying && !immortal) {
 		dying = YES;
 		jumping = NO;
-		removed = YES;
 		
-		body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+		[self remove];
         
 		[self setState:STAND];
 		
 		id dieAction = [CCSequence actions:
+                        [CCShow action],
 						//[CCFadeOut actionWithDuration:1.0],
 						[CCAnimate actionWithAnimation:die],
-						[CCCallFunc actionWithTarget:self selector:@selector(remove)],
+						[CCHide action],
 						nil];
 		[self runAction:dieAction];
 	}
 }
 
--(void) remove {
-	self.visible = NO;
-    
-    if (spawned) [[GameLayer getInstance] destroyEnemy:self];
-    else [GameLayer getInstance].world->DestroyBody(body);
+-(void) destroy 
+{
+    [self remove];
+    [[GameLayer getInstance] removeEnemy:self]; 
 }
-
 
 -(void) restart
 {
-    if (spawned) {
-        [self destroy];
-        return;
-    }
-    
     lives = 1;
     health = topHealth;
     
@@ -413,7 +406,8 @@
     immortal = NO;
     
     if (removed) [self createBox2dObject:[GameLayer getInstance].world size:size];
-    body->SetTransform(b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO),0);
+    [self markToTransformBody:b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO) angle:0.0];
+    
     self.visible = YES;
     body->SetActive( true );
 }
@@ -937,11 +931,10 @@
            
             if (!ENEMY_BLOCKS_PLAYER || dying) data.contact->SetEnabled( false );
             else if ( data.position == CONTACT_IS_ABOVE ) [ player hitsFloor ];
-            
-                
             break;
         
         case kGameObjectEnemy:
+        case kGameObjectCollectable:
             data.contact->SetEnabled( false );
             break;
             
@@ -954,9 +947,13 @@
             if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ];
             else if ( [self isBelowCloud:object] && (( MovingPlatform* )object ).isCloud ) data.contact->SetEnabled( false );
             break;
-            
-        case kGameObjectPlatform:
+        
         case kGameObjectKiller:
+            [ self die ];
+            break;
+        
+        case kGameObjectRobot:
+        case kGameObjectPlatform:
             // enemy landed on something
             if ( data.position == CONTACT_IS_BELOW ) {
                 if ( jumping ) {
@@ -1037,6 +1034,7 @@
         case kGameObjectPlatform:
         case kGameObjectCloud:
         case kGameObjectPlayer:
+        case kGameObjectCollectable:
             [ self restartMovement ];
             break;
             

@@ -21,6 +21,11 @@ void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
     [self performSelector:@selector(messageSelf:) withObject:command];
 }
 
+void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *command)
+{
+    [self performSelector:@selector(broadcastMessage:) withObject:command];
+}
+
 @implementation Robot
 
 @synthesize solid;
@@ -39,8 +44,10 @@ void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
     return self;
 }
 
--(void) _recreateBody
+-(void) createBox2dObject:(b2World*)world size:(CGSize)_size
 {
+	size = _size;
+	
 	b2BodyDef playerBodyDef;
 	playerBodyDef.allowSleep = true;
 	playerBodyDef.fixedRotation = true;
@@ -67,13 +74,6 @@ void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
     fixtureDef.restitution = 0.0; // bouncing
     fixtureDef.isSensor = sensor;
     body->CreateFixture(&fixtureDef);
-}
-
--(void) createBox2dObject:(b2World*)world size:(CGSize)_size
-{
-	size = _size;
-	
-	[self _recreateBody];
 	
 	removed = NO;
 }
@@ -159,6 +159,10 @@ void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
             SEL sel = sel_registerName([[NSString stringWithFormat:@"%@:command:", [event objectForKey:@"messageName"]] UTF8String]);
             class_addMethod([self class], sel, (IMP)runDynamicMessage, "v@:@@");
             
+            SEL selBroadcast = sel_registerName([[NSString stringWithFormat:@"%broadcast_@:command:", [event objectForKey:@"messageName"]] UTF8String]);
+            class_addMethod([self class], selBroadcast, (IMP)runDynamicBroadcastMessage, "v@:@@");
+            
+            
 		} else if ([nameEvent isEqualToString:@"onDie"]) {
 			onDieCommands = [event objectForKey:@"commands"];
 			
@@ -178,11 +182,6 @@ void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
             
 			[self resolve:i];
         }
-    }
-    
-    if (!spawned) {
-        [self resumeSchedulerAndActions];
-        paused = NO;
     }
 }
 
@@ -473,8 +472,7 @@ void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
     if (TRACE_COMMANDS) CCLOG(@"Robot.beNotSolid");
     
 	solid = NO;
-	
-    [self scheduleOnce:@selector(_changeBody) delay:1.0/60.0];
+    [self markToRecreateBody:size];
     
 	return solid;
 }
@@ -484,17 +482,9 @@ void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
     if (TRACE_COMMANDS) CCLOG(@"Robot.beSolid");
     
 	solid = YES;
-	
-	[self scheduleOnce:@selector(_changeBody) delay:1.0/60.0];
+    [self markToRecreateBody:size];
 	
 	return solid;
-}
-
--(void) _changeBody
-{
-	[GameLayer getInstance].world->DestroyBody(body);
-	
-	[self _recreateBody];
 }
 
 -(void) say:(id)obj
@@ -653,14 +643,12 @@ void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 		} else {
 			[self runMethod:action withObject:nil];
 		}
-		
-		
 	}
 }
 
 -(NSNumber *) coordinateXOfNode:(NSDictionary *)command 
 {
-    if (TRACE_COMMANDS) CCLOG(@"Robot.faceObject");CCLOG(@"Robot.coordinateXOfNode: %@", command);
+    //if (TRACE_COMMANDS) CCLOG(@"Robot.coordinateXOfNode: %@", command);
     
     NSDictionary *node = [command objectForKey:@"node"];
     NSMutableArray *position = [self runMethod:[node objectForKey:@"token"] withObject:node];
@@ -673,7 +661,7 @@ void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 
 -(NSNumber *) coordinateYOfNode:(NSDictionary *)command 
 {
-    if (TRACE_COMMANDS) CCLOG(@"Robot.faceObject");CCLOG(@"Robot.coordinateYOfNode: %@", command);
+    //if (TRACE_COMMANDS) CCLOG(@"Robot.coordinateYOfNode: %@", command);
     
     NSDictionary *node = [command objectForKey:@"node"];
     NSMutableArray *position = [self runMethod:[node objectForKey:@"token"] withObject:node];
@@ -953,6 +941,20 @@ void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
     [[GameLayer getInstance] changeInitialPlayerPositionToX:mapPos.x andY:mapPos.y];
 }
 
+/*
+-(void) _changePosition
+{
+	CGPoint pos = ccp(auxX, auxY);
+	body->SetTransform(b2Vec2(((pos.x - 30)/PTM_RATIO), (pos.y + 0)/PTM_RATIO),0);
+	self.position = pos;
+}
+
+-(void) _changePlayerPosition
+{
+    [[GameLayer getInstance] transportPlayerToX:auxX andY:auxY];
+}
+*/
+
 -(void) teleport:(NSDictionary *)command 
 {
 	NSDictionary *location = [command objectForKey:@"location"];
@@ -977,8 +979,10 @@ void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
     if (found) {
         
         if (TRACE_COMMANDS) CCLOG(@"Robot.teleport: %f, %f", auxX, auxY);
-            
-        [self scheduleOnce:@selector(_changeToPosition) delay:1.0/60.0];
+        
+        CGPoint pos = ccp(auxX, auxY);
+        [self markToTransformBody:b2Vec2(((pos.x - 30)/PTM_RATIO), (pos.y + 0)/PTM_RATIO) angle:0.0];
+        self.position = pos;
     }
 }
 
@@ -1010,22 +1014,10 @@ void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
             if (TRACE_COMMANDS) CCLOG(@"Robot.teleportInstance: %f, %f", auxX, auxY);
                 
             [[SimpleAudioEngine sharedEngine] playEffect:@"IG Transporter.caf"];
-            [self scheduleOnce:@selector(_changePlayerPosition) delay:1.0/60.0];
+            
+            [[GameLayer getInstance] transportPlayerToX:auxX andY:auxY];
         }
     }
-}
-
--(void) _changePosition
-{
-	CGPoint pos = ccp(auxX, auxY);
-	body->SetTransform(b2Vec2(((pos.x - 30)/PTM_RATIO), (pos.y + 0)/PTM_RATIO),0);
-	
-	self.position = pos;
-}
-
--(void) _changePlayerPosition
-{
-    [[GameLayer getInstance] transportPlayerToX:auxX andY:auxY];
 }
 
 -(void) walkToNode:(NSDictionary *)command 
@@ -1342,14 +1334,10 @@ void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 	}
 	
     NSString *message = [command objectForKey:@"message"];
-    if ([message isEqualToString:@"check"]) return;
-    
-    SEL sel = sel_registerName([[NSString stringWithFormat:@"%@:command:", message] UTF8String]);
-    
     if (TRACE_COMMANDS) CCLOG(@"Robot.messageSelfAfterDelay: %@ (%f)", message, delay/DELAY_FACTOR);
     
-    [[CCScheduler sharedScheduler] unscheduleSelector:sel forTarget:self];
-     
+    SEL sel = sel_registerName([[NSString stringWithFormat:@"%@:command:", message] UTF8String]);
+                               
     id action = [CCSequence actions:
                  [CCDelayTime actionWithDuration:delay/DELAY_FACTOR],
                  [CCCallFuncND actionWithTarget:self selector:sel data:command],
@@ -1357,15 +1345,9 @@ void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 	[self runAction: action];
 }
 
--(void) _delayedMessage
-{
-	[self messageSelf:delayedMessage];
-}
 
 -(void) broadcastMessageAfterDelay:(NSDictionary *)command 
 {
-	delayedMessage = command;
-	
 	float delay;
 	
 	if ([[command objectForKey:@"delay"] isKindOfClass:[NSDictionary class]]) {
@@ -1378,14 +1360,16 @@ void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 		delay = [[command objectForKey:@"delay"] floatValue];
 	}
     
-    if (TRACE_COMMANDS) CCLOG(@"Robot.broadcastMessageAfterDelay: %@ (%f)", command, delay/DELAY_FACTOR);
+    NSString *message = [command objectForKey:@"message"];
+    if (TRACE_COMMANDS) CCLOG(@"Robot.broadcastMessageAfterDelay: %@ (%f)", message, delay/DELAY_FACTOR);
     
-    [self scheduleOnce:@selector(_delayedBroadcast) delay:delay/DELAY_FACTOR];
-}
-
--(void) _delayedBroadcast
-{
-	[self broadcastMessage:delayedMessage];
+    SEL sel = sel_registerName([[NSString stringWithFormat:@"broadcast_%@:command:", message] UTF8String]);
+    
+    id action = [CCSequence actions:
+                 [CCDelayTime actionWithDuration:delay/DELAY_FACTOR],
+                 [CCCallFuncND actionWithTarget:self selector:sel data:command],
+                 nil];
+	[self runAction: action];
 }
 
 -(NSNumber *) opSin:(id)obj
@@ -1829,7 +1813,7 @@ void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 
 -(void) pause 
 {
-	[self pauseSchedulerAndActions];	
+	[self pauseSchedulerAndActions];
 	paused = YES;
 }
 
@@ -1875,23 +1859,19 @@ void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 
 -(void) restart
 {
-    if (spawned) {
-        [self destroy];
-        return;
-    }
-    
     [self setupRobot:originalData];
     
 	if (removed) {
-		[self _recreateBody];
+		[self createBox2dObject:[GameLayer getInstance].world size:size];
 		self.position = originalPosition;
-		body->SetTransform(b2Vec2(((self.position.x)/PTM_RATIO), (self.position.y)/PTM_RATIO),0);
+        [self markToTransformBody:b2Vec2(((self.position.x)/PTM_RATIO), (self.position.y)/PTM_RATIO) angle:0.0];
+        
 		self.visible = YES;
 		removed = NO;
 		
 	} else {
 		self.position = originalPosition;
-		body->SetTransform(b2Vec2(((self.position.x)/PTM_RATIO), (self.position.y)/PTM_RATIO),0);
+        [self markToTransformBody:b2Vec2(((self.position.x)/PTM_RATIO), (self.position.y)/PTM_RATIO) angle:0.0];
 	}
 	
 	onMessage = NO;
@@ -1900,17 +1880,18 @@ void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
     onOutShot = YES;
    
     [self stopAllActions];
-    [self onSpawn];
 }
 
 -(void) remove
 {
     [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and Gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
-    
-	[self stopAllActions];
-	
-    if (spawned) [[GameLayer getInstance] destroyRobot:self];
-    else [super remove];
+	[super remove];
+}
+
+-(void) destroy
+{
+    [self remove];
+	[[GameLayer getInstance] removeRobot:self];
 }
 
 // collision handling

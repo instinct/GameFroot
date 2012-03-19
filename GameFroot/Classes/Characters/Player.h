@@ -117,6 +117,8 @@
 -(void) moveRight;
 -(void) moveLeft;
 -(void) restartMovement;
+-(void) resetVerticalSpeed;
+-(void) resetHorizontalSpeed;
 -(void) stop;
 -(void) crouch;
 -(void) prone;
@@ -136,7 +138,6 @@
 -(void) displaceHorizontally:(float)speed;
 -(void) changePositionX:(int)dx andY:(int)dy;
 -(void) changeInitialPositionX:(int)dx andY:(int)dy;
--(void) changeToPosition:(CGPoint)pos;
 -(void) setTouchingSwitch:(Switch *) touchingSwitch_;
 -(void) resetForces;
 -(BOOL) isBelowCloud:(GameObject *) object;

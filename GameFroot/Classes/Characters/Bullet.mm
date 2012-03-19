@@ -51,6 +51,8 @@
 	}
 	
 	bullet.spriteSheet = spriteSheet;
+    
+    bullet.spawned = YES;
 	
 	if (REDUCE_FACTOR != 1.0f) [spriteSheet.textureAtlas.texture setAntiAliasTexParameters];
 	else [spriteSheet.textureAtlas.texture setAliasTexParameters];
@@ -71,7 +73,6 @@
 	type = kGameObjectBullet;
 	
 	damage = 10;
-	
 	
 	if (_weapon == 2) {
 		numFrames = 1;
@@ -171,12 +172,11 @@
 }
 
 -(void) die {
-	if (!removing) {
+	if (!removed) {
 		
 		[self unschedule:@selector(update:)];
 		
-		removing = YES;
-		body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+		[self remove];
         
         // if rocket then go boom!
         if(weapon == 6) {
@@ -184,35 +184,18 @@
         }
         
 		id dieAction = [CCSequence actions:
-						//[CCHide action],
+                        [CCShow action],
 						[CCAnimate actionWithAnimation:explosion],
 						[CCHide action],
-						[CCDelayTime actionWithDuration:0.1f],
 						[CCCallFunc actionWithTarget:self selector:@selector(destroy)],
 						nil];
 		[self runAction:dieAction];
 	}
 }
 
--(void) remove
-{
-	removed = YES;
-	removing = YES;
-    
-	body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
-    
-	id removeAction = [CCSequence actions:
-                       [CCHide action],
-                       [CCDelayTime actionWithDuration:0.1f],
-                       [CCCallFunc actionWithTarget:self selector:@selector(destroy)],
-                       nil];
-	[self runAction:removeAction];
-}
-
 -(void) destroy
 {
-	[GameLayer getInstance].world->DestroyBody(body);
-    [spriteSheet removeAllChildrenWithCleanup:YES];
+    [self remove];
 	[[GameLayer getInstance] removeBullet:spriteSheet];
 }
 
