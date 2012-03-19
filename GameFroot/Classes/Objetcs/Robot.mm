@@ -16,9 +16,8 @@
 #define FLASH_VELOCITY_FACTOR	50.0f
 #define DELAY_FACTOR			1000.0f
 
-void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
+void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 {
-	//[self messageSelf:command];
     [self performSelector:@selector(messageSelf:) withObject:command];
 }
 
@@ -158,8 +157,8 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 			[msgCommands addObject:[event objectForKey:@"commands"]];
             
             SEL sel = sel_registerName([[NSString stringWithFormat:@"%@:command:", [event objectForKey:@"messageName"]] UTF8String]);
-            class_addMethod([self class], sel, (IMP)runDelayedMessage, "v@:@@");
-			
+            class_addMethod([self class], sel, (IMP)runDynamicMessage, "v@:@@");
+            
 		} else if ([nameEvent isEqualToString:@"onDie"]) {
 			onDieCommands = [event objectForKey:@"commands"];
 			
@@ -296,6 +295,8 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 	if (anObject != nil) method = [NSString stringWithFormat:@"%@:", nameMethod];
 	else method = nameMethod;
 	
+    if (TRACE_COMMANDS) CCLOG(@"Robot: calling selector: %@ with parameter: %@", method, anObject);
+    
 	SEL selector = NSSelectorFromString(method);
 	if ([self respondsToSelector:selector]) {
 		
@@ -303,9 +304,6 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 		if (anObject != nil) result = [self performSelector:selector withObject:anObject];
 		else result = [self performSelector:selector];
 		
-		//CCLOG(@"Robot: calling selector: %@ with parameter: %@ and result: %@", method, anObject, result);
-		if (TRACE_COMMANDS) CCLOG(@"Robot: calling selector: %@ with parameter: %@", method, anObject);
-        
 		return result;
 		
 	} else {
@@ -316,6 +314,8 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 
 -(void) runCommand: (NSDictionary *)command
 {
+    if (TRACE_COMMANDS) CCLOG(@"Robot.runCommand: %@", command);
+    
 	//Run the first command within the list:
 	NSString *action = [command objectForKey:@"action"];
 	
@@ -660,7 +660,7 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 
 -(NSNumber *) coordinateXOfNode:(NSDictionary *)command 
 {
-    //if (TRACE_COMMANDS) CCLOG(@"Robot.faceObject");CCLOG(@"Robot.coordinateXOfNode: %@", command);
+    if (TRACE_COMMANDS) CCLOG(@"Robot.faceObject");CCLOG(@"Robot.coordinateXOfNode: %@", command);
     
     NSDictionary *node = [command objectForKey:@"node"];
     NSMutableArray *position = [self runMethod:[node objectForKey:@"token"] withObject:node];
@@ -673,7 +673,7 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 
 -(NSNumber *) coordinateYOfNode:(NSDictionary *)command 
 {
-    //if (TRACE_COMMANDS) CCLOG(@"Robot.faceObject");CCLOG(@"Robot.coordinateYOfNode: %@", command);
+    if (TRACE_COMMANDS) CCLOG(@"Robot.faceObject");CCLOG(@"Robot.coordinateYOfNode: %@", command);
     
     NSDictionary *node = [command objectForKey:@"node"];
     NSMutableArray *position = [self runMethod:[node objectForKey:@"token"] withObject:node];
@@ -1211,7 +1211,7 @@ void runDelayedMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 
 -(void) shootNewObject:(NSDictionary *)command 
 {
-	//TODO: pending
+	if (TRACE_COMMANDS) CCLOG(@"Robot.shootNewObject: %@", command);
 }
 
 -(NSNumber *) isFalling:(id)obj

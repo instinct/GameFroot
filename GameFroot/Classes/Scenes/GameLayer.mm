@@ -1517,56 +1517,6 @@ GameLayer *instance;
 	CCLOG(@"Total points level: %i", totalPoints);
 }
 
--(void) spawnRobot:(CGRect) rect data:(NSDictionary *) originalData pos:(CGPoint) mapPos;
-{
-    NSMutableArray *values = [NSMutableArray arrayWithCapacity:3];
-    [values insertObject:[[NSValue valueWithCGRect:rect] retain] atIndex:0];
-    [values insertObject:[originalData retain] atIndex:1];
-    [values insertObject:[[NSValue valueWithCGPoint:mapPos] retain] atIndex:2];
-    
-    id action = [CCSequence actions:
-                 [CCDelayTime actionWithDuration:1.0/60.0],
-                 [CCCallFuncND actionWithTarget:self selector:@selector(_spawnRobot:data:) data:[values retain]],
-                 nil];
-    [self runAction: action];
-}
-
--(void) _spawnRobot:(id)selector data:(NSArray *) values
-{
-    
-    NSValue *valueRect = [values objectAtIndex:0];
-    [valueRect release];
-    CGRect rect = [valueRect CGRectValue];
-    
-    NSDictionary *originalData = [values objectAtIndex:1];
-    [originalData release];
-    
-    NSValue *valuePos = [values objectAtIndex:2];
-    [valuePos release];
-    CGPoint mapPos = [valuePos CGPointValue];
-    
-    [values release];
-    
-    int zorder  = 1;
-    
-    CCLOG(@"GameLayer.spawnRobot: %f,%f", mapPos.x, mapPos.y);
-    
-    CGPoint pos = ccp(mapPos.x * MAP_TILE_WIDTH, (mapHeight - mapPos.y - 1) * MAP_TILE_HEIGHT);
-    pos.x += MAP_TILE_WIDTH/2.0f;
-    pos.y += MAP_TILE_HEIGHT/2.0f;
-    
-    Robot *item = [Robot spriteWithBatchNode:spriteSheet rect:rect];
-    [item setPosition:pos];
-    [item setupRobot:originalData];
-    [item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
-    [spriteSheet addChild:item z:zorder];
-    item.spawned = YES;
-    
-    [robots addObject:item];
-    
-    [item onSpawn];
-}
-
 -(void) loadPlayer
 {
 	NSDictionary *dict = (NSDictionary *)[data objectForKey:@"player"];
@@ -1722,7 +1672,8 @@ GameLayer *instance;
 
     NSDictionary *dict = (NSDictionary *)[enemiesList objectAtIndex:i];
     int enemyID = [[dict objectForKey:@"type"] intValue];
-    //CCLOG(@"Enemy id: %i, initial position: %f,%f", enemyID, mapPos.x, mapPos.y);
+
+    CCLOG(@"GameLayer.spawnEnemy: %f,%f", mapPos.x, mapPos.y);
     
     CCSpriteBatchNode *enemySpriteSheet;
     BOOL custom = NO;
@@ -1778,6 +1729,55 @@ GameLayer *instance;
     enemy.spawned = YES;
     
     [enemies addObject:enemy];
+}
+
+-(void) spawnRobot:(CGRect) rect data:(NSDictionary *) originalData pos:(CGPoint) mapPos;
+{
+    NSMutableArray *values = [NSMutableArray arrayWithCapacity:3];
+    [values insertObject:[[NSValue valueWithCGRect:rect] retain] atIndex:0];
+    [values insertObject:[originalData retain] atIndex:1];
+    [values insertObject:[[NSValue valueWithCGPoint:mapPos] retain] atIndex:2];
+    
+    id action = [CCSequence actions:
+                 [CCDelayTime actionWithDuration:1.0/60.0],
+                 [CCCallFuncND actionWithTarget:self selector:@selector(_spawnRobot:data:) data:[values retain]],
+                 nil];
+    [self runAction: action];
+}
+
+-(void) _spawnRobot:(id)selector data:(NSArray *) values
+{
+    NSValue *valueRect = [values objectAtIndex:0];
+    [valueRect release];
+    CGRect rect = [valueRect CGRectValue];
+    
+    NSDictionary *originalData = [values objectAtIndex:1];
+    [originalData release];
+    
+    NSValue *valuePos = [values objectAtIndex:2];
+    [valuePos release];
+    CGPoint mapPos = [valuePos CGPointValue];
+    
+    [values release];
+    
+    int zorder  = 1;
+    
+    CCLOG(@"GameLayer.spawnRobot: %f,%f", mapPos.x, mapPos.y);
+    
+    CGPoint pos = ccp(mapPos.x * MAP_TILE_WIDTH, (mapHeight - mapPos.y - 1) * MAP_TILE_HEIGHT);
+    pos.x += MAP_TILE_WIDTH/2.0f;
+    pos.y += MAP_TILE_HEIGHT/2.0f;
+    
+    Robot *item = [Robot spriteWithBatchNode:spriteSheet rect:rect];
+    [item setPosition:pos];
+    [item setupRobot:originalData];
+    [item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
+    [spriteSheet addChild:item z:zorder];
+    item.spawned = YES;
+    
+    [robots addObject:item];
+    
+    [item onSpawn];
 }
 
 #pragma mark -

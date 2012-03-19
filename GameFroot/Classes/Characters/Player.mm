@@ -1004,6 +1004,20 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			[bullet setPosition:ccpAdd(self.position,bulletOffset)];
 			[bullet createBox2dObject:[GameLayer getInstance].world];
 			//CCLOG(@"Player position: %f,%f", self.position.x, self.position.y);
+            
+            if (weaponID == 1) {
+                Bullet *bullet1 = [Bullet bullet:bulletDirection weapon:weaponID];
+                bullet1.damage = shootDamage;
+                [bullet1 setPosition:ccpAdd(self.position,bulletOffset)];
+                [bullet1 createBox2dObject:[GameLayer getInstance].world];
+                [bullet1 setAngle:1.0f];
+                
+                Bullet *bullet2 = [Bullet bullet:bulletDirection weapon:weaponID];
+                bullet2.damage = shootDamage;
+                [bullet2 setPosition:ccpAdd(self.position,bulletOffset)];
+                [bullet2 createBox2dObject:[GameLayer getInstance].world];
+                [bullet2 setAngle:-1.0f];
+            }
 		}
 	}
 }

@@ -38,7 +38,7 @@
 -(void) initWithDirection:(GameObjectDirection)dir weapon:(int)_weapon;
 
 -(void) createBox2dObject:(b2World*)world;
-
+-(void) setAngle:(float)angle;
 -(void) die;
 
 @end

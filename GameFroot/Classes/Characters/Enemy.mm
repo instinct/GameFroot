@@ -10,6 +10,7 @@
 #import "GameLayer.h"
 #import "Constants.h"
 #import "Bullet.h"
+#import "Robot.h"
 #import "MovingPlatform.h"
 //#import "GB2ShapeCache.h"
 
@@ -302,6 +303,20 @@
 		[bullet setType:kGameObjectBulletEnemy];
 		[bullet setPosition:ccpAdd(self.position,bulletOffset)];
 		[bullet createBox2dObject:[GameLayer getInstance].world];
+        
+        if (weaponID == 1) {
+            Bullet *bullet1 = [Bullet bullet:bulletDirection weapon:weaponID];
+            bullet1.damage = shootDamage;
+            [bullet1 setPosition:ccpAdd(self.position,bulletOffset)];
+            [bullet1 createBox2dObject:[GameLayer getInstance].world];
+            [bullet1 setAngle:1.0f];
+            
+            Bullet *bullet2 = [Bullet bullet:bulletDirection weapon:weaponID];
+            bullet2.damage = shootDamage;
+            [bullet2 setPosition:ccpAdd(self.position,bulletOffset)];
+            [bullet2 createBox2dObject:[GameLayer getInstance].world];
+            [bullet2 setAngle:-1.0f];
+        }
 	}
 }
 
@@ -773,9 +788,13 @@
     if ( ((behaviour & ENEMY_BEHAVIOUR_WALKING) > 0) && ((behaviour & ENEMY_BEHAVIOUR_JUMPING) == 0) ) {
 		
         if (tilePos.y == playerPos.y) {
+            // Player and enemy on same horizontal level
+            
             int tileType = [self tileType:1 y:-1];
+            
             if ((behaviour & ENEMY_BEHAVIOUR_SHOOTING) == 0) {
-                // Try to hit the player
+                // Try to hit the player since it won't shoot
+                
                 if (tileType != TILE_TYPE_SPIKE) { 
                     if (player.position.x < self.position.x) {
                         [self moveLeft];
@@ -791,6 +810,7 @@
                 }
                 
             } else {
+                
                 // Stops ENEMY_WALKING_STOPAHEAD tiles in front of player
                 if ( (tilePos.x > playerPos.x + ENEMY_WALKING_STOPAHEAD) && (tileType != TILE_TYPE_SPIKE) ) {
                     if (direction != kDirectionLeft) [self moveLeft];
@@ -804,7 +824,10 @@
                     else if (player.position.x > self.position.x) [self faceRight];
                 }
             }
+            
         } else {
+            // Enemy on different horizontal level
+            
             b2Vec2 current = body->GetLinearVelocity();
             
             if (fabsf(roundf(current.x)) == 0) {
@@ -819,7 +842,10 @@
                 
                 if (!jumping && (fabsf(roundf(vel.y)) == 0)) {
                     int tileType = [self tileType:1 y:-1];
-                    if ( !spawned || (tileType == TILE_TYPE_SPIKE) ) [ self changeDirection ];
+                    if ( !spawned || (tileType == TILE_TYPE_SPIKE) ) {
+                        // Ignore ledges flag is enemy spawned
+                        [ self changeDirection ];
+                    }
                 }
             }
         }
@@ -892,37 +918,8 @@
         }
     }
     
-    // ********************
-    // direction check
-    // ********************
-    // if enemy is pushed, the physics engine might result in "moonwalking"
-    if ( [ self isMoonWalking ] == YES ) [ self resetForces ];
-    if ( [ self isStaticWalking ] == YES ) [ self stop ];
-    
     // done
-    b2Vec2 current = body->GetLinearVelocity();
-	//CCLOG(@"%f, %i", current.y, action);
-	
-	if ((fabsf(roundf(current.y)) != 0) && !ignoreGravity) {
-        
-		//CCLOG(@"%f, %i", current.y, ignoreGravity);
-		if ((current.y > 0) && jumping) {
-			if (!ignoreGravity) {
-                [self setState:JUMPING];
-            }
-			
-		} else if (current.y < -0.01) {
-			if (!ignoreGravity) {
-                [self setState:FALLING];
-            }
-		}
-	}
-    
-	if (body->GetType() != b2_staticBody) {
-		self.position = ccp(body->GetPosition().x * PTM_RATIO, body->GetPosition().y * PTM_RATIO);
-		//self.rotation =  -1 * CC_RADIANS_TO_DEGREES(body->GetAngle()); // We don't rotate, so we can save this
-        //body->SetTransform(body->GetPosition(), 0);
-	}
+	[super update:dt];
 }
 
 // --------------------------------------------------------------
@@ -941,6 +938,7 @@
             if (!ENEMY_BLOCKS_PLAYER || dying) data.contact->SetEnabled( false );
             else if ( data.position == CONTACT_IS_ABOVE ) [ player hitsFloor ];
             
+                
             break;
         
         case kGameObjectEnemy:
@@ -1027,6 +1025,42 @@
             
         default:
             break;
+    }
+}
+
+-( void )handleEndCollision:( contactData )data {
+    GameObject* object = ( GameObject* )data.object;
+    b2Vec2 velocity;
+    
+    switch ( object.type ) {
+            
+        case kGameObjectPlatform:
+        case kGameObjectCloud:
+        case kGameObjectPlayer:
+            [ self restartMovement ];
+            break;
+            
+        case kGameObjectSwitch:
+            [ self setTouchingSwitch:nil ];
+            break;
+            
+        case kGameObjectRobot:
+            [ ( Robot* )object finished:self ];
+            velocity = ( ( Robot* )object ).body->GetLinearVelocity();
+            if ( velocity.y != 0 ) self.ignoreGravity = NO;
+            if ( velocity.x != 0 ) [ self displaceHorizontally:0.0f ];
+            [ self restartMovement ];
+            break;
+            
+        case kGameObjectMovingPlatform:
+            if ( ( ( MovingPlatform* )object ).velocity.y != 0) self.ignoreGravity = NO;
+            if ( ( ( MovingPlatform* )object ).velocity.x != 0) [ self displaceHorizontally:0.0f ];
+            [ self restartMovement ];
+            break;
+            
+        default:
+            break;
+            
     }
 }
 

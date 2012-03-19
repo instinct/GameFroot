@@ -164,6 +164,12 @@
     size = self.contentSize;
 }
 
+-(void) setAngle:(float)angle
+{
+    b2Vec2 velocity = body->GetLinearVelocity();
+    body->SetLinearVelocity(b2Vec2(velocity.x, angle));
+}
+
 -(void) die {
 	if (!removing) {
 		
