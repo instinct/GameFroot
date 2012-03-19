@@ -645,23 +645,16 @@ GameLayer *instance;
 	NSDictionary *headerData = [jsonData objectForKey:@"meta"];
 	if(headerData)
 	{
-		musicData = [[NSMutableDictionary alloc] init];
         NSArray *musicArray = [[headerData objectForKey:@"background"] objectForKey:@"musics"];
 		if ((musicArray != nil) && [musicArray isKindOfClass:[NSArray class]] && [musicArray count] > 0) {
             
-            for (NSString *mID in musicArray) {
-                NSString *urlRequest = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_music_url&id=%@", [self returnServer], mID];
-                NSString *urlResponse = [Shared stringWithContentsOfURL:urlRequest ignoreCache:ignoreCache];
-                NSString *track = [[urlResponse componentsSeparatedByString:@"/"] lastObject];
-                // add dict entry
-                CCLOG(@"track: %@ key: %@", track, mID);
-                [musicData setObject:track forKey:mID];
-            }
+            // NOTE! This has been disabled until the new music url api has been added
+            //musicData = [[Shared loadMusic:musicArray fromServer:[self returnServer] ignoreCache:ignoreCache] retain];
             
             // now set the default music
             NSString *default_music = [[headerData objectForKey:@"background"] objectForKey:@"default_music"];
-            [data setObject:[musicData objectForKey:default_music] forKey:@"bgmusic"];
-			
+           //[data setObject:[musicData objectForKey:default_music] forKey:@"bgmusic"];
+            [data setObject:default_music forKey:@"bgmusic"];
 		} else {
 			[data setObject:@"" forKey:@"bgmusic"];
 		}
