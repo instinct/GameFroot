@@ -791,7 +791,11 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     
     //CCLOG(@"Robot.die: %i", isPermanent);
     
-	if (!isPermanent) [self remove];
+	if (!isPermanent) {
+        // If spawend then we need to destroy
+        if (spawned) [self destroy];
+        else [self remove];
+    }
 }
 
 -(NSNumber *) changeHealth:(NSDictionary *)command 

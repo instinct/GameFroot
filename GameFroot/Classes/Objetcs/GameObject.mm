@@ -99,6 +99,7 @@
 	removed = NO;
 }
 
+/* Handles lock box2d actions */
 -(BOOL) applyPendingBox2dActions
 {
     if (flagToDestroyBody) {
@@ -122,11 +123,13 @@
     return YES;
 }
 
+/* Marks the box2d body to be destroyed */
 -(void) markToDestroyBody
 {
     flagToDestroyBody = YES;
 }
 
+/* Marks the box2d body to be transformed */
 -(void) markToTransformBody:(b2Vec2)position angle:(float)angle
 {
     flagToTransformBody = YES;
@@ -134,12 +137,14 @@
     tranformAngle = angle;
 }
 
+/* Marks the box2d body to be destroyed and recreated with new size */
 -(void) markToRecreateBody:(CGSize)newSize
 {
     flagToRecreateBody = YES;
     recreateSize = newSize;
 }
 
+/* Remove the object fron scene but keep it hidden for reset */
 -(void) remove
 {
     self.visible = NO;
@@ -152,9 +157,26 @@
     [self markToDestroyBody];
 }
 
+/* Completely remove the object from scene */
 -(void) destroy {
     [self remove];
     [self removeFromParentAndCleanup:YES];
+}
+
+/* Restart makes the object to reapear on scene on original place with original status */
+-(void) restart
+{   
+	if (removed) {
+		[self createBox2dObject:[GameLayer getInstance].world size:size];
+		self.position = originalPosition;
+        [self markToTransformBody:b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO) angle:0.0];
+		self.visible = YES;
+		removed = NO;
+		
+	} else {
+		self.position = originalPosition;
+        [self markToTransformBody:b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO) angle:0.0];
+	}
 }
 
 -(void) setPosition:(CGPoint)pos
@@ -173,21 +195,6 @@
     int dy = [ GameLayer getInstance ].mapHeight - ( self.position.y * CC_CONTENT_SCALE_FACTOR() / MAP_TILE_HEIGHT * CC_CONTENT_SCALE_FACTOR() );
     
     return ccp(dx,dy);
-}
-
--(void) restart
-{    
-	if (removed) {
-		[self createBox2dObject:[GameLayer getInstance].world size:size];
-		self.position = originalPosition;
-        [self markToTransformBody:b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO) angle:0.0];
-		self.visible = YES;
-		removed = NO;
-		
-	} else {
-		self.position = originalPosition;
-        [self markToTransformBody:b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO) angle:0.0];
-	}
 }
 
 -(void) update:(ccTime)dt

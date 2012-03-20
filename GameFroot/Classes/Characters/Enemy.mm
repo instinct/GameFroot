@@ -368,12 +368,25 @@
         
 		[self setState:STAND];
 		
-		id dieAction = [CCSequence actions:
+		id dieAction;
+        
+        // If spawend then we need to destroy
+        if (spawned)
+            dieAction = [CCSequence actions:
                         [CCShow action],
 						//[CCFadeOut actionWithDuration:1.0],
 						[CCAnimate actionWithAnimation:die],
 						[CCHide action],
+                        [CCCallFunc actionWithTarget:self selector:@selector(destroy)],
 						nil];
+        else
+            dieAction = [CCSequence actions:
+                         [CCShow action],
+                         //[CCFadeOut actionWithDuration:1.0],
+                         [CCAnimate actionWithAnimation:die],
+                         [CCHide action],
+                         nil];
+        
 		[self runAction:dieAction];
 	}
 }
@@ -524,7 +537,7 @@
         impulse = b2Vec2( dir * ENEMY_JUMP_GAIN * jumpTo.x, ENEMY_JUMP_GAIN * jumpTo.y );
     }
     // apply impulse
-    body->SetLinearVelocity( b2Vec2( 0, 0 ) );
+    [self resetForces];
     body->ApplyLinearImpulse( impulse, body->GetWorldCenter( ) );    
     [ self setState:JUMPING ];
     jumping = YES;

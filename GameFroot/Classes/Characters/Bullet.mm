@@ -183,6 +183,7 @@
             [[SimpleAudioEngine sharedEngine] playEffect:@"W Rocket launcher boom.caf"];
         }
         
+        // Bullets always have to be destroyed (spawend)
 		id dieAction = [CCSequence actions:
                         [CCShow action],
 						[CCAnimate actionWithAnimation:explosion],

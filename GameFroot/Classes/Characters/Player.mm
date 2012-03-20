@@ -581,7 +581,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			}
 		}
 		
-		body->SetLinearVelocity(b2Vec2(0.0f, 0.0f)); // reset previous movement
+		[self resetForces];
 		body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
         
         [self setState:JUMPING];
@@ -722,7 +722,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 {
 	b2Vec2 vel = body->GetLinearVelocity();
 	if (!dying && !immortal && !jetpackActivated && (fabsf(roundf(vel.x)) == 0) && (fabsf(roundf(vel.y)) == 0)) {
-		body->SetLinearVelocity(b2Vec2(0.0f, vel.y));
+		[self resetHorizontalSpeed];
 		[self setState:CROUCH];
 		moving = NO;
 		direction = kDirectionNone;
@@ -733,7 +733,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 {		
 	b2Vec2 vel = body->GetLinearVelocity();
 	if (!dying && !immortal && !jetpackActivated && (fabsf(roundf(vel.x)) == 0) && (fabsf(roundf(vel.y)) == 0)) {
-		body->SetLinearVelocity(b2Vec2(0.0f, vel.y));
+		[self resetHorizontalSpeed];
 		[self setState:PRONE];
 		moving = NO;
 		direction = kDirectionNone;
@@ -1127,7 +1127,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			[particle stopSystem];
 		}
 		
-		body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+		[self resetForces];
 		
 		[[GameLayer getInstance] pause];
 		
@@ -1333,8 +1333,6 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 -(void) hitsFloor
 {
 	b2Vec2 current = body->GetLinearVelocity();
-	//CCLOG(@"%@.hitsFloor, jumping:%i, moving:%i, jumpingMoving:%i, vel:%f,%f", [self class], jumping, moving, jumpingMoving, current.x, current.y);
-    //CCLOG(@"%@.hitsFloor: %f", [self class], current.y);
 	
     if (current.y < -15) {
         // Apply damage when falling for high altitude
@@ -1350,8 +1348,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     if (!moving) {
         
         if (current.x != 0) {
-            //CCLOG(@"Reset X linear velocity");
-            body->SetLinearVelocity(b2Vec2(0.0f, current.y));
+            [self resetHorizontalSpeed];
         }
         
         if ((action != PRONE) && (action != CROUCH) && (!jetpackActivated)) [self setState:STAND];
