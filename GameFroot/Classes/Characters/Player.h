@@ -43,6 +43,7 @@
 	
 	int initialX, initialY, originalX, originalY;
 	
+    int horizontalSpeed;
 	BOOL dying;
 	BOOL immortal;
 	BOOL paused;

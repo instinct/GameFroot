@@ -46,7 +46,6 @@
 	
 	int score;
 	NSString *weaponName;
-	int speed;
 	int multiShot;
 	float multiShotDelay;
 	int collideTakeDamage;

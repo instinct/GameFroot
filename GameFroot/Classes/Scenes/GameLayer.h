@@ -150,7 +150,7 @@
 -(void) loadPlayer;
 -(void) loadEnemies;
 
--(void) spawnRobot:(CGRect) rect data:(NSDictionary *) originalData pos:(CGPoint) mapPos;
+-(void) spawnRobot:(CGRect) rect data:(NSDictionary *) originalData pos:(CGPoint) mapPos direction:(float)direction speed:(float)speed;
 -(void) spawnEnemy:(CGPoint) mapPos;
 
 -(void)music: (id)sender;

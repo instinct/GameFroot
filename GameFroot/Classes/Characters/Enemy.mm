@@ -40,7 +40,7 @@
     shootDamage = [[properties objectForKey:@"damage"] intValue];
     weaponName = [properties objectForKey:@"weapon"];
     shootDelay = [[properties objectForKey:@"shotDelay"] intValue] / 100.0f;
-    speed = [[properties objectForKey:@"speed"] intValue] / 32.0f;
+    horizontalSpeed = [[properties objectForKey:@"speed"] intValue] / PTM_RATIO;
     multiShot = [[properties objectForKey:@"multiShot"] intValue];
     multiShotDelay = [[properties objectForKey:@"multiShotDelay"] intValue];
     collideTakeDamage = [[properties objectForKey:@"collideTakeDamage"] intValue];
@@ -488,7 +488,7 @@
 	if ( dying || immortal ) return;
     // walk right
     b2Vec2 current = body->GetLinearVelocity();
-    b2Vec2 velocity = b2Vec2(HORIZONTAL_SPEED - (HORIZONTAL_SPEED - speed), current.y);
+    b2Vec2 velocity = b2Vec2(horizontalSpeed, current.y);
     body->SetLinearVelocity(velocity);
     //
     self.scaleX = 1;
@@ -504,7 +504,7 @@
 	if ( dying || immortal ) return;
     // walk lelt
     b2Vec2 current = body->GetLinearVelocity();
-    b2Vec2 velocity = b2Vec2(-(HORIZONTAL_SPEED- (HORIZONTAL_SPEED - speed)), current.y);
+    b2Vec2 velocity = b2Vec2(-horizontalSpeed, current.y);
     body->SetLinearVelocity(velocity);
     //    
     self.scaleX = -1;

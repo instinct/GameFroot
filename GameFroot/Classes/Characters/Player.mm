@@ -54,18 +54,16 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     startsWithWeapon = [[properties objectForKey:@"hasWeapon"] boolValue];
     startsWithJetpack = [[properties objectForKey:@"hasJetpack"] intValue] == 1;
     
+    horizontalSpeed = ([[properties objectForKey:@"speed"] intValue] * 65) / PTM_RATIO;
+    
     [[GameLayer getInstance] setLives:lives];
     
 	float spriteWidth = self.batchNode.texture.contentSize.width / 8;
 	float spriteHeight = self.batchNode.texture.contentSize.height / 2;
 	
-	if (startsWithWeapon) {
-        [self changeWeapon:defaultWeapon];
-	}
+	if (startsWithWeapon) [self changeWeapon:defaultWeapon];
     
-    if (startsWithJetpack) {
-        [self addJetpack];
-	}
+    if (startsWithJetpack) [self addJetpack];
     
 	// Player animations
 	stand = [[CCAnimationCache sharedAnimationCache] animationByName:[NSString stringWithFormat:@"stand_%i",playerID]];
@@ -148,9 +146,6 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 -(void) changeWeapon:(int)_weaponID
 {
 	CCLOG(@"Player.changeWeapon: %i", _weaponID);
-    if(hasWeapon) {
-        [[SimpleAudioEngine sharedEngine] playEffect:@"W Change weapon.caf" pitch:1.0f pan:0.0f gain:1.0f];
-    }
 
 	[self removeWeapon];
     
@@ -299,13 +294,23 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	if (facingLeft) {
 		weapon.scaleX = -1;
 	}
+    
+    if (immortal) {
+        id weaponBlinkAction = [CCSequence actions:
+                                [CCFadeOut actionWithDuration:0.2],
+                                [CCFadeIn actionWithDuration:0.2],
+                                [CCFadeOut actionWithDuration:0.2],
+                                [CCFadeIn actionWithDuration:0.2],
+                                nil];
+        [weapon runAction:weaponBlinkAction];
+    }
 }
 
 -(void) setState:(int) anim
 {
 	if (action == anim)	return;
 	
-	//CCLOG(@"Player.setState: %i", anim);
+	CCLOG(@"Player.setState: %i", anim);
 	
 	if (!immortal) {
 		[self stopAllActions];
@@ -400,7 +405,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	if (!dying && !immortal) {
 		
 		b2Vec2 current = body->GetLinearVelocity();
-		b2Vec2 velocity = b2Vec2(HORIZONTAL_SPEED + horizontalSpeedOffset, current.y);
+		b2Vec2 velocity = b2Vec2(horizontalSpeed + horizontalSpeedOffset, current.y);
 		body->SetLinearVelocity(velocity);
 		
 		self.scaleX = 1;
@@ -427,7 +432,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	if (!dying && !immortal) {
 		
 		b2Vec2 current = body->GetLinearVelocity();
-		b2Vec2 velocity = b2Vec2(-HORIZONTAL_SPEED + horizontalSpeedOffset, current.y);
+		b2Vec2 velocity = b2Vec2(-horizontalSpeed + horizontalSpeedOffset, current.y);
 		body->SetLinearVelocity(velocity);
 		
 		self.scaleX = -1;
@@ -482,11 +487,11 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		if (fabsf(roundf(current.x)) == 0) {
 			
 			if (direction == kDirectionLeft) {
-				b2Vec2 velocity = b2Vec2(-HORIZONTAL_SPEED + horizontalSpeedOffset, current.y);
+				b2Vec2 velocity = b2Vec2(-horizontalSpeed + horizontalSpeedOffset, current.y);
 				body->SetLinearVelocity(velocity);
 				
 			} else if (direction == kDirectionRight) {
-				b2Vec2 velocity = b2Vec2(HORIZONTAL_SPEED + horizontalSpeedOffset, current.y);
+				b2Vec2 velocity = b2Vec2(horizontalSpeed + horizontalSpeedOffset, current.y);
 				body->SetLinearVelocity(velocity);
 			}
         }
@@ -549,7 +554,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		b2Vec2 impulse;
 		
 		if (dir == kDirectionLeft) {
-			impulse = b2Vec2(-HORIZONTAL_SPEED, VERTICAL_SPEED);
+			impulse = b2Vec2(-horizontalSpeed, VERTICAL_SPEED);
 			
 			self.scaleX = -1;
 			direction = kDirectionLeft;
@@ -565,7 +570,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			}
 			
 		} else {
-			impulse = b2Vec2(HORIZONTAL_SPEED, VERTICAL_SPEED);
+			impulse = b2Vec2(horizontalSpeed, VERTICAL_SPEED);
 			
 			self.scaleX = 1;
 			direction = kDirectionRight;
@@ -595,7 +600,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		
 		if (dir == kDirectionLeft) {
             [self resetHorizontalSpeed];
-			b2Vec2 impulse = b2Vec2(-HORIZONTAL_SPEED, fabs(current.y) + JETPACK_IMPULSE);
+			b2Vec2 impulse = b2Vec2(-horizontalSpeed, fabs(current.y) + JETPACK_IMPULSE);
 			body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
 			
 			self.scaleX = -1;
@@ -613,7 +618,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			
 		} else {
 			[self resetHorizontalSpeed];
-			b2Vec2 impulse = b2Vec2(HORIZONTAL_SPEED, fabs(current.y) + JETPACK_IMPULSE);
+			b2Vec2 impulse = b2Vec2(horizontalSpeed, fabs(current.y) + JETPACK_IMPULSE);
 			body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
 			
 			self.scaleX = 1;
@@ -637,7 +642,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		//CCLOG(@"Player.jumDirection: change direction in the air");
 		if (dir == kDirectionLeft) {
 			[self resetHorizontalSpeed];
-			b2Vec2 impulse = b2Vec2(-HORIZONTAL_SPEED, 0.0f);
+			b2Vec2 impulse = b2Vec2(-horizontalSpeed, 0.0f);
 			body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
 			
 			self.scaleX = -1;
@@ -655,7 +660,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			
 		} else {
 			[self resetHorizontalSpeed];
-			b2Vec2 impulse = b2Vec2(HORIZONTAL_SPEED, 0.0f);
+			b2Vec2 impulse = b2Vec2(horizontalSpeed, 0.0f);
 			body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
 			
 			self.scaleX = 1;
@@ -1248,6 +1253,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	auxX = dx;
 	auxY = dy;
 	
+    CCLOG(@"Player.changePositionX: %i andY:%i",dx, dy);
+    
 	immortal = YES;
 	
 	[self stopAllActions];
@@ -1334,9 +1341,13 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 {
 	b2Vec2 current = body->GetLinearVelocity();
 	
-    if (current.y < -15) {
-        // Apply damage when falling for high altitude
-        [self hit: fabsf(current.y) *  2.5];
+    if (current.y < 0) {
+        int hurtFall = (-(current.y * PTM_RATIO) - 800) / 10;
+        if (hurtFall > 0) {
+            // Apply damage when falling at high speed
+            CCLOG(@"Player.hitsFloor: speed: %f, hurt: %i", current.y * PTM_RATIO, hurtFall);
+            [self hit: hurtFall];
+        }
     }
     
 	canJump = YES;
@@ -1366,8 +1377,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
         canJump = YES;
         
 		if (moving) {
-			if (direction == kDirectionLeft) body->SetLinearVelocity(b2Vec2(-HORIZONTAL_SPEED + speed, current.y));
-			else if (direction == kDirectionRight) body->SetLinearVelocity(b2Vec2(HORIZONTAL_SPEED + speed, current.y));
+			if (direction == kDirectionLeft) body->SetLinearVelocity(b2Vec2(-horizontalSpeed + speed, current.y));
+			else if (direction == kDirectionRight) body->SetLinearVelocity(b2Vec2(horizontalSpeed + speed, current.y));
 			else body->SetLinearVelocity(b2Vec2(speed, current.y));
 			
 		} else {

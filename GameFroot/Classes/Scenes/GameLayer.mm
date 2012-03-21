@@ -716,6 +716,7 @@ GameLayer *instance;
     [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"player_jetpack"] intValue]] forKey:@"hasJetpack"];
     [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"starting_health"] intValue]] forKey:@"health"];
     [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"starting_lives"] intValue]] forKey:@"lives"];
+    [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"max_speed"] intValue]] forKey:@"speed"];
     
     // Check backward compatibilty with previus API to avoid crashes
     if ([[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"has_weapon"] != nil)
@@ -920,39 +921,42 @@ GameLayer *instance;
 -(void) loadBackgroundLevel
 {
 	CGSize size = [[CCDirector sharedDirector] winSize];
-	
-	/*
-	NSString *backgroundFilename = [NSString stringWithFormat:@"%@wp-content/plugins/game_data/backgrounds/full/%@.png", [self returnServer], [data objectForKey:@"mapBackground"]];
-	CCLOG(@"Load background level: %@", backgroundFilename);
-	
-	// Load Background
-	@try
-	{
-		CCSprite *bg = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:backgroundFilename ignoreCache:ignoreCache]];
-		[background addChild:bg];
-		
-		// PNG is 768x512
-		bg.scale = 0.625 * CC_CONTENT_SCALE_FACTOR();
-		[bg setPosition:ccp(size.width/2, size.height/2)];
-	}
-	@catch (NSException * e)
-	{
-		CCLOG(@"Failed loading background");
-		return;
-	}
-	*/
-	
-	NSString *backgroundFilename = [NSString stringWithFormat:@"%@.png", [data objectForKey:@"mapBackground"]];
-	CCLOG(@"Load background level: %@", backgroundFilename);
-	
-	// Load Background
-	CCSprite *bg = [CCSprite spriteWithFile:backgroundFilename];
-	[background addChild:bg];
-	
-	// PNG is 768x512
-	bg.scale = 0.625 * CC_CONTENT_SCALE_FACTOR();
-	[bg setPosition:ccp(size.width/2, size.height/2)];
-	
+    
+    NSString *backgroundFilename = [data objectForKey:@"mapBackground"];
+    
+	CCSprite *bg;
+    
+    if ( ([backgroundFilename rangeOfString:@".png"].location != NSNotFound) ||
+         ([backgroundFilename rangeOfString:@".jpg"].location != NSNotFound) ||
+         ([backgroundFilename rangeOfString:@".gif"].location != NSNotFound) )
+    {
+        
+        NSString *urlBackground = [NSString stringWithFormat:@"%@wp-content/plugins/game_data/backgrounds/user/%@", [self returnServer], backgroundFilename];
+        CCLOG(@"Load custom background: %@", urlBackground);
+        
+        // Load Custom background
+        @try
+        {
+            bg = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:urlBackground ignoreCache:ignoreCache]];
+        }
+        @catch (NSException * e)
+        {
+            CCLOG(@"Failed loading custom background");
+            return;
+        }
+        
+    } else {
+        CCLOG(@"Load embedded background level: %@", backgroundFilename);
+        
+        // Load embedded background
+        bg = [CCSprite spriteWithFile:[NSString stringWithFormat:@"%@.png", backgroundFilename]];
+    }
+    
+    [background addChild:bg];
+    
+    // PNG is 768x512
+    bg.scale = 0.625 * CC_CONTENT_SCALE_FACTOR();
+    [bg setPosition:ccp(size.width/2, size.height/2)];
 }
 
 -(void) loadTilesLevel
@@ -1742,12 +1746,14 @@ GameLayer *instance;
     [enemies addObject:enemy];
 }
 
--(void) spawnRobot:(CGRect) rect data:(NSDictionary *) originalData pos:(CGPoint) mapPos;
+-(void) spawnRobot:(CGRect) rect data:(NSDictionary *) originalData pos:(CGPoint) mapPos direction:(float)direction speed:(float)speed;
 {
     NSMutableArray *values = [NSMutableArray arrayWithCapacity:3];
     [values insertObject:[[NSValue valueWithCGRect:rect] retain] atIndex:0];
     [values insertObject:[originalData retain] atIndex:1];
     [values insertObject:[[NSValue valueWithCGPoint:mapPos] retain] atIndex:2];
+    [values insertObject:[[NSNumber numberWithFloat:direction] retain] atIndex:3];
+    [values insertObject:[[NSNumber numberWithFloat:speed] retain] atIndex:4];
     
     id action = [CCSequence actions:
                  [CCDelayTime actionWithDuration:1.0/60.0],
@@ -1769,6 +1775,14 @@ GameLayer *instance;
     [valuePos release];
     CGPoint mapPos = [valuePos CGPointValue];
     
+    NSNumber *valueDirection = [values objectAtIndex:3];
+    [valueDirection release];
+    float direction = [valueDirection floatValue];
+    
+    NSNumber *valueSpeed = [values objectAtIndex:4];
+    [valueSpeed release];
+    float speed = [valueSpeed floatValue];
+    
     [values release];
     
     int zorder  = 1;
@@ -1787,6 +1801,12 @@ GameLayer *instance;
     item.spawned = YES;
     
     [robots addObject:item];
+    
+    float xVel = -(speed/PTM_RATIO) * sinf(M_PI*(direction/180.0f));
+    float yVel = (speed/PTM_RATIO) * cosf(M_PI*(direction/180.0f));
+    item.body->SetLinearVelocity(b2Vec2(xVel,yVel));
+    
+    [item markToTransformBody:b2Vec2(((item.position.x)/PTM_RATIO), (item.position.y)/PTM_RATIO) angle:CC_DEGREES_TO_RADIANS(direction)];
     
     [item onSpawn];
 }
