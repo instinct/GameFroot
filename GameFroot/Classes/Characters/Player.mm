@@ -54,7 +54,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     startsWithWeapon = [[properties objectForKey:@"hasWeapon"] boolValue];
     startsWithJetpack = [[properties objectForKey:@"hasJetpack"] intValue] == 1;
     
-    horizontalSpeed = ([[properties objectForKey:@"speed"] intValue] * 65) / PTM_RATIO;
+    horizontalSpeed = ([[properties objectForKey:@"speed"] intValue] * 65) / (PTM_RATIO*CC_CONTENT_SCALE_FACTOR());
     
     [[GameLayer getInstance] setLives:lives];
     
@@ -131,6 +131,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		die = [CCAnimation animationWithFrames:frames delay:0.125f];
 		[[CCAnimationCache sharedAnimationCache] addAnimation:die name:[NSString stringWithFormat:@"die_%i",playerID]];
 	}
+    
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+	debugImmortal = [prefs integerForKey:@"immortal"];
 }
 
 -(void) removeWeapon
@@ -310,7 +313,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 {
 	if (action == anim)	return;
 	
-	CCLOG(@"Player.setState: %i", anim);
+	//CCLOG(@"Player.setState: %i", anim);
 	
 	if (!immortal) {
 		[self stopAllActions];
@@ -1087,8 +1090,6 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 
 -(void) hit:(int)force 
 {
-	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-	int debugImmortal = [prefs integerForKey:@"immortal"];
     if (debugImmortal) return;
     
     [[SimpleAudioEngine sharedEngine] playEffect:@"IG Hero Damage.caf" pitch:1.0f pan:0.0f gain:1.0f];
@@ -1104,6 +1105,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 
 -(void) die
 {
+    if (debugImmortal) return;
+    
 	if (!dying && !immortal) {
 		
         [[SimpleAudioEngine sharedEngine] playEffect:@"IG Death.caf" pitch:1.0f pan:0.0f gain:1.0f];
@@ -1288,6 +1291,17 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			[jetpack runAction:jetpackBlinkAction];
 		}
 	}
+}
+
+-(void) changeToPosition:(CGPoint)pos
+{
+	[self stop];
+	
+	self.position = pos;
+	
+	//body->SetTransform(b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO),0);
+	[self markToTransformBody:b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO) angle:0.0];
+    
 }
 
 -(void) changeInitialPositionX:(int)dx andY:(int)dy
@@ -1575,9 +1589,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
         case kGameObjectRobot:
             if ( data.position == CONTACT_IS_BELOW ) {
                 velocity = object.body->GetLinearVelocity( );
-                if ( velocity.y != 0 ) self.ignoreGravity = YES;
+                if ( ( velocity.y != 0 ) && !( ( Robot* )object ).shooted ) self.ignoreGravity = YES;
                 [ self hitsFloor ];
-                if ( velocity.x != 0 ) [ self displaceHorizontally:velocity.x ];
+                if ( ( velocity.x != 0 ) && !( ( Robot* )object ).shooted ) [ self displaceHorizontally:velocity.x ];
             }
             break;
             
@@ -1641,7 +1655,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             } else {
                 if ( data.position == CONTACT_IS_BELOW ) {
                     velocity = ( ( Robot* )object ).body->GetLinearVelocity();
-                    if ( velocity.x != 0 ) [ self displaceHorizontally:velocity.x ];
+                   if ( ( velocity.x != 0 ) && !( ( Robot* )object ).shooted ) [ self displaceHorizontally:velocity.x ];
                 }
             }
             break;
@@ -1715,8 +1729,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
         case kGameObjectRobot:
             [ ( Robot* )object finished:self ];
             velocity = ( ( Robot* )object ).body->GetLinearVelocity();
-            if ( velocity.y != 0 ) self.ignoreGravity = NO;
-            if ( velocity.x != 0 ) [ self displaceHorizontally:0.0f ];
+            if ( ( velocity.y != 0 ) && !( ( Robot* )object ).shooted ) self.ignoreGravity = NO;
+            if ( ( velocity.x != 0 ) && !( ( Robot* )object ).shooted ) [ self displaceHorizontally:0.0f ];
             [ self restartMovement ];
             break;
             

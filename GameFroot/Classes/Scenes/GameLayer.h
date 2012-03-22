@@ -150,8 +150,8 @@
 -(void) loadPlayer;
 -(void) loadEnemies;
 
--(void) spawnRobot:(CGRect) rect data:(NSDictionary *) originalData pos:(CGPoint) mapPos direction:(float)direction speed:(float)speed;
--(void) spawnEnemy:(CGPoint) mapPos;
+-(void) spawnRobot:(CGRect) rect data:(NSDictionary *) originalData pos:(CGPoint) pos direction:(float)direction speed:(float)speed;
+-(void) spawnEnemy:(CGPoint) pos;
 
 -(void)music: (id)sender;
 -(void)dpad: (id)sender;
@@ -179,6 +179,7 @@
 -(void) activateSwitch:(NSString *) key;
 -(void) stopPlayer;
 -(void) transportPlayerToX:(int)x andY:(int)y;
+-(void) transportPlayerToPosition:(CGPoint)pos;
 -(void) changeInitialPlayerPositionToX:(int)x andY:(int)y;
 -(CGPoint) playerPosition;
 -(void) broadcastMessageToRobots:(NSDictionary *)command;

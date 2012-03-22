@@ -40,7 +40,7 @@
     shootDamage = [[properties objectForKey:@"damage"] intValue];
     weaponName = [properties objectForKey:@"weapon"];
     shootDelay = [[properties objectForKey:@"shotDelay"] intValue] / 100.0f;
-    horizontalSpeed = [[properties objectForKey:@"speed"] intValue] / PTM_RATIO;
+    horizontalSpeed = [[properties objectForKey:@"speed"] intValue] / (PTM_RATIO*CC_CONTENT_SCALE_FACTOR());
     multiShot = [[properties objectForKey:@"multiShot"] intValue];
     multiShotDelay = [[properties objectForKey:@"multiShotDelay"] intValue];
     collideTakeDamage = [[properties objectForKey:@"collideTakeDamage"] intValue];
@@ -1056,10 +1056,9 @@
             break;
             
         case kGameObjectRobot:
-            [ ( Robot* )object finished:self ];
             velocity = ( ( Robot* )object ).body->GetLinearVelocity();
-            if ( velocity.y != 0 ) self.ignoreGravity = NO;
-            if ( velocity.x != 0 ) [ self displaceHorizontally:0.0f ];
+            if ( ( velocity.y != 0 ) && !( ( Robot* )object ).shooted ) self.ignoreGravity = NO;
+            if ( ( velocity.x != 0 ) && !( ( Robot* )object ).shooted ) [ self displaceHorizontally:0.0f ];
             [ self restartMovement ];
             break;
             

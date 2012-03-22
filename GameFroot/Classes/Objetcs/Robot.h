@@ -8,7 +8,7 @@
 
 #import "GameObject.h"
 
-#define ROBOT_TRACK_RANGE               300             // how much to expand track range beyond visible screen
+#define ROBOT_TRACK_RANGE               0               // how much to expand track range beyond visible screen
 #define ROBOT_TRACK_ALWAYS              0               // track even if out of screen
 
 #define TRACE_COMMANDS                  1               // Traces all robot scripts commands on the terminal
@@ -32,8 +32,6 @@
 	
 	NSArray *onDieCommands;
 	
-	float auxX, auxY;
-	
 	CCArray *timerCommands;
 	
 	BOOL solid;
@@ -53,11 +51,15 @@
     
     NSString *name;
     BOOL paused;
+    
+    BOOL shooted;
+    b2Vec2 shootSpeed;
 }
 
 @property (nonatomic, assign) BOOL solid;
 @property (nonatomic, assign) BOOL physics;
 @property (nonatomic, assign) BOOL sensor;
+@property (nonatomic, assign) BOOL shooted;
 @property (nonatomic, assign) NSDictionary *parameters;
 @property (nonatomic, assign) NSDictionary *originalData;
 
@@ -76,6 +78,8 @@
 -(void) touched:(id)sender;
 -(void) finished:(id)sender;
 -(void) hit:(int)force;
+
+-(void) shootTo:(b2Vec2)vel;
 
 -(void) pause;
 -(void) resume;

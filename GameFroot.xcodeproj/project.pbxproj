@@ -2184,10 +2184,10 @@
 				1604BB9314F07DAB007664B6 /* MultiChoice.mm */,
 				1643B6CB14D9B49D00A67057 /* MovingPlatform.h */,
 				1643B6CC14D9B49D00A67057 /* MovingPlatform.mm */,
-				1643B6CD14D9B49D00A67057 /* Robot.h */,
-				1643B6CE14D9B49D00A67057 /* Robot.mm */,
 				1643B6CF14D9B49D00A67057 /* Switch.h */,
 				1643B6D014D9B49D00A67057 /* Switch.mm */,
+				1643B6CD14D9B49D00A67057 /* Robot.h */,
+				1643B6CE14D9B49D00A67057 /* Robot.mm */,
 			);
 			path = Objetcs;
 			sourceTree = "<group>";

@@ -109,8 +109,8 @@ GameLayer *instance;
 	groundBody = world->CreateBody(&groundBodyDef);
 	
 	// Define the ground box shape.
-	b2EdgeShape groundBox;		
-	
+	b2EdgeShape groundBox;
+    
 	// bottom
 	groundBox.Set(lowerLeft, lowerRight);
 	groundBody->CreateFixture(&groundBox,0);
@@ -1668,11 +1668,11 @@ GameLayer *instance;
 	}
 }
 
--(void) spawnEnemy:(CGPoint) mapPos
+-(void) spawnEnemy:(CGPoint) pos
 {
     id action = [CCSequence actions:
                  [CCDelayTime actionWithDuration:1.0/60.0],
-                 [CCCallFuncND actionWithTarget:self selector:@selector(_spawnEnemy:data:) data:[[NSValue valueWithCGPoint:mapPos] retain]],
+                 [CCCallFuncND actionWithTarget:self selector:@selector(_spawnEnemy:data:) data:[[NSValue valueWithCGPoint:pos] retain]],
                  nil];
     [self runAction: action];
 }
@@ -1680,7 +1680,7 @@ GameLayer *instance;
 -(void) _spawnEnemy:(id)selector data:(NSValue *) value
 {
     [value release];
-    CGPoint mapPos = [value CGPointValue];
+    CGPoint pos = [value CGPointValue];
     NSMutableArray *enemiesList = [data objectForKey:@"characters"];
     
     int i = arc4random() % [enemiesList count];
@@ -1688,7 +1688,7 @@ GameLayer *instance;
     NSDictionary *dict = (NSDictionary *)[enemiesList objectAtIndex:i];
     int enemyID = [[dict objectForKey:@"type"] intValue];
 
-    CCLOG(@"GameLayer.spawnEnemy: %f,%f", mapPos.x, mapPos.y);
+    CCLOG(@"GameLayer.spawnEnemy: %f,%f", pos.x, pos.y);
     
     CCSpriteBatchNode *enemySpriteSheet;
     BOOL custom = NO;
@@ -1730,9 +1730,12 @@ GameLayer *instance;
     float spriteHeight = enemySpriteSheet.texture.contentSize.height / 2;
     
     CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
+    
+    /*
     CGPoint pos = ccp(mapPos.x * MAP_TILE_WIDTH, ((mapHeight - mapPos.y - 1) * MAP_TILE_HEIGHT));
     pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
     pos.y += hitArea.height/2.0f;
+    */
     
     // Create player		
     Enemy *enemy = [Enemy spriteWithBatchNode:enemySpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];        
@@ -1746,12 +1749,12 @@ GameLayer *instance;
     [enemies addObject:enemy];
 }
 
--(void) spawnRobot:(CGRect) rect data:(NSDictionary *) originalData pos:(CGPoint) mapPos direction:(float)direction speed:(float)speed;
+-(void) spawnRobot:(CGRect) rect data:(NSDictionary *) originalData pos:(CGPoint) pos direction:(float)direction speed:(float)speed;
 {
     NSMutableArray *values = [NSMutableArray arrayWithCapacity:3];
     [values insertObject:[[NSValue valueWithCGRect:rect] retain] atIndex:0];
     [values insertObject:[originalData retain] atIndex:1];
-    [values insertObject:[[NSValue valueWithCGPoint:mapPos] retain] atIndex:2];
+    [values insertObject:[[NSValue valueWithCGPoint:pos] retain] atIndex:2];
     [values insertObject:[[NSNumber numberWithFloat:direction] retain] atIndex:3];
     [values insertObject:[[NSNumber numberWithFloat:speed] retain] atIndex:4];
     
@@ -1773,7 +1776,7 @@ GameLayer *instance;
     
     NSValue *valuePos = [values objectAtIndex:2];
     [valuePos release];
-    CGPoint mapPos = [valuePos CGPointValue];
+    CGPoint pos = [valuePos CGPointValue];
     
     NSNumber *valueDirection = [values objectAtIndex:3];
     [valueDirection release];
@@ -1787,11 +1790,13 @@ GameLayer *instance;
     
     int zorder  = 1;
     
-    CCLOG(@"GameLayer.spawnRobot: %f,%f", mapPos.x, mapPos.y);
+    CCLOG(@"GameLayer.spawnRobot: %f,%f", pos.x, pos.y);
     
+    /*
     CGPoint pos = ccp(mapPos.x * MAP_TILE_WIDTH, (mapHeight - mapPos.y - 1) * MAP_TILE_HEIGHT);
     pos.x += MAP_TILE_WIDTH/2.0f;
     pos.y += MAP_TILE_HEIGHT/2.0f;
+    */
     
     Robot *item = [Robot spriteWithBatchNode:spriteSheet rect:rect];
     [item setPosition:pos];
@@ -1802,11 +1807,15 @@ GameLayer *instance;
     
     [robots addObject:item];
     
-    float xVel = -(speed/PTM_RATIO) * sinf(M_PI*(direction/180.0f));
-    float yVel = (speed/PTM_RATIO) * cosf(M_PI*(direction/180.0f));
-    item.body->SetLinearVelocity(b2Vec2(xVel,yVel));
-    
-    [item markToTransformBody:b2Vec2(((item.position.x)/PTM_RATIO), (item.position.y)/PTM_RATIO) angle:CC_DEGREES_TO_RADIANS(direction)];
+    if (speed != 0) {
+        float xVel = -(speed*1.2f/(PTM_RATIO*CC_CONTENT_SCALE_FACTOR())) * sinf(M_PI*(direction/180.0f));
+        float yVel = -(speed*1.2f/(PTM_RATIO*CC_CONTENT_SCALE_FACTOR())) * cosf(M_PI*(direction/180.0f));
+        // Speed was slower compared with Flash version, so increased a 20%
+        
+        item.rotation = direction;
+        [item shootTo:b2Vec2(xVel,yVel)];
+        [item markToTransformBody:b2Vec2(((item.position.x)/PTM_RATIO), (item.position.y)/PTM_RATIO) angle:CC_DEGREES_TO_RADIANS(-direction)];
+    }
     
     [item onSpawn];
 }
@@ -1986,14 +1995,12 @@ GameLayer *instance;
 -(void) removeEnemy:(Enemy *)enemy
 {
     [enemies removeObject:enemy];
-    //[enemy destroy];
     [enemy removeFromParentAndCleanup:YES];
 }
 
 -(void) removeRobot:(Robot *)robot
 {
     [robots removeObject:robot];
-    //[robot destroy];
     [robot removeFromParentAndCleanup:YES];
 }
 
@@ -2043,6 +2050,11 @@ GameLayer *instance;
 -(void) changeInitialPlayerPositionToX:(int)x andY:(int)y
 {
 	[player changeInitialPositionX:x andY:y];
+}
+
+-(void) transportPlayerToPosition:(CGPoint)pos
+{
+    [player changeToPosition:pos];
 }
 
 -(CGPoint) playerPosition
@@ -2202,7 +2214,7 @@ GameLayer *instance;
     float origianlX = scene.position.x;
 	float origianlY = scene.position.y;
     
-    float time = (1.0f/60.0f) * 10.0f * 500.0f;
+    float time = (1.0f/60.0f) * 10.0f * 100.0f;
     int times = milliseconds / time;
     if (times <= 0) times = 1;
     //CCLOG(@"GameLayer.quakeCameraWithIntensity: %i times: %i at 1/60 secs", intensity, times);
@@ -2240,16 +2252,16 @@ GameLayer *instance;
     [hud addChild:layer z:5001 tag:5001];
     
     id action = [CCSequence actions:
-                 [CCFadeOut actionWithDuration:milliseconds/500.0f],
+                 [CCFadeOut actionWithDuration:milliseconds/100.0f],
                  [CCCallFunc actionWithTarget:self selector:@selector(_removeColorOverlay)],
 				 nil];
     [layer runAction: action];
 }
 
 -(void) _removeColorOverlay
-{
-    [hud removeChildByTag:5001 cleanup:YES];
+{    [hud removeChildByTag:5001 cleanup:YES];
 }
+
 
 -(void) say:(NSString *)msg
 {

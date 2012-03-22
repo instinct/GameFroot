@@ -33,12 +33,15 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 @synthesize sensor;
 @synthesize parameters;
 @synthesize originalData;
+@synthesize shooted;
 
 - (id) init
 {
     self = [super init];
     if (self) {
         type = kGameObjectRobot;
+        shootSpeed = b2Vec2_zero;
+        shooted = NO;
     }
     
     return self;
@@ -59,6 +62,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	
 	playerBodyDef.position.Set(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO);
 	playerBodyDef.userData = self;
+    
 	body = [GameLayer getInstance].world->CreateBody(&playerBodyDef);
 	
 	if (!physics) body->SetGravityScale(0.0f);
@@ -73,6 +77,11 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     fixtureDef.friction = 0.0;
     fixtureDef.restitution = 0.0; // bouncing
     fixtureDef.isSensor = sensor;
+    
+    // Robots don't collide with each others at all
+    fixtureDef.filter.categoryBits = 0x2;
+    fixtureDef.filter.maskBits = ~0x2; // = 0xFFFD
+    
     body->CreateFixture(&fixtureDef);
 	
 	removed = NO;
@@ -212,9 +221,6 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         if ([nameEvent isEqualToString:@"onInShot"]) {
             [self resolve:i];
         }
-        
-        onInShot = YES;
-        onOutShot = NO;
     }
 }
 
@@ -230,9 +236,6 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         if ([nameEvent isEqualToString:@"onOutShot"]) {
             [self resolve:i];
         }
-        
-        onOutShot = YES;
-        onInShot = NO;
     }
 }
 
@@ -264,23 +267,33 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     if (freezed && (body->IsActive())) body->SetActive(NO);
     else if (!freezed && (!body->IsActive())) body->SetActive(YES);
     
+    if (shooted) {
+        body->SetLinearVelocity(shootSpeed);
+    }
+    
     //CCLOG(@"Robot.position: %f,%f", self.position.x, self.position.y);
     
 	if ( [ self isInsideScreen:pos ] == NO ) {
         if (self.visible) {
-			self.visible = NO;
-            body->SetActive( false );
-		}
+            self.visible = NO;
+            //body->SetActive( false );
+        }
         
         if (!onOutShot && onInShot) [self outShot];
+        
+        onOutShot = YES;
+        onInShot = NO;
         
 	} else {
 		if (!self.visible) {
             if (!invisible) self.visible = YES;
-            body->SetActive( true );
+            //body->SetActive( true );
         }
 		
 		if (!onInShot) [self inShot];
+        
+        onInShot = YES;
+        onOutShot = NO;
 	}
 
 	//if (walkNode != CGPointZero) {
@@ -668,9 +681,11 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     NSMutableArray *position = [self runMethod:[node objectForKey:@"token"] withObject:node];
     
     float x = [[position objectAtIndex:0] floatValue];
+    float y = [[position objectAtIndex:0] floatValue];
+    CGPoint pos = [[GameLayer getInstance] convertToMapCoordinates:ccp(x,y)];
     
-    if (TRACE_COMMANDS) CCLOG(@"Robot.coordinateXOfNode: %f", x);
-    return [NSNumber numberWithFloat:x];
+    if (TRACE_COMMANDS) CCLOG(@"Robot.coordinateXOfNode: %f", pos.x);
+    return [NSNumber numberWithFloat:pos.x];
 }
 
 -(NSNumber *) coordinateYOfNode:(NSDictionary *)command 
@@ -680,16 +695,19 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     NSDictionary *node = [command objectForKey:@"node"];
     NSMutableArray *position = [self runMethod:[node objectForKey:@"token"] withObject:node];
     
+    float x = [[position objectAtIndex:0] floatValue];
     float y = [[position objectAtIndex:1] floatValue];
+    CGPoint pos = [[GameLayer getInstance] convertToMapCoordinates:ccp(x,y)];
     
-    if (TRACE_COMMANDS) CCLOG(@"Robot.coordinateYOfNode: %f", y);
-    return [NSNumber numberWithFloat:y];
+    if (TRACE_COMMANDS) CCLOG(@"Robot.coordinateYOfNode: %f", pos.y);
+    return [NSNumber numberWithFloat:pos.y];
 }
 
 -(NSMutableArray *) thisLocation:(NSDictionary *)obj
 {
-    CGPoint position = [[GameLayer getInstance] convertToMapCoordinates:self.position];
-     
+    //CGPoint position = [[GameLayer getInstance] convertToMapCoordinates:self.position];
+    CGPoint position = self.position;
+    
 	NSMutableArray *pos = [NSMutableArray arrayWithCapacity:2];
 	[pos addObject:[NSNumber numberWithFloat:position.x]];
 	[pos addObject:[NSNumber numberWithFloat:position.y]];
@@ -745,11 +763,14 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	int high = [[obj objectForKey:@"max"] intValue];
 	int low = [[obj objectForKey:@"min"] intValue];
 
-    float rnd;
-	if (high == low) rnd = (float)high;
-	else rnd = (float)(arc4random()%high) + low;
+    //float rnd;
+	//if (high == low) rnd = (float)high;
+	//else rnd = (float)(arc4random()%high) + low;
+    
+    float rnd = floorf( ((arc4random()%1000) / 1000.0f) * (1 + high-low) ) + low;
     
     if (TRACE_COMMANDS) CCLOG(@"Robot.randomNumberRange: %f", rnd);
+    //CCLOG(@"Robot.randomNumberRange: [%i / %i] -> %f", high, low, rnd);
     
     return [NSNumber numberWithFloat:rnd];
 }
@@ -762,7 +783,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	NSString *token = [instance objectForKey:@"token"];
 	
 	if ([token isEqualToString:@"player"]) {
-		CGPoint position = [[GameLayer getInstance] convertToMapCoordinates:[[GameLayer getInstance] playerPosition]];
+		//CGPoint position = [[GameLayer getInstance] convertToMapCoordinates:[[GameLayer getInstance] playerPosition]];
+        CGPoint position = [[GameLayer getInstance] playerPosition];
         
         NSMutableArray *pos = [NSMutableArray arrayWithCapacity:2];
         [pos addObject:[NSNumber numberWithFloat:position.x]];
@@ -959,47 +981,38 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     [[GameLayer getInstance] changeInitialPlayerPositionToX:mapPos.x andY:mapPos.y];
 }
 
-/*
--(void) _changePosition
-{
-	CGPoint pos = ccp(auxX, auxY);
-	body->SetTransform(b2Vec2(((pos.x - 30)/PTM_RATIO), (pos.y + 0)/PTM_RATIO),0);
-	self.position = pos;
-}
-
--(void) _changePlayerPosition
-{
-    [[GameLayer getInstance] transportPlayerToX:auxX andY:auxY];
-}
-*/
-
 -(void) teleport:(NSDictionary *)command 
 {
 	NSDictionary *location = [command objectForKey:@"location"];
 	NSString *token = [location objectForKey:@"token"];
 	
     id result = [self runMethod:token withObject:location];
-    BOOL found = NO;
+    
+    float auxX, auxY;
     
     if ([result isKindOfClass:[NSDictionary class]]) {
         NSDictionary *position = (NSDictionary *)result;
         auxX = [[position objectForKey:@"xpos"] floatValue];
         auxY = [[position objectForKey:@"ypos"] floatValue];
-        found = YES;
+        
+        CGPoint pos = ccp(auxX * MAP_TILE_WIDTH, ([GameLayer getInstance].mapHeight - auxY - 1) * MAP_TILE_HEIGHT);
+        pos.x += MAP_TILE_WIDTH/2.0f;
+        pos.y += MAP_TILE_HEIGHT/2.0f;
+        
+        if (TRACE_COMMANDS) CCLOG(@"Robot.teleport: %f, %f", pos.x, pos.y);
+        
+        [self markToTransformBody:b2Vec2((pos.x/PTM_RATIO), pos.y/PTM_RATIO) angle:body->GetAngle()];
+        self.position = pos;
         
 	} else if ([result isKindOfClass:[NSArray class]]) {
         NSArray *position = (NSArray *)result;
         auxX = [[position objectAtIndex:0] floatValue];
         auxY = [[position objectAtIndex:1] floatValue];
-        found = YES;
-    }
-    
-    if (found) {
         
         if (TRACE_COMMANDS) CCLOG(@"Robot.teleport: %f, %f", auxX, auxY);
         
         CGPoint pos = ccp(auxX, auxY);
-        [self markToTransformBody:b2Vec2(((pos.x - 30)/PTM_RATIO), (pos.y + 0)/PTM_RATIO) angle:body->GetAngle()];
+        [self markToTransformBody:b2Vec2((pos.x/PTM_RATIO), pos.y/PTM_RATIO) angle:body->GetAngle()];
         self.position = pos;
     }
 }
@@ -1010,29 +1023,33 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	NSString *token = [location objectForKey:@"token"];
 	
     id result = [self runMethod:token withObject:location];
-    BOOL found = NO;
+    
+    float auxX, auxY;
     
     if ([result isKindOfClass:[NSDictionary class]]) {
         NSDictionary *position = (NSDictionary *)result;
         auxX = [[position objectForKey:@"xpos"] floatValue];
         auxY = [[position objectForKey:@"ypos"] floatValue];
-        found = YES;
         
-	} else if ([result isKindOfClass:[NSArray class]]) {
-        NSArray *position = (NSArray *)result;
-        auxX = [[position objectAtIndex:0] floatValue];
-        auxY = [[position objectAtIndex:1] floatValue];
-        found = YES;
-    }
-    
-    if (found) {
-	
         if ([[[command objectForKey:@"instance"] objectForKey:@"token"] isEqualToString:@"player"]) {
             
             if (TRACE_COMMANDS) CCLOG(@"Robot.teleportInstance: %f, %f", auxX, auxY);
             
             [[SimpleAudioEngine sharedEngine] playEffect:@"IG Transporter.caf"];
             [[GameLayer getInstance] transportPlayerToX:auxX andY:auxY];
+        }
+        
+	} else if ([result isKindOfClass:[NSArray class]]) {
+        NSArray *position = (NSArray *)result;
+        auxX = [[position objectAtIndex:0] floatValue];
+        auxY = [[position objectAtIndex:1] floatValue];
+       
+        if ([[[command objectForKey:@"instance"] objectForKey:@"token"] isEqualToString:@"player"]) {
+            
+            if (TRACE_COMMANDS) CCLOG(@"Robot.teleportInstance: %f, %f", auxX, auxY);
+            
+            //[[SimpleAudioEngine sharedEngine] playEffect:@"IG Transporter.caf"];
+            [[GameLayer getInstance] transportPlayerToPosition:ccp(auxX, auxY)];
         }
     }
 }
@@ -1206,13 +1223,19 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     
     if ([objClass isEqualToString:@"thisType"]) {
         NSMutableArray *node = [self runMethod:token withObject:location];
-        float dx = roundf([[node objectAtIndex:0] floatValue] / 48.0);
-        float dy = roundf([[node objectAtIndex:1] floatValue] / 48.0);
+        //float dx = roundf([[node objectAtIndex:0] floatValue] / 48.0);
+        //float dy = roundf([[node objectAtIndex:1] floatValue] / 48.0);
+        float dx = [[node objectAtIndex:0] floatValue];
+        float dy = [[node objectAtIndex:1] floatValue];
         [[GameLayer getInstance] spawnRobot:self.textureRect data:[originalData copy] pos:ccp(dx,dy) direction:0.0f speed:0.0f];
         
     } else if ([objClass isEqualToString:@"enemy"]) {
-        int dx = [[originalData objectForKey:@"positionX"] intValue];
-        int dy = [[originalData objectForKey:@"positionY"] intValue];
+        //int dx = [[originalData objectForKey:@"positionX"] intValue];
+        //int dy = [[originalData objectForKey:@"positionY"] intValue];
+        NSMutableArray *node = [self runMethod:token withObject:location];
+        float dx = [[node objectAtIndex:0] floatValue];
+        float dy = [[node objectAtIndex:1] floatValue];
+        
         [[GameLayer getInstance] spawnEnemy:ccp(dx,dy)];
     }
 }
@@ -1248,9 +1271,9 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     NSString *objClass = [[command objectForKey:@"objclass"] objectForKey:@"token"];
     
     if ([objClass isEqualToString:@"thisType"]) {
-        CGPoint position = [self getTilePosition];
-        int dx = position.x;
-        int dy = position.y;
+        // Spawn from robot position
+        float dx = self.position.x;
+        float dy = self.position.y;
         
         [[GameLayer getInstance] spawnRobot:self.textureRect data:[originalData copy] pos:ccp(dx,dy) direction:direction speed:speed];
         
@@ -1765,6 +1788,9 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	
 	if ([[[command objectForKey:@"instance"] objectForKey:@"token"] isEqualToString:@"player"]) {
 		point1 = [[GameLayer getInstance] playerPosition];
+        
+        // Aim the head
+        point1.y += MAP_TILE_HEIGHT*1.6f;
 	}
 	
 	if ([[[command objectForKey:@"location"] objectForKey:@"token"] isEqualToString:@"thisLocation"]) {
@@ -1853,6 +1879,62 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	}
 }
 
+-(NSNumber *) touchingPlayer:(NSDictionary *)command
+{
+ 
+
+    return [NSNumber numberWithBool:NO];
+}
+
+-(NSNumber *) touchingFloor:(NSDictionary *)command
+{
+    
+    
+    return [NSNumber numberWithBool:NO];
+}
+
+-(NSNumber *) touchingWall:(NSDictionary *)command
+{
+    
+    
+    return [NSNumber numberWithBool:NO];
+}
+
+-(NSNumber *) touchingSomethingLeft:(NSDictionary *)command
+{
+    
+    
+    return [NSNumber numberWithBool:NO];
+}
+
+-(NSNumber *) touchingSomethingRight:(NSDictionary *)command
+{
+    
+    
+    return [NSNumber numberWithBool:NO];
+}
+
+-(NSNumber *) touchingSomethingTop:(NSDictionary *)command
+{
+    
+    
+    return [NSNumber numberWithBool:NO];
+}
+
+-(NSNumber *) isFloorInFront:(NSDictionary *)command
+{
+    
+    
+    return [NSNumber numberWithBool:NO];
+}
+
+-(NSNumber *) isWallInFront:(NSDictionary *)command
+{
+    
+    
+    return [NSNumber numberWithBool:NO];
+}
+
 #pragma mark -
 #pragma mark Events
 
@@ -1905,6 +1987,12 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     else [self onDamage];
 }
 
+-(void) shootTo:(b2Vec2)vel
+{
+    shootSpeed = vel;
+    shooted = YES;
+}
+
 
 #pragma mark -
 #pragma mark Reset
@@ -1929,7 +2017,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	onMessage = NO;
 	onTouchStart = NO;
 	onInShot = NO;
-    onOutShot = YES;
+    onOutShot = NO;
    
     body->SetLinearVelocity(b2Vec2(0,0));
     body->SetAngularVelocity(0);
@@ -1939,8 +2027,21 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 
 -(void) remove
 {
-    [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and Gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
-	[super remove];
+    if (shooted) {
+        [super remove];
+        
+        // Bullets always have to be destroyed (spawend)
+		id dieAction = [CCSequence actions:
+                        [CCFadeOut actionWithDuration:0.2f],
+						[CCHide action],
+						[CCCallFunc actionWithTarget:self selector:@selector(destroy)],
+						nil];
+		[self runAction:dieAction];
+        
+    } else {
+        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and Gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
+        [super remove];
+    }
 }
 
 -(void) destroy
@@ -1949,12 +2050,25 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	[[GameLayer getInstance] removeRobot:self];
 }
 
+-(void) die {
+	if (!removed) {
+		
+		[self unschedule:@selector(update:)];
+		
+		
+	}
+}
+
 // collision handling
 -( void )handleBeginCollision:( contactData )data {
     GameObject* object = ( GameObject* )data.object;
     
     // case handling
     switch ( object.type ) {
+        
+        case kGameObjectNone:
+            if (shooted) [ self remove ]; // Remove when we hit map edges since we cannot let it go through
+            break;
             
         case kGameObjectPlayer:
             [ self touched:object ];
@@ -1981,7 +2095,6 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         default:    
             if ( !self.physics && !self.solid ) data.contact->SetEnabled( false );
             break;
-            
     }
 }
 

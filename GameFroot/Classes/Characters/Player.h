@@ -97,6 +97,8 @@
     
     CGPoint safePositon;
     BOOL autoSafepoint;
+    
+    int debugImmortal;
 }
 
 @property (nonatomic,assign) int action;
@@ -138,6 +140,7 @@
 -(void) hitsFloor;
 -(void) displaceHorizontally:(float)speed;
 -(void) changePositionX:(int)dx andY:(int)dy;
+-(void) changeToPosition:(CGPoint)pos;
 -(void) changeInitialPositionX:(int)dx andY:(int)dy;
 -(void) setTouchingSwitch:(Switch *) touchingSwitch_;
 -(void) resetForces;
