@@ -42,6 +42,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         type = kGameObjectRobot;
         shootSpeed = b2Vec2_zero;
         shooted = NO;
+        touchingPlayer = NO;
+        touching = touchingNone;
     }
     
     return self;
@@ -1881,58 +1883,63 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 
 -(NSNumber *) touchingPlayer:(NSDictionary *)command
 {
- 
-
-    return [NSNumber numberWithBool:NO];
+    return [NSNumber numberWithBool:touchingPlayer];
 }
 
 -(NSNumber *) touchingFloor:(NSDictionary *)command
 {
-    
-    
-    return [NSNumber numberWithBool:NO];
+    return [NSNumber numberWithBool:touching == touchingFloor];
 }
 
 -(NSNumber *) touchingWall:(NSDictionary *)command
 {
-    
-    
-    return [NSNumber numberWithBool:NO];
+    return [NSNumber numberWithBool:touching == touchingWall];
 }
 
 -(NSNumber *) touchingSomethingLeft:(NSDictionary *)command
 {
-    
-    
-    return [NSNumber numberWithBool:NO];
+    return [NSNumber numberWithBool:touching == touchingSomethingLeft];
 }
 
 -(NSNumber *) touchingSomethingRight:(NSDictionary *)command
 {
-    
-    
-    return [NSNumber numberWithBool:NO];
+    return [NSNumber numberWithBool:touching == touchingSomethingRight];
 }
 
 -(NSNumber *) touchingSomethingTop:(NSDictionary *)command
 {
-    
-    
-    return [NSNumber numberWithBool:NO];
+    return [NSNumber numberWithBool:touching == touchingSomethingTop];
 }
 
 -(NSNumber *) isFloorInFront:(NSDictionary *)command
 {
+    CGPoint tilePos = [self getTilePosition];
+ 
+    int side;
+    if ( facingLeft ) side = -1;
+    else side = 1;
     
+    BOOL tile = NO;
     
-    return [NSNumber numberWithBool:NO];
+    if ( [ [ GameLayer getInstance ] getTileAt:ccp( tilePos.x + side, tilePos.y + 1 ) ] != TILE_TYPE_NONE ) tile = YES;
+    
+    return [NSNumber numberWithBool:tile];
 }
 
 -(NSNumber *) isWallInFront:(NSDictionary *)command
 {
     
+    CGPoint tilePos = [self getTilePosition];
     
-    return [NSNumber numberWithBool:NO];
+    int side;
+    if ( facingLeft ) side = -1;
+    else side = 1;
+    
+    BOOL tile = NO;
+    
+    if ( [ [ GameLayer getInstance ] getTileAt:ccp( tilePos.x + side, tilePos.y ) ] != TILE_TYPE_NONE ) tile = YES;
+    
+    return [NSNumber numberWithBool:tile];
 }
 
 #pragma mark -
@@ -2072,6 +2079,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
             
         case kGameObjectPlayer:
             [ self touched:object ];
+            touchingPlayer = YES;
             break;
             
         case kGameObjectBullet:
@@ -2082,6 +2090,11 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
             break;
             
         default:
+            if ( data.position == CONTACT_IS_BELOW ) touching = touchingFloor;
+            else if ( data.position == CONTACT_IS_ABOVE ) touching = touchingSomethingTop;
+            else if ( data.position == CONTACT_IS_LEFT ) touching = touchingSomethingLeft;
+            else if ( data.position == CONTACT_IS_RIGHT ) touching = touchingSomethingRight;
+            
             break;
     }
 }
@@ -2094,6 +2107,26 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
             
         default:    
             if ( !self.physics && !self.solid ) data.contact->SetEnabled( false );
+            break;
+    }
+}
+
+-( void )handleEndCollision:( contactData )data {
+    GameObject* object = ( GameObject* )data.object;
+    
+    // case handling
+    switch ( object.type ) {
+            
+        case kGameObjectPlayer:
+            touchingPlayer = NO;
+            break;
+            
+        default:
+            if ( ( data.position == CONTACT_IS_BELOW ) && ( touching == touchingFloor ) ) touching = touchingNone; 
+            else if ( ( data.position == CONTACT_IS_ABOVE ) && ( touching == touchingSomethingTop ) ) touching = touchingNone;
+            else if ( ( data.position == CONTACT_IS_LEFT ) && ( touching == touchingSomethingLeft ) ) touching = touchingNone;
+            else if ( ( data.position == CONTACT_IS_RIGHT ) && ( touching == touchingSomethingRight ) ) touching = touchingNone;
+            
             break;
     }
 }

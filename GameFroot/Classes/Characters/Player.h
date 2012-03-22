@@ -12,12 +12,7 @@
 #import "SimpleAudioEngine.h"
 #import "SimpleAudioEngine+playEffectLoop.h"
 
-#define TILE_TYPE_NONE                  0
-#define TILE_TYPE_SOLID                 1
-#define TILE_TYPE_CLOUD                 2
-#define TILE_TYPE_SPIKE                 3
-#define TILE_TYPE_ICE                   4
-#define TILE_TYPE_DESTRUCTABLE          5
+enum ANIM { STAND = 0, WALK, CROUCH, PRONE, JUMPING, FALLING };
 
 @interface Player : GameObject {
 	

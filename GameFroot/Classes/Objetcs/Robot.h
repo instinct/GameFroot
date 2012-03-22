@@ -13,6 +13,15 @@
 
 #define TRACE_COMMANDS                  1               // Traces all robot scripts commands on the terminal
 
+enum RobotTouchingType{
+    touchingNone,
+    touchingFloor,
+    touchingWall,
+    touchingSomethingLeft,
+    touchingSomethingRight,
+    touchingSomethingTop
+};
+
 @interface Robot : GameObject {
 	NSArray *behavior;
 
@@ -54,6 +63,9 @@
     
     BOOL shooted;
     b2Vec2 shootSpeed;
+    
+    BOOL touchingPlayer;
+    RobotTouchingType touching;
 }
 
 @property (nonatomic, assign) BOOL solid;
