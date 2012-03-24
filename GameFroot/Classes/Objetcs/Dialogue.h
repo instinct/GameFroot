@@ -14,6 +14,7 @@
 @interface Dialogue : CCNode <CCTargetedTouchDelegate> {
     NSString *text;
 	CCSprite *background;
+    CCSprite *arrow;
     int numPages;
     int selectPage;
     CCLabelBMFontMultiline *label;

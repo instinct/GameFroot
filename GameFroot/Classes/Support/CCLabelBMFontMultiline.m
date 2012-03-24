@@ -20,6 +20,8 @@
 @synthesize alignment = alignment_;
 
 @synthesize debug = debug_;
+@synthesize pages = pages_;
+@synthesize animating = animating_;
 
 #pragma mark -
 #pragma mark Lifecycle Methods
@@ -32,6 +34,12 @@
         width_ = width;
         alignment_ = alignment;        
         
+        page_ = 0;
+        linesPerPage_ = 0;
+        speed = 50.0f;
+        
+        speechSpeeds = [[CCArray array] retain];
+        
         [self updateLabel];
     }
     return self;
@@ -41,8 +49,34 @@
     return [[[CCLabelBMFontMultiline alloc] initWithString:string fntFile:font width:width alignment:alignment] autorelease];
 }
 
+- (id)initWithString:(NSString *)string fntFile:(NSString *)font width:(float)width alignment:(CCLabelBMFontMultilineAlignment)alignment page:(int)page linesPerPage:(int)linesPerPage {
+    self = [super initWithString:string fntFile:font];
+    if (self) {
+        initialString_ = [string copy];
+        
+        width_ = width;
+        alignment_ = alignment;
+        
+        page_ = page;
+        linesPerPage_ = linesPerPage;
+        pages_ = 1;
+        speed = 50.0f;
+        
+        speechSpeeds = [[CCArray array] retain];
+        
+        [self updateLabel];
+    }
+    return self;
+}
+
++ (CCLabelBMFontMultiline *)labelWithString:(NSString *)string fntFile:(NSString *)font width:(float)width alignment:(CCLabelBMFontMultilineAlignment)alignment page:(int)page linesPerPage:(int)linesPerPage {
+    return [[[CCLabelBMFontMultiline alloc] initWithString:string fntFile:font width:width alignment:alignment page:page linesPerPage:linesPerPage] autorelease];
+}
+
 - (void)dealloc {
     [initialString_ release], initialString_ = nil;
+    
+    [speechSpeeds release];
     
     [super dealloc];
 }
@@ -140,8 +174,77 @@
     //
     //Taken from CCLabelBMFont -(void)setString:(NSString *)label
     
+    // Manage the speech commands (speed)
+    NSError *error = NULL;
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\{[a-z]*\\}"
+                                                                           options:NSRegularExpressionCaseInsensitive
+                                                                           error:&error];
+    NSArray *matches = [regex matchesInString:multilineString
+                                      options:0
+                                      range:NSMakeRange(0, [multilineString length])];
+    
+    [speechSpeeds removeAllObjects];
+    
+    int offset = 0;
+    for (NSTextCheckingResult *match in matches) {
+        NSString *matchText = [multilineString substringWithRange:[match range]];
+        NSRange matchRange = [match range];
+        //CCLOG(@">>>> %@: %i, %i", matchText, matchRange.location, matchRange.length);
+        
+        CCArray *values = [CCArray arrayWithCapacity:2];
+        [values addObject:[NSValue valueWithRange:NSMakeRange(matchRange.location - offset, matchRange.length)]];
+        [values addObject:matchText];
+        [values addObject:[NSNumber numberWithBool:NO]];
+        [speechSpeeds addObject:values];
+        
+        offset += matchText.length;
+    }
+    
+    //CCLOG(@"before: %@", multilineString);
+    multilineString = [regex stringByReplacingMatchesInString:multilineString
+                                            options:0
+                                            range:NSMakeRange(0, [multilineString length])
+                                            withTemplate:@""];
+    //CCLOG(@"after: %@", multilineString);
+    //CCLOG(@"Command ranges: %@", speechSpeeds);
+    
+    // Manage the pages
+    if (linesPerPage_ > 0 && line > page_ + 2)
+    { 
+        string_ = [[NSString stringWithString:@""] copy];
+        
+        NSString *copyText = [multilineString copy];
+        multilineString = @"";
+        
+        NSArray *lines = [copyText componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+        
+        pages_ = [lines count] / linesPerPage_;
+        float exact = (float)[lines count] / (float)linesPerPage_;
+        if (exact > (float)pages_) pages_++;
+        
+        int start = page_ * linesPerPage_;
+        int end = start + linesPerPage_;
+        
+        if (start >= [lines count]) start = 0;
+        if (end >= [lines count]) end  = [lines count];
+        
+        totalOffset = 0;
+        
+        for (int i = 0; i < start; i++) {
+            totalOffset += [[lines objectAtIndex:i] length];
+        }
+        totalOffset += start;
+        
+        for (i = start; i < end; i++) {
+            multilineString = [multilineString stringByAppendingFormat:@"%@\n", [lines objectAtIndex:i]];
+        }  
+        
+        //CCLOG(@"page offset: %i (%i)", totalOffset, start);
+    }
+    
     [string_ release];
-     string_ = [multilineString copy];
+    string_ = [multilineString copy];
+    
     
     [self removeAllChildrenWithCleanup:YES]; //Inserted so fontChars do not get reused by -createFontChars
     
@@ -227,6 +330,90 @@
     [super setString:label];
     
     [self updateLabel];
+}
+
+- (void)animate {
+    for (CCSprite *characterSprite in self.children) {
+        characterSprite.visible = NO;
+    }
+    
+    currentCharacter = 0;
+    numCharacters = [self.children count];
+    
+    animating_ = YES;
+    
+    if (totalOffset > 0) {
+        // Find previous speed
+        CCArray *values; CCARRAY_FOREACH(speechSpeeds, values) {
+            NSRange range = [[values objectAtIndex:0] rangeValue];
+            if (range.location < totalOffset) {
+                NSString *command = [values objectAtIndex:1];
+                if ([command isEqualToString:@"{slow}"]) speed = 150;
+                else if ([command isEqualToString:@"{fast}"]) speed = 20;
+                else if ([command isEqualToString:@"{talk}"]) speed = 50;
+                
+                //CCLOG(@"Found previous speed %f", speed);
+            }
+        }
+    }
+    
+    [self unschedule:@selector(animateCharacter:)];
+    //CCLOG(@"Animate with speed %f", speed);
+    [self schedule:@selector(animateCharacter:) interval:speed / 1000.0f];
+}
+
+-(void) animateCharacter:(ccTime) dt  {
+    
+    if (animating_) {
+        CCSprite *characterSprite = [self.children objectAtIndex:currentCharacter];
+        characterSprite.visible = YES;
+        
+        CCArray *values; CCARRAY_FOREACH(speechSpeeds, values) {
+            NSRange range = [[values objectAtIndex:0] rangeValue];
+            BOOL used = [[values objectAtIndex:2] boolValue];
+            if (!used && range.location == currentCharacter + totalOffset + (page_ + 1)) {
+                NSString *command = [values objectAtIndex:1];
+                
+                [values removeObjectAtIndex:2];
+                [values insertObject:[NSNumber numberWithBool:YES] atIndex:2];
+                
+                float previousSpeed = speed;
+                if ([command isEqualToString:@"{slow}"]) speed = 150;
+                else if ([command isEqualToString:@"{fast}"]) speed = 20;
+                else if ([command isEqualToString:@"{talk}"]) speed = 50;
+                else if ([command isEqualToString:@"{pause}"]) {
+                    speed = 1100.0f;
+                    //CCLOG(@"Found command %@ on index %i with speed %f", command, range.location, speed);
+                    [self unschedule:@selector(animateCharacter:)];
+                    [self schedule:@selector(animateCharacter:) interval:speed / 1000.0f];
+                    return;
+                }
+                
+                //CCLOG(@"Found command %@ on index %i with speed %f", command, range.location, speed);
+                
+                if (previousSpeed != speed) {
+                    [self unschedule:@selector(animateCharacter:)];
+                    [self schedule:@selector(animateCharacter:) interval:speed / 1000.0f];
+                }
+                
+                break;
+            }
+        }
+        
+        currentCharacter++;
+        if (currentCharacter >= numCharacters) {
+            animating_ = NO;
+            [self unschedule:@selector(animateCharacter:)];            
+        }
+    }
+}
+
+- (void)finishAnimation {
+    animating_ = NO;
+    
+    for (CCSprite *characterSprite in self.children) {
+        characterSprite.visible = YES;
+    }
 }
 
 #pragma mark -

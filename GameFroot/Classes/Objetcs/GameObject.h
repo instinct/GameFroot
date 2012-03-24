@@ -67,6 +67,8 @@ typedef struct _contactData {
 -(void) markToTransformBody:(b2Vec2)position angle:(float)angle;
 -(void) markToRecreateBody:(CGSize)size;
 
+-(BOOL) interacted;
+
 -(CGPoint) getTilePosition;
 -(void) restart;
 -(void) update:(ccTime)dt;

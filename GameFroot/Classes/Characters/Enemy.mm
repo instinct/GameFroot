@@ -239,8 +239,12 @@
 	fixtureDef.density = 1.0;
 	fixtureDef.friction = 0.0; // we need this 0 so when moving it doens't slow down
 	fixtureDef.restitution = 0.0; // bouncing
+    
+    // Don't collide with robots since robots have category 0x2
+    fixtureDef.filter.maskBits = ~0x2; // = 0xFFFD
+    
 	body->CreateFixture(&fixtureDef);
-	
+    
 	removed = NO;
 }
 
@@ -850,7 +854,7 @@
                 if (!jumping && (fabsf(roundf(vel.y)) == 0)) {
                     int tileType = [self tileType:1 y:-1];
                     if ( !spawned || (tileType == TILE_TYPE_SPIKE) ) {
-                        // Ignore ledges flag is enemy spawned
+                        // Ignore ledges flag if enemy spawned
                         [ self changeDirection ];
                     }
                 }
@@ -965,7 +969,6 @@
             [ self die ];
             break;
         
-        case kGameObjectRobot:
         case kGameObjectPlatform:
             // enemy landed on something
             if ( data.position == CONTACT_IS_BELOW ) {
@@ -1053,13 +1056,6 @@
             
         case kGameObjectSwitch:
             [ self setTouchingSwitch:nil ];
-            break;
-            
-        case kGameObjectRobot:
-            velocity = ( ( Robot* )object ).body->GetLinearVelocity();
-            if ( ( velocity.y != 0 ) && !( ( Robot* )object ).shooted ) self.ignoreGravity = NO;
-            if ( ( velocity.x != 0 ) && !( ( Robot* )object ).shooted ) [ self displaceHorizontally:0.0f ];
-            [ self restartMovement ];
             break;
             
         case kGameObjectMovingPlatform:

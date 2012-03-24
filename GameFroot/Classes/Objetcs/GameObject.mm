@@ -189,6 +189,10 @@
 	}
 }
 
+-(BOOL) interacted { 
+    return NO;
+}
+
 -(CGPoint) getTilePosition 
 {
     int dx = self.position.x * CC_CONTENT_SCALE_FACTOR() / MAP_TILE_WIDTH * CC_CONTENT_SCALE_FACTOR();

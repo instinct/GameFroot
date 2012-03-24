@@ -1482,6 +1482,28 @@ GameLayer *instance;
                 }
 				
 				[robots addObject:item];
+                
+                /*
+                // Check if teleport to add hardcoded animation
+                id animation = [[CCAnimationCache sharedAnimationCache] animationByName:@"teleport"];
+                if (animation == nil) {
+                    
+                    CCSpriteBatchNode *teleportSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"teleporter.png"];
+                    [objects addChild:spriteSheet z:LAYER_TILES+1];
+                    
+                    float speed = 0.1f;
+                    
+                    NSMutableArray *frameList = [NSMutableArray array];
+                    for (int i=0; i < 5; i++) {
+                        CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:teleportSpriteSheet.textureAtlas.texture rect:CGRectMake(i * MAP_TILE_WIDTH,0,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+                        [frameList addObject:frame];
+                    }
+                    animation = [CCAnimation animationWithFrames:frameList delay:speed];
+                    
+                    [[CCAnimationCache sharedAnimationCache] addAnimation:animation name:@"teleport"];
+                    
+                }
+                */
 				
 			} else if (type == 7) {
 				// Check point
@@ -1817,7 +1839,7 @@ GameLayer *instance;
         [item markToTransformBody:b2Vec2(((item.position.x)/PTM_RATIO), (item.position.y)/PTM_RATIO) angle:CC_DEGREES_TO_RADIANS(-direction)];
     }
     
-    [item onSpawn];
+    [item triggerEvent:@"onSpawn"];
 }
 
 #pragma mark -
@@ -1860,7 +1882,7 @@ GameLayer *instance;
     
     // Trigger onSpawn on robots
     Robot *robot; CCARRAY_FOREACH(robots, robot) {
-		[robot onSpawn];
+		[robot triggerEvent:@"onSpawn"];
 	}
 }
 

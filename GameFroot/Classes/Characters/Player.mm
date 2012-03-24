@@ -43,6 +43,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	scrollOnProne = 0;
 	hasWeapon = NO;
     safePositon = self.position;
+    interact = nil;
     
     initialX = originalX = [[properties objectForKey:@"positionX"] intValue];
 	initialY = originalY = [[properties objectForKey:@"positionY"] intValue];
@@ -964,9 +965,13 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		}
 		
 		if (touchingSwitch != nil) {
+            // Ignore shoot
 			[touchingSwitch togle];
 			[[GameLayer getInstance] activateSwitch:touchingSwitch.key];
-			
+		
+        } else if ((interact != nil) && [interact interacted]) {
+            // Ignore shoot
+            
 		} else if (hasWeapon && ([[GameLayer getInstance] getAmmo] > 0)) {
 			
             switch (weaponID) {
@@ -1587,6 +1592,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             break;
             
         case kGameObjectRobot:
+            interact = object;
             if ( data.position == CONTACT_IS_BELOW ) {
                 velocity = object.body->GetLinearVelocity( );
                 if ( ( velocity.y != 0 ) && !( ( Robot* )object ).shooted ) self.ignoreGravity = YES;
@@ -1732,6 +1738,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             if ( ( velocity.y != 0 ) && !( ( Robot* )object ).shooted ) self.ignoreGravity = NO;
             if ( ( velocity.x != 0 ) && !( ( Robot* )object ).shooted ) [ self displaceHorizontally:0.0f ];
             [ self restartMovement ];
+            interact = nil;
             break;
             
         case kGameObjectMovingPlatform:

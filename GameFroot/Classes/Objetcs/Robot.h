@@ -11,7 +11,7 @@
 #define ROBOT_TRACK_RANGE               0               // how much to expand track range beyond visible screen
 #define ROBOT_TRACK_ALWAYS              0               // track even if out of screen
 
-#define TRACE_COMMANDS                  1               // Traces all robot scripts commands on the terminal
+#define TRACE_COMMANDS                  0               // Traces all robot scripts commands on the terminal
 
 enum RobotTouchingType{
     touchingNone,
@@ -78,7 +78,7 @@ enum RobotTouchingType{
 -(void) createBox2dObject:(b2World*)world size:(CGSize)_size;
 
 -(void) setupRobot:(NSDictionary *)properties;
--(void) onSpawn;
+-(BOOL) triggerEvent:(NSString *)eventName;
 -(void) update:(ccTime)dt;
 
 -(void) runCommand: (NSDictionary *)command;

@@ -181,34 +181,25 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	}
 }
 
--(void) onDamage
+-(BOOL) triggerEvent:(NSString *)eventName;
 {
+    BOOL found = NO;
+    
     int totalEvents = [behavior count];
 	for (int i=0; i<totalEvents; i++) {
 		NSDictionary *event = (NSDictionary *)[behavior objectAtIndex:i];
 		NSString *nameEvent = [event objectForKey:@"event"];
         
-		if ([nameEvent isEqualToString:@"onDamage"]) {
-            //CCLOG(@"Robot.onDamage: %@", event);
+		if ([nameEvent isEqualToString:eventName]) {
+            //CCLOG(@"Robot.%@: %@", name, event);
             
 			[self resolve:i];
-        }
-    }
-}
-
--(void) onSpawn
-{
-    int totalEvents = [behavior count];
-	for (int i=0; i<totalEvents; i++) {
-		NSDictionary *event = (NSDictionary *)[behavior objectAtIndex:i];
-		NSString *nameEvent = [event objectForKey:@"event"];
-        
-		if ([nameEvent isEqualToString:@"onSpawn"]) {
-            //CCLOG(@"Robot.onSpawn: %@", event);
             
-			[self resolve:i];
+            found = YES;
         }
     }
+    
+    return found;
 }
 
 -(void) inShot
@@ -1037,6 +1028,15 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
             
             if (TRACE_COMMANDS) CCLOG(@"Robot.teleportInstance: %f, %f", auxX, auxY);
             
+            /*
+            id animation = [[CCAnimationCache sharedAnimationCache] animationByName:@"teleport"];
+            if (animation != nil) {
+                CCAnimate *action = [CCAnimate actionWithAnimation:animation];
+                CCRepeatForever *repeatAction = [CCRepeatForever actionWithAction:action];
+                [self runAction:repeatAction];
+            }
+            */
+            
             [[SimpleAudioEngine sharedEngine] playEffect:@"IG Transporter.caf"];
             [[GameLayer getInstance] transportPlayerToX:auxX andY:auxY];
         }
@@ -1050,7 +1050,6 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
             
             if (TRACE_COMMANDS) CCLOG(@"Robot.teleportInstance: %f, %f", auxX, auxY);
             
-            //[[SimpleAudioEngine sharedEngine] playEffect:@"IG Transporter.caf"];
             [[GameLayer getInstance] transportPlayerToPosition:ccp(auxX, auxY)];
         }
     }
@@ -1991,7 +1990,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	health -= force;
 	
 	if (health < 0 && !immortal) [self die:nil];
-    else [self onDamage];
+    else [self triggerEvent:@"onDamage"];
 }
 
 -(void) shootTo:(b2Vec2)vel
@@ -2064,6 +2063,10 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 		
 		
 	}
+}
+
+-(BOOL) interacted {
+    return [self triggerEvent:@"onInteract"];
 }
 
 // collision handling

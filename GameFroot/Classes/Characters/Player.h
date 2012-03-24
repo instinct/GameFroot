@@ -60,6 +60,7 @@ enum ANIM { STAND = 0, WALK, CROUCH, PRONE, JUMPING, FALLING };
 	CGPoint auxPos;
 	
 	Switch *touchingSwitch;
+    GameObject *interact;
 	
 	BOOL lose;
 	BOOL win;
