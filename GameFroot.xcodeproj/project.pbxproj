@@ -21,6 +21,7 @@
 		162B76A914F0640F0068C710 /* NextLevel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 162B76A814F0640F0068C710 /* NextLevel.mm */; };
 		163938F814F1109E00E663E3 /* option-btn-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 163938F614F1109E00E663E3 /* option-btn-hd.png */; };
 		163938F914F1109E00E663E3 /* option-btn.png in Resources */ = {isa = PBXBuildFile; fileRef = 163938F714F1109E00E663E3 /* option-btn.png */; };
+		163CA8DE151E550C003CFE6B /* arrow-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 163CA8DD151E550C003CFE6B /* arrow-hd.png */; };
 		1643B23F14D9B00F00A67057 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1643B23E14D9B00F00A67057 /* QuartzCore.framework */; };
 		1643B24114D9B00F00A67057 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1643B24014D9B00F00A67057 /* OpenGLES.framework */; };
 		1643B24314D9B00F00A67057 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1643B24214D9B00F00A67057 /* OpenAL.framework */; };
@@ -537,6 +538,7 @@
 		162B76A814F0640F0068C710 /* NextLevel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NextLevel.mm; sourceTree = "<group>"; };
 		163938F614F1109E00E663E3 /* option-btn-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "option-btn-hd.png"; sourceTree = "<group>"; };
 		163938F714F1109E00E663E3 /* option-btn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "option-btn.png"; sourceTree = "<group>"; };
+		163CA8DD151E550C003CFE6B /* arrow-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "arrow-hd.png"; path = "Resources/arrow-hd.png"; sourceTree = "<group>"; };
 		1643B23A14D9B00F00A67057 /* GameFroot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GameFroot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1643B23E14D9B00F00A67057 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		1643B24014D9B00F00A67057 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
@@ -1358,6 +1360,7 @@
 				1643B48C14D9B0BC00A67057 /* tiles */,
 				1643B49414D9B0BC00A67057 /* weapons */,
 				1643B4A014D9B0BC00A67057 /* welcome */,
+				163CA8DD151E550C003CFE6B /* arrow-hd.png */,
 				16CC8280151BD255004FEEEB /* arrow.png */,
 				22F8D1CD14F5B52600780B13 /* controls-hd.plist */,
 				22F8D1CE14F5B52600780B13 /* controls-hd.png */,
@@ -2909,6 +2912,7 @@
 				16CC827F151BD18A004FEEEB /* Sans.png in Resources */,
 				16CC8281151BD256004FEEEB /* arrow.png in Resources */,
 				16CC8285151BDCF6004FEEEB /* teleporter.png in Resources */,
+				163CA8DE151E550C003CFE6B /* arrow-hd.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3170,6 +3174,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Jose Miguel Gomez Gonzalez (5CQQCB462X)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -3179,6 +3184,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 4.2;
 				OTHER_LDFLAGS = "-lz";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "B9651E95-C630-4242-86E5-D3DA1D94A957";
 				USER_HEADER_SEARCH_PATHS = "\"GameFroot/libs\"";
 				WRAPPER_EXTENSION = app;
 			};
@@ -3188,6 +3194,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Jose Miguel Gomez Gonzalez (5CQQCB462X)";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = GameFroot/Prefix.pch;
@@ -3196,6 +3203,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 4.2;
 				OTHER_LDFLAGS = "-lz";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "B9651E95-C630-4242-86E5-D3DA1D94A957";
 				USER_HEADER_SEARCH_PATHS = "\"GameFroot/libs\"";
 				VALIDATE_PRODUCT = YES;
 				WRAPPER_EXTENSION = app;

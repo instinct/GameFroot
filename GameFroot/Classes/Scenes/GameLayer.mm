@@ -983,6 +983,28 @@ GameLayer *instance;
 		else [spriteSheet.textureAtlas.texture setAliasTexParameters];
 		
 		[objects addChild:spriteSheet z:LAYER_TILES];
+        
+        // Add telepoter hardcoded animation
+        id animation = [[CCAnimationCache sharedAnimationCache] animationByName:@"teleport"];
+        if (animation == nil) {
+            
+            CCLOG(@"Load spritesheet teleport");
+            
+            teleportSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"teleporter.png"];
+            [objects addChild:teleportSpriteSheet z:LAYER_TILES+1];
+            
+            float speed = 0.1f;
+            
+            NSMutableArray *frameList = [NSMutableArray array];
+            for (int i=0; i < 5; i++) {
+                CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:teleportSpriteSheet.textureAtlas.texture rect:CGRectMake(i * MAP_TILE_WIDTH,0,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+                [frameList addObject:frame];
+            }
+            animation = [CCAnimation animationWithFrames:frameList delay:speed];
+            
+            [[CCAnimationCache sharedAnimationCache] addAnimation:animation name:@"teleport"];
+            
+        }
 	}
 	@catch (NSException * e)
 	{
@@ -1208,10 +1230,12 @@ GameLayer *instance;
 				[spriteSheet addChild:sprite z:zorder];
                     
                 // Set array tiles
-                int index = dx + (dy*mapWidth);
-                //CCLOG(@"set tile %i at %i,%i (%i)", behaviour, dx, dy, index);
-                arrayTiles[index] = behaviour;
-				
+                if (behaviour > 0) {
+                    int index = dx + (dy*mapWidth);
+                    //CCLOG(@"set tile %i at %i,%i (%i)", behaviour, dx, dy, index);
+                    arrayTiles[index] = behaviour;
+				}
+                
 				if (frames > 1) {
 					float speed = 0.1f;
 					
@@ -1482,28 +1506,6 @@ GameLayer *instance;
                 }
 				
 				[robots addObject:item];
-                
-                /*
-                // Check if teleport to add hardcoded animation
-                id animation = [[CCAnimationCache sharedAnimationCache] animationByName:@"teleport"];
-                if (animation == nil) {
-                    
-                    CCSpriteBatchNode *teleportSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"teleporter.png"];
-                    [objects addChild:spriteSheet z:LAYER_TILES+1];
-                    
-                    float speed = 0.1f;
-                    
-                    NSMutableArray *frameList = [NSMutableArray array];
-                    for (int i=0; i < 5; i++) {
-                        CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:teleportSpriteSheet.textureAtlas.texture rect:CGRectMake(i * MAP_TILE_WIDTH,0,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
-                        [frameList addObject:frame];
-                    }
-                    animation = [CCAnimation animationWithFrames:frameList delay:speed];
-                    
-                    [[CCAnimationCache sharedAnimationCache] addAnimation:animation name:@"teleport"];
-                    
-                }
-                */
 				
 			} else if (type == 7) {
 				// Check point
@@ -2077,6 +2079,29 @@ GameLayer *instance;
 -(void) transportPlayerToPosition:(CGPoint)pos
 {
     [player changeToPosition:pos];
+}
+
+-(void) runTeleportAnimation:(CGPoint)pos
+{
+    id animation = [[CCAnimationCache sharedAnimationCache] animationByName:@"teleport"];
+    if (animation != nil) {
+        
+        CCLOG(@"GameLayer.runTeleportAnimation");
+        
+        CCSprite *teleport = [CCSprite spriteWithTexture:teleportSpriteSheet.textureAtlas.texture rect:CGRectMake(0,0,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+        [teleportSpriteSheet addChild:teleport];
+        [teleport setPosition:pos];
+        
+        id action = [CCSequence actions:
+                     [CCAnimate actionWithAnimation:animation],
+                     [CCCallFuncND actionWithTarget:self selector:@selector(_removeTeleportAnimation:data:) data:teleport],
+                     nil];
+       [teleport runAction:action];
+    }    
+}
+
+-(void) _removeTeleportAnimation:(id)selector data:(CCSprite *) teleport {
+    [teleportSpriteSheet removeChild:teleport cleanup:YES];
 }
 
 -(CGPoint) playerPosition

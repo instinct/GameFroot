@@ -3,6 +3,8 @@
 //
 //  Created by Mark Wei on 6/14/11.
 //
+//  Modified by Jose Miguel Gomez Gonzalez on 23/03/12 adding typewriting effect and pagination.
+//
 
 #import <Foundation/Foundation.h>
 #import "cocos2d.h"

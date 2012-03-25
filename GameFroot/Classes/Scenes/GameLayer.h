@@ -57,7 +57,8 @@
 	// Spritesheets
 	CCSpriteBatchNode *spriteSheet;
 	CCSpriteBatchNode *hudSpriteSheet;
-	
+	CCSpriteBatchNode *teleportSpriteSheet;
+    
 	// Map
 	NSMutableDictionary *data;
 	int mapWidth;
@@ -180,6 +181,7 @@
 -(void) stopPlayer;
 -(void) transportPlayerToX:(int)x andY:(int)y;
 -(void) transportPlayerToPosition:(CGPoint)pos;
+-(void) runTeleportAnimation:(CGPoint)pos;
 -(void) changeInitialPlayerPositionToX:(int)x andY:(int)y;
 -(CGPoint) playerPosition;
 -(void) broadcastMessageToRobots:(NSDictionary *)command;

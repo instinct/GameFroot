@@ -714,7 +714,7 @@ void ContactListener::BeginContact(b2Contact *contact) {
 		return;
 	}
 	
-    if (!contact->IsTouching()) return;
+    //if (!contact->IsTouching()) return;
     
     contactData data;
     
@@ -738,7 +738,7 @@ void ContactListener::PreSolve(b2Contact *contact, const b2Manifold *oldManifold
 	GameObject *o1 = (GameObject*)contact->GetFixtureA()->GetBody()->GetUserData();
 	GameObject *o2 = (GameObject*)contact->GetFixtureB()->GetBody()->GetUserData();
 	
-    if (!contact->IsTouching()) return;
+    //if (!contact->IsTouching()) return;
     
     contactData data;
     
@@ -759,7 +759,7 @@ void ContactListener::PostSolve(b2Contact *contact, const b2ContactImpulse *impu
     GameObject *o1 = (GameObject*)contact->GetFixtureA()->GetBody()->GetUserData();
 	GameObject *o2 = (GameObject*)contact->GetFixtureB()->GetBody()->GetUserData();
 	
-    if (!contact->IsTouching()) return;
+    //if (!contact->IsTouching()) return;
     
     contactData data;
     

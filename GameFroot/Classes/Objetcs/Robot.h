@@ -33,8 +33,7 @@ enum RobotTouchingType{
 	
 	CCArray *msgCommands;
 	CCArray *msgName;
-	
-	BOOL onMessage;
+    
 	BOOL onTouchStart;
 	BOOL onInShot;
     BOOL onOutShot;

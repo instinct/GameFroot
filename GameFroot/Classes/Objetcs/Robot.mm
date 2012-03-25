@@ -143,7 +143,6 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	}
     
 	facingLeft = YES;
-	onMessage = NO;
 	onTouchStart = NO;
 	onInShot = NO;
     onOutShot = NO;
@@ -981,6 +980,9 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	
     id result = [self runMethod:token withObject:location];
     
+    // Reset onTouch event
+    onTouchStart = NO;
+     
     float auxX, auxY;
     
     if ([result isKindOfClass:[NSDictionary class]]) {
@@ -1017,6 +1019,9 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	
     id result = [self runMethod:token withObject:location];
     
+    // Reset onTouch event
+    onTouchStart = NO;
+    
     float auxX, auxY;
     
     if ([result isKindOfClass:[NSDictionary class]]) {
@@ -1028,14 +1033,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
             
             if (TRACE_COMMANDS) CCLOG(@"Robot.teleportInstance: %f, %f", auxX, auxY);
             
-            /*
-            id animation = [[CCAnimationCache sharedAnimationCache] animationByName:@"teleport"];
-            if (animation != nil) {
-                CCAnimate *action = [CCAnimate actionWithAnimation:animation];
-                CCRepeatForever *repeatAction = [CCRepeatForever actionWithAction:action];
-                [self runAction:repeatAction];
-            }
-            */
+            // This is the only case where we need to run the hardcoded teleport animation
+            [[GameLayer getInstance] runTeleportAnimation:self.position];
             
             [[SimpleAudioEngine sharedEngine] playEffect:@"IG Transporter.caf"];
             [[GameLayer getInstance] transportPlayerToX:auxX andY:auxY];
@@ -1361,23 +1360,21 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 {
     if (TRACE_COMMANDS) CCLOG(@"Robot.receiveMessage: %@", msg);
     
-	//if (onMessage) {
-		for (uint i = 0; i < [msgName count]; i++) {
-		
-			if ([[msgName objectAtIndex:i] isEqualToString:msg]) {
-				
-				NSArray *commands = [msgCommands objectAtIndex:i];
-				
-				for (uint j = 0; j < [commands count]; j++) {
-					NSDictionary *command = [commands objectAtIndex:j];
-					
-					if (command != nil) {
-						[self runCommand:command];
-					}
-				}
-			}
-		}
-	//}
+    for (uint i = 0; i < [msgName count]; i++) {
+    
+        if ([[msgName objectAtIndex:i] isEqualToString:msg]) {
+            
+            NSArray *commands = [msgCommands objectAtIndex:i];
+            
+            for (uint j = 0; j < [commands count]; j++) {
+                NSDictionary *command = [commands objectAtIndex:j];
+                
+                if (command != nil) {
+                    [self runCommand:command];
+                }
+            }
+        }
+    }
 }
 
 -(void) broadcastMessage:(NSDictionary *)command
@@ -1956,9 +1953,17 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	paused = YES;
 }
 
+-(BOOL) interacted {
+    if (removed) return NO;
+    
+    return [self triggerEvent:@"onInteract"];
+}
+
 -(void) touched:(id)sender
 {
-	//CCLOG(@"Robot.touched: %@", behavior);
+    if (removed) return;
+    
+	//CCLOG(@"Robot.touched: %@ (%i)", behavior, onTouchStart);
 	if (!onTouchStart) {
 		[self execute:@"onTouchStart" type:kGameObjectPlayer];
 		onTouchStart = YES;
@@ -2020,7 +2025,6 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         [self markToTransformBody:b2Vec2(((self.position.x)/PTM_RATIO), (self.position.y)/PTM_RATIO) angle:body->GetAngle()];
 	}
 	
-	onMessage = NO;
 	onTouchStart = NO;
 	onInShot = NO;
     onOutShot = NO;
@@ -2058,15 +2062,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 
 -(void) die {
 	if (!removed) {
-		
 		[self unschedule:@selector(update:)];
-		
-		
 	}
-}
-
--(BOOL) interacted {
-    return [self triggerEvent:@"onInteract"];
 }
 
 // collision handling

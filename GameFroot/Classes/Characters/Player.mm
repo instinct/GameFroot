@@ -149,7 +149,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 
 -(void) changeWeapon:(int)_weaponID
 {
-	CCLOG(@"Player.changeWeapon: %i", _weaponID);
+	//CCLOG(@"Player.changeWeapon: %i", _weaponID);
 
 	[self removeWeapon];
     
@@ -462,9 +462,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     b2Vec2 vel = body->GetLinearVelocity( );
     
     if (fabsf(roundf(vel.y)) != 0) return( NO );
-    
-    if ( ( vel.x < -0.01 ) && ( !facingLeft || ( action == STAND ) ) ) return( YES );
-    else if ( ( vel.x > 0 ) && ( facingLeft || ( action == STAND  ) ) ) return( YES );
+
+    if ( ( vel.x < -0.01 ) && (horizontalSpeedOffset == 0) && ( !facingLeft || ( action == STAND ) ) ) return( YES );
+    else if ( ( vel.x > 0 ) && (horizontalSpeedOffset == 0) && ( facingLeft || ( action == STAND  ) ) ) return( YES );
     
     return( NO );    
 }
@@ -476,7 +476,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     
     if (fabsf(roundf(vel.y)) != 0) return( NO );
     
-    if ( (fabsf(roundf(vel.x)) == 0) && ( action != STAND) ) return( YES );
+    if ( (fabsf(roundf(vel.x)) == 0) && (horizontalSpeedOffset == 0) && ( action != STAND) ) return( YES );
     
     return( NO );
 }
@@ -500,8 +500,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			}
         }
         
-	} else if (!jumping && !moving && !jumpingMoving && (fabsf(roundf(current.y)) == 0)){
-        [self resetForces];
+	//} else if (!jumping && !moving && !jumpingMoving && (fabsf(roundf(current.y)) == 0)){
+    //    [self resetForces];
     }
 }
 
@@ -1261,7 +1261,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	auxX = dx;
 	auxY = dy;
 	
-    CCLOG(@"Player.changePositionX: %i andY:%i",dx, dy);
+    //CCLOG(@"Player.changePositionX: %i andY:%i",dx, dy);
     
 	immortal = YES;
 	
@@ -1276,7 +1276,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	[[GameLayer getInstance] pause];
 	
 	id blinkAction = [CCSequence actions:
-					  [CCFadeOut actionWithDuration:1.0],
+					  [CCFadeOut actionWithDuration:0.2],
+                      [CCDelayTime actionWithDuration:0.8],
 					  [CCCallFunc actionWithTarget:self selector:@selector(changePosition)],
 					  nil];
 	[self runAction:blinkAction];
@@ -1284,14 +1285,14 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	if (type == kGameObjectPlayer) {
         if (hasWeapon) {
             id weaponBlinkAction = [CCSequence actions:
-                                    [CCFadeOut actionWithDuration:1.0],
+                                    [CCFadeOut actionWithDuration:0.2],
                                     nil];
             [weapon runAction:weaponBlinkAction];
 		}
         
 		if (jetpackCollected) {
 			id jetpackBlinkAction = [CCSequence actions:
-									 [CCFadeOut actionWithDuration:1.0],
+									 [CCFadeOut actionWithDuration:0.2],
 									 nil];
 			[jetpack runAction:jetpackBlinkAction];
 		}
@@ -1330,7 +1331,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	[self markToTransformBody:b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO) angle:0.0];
     
 	id blinkAction = [CCSequence actions:
-					  [CCFadeIn actionWithDuration:1.0],
+					  [CCFadeIn actionWithDuration:0.2],
 					  nil];
 	
 	[self runAction:blinkAction];
@@ -1338,14 +1339,14 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	if (type == kGameObjectPlayer) {
         if (hasWeapon) {
             id weaponBlinkAction = [CCSequence actions:
-                                    [CCFadeIn actionWithDuration:1.0],
+                                    [CCFadeIn actionWithDuration:0.2],
                                     nil];
             [weapon runAction:weaponBlinkAction];
 		}
         
 		if (jetpackCollected) {
 			id jetpackBlinkAction = [CCSequence actions:
-									 [CCFadeIn actionWithDuration:1.0],
+									 [CCFadeIn actionWithDuration:0.2],
 									 nil];
 			[jetpack runAction:jetpackBlinkAction];
 		}
@@ -1360,11 +1361,13 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 {
 	b2Vec2 current = body->GetLinearVelocity();
 	
+    //CCLOG(@"Player.hitsFloor: speed: %f", current.y);
+    
     if (current.y < 0) {
         int hurtFall = (-(current.y * PTM_RATIO) - 800) / 10;
         if (hurtFall > 0) {
             // Apply damage when falling at high speed
-            CCLOG(@"Player.hitsFloor: speed: %f, hurt: %i", current.y * PTM_RATIO, hurtFall);
+            //CCLOG(@"Player.hitsFloor: speed: %f, hurt: %i", current.y * PTM_RATIO, hurtFall);
             [self hit: hurtFall];
         }
     }
@@ -1390,7 +1393,10 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 
 -(void) displaceHorizontally:(float)speed 
 {
-	if (speed != horizontalSpeedOffset) {
+    //CCLOG(@"Player.displaceHorizontally: %f", speed);
+    
+	//if (speed != horizontalSpeedOffset) {
+    
 		b2Vec2 current = body->GetLinearVelocity();
 		
         canJump = YES;
@@ -1405,7 +1411,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		}
 		
 		horizontalSpeedOffset = speed;
-	}
+	//}
 }
 
 -(void) setTouchingSwitch:(Switch *) touchingSwitch_ {
@@ -1579,11 +1585,12 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             break;
         
         case kGameObjectCloud:
-            if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ];
-            else if ( [self isBelowCloud:object] ) data.contact->SetEnabled( false );
+            if ( [self isBelowCloud:object] ) data.contact->SetEnabled( false );
+            else if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ];
             break;
             
         case kGameObjectKiller:
+            if (debugImmortal) if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ]; // just to be sure it can walk/jump
             [ self die ];
             break;
             
@@ -1609,12 +1616,15 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             break;            
             
         case kGameObjectMovingPlatform:
+            velocity = ( ( MovingPlatform* )object ).body->GetLinearVelocity( );
+            
             if ( (( MovingPlatform* )object ).isCloud ) {
-                if ( data.position == CONTACT_IS_BELOW ) {
+                if ( [self isBelowCloud:object] ) data.contact->SetEnabled( false );
+                else if ( data.position == CONTACT_IS_BELOW ) {
                     if ( ( ( MovingPlatform* )object ).velocity.y != 0 ) self.ignoreGravity = YES;
                     [ self hitsFloor ];
-                    
-                } else if ( [self isBelowCloud:object] ) data.contact->SetEnabled( false );
+                    if ( ( ( MovingPlatform* )object ).velocity.x != 0 ) [ self displaceHorizontally:velocity.x ];
+                } 
             
             } else if ( data.position == CONTACT_IS_BELOW ) {
                 if ( ( ( MovingPlatform* )object ).velocity.y != 0 ) self.ignoreGravity = YES;
@@ -1651,14 +1661,13 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             if ( [self isBelowCloud:object] && (( MovingPlatform* )object ).isCloud ) data.contact->SetEnabled( false );
             else if ( data.position == CONTACT_IS_BELOW ) {
                 velocity = ( ( MovingPlatform* )object ).body->GetLinearVelocity( );
-                [ self displaceHorizontally:velocity.x ];
+                if ( ( ( MovingPlatform* )object ).velocity.x != 0 ) [ self displaceHorizontally:velocity.x ];
             }
             break;
             
         case kGameObjectRobot:
-            if ( ( ( Robot* )object ).solid == NO ) {
-                data.contact->SetEnabled( false );
-            } else {
+            if ( ( ( Robot* )object ).solid == NO ) data.contact->SetEnabled( false );
+            else {
                 if ( data.position == CONTACT_IS_BELOW ) {
                     velocity = ( ( Robot* )object ).body->GetLinearVelocity();
                    if ( ( velocity.x != 0 ) && !( ( Robot* )object ).shooted ) [ self displaceHorizontally:velocity.x ];
@@ -1682,8 +1691,10 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             break;
         
         case kGameObjectMovingPlatform:
-            if ( [self isBelowCloud:object] && (( MovingPlatform* )object ).isCloud ) data.contact->SetEnabled( false );
-            else {
+            if ( [self isBelowCloud:object] && (( MovingPlatform* )object ).isCloud ) {
+                data.contact->SetEnabled( false );
+                
+            } else {
                 int32 count = data.contact->GetManifold()->pointCount;
                 float32 maxImpulse = 0.0f;
                 for (int32 i = 0; i < count; ++i) {

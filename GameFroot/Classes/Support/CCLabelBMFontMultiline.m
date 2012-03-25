@@ -3,6 +3,9 @@
 //
 //  Created by Mark Wei on 6/14/11.
 //  https://github.com/pingpongboss/CCLabelBMFontMultiline
+//
+//  Modified by Jose Miguel Gomez Gonzalez on 23/03/12 adding typewriting effect and pagination.
+//
 
 #import "CCLabelBMFontMultiline.h"
 

@@ -798,15 +798,15 @@
     // ********************
     if ( ((behaviour & ENEMY_BEHAVIOUR_WALKING) > 0) && ((behaviour & ENEMY_BEHAVIOUR_JUMPING) == 0) ) {
 		
+        int floorInfront = [self tileType:1 y:-1];
+        
         if (tilePos.y == playerPos.y) {
             // Player and enemy on same horizontal level
-            
-            int tileType = [self tileType:1 y:-1];
             
             if ((behaviour & ENEMY_BEHAVIOUR_SHOOTING) == 0) {
                 // Try to hit the player since it won't shoot
                 
-                if (tileType != TILE_TYPE_SPIKE) { 
+                if (floorInfront != TILE_TYPE_SPIKE) { 
                     if (player.position.x < self.position.x) {
                         [self moveLeft];
                         
@@ -823,10 +823,10 @@
             } else {
                 
                 // Stops ENEMY_WALKING_STOPAHEAD tiles in front of player
-                if ( (tilePos.x > playerPos.x + ENEMY_WALKING_STOPAHEAD) && (tileType != TILE_TYPE_SPIKE) ) {
+                if ( (tilePos.x > playerPos.x + ENEMY_WALKING_STOPAHEAD) && (floorInfront != TILE_TYPE_SPIKE) ) {
                     if (direction != kDirectionLeft) [self moveLeft];
                     
-                } else if ( (tilePos.x < playerPos.x - ENEMY_WALKING_STOPAHEAD) && (tileType != TILE_TYPE_SPIKE) ) {
+                } else if ( (tilePos.x < playerPos.x - ENEMY_WALKING_STOPAHEAD) && (floorInfront != TILE_TYPE_SPIKE) ) {
                     if (direction != kDirectionRight) [self moveRight];
                     
                 } else {
@@ -852,8 +852,8 @@
                 b2Vec2 vel = body->GetLinearVelocity();
                 
                 if (!jumping && (fabsf(roundf(vel.y)) == 0)) {
-                    int tileType = [self tileType:1 y:-1];
-                    if ( !spawned || (tileType == TILE_TYPE_SPIKE) ) {
+                    
+                    if ( !spawned || (floorInfront == TILE_TYPE_SPIKE) ) {
                         // Ignore ledges flag if enemy spawned
                         [ self changeDirection ];
                     }
@@ -956,13 +956,13 @@
             break;
             
         case kGameObjectCloud:
-            if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ];
-            else if ( [self isBelowCloud:object] ) data.contact->SetEnabled( false );
+            if ( [self isBelowCloud:object] ) data.contact->SetEnabled( false );
+            else if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ];
             break;
  
         case kGameObjectMovingPlatform:
-            if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ];
-            else if ( [self isBelowCloud:object] && (( MovingPlatform* )object ).isCloud ) data.contact->SetEnabled( false );
+            if ( [self isBelowCloud:object] && (( MovingPlatform* )object ).isCloud ) data.contact->SetEnabled( false );
+            else if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ];
             break;
         
         case kGameObjectKiller:

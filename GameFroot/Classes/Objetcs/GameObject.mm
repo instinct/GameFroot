@@ -42,11 +42,16 @@
 	
 	body = world->CreateBody(&playerBodyDef);
 	
-    // Define the box shape as edges
+    // Define the box shape as edges to avoid player to get stuck
 	b2Vec2 lowerLeft = b2Vec2(0 - (size.width/2.0f/PTM_RATIO), 0 - (size.height/2.0f/PTM_RATIO));
 	b2Vec2 lowerRight = b2Vec2(size.width/2.0f/PTM_RATIO, 0 - (size.height/2.0f/PTM_RATIO));
 	b2Vec2 upperRight = b2Vec2(size.width/2.0f/PTM_RATIO, size.height/2.0f/PTM_RATIO);
 	b2Vec2 upperLeft = b2Vec2(0 - (size.width/2.0f/PTM_RATIO), size.height/2.0f/PTM_RATIO);
+    
+    // To avoid platforms to trigger an end contact when on top (with sides)
+    // we create left and right edges a bit smaller so they don't touch the top edge
+    b2Vec2 nearUpperRight = b2Vec2(size.width/2.0f/PTM_RATIO, (size.height/2.0f/PTM_RATIO)  - 0.1f);
+	b2Vec2 nearUpperLeft = b2Vec2(0 - (size.width/2.0f/PTM_RATIO), (size.height/2.0f/PTM_RATIO) - 0.1f);
     
 	b2EdgeShape groundBox;		
 	
@@ -59,11 +64,11 @@
 	body->CreateFixture(&groundBox,0);
 	
 	// left
-	groundBox.Set(upperLeft, lowerLeft);
+	groundBox.Set(nearUpperLeft, lowerLeft);
 	body->CreateFixture(&groundBox,0);
 	
 	// right
-	groundBox.Set(lowerRight, upperRight);
+	groundBox.Set(lowerRight, nearUpperRight);
 	body->CreateFixture(&groundBox,0);
     
     // add extra edges to avoid bullets going through on single tile blocks
