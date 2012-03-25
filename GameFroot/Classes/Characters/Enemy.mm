@@ -453,7 +453,7 @@
     if ( ( direction == kDirectionNone ) && ( moving == NO ) ) return; 
 	if ( dying || immortal ) return;
     b2Vec2 vel = body->GetLinearVelocity();
-    body->SetLinearVelocity(b2Vec2(horizontalSpeedOffset, vel.y));
+    body->SetLinearVelocity(b2Vec2(0.0f, vel.y));
     [self setState:STAND];
     moving = NO;
     direction = kDirectionNone;
@@ -1030,9 +1030,38 @@
             
         case kGameObjectCloud:
             if ( [self isBelowCloud:object] ) data.contact->SetEnabled( false );
-            else {
-                b2Vec2 current = self.body->GetLinearVelocity();
-                if (current.y < -0.01) [self hitsFloor];
+            break;
+        
+        case kGameObjectMovingPlatform:
+            if ( [self isBelowCloud:object] && (( MovingPlatform* )object ).isCloud ) {
+                data.contact->SetEnabled( false );
+                
+            } else {
+                int32 count = data.contact->GetManifold()->pointCount;
+                float32 maxImpulse = 0.0f;
+                for (int32 i = 0; i < count; ++i) {
+                    maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
+                }
+                
+                // We pressing player agains another object, so change direction
+                if (maxImpulse > 10.0) {
+                    velocity = ( ( MovingPlatform* )object ).body->GetLinearVelocity( );
+                    
+                    switch ( data.position ) {
+                            
+                        case CONTACT_IS_ABOVE:
+                            if ( velocity.y < -0.01 ) [ ( MovingPlatform* )object changeDirection ];
+                            break;
+                        case CONTACT_IS_LEFT:
+                            if ( velocity.x > 0 ) [ ( MovingPlatform* )object changeDirection ];
+                            break;
+                        case CONTACT_IS_RIGHT:
+                            if ( velocity.x < -0.01 ) [ ( MovingPlatform* )object changeDirection ];
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
             break;
             

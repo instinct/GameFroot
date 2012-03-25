@@ -459,6 +459,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 }
 
 -(BOOL) isMoonWalking {
+    if ( dying || immortal || jumping || prone) return ( NO );
+    
     b2Vec2 vel = body->GetLinearVelocity( );
     
     if (fabsf(roundf(vel.y)) != 0) return( NO );
