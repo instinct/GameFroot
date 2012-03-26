@@ -20,6 +20,7 @@
     text = [_text retain];
     
     background = [CCSprite spriteWithFile:@"dialogue_background.png"];
+    [background setOpacity:200];
 	[background setAnchorPoint:ccp(0,0)];
 	[background setPosition:ccp(10, 10)];
     

@@ -36,8 +36,8 @@
         CCSprite *button = [CCSprite spriteWithFile:@"option-btn.png"];
         CCSprite *buttonSelected = [CCSprite spriteWithFile:@"option-btn.png"];
         
-        CCLabelBMFont *label = [CCLabelBMFont labelWithString:[NSString stringWithFormat:@"Option %i",i+1] fntFile:@"Chicago.fnt"];
-        CCLabelBMFont *labelSelected = [CCLabelBMFont labelWithString:[NSString stringWithFormat:@"Option %i",i+1] fntFile:@"Chicago.fnt"];
+        CCLabelBMFont *label = [CCLabelBMFont labelWithString:[NSString stringWithFormat:@"Option %i",i+1] fntFile:@"Sans.fnt"];
+        CCLabelBMFont *labelSelected = [CCLabelBMFont labelWithString:[NSString stringWithFormat:@"Option %i",i+1] fntFile:@"Sans.fnt"];
         [labelSelected setColor:ccc3(255,255,0)];
         
         [label.textureAtlas.texture setAliasTexParameters];
@@ -68,12 +68,17 @@
 	//[[CCTouchDispatcher sharedDispatcher] addTargetedDelegate:self priority:TOUCH_PRIORITY swallowsTouches:YES];
 	
 	background = [CCSprite spriteWithFile:@"dialogue_background.png"];
+    [background setOpacity:200];
 	[background setAnchorPoint:ccp(0,0)];
 	[background setPosition:ccp(10, 10)];
 	
-	CCLabelBMFontMultiline *label = [CCLabelBMFontMultiline labelWithString:text fntFile:@"Chicago.fnt" width:background.contentSize.width - 100 alignment:LeftAlignment];
+	CCLabelBMFontMultiline *label = [CCLabelBMFontMultiline labelWithString:text fntFile:@"Sans.fnt" width:background.contentSize.width - 100 alignment:LeftAlignment];
 	[label.textureAtlas.texture setAliasTexParameters];
 	
+    [label setAnchorPoint:ccp(0,1)];
+    [label setPosition: ccp(25, background.contentSize.height + 8)];
+    
+    /*
 	if (label.contentSize.height < background.contentSize.height) {
 		[label setAnchorPoint:ccp(0,1)];
 		[label setPosition: ccp(20, background.contentSize.height + 5)];
@@ -85,7 +90,8 @@
 		// adjust background
 		background.scaleY = (label.contentSize.height + 10)/background.contentSize.height;
 	}
-	
+	*/
+    
 	[self addChild:background z:1];
 	[self addChild:label z:2];
 	
