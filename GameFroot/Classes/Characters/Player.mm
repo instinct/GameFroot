@@ -459,28 +459,16 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 }
 
 -(BOOL) isMoonWalking {
-    if ( dying || immortal || jumping || prone) return ( NO );
+    if ( dying || immortal || jumping || (action == PRONE) || (action == CROUCH)) return ( NO );
     
     b2Vec2 vel = body->GetLinearVelocity( );
-    
-    if (fabsf(roundf(vel.y)) != 0) return( NO );
 
+    if (fabsf(roundf(vel.y)) != 0) return( NO );
+    
     if ( ( vel.x < -0.01 ) && (horizontalSpeedOffset == 0) && ( !facingLeft || ( action == STAND ) ) ) return( YES );
     else if ( ( vel.x > 0 ) && (horizontalSpeedOffset == 0) && ( facingLeft || ( action == STAND  ) ) ) return( YES );
     
     return( NO );    
-}
-
--(BOOL) isStaticWalking {
-    if ( dying || immortal || jumping || prone) return ( NO );
-    
-    b2Vec2 vel = body->GetLinearVelocity( );
-    
-    if (fabsf(roundf(vel.y)) != 0) return( NO );
-    
-    if ( (fabsf(roundf(vel.x)) == 0) && (horizontalSpeedOffset == 0) && ( action != STAND) ) return( YES );
-    
-    return( NO );
 }
 
 -(BOOL) isJumping {
@@ -1494,7 +1482,6 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     // ********************
     // if player is pushed, the physics engine might result in "moonwalking"
     if ( [ self isMoonWalking ] == YES ) [ self resetForces ];
-    if ( [ self isStaticWalking ] == YES ) [ self stop ];
     
     // done
 	[super update:dt];

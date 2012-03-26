@@ -799,6 +799,7 @@
     if ( ((behaviour & ENEMY_BEHAVIOUR_WALKING) > 0) && ((behaviour & ENEMY_BEHAVIOUR_JUMPING) == 0) ) {
 		
         int floorInfront = [self tileType:1 y:-1];
+        //CCLOG(@"floorInfront: %i", floorInfront);
         
         if (tilePos.y == playerPos.y) {
             // Player and enemy on same horizontal level
@@ -806,7 +807,7 @@
             if ((behaviour & ENEMY_BEHAVIOUR_SHOOTING) == 0) {
                 // Try to hit the player since it won't shoot
                 
-                if (floorInfront != TILE_TYPE_SPIKE) { 
+                if ((floorInfront != TILE_TYPE_SPIKE) && (floorInfront != TILE_TYPE_NONE)) { 
                     if (player.position.x < self.position.x) {
                         [self moveLeft];
                         
@@ -823,11 +824,18 @@
             } else {
                 
                 // Stops ENEMY_WALKING_STOPAHEAD tiles in front of player
-                if ( (tilePos.x > playerPos.x + ENEMY_WALKING_STOPAHEAD) && (floorInfront != TILE_TYPE_SPIKE) ) {
-                    if (direction != kDirectionLeft) [self moveLeft];
-                    
-                } else if ( (tilePos.x < playerPos.x - ENEMY_WALKING_STOPAHEAD) && (floorInfront != TILE_TYPE_SPIKE) ) {
-                    if (direction != kDirectionRight) [self moveRight];
+                if ((floorInfront != TILE_TYPE_SPIKE) && (floorInfront != TILE_TYPE_NONE)) { 
+                    if ( (tilePos.x > playerPos.x + ENEMY_WALKING_STOPAHEAD) ) {
+                        if (!facingLeft) [self moveLeft];
+                        
+                    } else if ( (tilePos.x < playerPos.x - ENEMY_WALKING_STOPAHEAD) ) {
+                        if (facingLeft) [self moveRight];
+                        
+                    } else {
+                        // Reached distance, stop face him
+                        if (player.position.x < self.position.x) [self faceLeft];
+                        else if (player.position.x > self.position.x) [self faceRight];
+                    }
                     
                 } else {
                     // Enemy and player on same level and close enough, face player

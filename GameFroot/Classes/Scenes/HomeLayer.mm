@@ -227,6 +227,7 @@
         displayingDeleteButton = NO;
         ratingsAnchorEnabled = NO;
         gameDetailLoaded = NO;
+        tableView = nil;
         
 		/*if([[NSUserDefaults standardUserDefaults] boolForKey:@"firstlaunch"] && ![Shared getWelcomeShown]) {
             // Do some stuff on first launch
@@ -239,6 +240,7 @@
             
             RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
             [rvc showBanner];
+        
             // If we have come from a game, go to that games' detail page
             if(![Shared getLevel]) {
                 // Load featured panel, out default screen.
@@ -278,19 +280,76 @@
 
 -(void) selectedLevel:(id)sender {
     [Loader hideAsynchronousLoader];
+    
     RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
     [rvc hideBanner];
+    
 	[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
 }
 
 
 // Selected featured buttons
 -(void) featured1:(id)sender {
-	
+
+    NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=promotional", [self returnServer]];
+    CCLOG(@"Load promotional levels: %@", levelsURL);
+    
+    // Try to load cached version first, if not load online
+    NSArray *data;
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];        
+    if ([prefs objectForKey:@"promotional"] != nil) {
+        data = [[prefs objectForKey:@"promotional"] mutableCopy];
+        
+        CCLOG(@"Load cached promotional levels");
+        
+    } else {
+        NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
+        NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
+        data = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] mutableCopy];
+    }
+    
+    CCLOG(@"Level 1: %@", [data description]);
+    
+    if (!data || [data count] == 0)
+    {
+        return;
+    }
+    
+	[Shared setLevel:[[data objectAtIndex:0] mutableCopy]];
+    
+    //[self selectedLevel:nil];
+    [self loadGameDetail];
 }
 
 -(void) featured2:(id)sender {
-	
+	NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=promotional", [self returnServer]];
+    CCLOG(@"Load promotional levels: %@", levelsURL);
+    
+    // Try to load cached version first, if not load online
+    NSArray *data;
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];        
+    if ([prefs objectForKey:@"promotional"] != nil) {
+        data = [[prefs objectForKey:@"promotional"] mutableCopy];
+        
+        CCLOG(@"Load cached promotional levels");
+        
+    } else {
+        NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
+        NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
+        data = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] mutableCopy];
+    }
+    
+    CCLOG(@"Level 2: %@", [data description]);
+    
+    if (!data || [data count] <= 1)
+    {
+        return;
+    }
+    
+	[Shared setLevel:[[data objectAtIndex:0] mutableCopy]];
+    
+    //[self selectedLevel:nil];
+    [self loadGameDetail];
 }
 
 // Main navigation
@@ -498,6 +557,26 @@
 #pragma mark -
 #pragma mark Connection
 
+- (void)asynchronousContentsOfURL:(NSString *)url
+{
+    NSMutableURLRequest *req=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]
+                                                     cachePolicy:NSURLRequestUseProtocolCachePolicy
+                                                 timeoutInterval:10.0];
+    conn = [[NSURLConnection alloc] initWithRequest:req delegate:self];
+    if (conn) {
+        receivedData = [[NSMutableData data] retain];
+        connecting = YES;
+        
+    } else {
+        UIAlertView *alertView = [[[UIAlertView alloc] initWithTitle: @"Server Connection" 
+                                                             message: @"We cannot connect to our servers, pleaser review your internet connection." 
+                                                            delegate: self 
+                                                   cancelButtonTitle: @"Ok" 
+                                                   otherButtonTitles: nil] autorelease];
+        [alertView show];
+    }
+}
+
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
     // this method is called when the server has determined that it
@@ -543,8 +622,17 @@
         
 		jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:receivedData error:nil] retain];
 		//CCLOG(@"Levels: %@", [jsonData description]);
-        CCLOG(@"connectionDidFinishLoading featured");
-        //[self _loadFeatured];
+        CCLOG(@"HomeLayer.connectionDidFinishLoading: featured refresh list");
+        
+        // Filter array
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
+        if (filteredArray != nil) [filteredArray release];
+        filteredArray = [[jsonDataFeatured filteredArrayUsingPredicate:predicate] retain];
+        tableData = [filteredArray mutableCopy];
+        
+        CCLOG(@"HomeLayer.connectionDidFinishLoading: filtered array");
+              
+        if (tableView != nil) [tableView reloadData];
     }
 	
 	
@@ -595,6 +683,8 @@
     CGSize size = [[CCDirector sharedDirector] winSize];
         
     [Loader hideAsynchronousLoader];
+    
+    [gameDetail removeAllChildrenWithCleanup:YES];
     
     // non spritesheet enitites
     CCLabelTTF *placeHolderText = [CCLabelTTF labelWithString:@"Game detail screen" fontName:@"HelveticaNeue-Bold" fontSize:16];
@@ -686,37 +776,34 @@
 		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], featuredPage];
 		CCLOG(@"Load levels: %@",levelsURL);
         
-        NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
-       
-		NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
-		jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] mutableCopy];
-		//CCLOG(@"Levels: %@", [jsonDataFeatured description]);
-		
-		if(!jsonDataFeatured)
-		{
-			return;
-		}
+        // Try to load cached version first, if not load online
         
-        /*
-        NSMutableURLRequest *req=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:levelsURL]
-                                                      cachePolicy:NSURLRequestUseProtocolCachePolicy
-                                                      timeoutInterval:10.0];
-        conn = [[NSURLConnection alloc] initWithRequest:req delegate:self];
-        if (conn) {
-            receivedData = [[NSMutableData data] retain];
-            connecting = YES;
+        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];        
+        if ([prefs objectForKey:@"featured"] != nil) {
+            jsonDataFeatured = [[prefs objectForKey:@"featured"] mutableCopy];
+            
+            CCLOG(@"Load cached levels");
+            
+            // Now load in teh background online one
+            [self asynchronousContentsOfURL:levelsURL];
             
         } else {
-            UIAlertView *alertView = [[[UIAlertView alloc] initWithTitle: @"Server Connection" 
-                                                                 message: @"We cannot connect to our servers, pleaser review your internet connection." 
-                                                                delegate: self 
-                                                       cancelButtonTitle: @"Ok" 
-                                                       otherButtonTitles: nil] autorelease];
-            [alertView show];
+            // Cache not found, load online
+            NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
+            
+            NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
+            jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] mutableCopy];
+            //CCLOG(@"Levels: %@", [jsonDataFeatured description]);
+            
+            if(!jsonDataFeatured)
+            {
+                return;
+            }
+            
+            // Save locally for next time
+            [prefs setObject:jsonDataFeatured forKey:@"featured"];
+            [prefs synchronize];
         }
-        
-        return;
-        */
 	}
 	
     [Loader hideAsynchronousLoader];
@@ -877,9 +964,9 @@
 	browse.visible = YES;
     */
     
-    browsePage = 1;
-    
     if (jsonDataBrowse == nil) {
+        
+        browsePage = 1;
 		
 		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], browsePage];
 		CCLOG(@"Load levels: %@",levelsURL);
@@ -982,11 +1069,9 @@
 	
 	// Filter array
 	NSPredicate *predicate = [NSPredicate predicateWithFormat:@"title CONTAINS[cd] %@", searchTextField.text];
-	
 	if (filteredArray != nil) [filteredArray release];
 	filteredArray = [[jsonDataBrowse filteredArrayUsingPredicate:predicate] retain];
 	//CCLOG(@"Search results: %@", [filteredArray description]);
-	
 	tableData = [filteredArray mutableCopy];
 	
 	CGSize size = [[CCDirector sharedDirector] winSize];
@@ -1038,10 +1123,10 @@
 	[Loader hideAsynchronousLoader];
 	
 	if (tableView != nil) [selectedPage removeChild:tableView cleanup:YES]; // Avoid multiple calls of the facebook request details as it's asyncronous
-	
-    myGamesPage = 1;
     
 	if (jsonDataMyGames == nil) {
+        
+        myGamesPage = 1;
 	
 		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_user_levels&page=%1", [self returnServer], myGamesPage];
 		CCLOG(@"Load levels: %@",levelsURL);
@@ -1305,6 +1390,10 @@
 	if (selectedPage == more) return;
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	selectedPage = more;
+    
+    RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
+    [rvc hideBanner];
+    
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadMore)];
 	loading = YES;
 }
@@ -1368,9 +1457,10 @@
     jsonDataBrowse = nil;
     jsonDataMyGames = nil;
     
-    // Reset favourites
+    // Reset cached lists
     [jsonDataPlaying removeAllObjects];
     [prefs setObject:jsonDataPlaying forKey:@"favourites"];
+    [prefs removeObjectForKey:@"featured"];
     [prefs synchronize];
     
     [self updatePlayedBadge];

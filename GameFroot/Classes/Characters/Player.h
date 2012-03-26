@@ -142,7 +142,6 @@ enum ANIM { STAND = 0, WALK, CROUCH, PRONE, JUMPING, FALLING };
 -(void) resetForces;
 -(BOOL) isBelowCloud:(GameObject *) object;
 -(BOOL) isMoonWalking;
--(BOOL) isStaticWalking;
 -(BOOL) isJumping;
 
 -(void) restart;
