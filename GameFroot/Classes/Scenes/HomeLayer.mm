@@ -632,7 +632,7 @@
         
         CCLOG(@"HomeLayer.connectionDidFinishLoading: filtered array");
               
-        if (tableView != nil) [tableView reloadData];
+        if ( (tableView != nil) && ([tableView isMemberOfClass:[SWTableView class]]) )  [tableView reloadData];
     }
 	
 	
