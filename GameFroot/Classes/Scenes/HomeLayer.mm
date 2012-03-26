@@ -570,7 +570,7 @@
     } else {
         UIAlertView *alertView = [[[UIAlertView alloc] initWithTitle: @"Server Connection" 
                                                              message: @"We cannot connect to our servers, pleaser review your internet connection." 
-                                                            delegate: self 
+                                                            delegate: nil 
                                                    cancelButtonTitle: @"Ok" 
                                                    otherButtonTitles: nil] autorelease];
         [alertView show];
@@ -604,7 +604,7 @@
     // inform the user
     UIAlertView *alertView = [[[UIAlertView alloc] initWithTitle: @"Server Connection" 
                                                          message: @"We cannot connect to our servers, pleaser review your internet connection." 
-                                                        delegate: self 
+                                                        delegate: nil 
                                                cancelButtonTitle: @"Ok" 
                                                otherButtonTitles: nil] autorelease];
     [alertView show];
@@ -620,7 +620,7 @@
 	
     if (selectedPage == featured) {
         
-		jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:receivedData error:nil] retain];
+		jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:receivedData error:nil] mutableCopy];
 		//CCLOG(@"Levels: %@", [jsonData description]);
         CCLOG(@"HomeLayer.connectionDidFinishLoading: featured refresh list");
         
@@ -630,9 +630,11 @@
         filteredArray = [[jsonDataFeatured filteredArrayUsingPredicate:predicate] retain];
         tableData = [filteredArray mutableCopy];
         
-        CCLOG(@"HomeLayer.connectionDidFinishLoading: filtered array");
-              
-        if ( (tableView != nil) && ([tableView isMemberOfClass:[SWTableView class]]) )  [tableView reloadData];
+        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+        [prefs setObject:jsonDataFeatured forKey:@"featured"];
+        [prefs synchronize];
+        
+        [tableView reloadData];
     }
 	
 	
@@ -769,11 +771,13 @@
 
 -(void) _loadFeatured {
 	
+    BOOL refreshInBackground = NO;
+    
 	if (jsonDataFeatured == nil) {
         
         featuredPage = 1;
         
-		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], featuredPage];
+        NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], featuredPage];
 		CCLOG(@"Load levels: %@",levelsURL);
         
         // Try to load cached version first, if not load online
@@ -782,10 +786,8 @@
         if ([prefs objectForKey:@"featured"] != nil) {
             jsonDataFeatured = [[prefs objectForKey:@"featured"] mutableCopy];
             
-            CCLOG(@"Load cached levels");
-            
-            // Now load in teh background online one
-            [self asynchronousContentsOfURL:levelsURL];
+            CCLOG(@"Loaded cached levels");
+            refreshInBackground = YES;
             
         } else {
             // Cache not found, load online
@@ -840,6 +842,12 @@
 	
 	loading = NO;
 	featured.visible = YES;
+    
+    if (refreshInBackground) {
+        // Now load in the background online levels
+        NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], 1];
+        [self asynchronousContentsOfURL:levelsURL];
+    }
 	
 }
 
