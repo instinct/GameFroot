@@ -13,6 +13,9 @@
 #import "FBConnect.h"
 #import "RootViewController.h"
 
+@interface CCPriorityMenu: CCMenu
+@end
+
 @interface HomeLayer : CCLayerColor <
 	SWTableViewDataSource, 
 	SWTableViewDelegate,
@@ -35,9 +38,9 @@
 	CCNode *selectedPage;
 	
 	// Cached data
-	NSArray *jsonDataFeatured;
-	NSArray *jsonDataBrowse;
-	NSArray *jsonDataMyGames;
+	NSMutableArray *jsonDataFeatured;
+	NSMutableArray *jsonDataBrowse;
+	NSMutableArray *jsonDataMyGames;
 	NSMutableArray *jsonDataPlaying;
 	
 	// Tab menu
@@ -65,7 +68,7 @@
 	CCSprite *badgeMiddle;
 	CCSprite *badgeRight;
 	CCLabelTTF *playingLabel;
-	CCMenu *deleteMenu;
+	CCPriorityMenu *deleteMenu;
     BOOL displayingDeleteButton;
     
 	// My games
@@ -80,6 +83,10 @@
     
     int serverUsed;
     BOOL gameDetailLoaded;
+    
+    int featuredPage;
+    int browsePage;
+    int myGamesPage;
 }
 
 // returns a CCScene that contains the HomeLayer as the only child

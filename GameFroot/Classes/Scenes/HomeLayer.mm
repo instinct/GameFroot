@@ -18,6 +18,18 @@
 #import "OnPressMenu.h"
 #import "AppDelegate.h"
 
+#define ITEMS_PER_PAGE  20
+
+@implementation CCPriorityMenu
+
+#ifdef __IPHONE_OS_VERSION_MAX_ALLOWED
+-(void) registerWithTouchDispatcher
+{
+	[[CCTouchDispatcher sharedDispatcher] addTargetedDelegate:self priority:-9999999 swallowsTouches:YES];
+}
+#endif
+@end
+
 @implementation HomeLayer
 
 +(CCScene *) scene
@@ -216,13 +228,13 @@
         ratingsAnchorEnabled = NO;
         gameDetailLoaded = NO;
         
-		if([[NSUserDefaults standardUserDefaults] boolForKey:@"firstlaunch"] && ![Shared getWelcomeShown]) {
+		/*if([[NSUserDefaults standardUserDefaults] boolForKey:@"firstlaunch"] && ![Shared getWelcomeShown]) {
             // Do some stuff on first launch
             [Shared setWelcomeShown:YES];
             [self loadWelcome];
             
         } else {
-            
+        */    
             [featuredButton selected]; // Only select navigation button if no welcome screen
             
             RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
@@ -237,7 +249,7 @@
                 [self loadGameDetail];
                 selectedPage = gameDetail;
             }
-        }
+        //}
 	}
 	
 	return self;
@@ -668,14 +680,16 @@
 -(void) _loadFeatured {
 	
 	if (jsonDataFeatured == nil) {
-				
-		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels", [self returnServer]];
+        
+        featuredPage = 1;
+        
+		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], featuredPage];
 		CCLOG(@"Load levels: %@",levelsURL);
         
         NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
        
 		NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
-		jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] retain];
+		jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] mutableCopy];
 		//CCLOG(@"Levels: %@", [jsonDataFeatured description]);
 		
 		if(!jsonDataFeatured)
@@ -717,12 +731,15 @@
 	[menuFeatured alignItemsHorizontally];
 	[featured addChild:menuFeatured z:4];
 	
-	// Featured list
-	tableData = [jsonDataFeatured mutableCopy];
+    // Filter array
+	NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
+	if (filteredArray != nil) [filteredArray release];
+	filteredArray = [[jsonDataFeatured filteredArrayUsingPredicate:predicate] retain];
+	tableData = [filteredArray mutableCopy];
 	
-	loaded = 25;
+	loaded = ITEMS_PER_PAGE*featuredPage;
 	total = [tableData count];
-	if (total < 25) loaded = total;
+	if (total < ITEMS_PER_PAGE*featuredPage) loaded = total;
 	
 	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, 230)];
 	
@@ -737,6 +754,40 @@
 	loading = NO;
 	featured.visible = YES;
 	
+}
+
+-(void) _loadMoreFeatured {
+    featuredPage++;
+    
+    NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], featuredPage];
+    CCLOG(@"Load levels: %@",levelsURL);
+    
+    NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
+    
+    NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *jsonDataMoreFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] retain];
+    //CCLOG(@"Levels: %@", [jsonDataMoreFeatured description]);
+    
+    if(!jsonDataMoreFeatured)
+    {
+        return;
+    }
+    
+    [jsonDataFeatured addObjectsFromArray:jsonDataMoreFeatured];
+    
+    // Filter array
+	NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
+	if (filteredArray != nil) [filteredArray release];
+	filteredArray = [[jsonDataFeatured filteredArrayUsingPredicate:predicate] retain];
+	tableData = [filteredArray mutableCopy];
+	
+	loaded = ITEMS_PER_PAGE*featuredPage;
+	total = [tableData count];
+	if (total < ITEMS_PER_PAGE*featuredPage) loaded = total;
+	
+    
+    [tableView reloadData];
+    [tableView setContentOffset:ccp(0,[tableView contentOffset].y-57*([jsonDataMoreFeatured count])) animated:NO];
 }
 
 #pragma mark -
@@ -762,9 +813,7 @@
 		return;
 	}
 
-	loaded = 25;
-	total = [tableData count];
-	if (total < 25) loaded = total;
+	loaded = total = [tableData count];
 	
 	CGSize size = [[CCDirector sharedDirector] winSize];
 	
@@ -796,6 +845,7 @@
 -(void) _loadBrowse {
 	[Loader hideAsynchronousLoader];
 	
+    /*
 	CGSize size = [[CCDirector sharedDirector] winSize];
 	
 	CCSprite *searchBox = [CCSprite spriteWithFile:@"search-box.png"];
@@ -825,6 +875,84 @@
 	
 	loading = NO;
 	browse.visible = YES;
+    */
+    
+    browsePage = 1;
+    
+    if (jsonDataBrowse == nil) {
+		
+		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], browsePage];
+		CCLOG(@"Load levels: %@",levelsURL);
+		
+		NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
+		NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
+		jsonDataBrowse = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] mutableCopy];
+		//CCLOG(@"Levels: %@", [jsonDataBrowse description]);
+		
+		if(!jsonDataBrowse)
+		{
+			return;
+		}
+	}
+    
+    // Filter array
+	NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
+	if (filteredArray != nil) [filteredArray release];
+	filteredArray = [[jsonDataBrowse filteredArrayUsingPredicate:predicate] retain];
+	tableData = [filteredArray mutableCopy];
+	
+	CGSize size = [[CCDirector sharedDirector] winSize];
+	
+	loaded = ITEMS_PER_PAGE*browsePage;
+	total = [tableData count];
+	if (total < ITEMS_PER_PAGE*browsePage) loaded = total;
+	
+	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, size.height - (45 + 50 + 50))];
+	
+	tableView.direction = SWScrollViewDirectionVertical;
+	tableView.position = ccp(0,100);
+	tableView.delegate = self;
+	tableView.verticalFillOrder = SWTableViewFillTopDown;
+	
+	[browse addChild:tableView z:5];
+	[tableView reloadData];
+	
+	loading = NO;
+	browse.visible = YES;
+}
+
+-(void) _loadMoreBrowse {
+    browsePage++;
+    
+    NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], browsePage];
+    CCLOG(@"Load levels: %@",levelsURL);
+    
+    NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
+    
+    NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *jsonDataMoreBrowse = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] retain];
+    //CCLOG(@"Levels: %@", [jsonDataMoreBrowse description]);
+    
+    if(!jsonDataMoreBrowse)
+    {
+        return;
+    }
+    
+    [jsonDataBrowse addObjectsFromArray:jsonDataMoreBrowse];
+    
+    // Filter array
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
+	if (filteredArray != nil) [filteredArray release];
+	filteredArray = [[jsonDataBrowse filteredArrayUsingPredicate:predicate] retain];
+	tableData = [filteredArray mutableCopy];
+	
+	loaded = ITEMS_PER_PAGE*browsePage;
+	total = [tableData count];
+	if (total < ITEMS_PER_PAGE*browsePage) loaded = total;
+	
+    
+    [tableView reloadData];
+    [tableView setContentOffset:ccp(0,[tableView contentOffset].y-57*([jsonDataMoreBrowse count])) animated:NO];
 }
 
 -(void) reloadBrowse {
@@ -863,9 +991,9 @@
 	
 	CGSize size = [[CCDirector sharedDirector] winSize];
 	
-	loaded = 25;
+	loaded = ITEMS_PER_PAGE;
 	total = [tableData count];
-	if (total < 25) loaded = total;
+	if (total < ITEMS_PER_PAGE) loaded = total;
 	
 	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, size.height - (45 + 45 + 50 + 50))];
 	
@@ -911,14 +1039,16 @@
 	
 	if (tableView != nil) [selectedPage removeChild:tableView cleanup:YES]; // Avoid multiple calls of the facebook request details as it's asyncronous
 	
+    myGamesPage = 1;
+    
 	if (jsonDataMyGames == nil) {
 	
-		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_user_levels", [self returnServer]];
+		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_user_levels&page=%1", [self returnServer], myGamesPage];
 		CCLOG(@"Load levels: %@",levelsURL);
 		
 		NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
 		NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
-		jsonDataMyGames = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] retain];
+		jsonDataMyGames = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] mutableCopy];
 		//CCLOG(@"Levels: %@", [jsonDataMyGames description]);
 	}
 	
@@ -929,13 +1059,17 @@
 		return;
 	}
 	
-	tableData = [jsonDataMyGames mutableCopy];
+	// Filter array
+	NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
+	if (filteredArray != nil) [filteredArray release];
+	filteredArray = [[jsonDataMyGames filteredArrayUsingPredicate:predicate] retain];
+	tableData = [filteredArray mutableCopy];
 	
 	CGSize size = [[CCDirector sharedDirector] winSize];
 	
-	loaded = 25;
+	loaded = ITEMS_PER_PAGE*myGamesPage;
 	total = [tableData count];
-	if (total < 25) loaded = total;
+	if (total < ITEMS_PER_PAGE*myGamesPage) loaded = total;
 	
 	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, size.height - (45 + 45 + 50 + 50))];
 	
@@ -949,6 +1083,40 @@
 	
 	loading = NO;
 	myGames.visible = YES;
+}
+
+-(void) _loadMoreMyGames {
+    myGamesPage++;
+    
+    NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_user_levels&page=%i", [self returnServer], myGamesPage];
+    CCLOG(@"Load levels: %@",levelsURL);
+    
+    NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
+    
+    NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *jsonDataMoreMyGames = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] retain];
+    //CCLOG(@"Levels: %@", [jsonDataMoreBrowse description]);
+    
+    if(!jsonDataMoreMyGames)
+    {
+        return;
+    }
+    
+    [jsonDataMyGames addObjectsFromArray:jsonDataMoreMyGames];
+    
+    // Filter array
+	NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
+	if (filteredArray != nil) [filteredArray release];
+	filteredArray = [[jsonDataMyGames filteredArrayUsingPredicate:predicate] retain];
+	tableData = [filteredArray mutableCopy];
+	
+	loaded = ITEMS_PER_PAGE*myGamesPage;
+	total = [tableData count];
+	if (total < ITEMS_PER_PAGE*myGamesPage) loaded = total;
+	
+    
+    [tableView reloadData];
+    [tableView setContentOffset:ccp(0,[tableView contentOffset].y-57*([jsonDataMoreMyGames count])) animated:NO];
 }
 
 -(void) _loadMyGames {
@@ -1144,6 +1312,21 @@
 -(void) _loadMore {
 	[Loader hideAsynchronousLoader];
     
+    CGSize size = [[CCDirector sharedDirector] winSize];
+    
+    CCSprite *logo = [CCSprite spriteWithFile:@"funsplosion.png"];
+    [logo setPosition:ccp(size.width/2, size.height/2)];
+    [more addChild:logo];
+    
+    CCLabelTTF *copyright = [CCLabelTTF labelWithString:@"© 2010–2012 Instinct Entertainment" fontName:@"HelveticaNeue" fontSize:13];
+    copyright.color = ccc3(255,255,255);
+    copyright.position = ccp(size.width/2, logo.position.y - logo.contentSize.height/2 - copyright.contentSize.height/2 - 10);
+    [more addChild:copyright];
+    
+#if COCOS2D_DEBUG
+    [CCMenuItemFont setFontSize:17];
+	[CCMenuItemFont setFontName:@"HelveticaNeue"];
+    
     CCMenuItemToggle *serverOptions = [CCMenuItemToggle itemWithTarget:self selector:@selector(server:) items:
              [CCMenuItemFont itemFromString: @"Staging"],
              [CCMenuItemFont itemFromString: @"Live"],
@@ -1160,12 +1343,11 @@
     [debugOptions setSelectedIndex:immortal];
     
     CCMenu *menu = [CCMenu menuWithItems:serverOptions, debugOptions, nil];
-    [menu alignItemsVertically];
+    [menu alignItemsHorizontallyWithPadding:25.0f];
     [more addChild:menu];
     
-    CGSize size = [[CCDirector sharedDirector] winSize];
-    
-    [menu setPosition:ccp(size.width/2, size.height/2)];
+    [menu setPosition:ccp(size.width/2, size.height - 50 - serverOptions.contentSize.height/2)];
+#endif
     
 	loading = NO;
 	more.visible = YES;
@@ -1204,7 +1386,10 @@
 #pragma mark SWTableView
 
 -(NSUInteger)numberOfCellsInTableView:(SWTableView *)table {
-    return total != loaded ? loaded+1 : loaded;
+    //CCLOG(@"HomeLayer.numberOfCellsInTableView: %i, %i", total, loaded);
+    
+    if (selectedPage == playing) return total;
+    else return total % ITEMS_PER_PAGE == 0 ? total + 1 : total;
 }
 
 -(SWTableViewCell *)table:(SWTableView *)table cellAtIndex:(NSUInteger)idx 
@@ -1230,11 +1415,8 @@
 			CCSprite *backSelected = [CCSprite spriteWithFile:@"selected-row.png"];
 			backSelected.anchorPoint = CGPointZero;
 			backSelected.visible = NO;
-			
-			int load = 25;
-			if (load > total - loaded) load = total - loaded;
-			
-			CCLabelFX *label = [CCLabelFX labelWithString:[NSString stringWithFormat:@"Load %i more games...", load] dimensions:CGSizeMake(200,16) alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue-Bold" fontSize:16
+
+			CCLabelFX *label = [CCLabelFX labelWithString:[NSString stringWithFormat:@"Load %i more games...", ITEMS_PER_PAGE] dimensions:CGSizeMake(200,16) alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue-Bold" fontSize:16
 											 shadowOffset:CGSizeMake(-1,1) 
 											   shadowBlur:2.0f 
 											  shadowColor:ccc4(0,0,0,255) 
@@ -1269,9 +1451,7 @@
 			
 			CCLabelFX *label = (CCLabelFX*)[cell getChildByTag:3];
 			
-			int load = 25;
-			if (load > total - loaded) load = total - loaded;
-			[label setString:[NSString stringWithFormat:@"Load %i more games...", load]];
+			[label setString:[NSString stringWithFormat:@"Load %i more games...", ITEMS_PER_PAGE]];
 			
 			CCLabelFX *title = (CCLabelFX*)[cell getChildByTag:5];
 			[title setString:@""];
@@ -1473,7 +1653,7 @@
         }
         
 		CCMenuItemSprite *deleteButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"delete_btn.png"] selectedSprite:[CCSprite spriteWithFile:@"delete_btn.png"] target:self selector:@selector(deleteItem:)];
-		deleteMenu = [CCMenu menuWithItems:deleteButton, nil];
+		deleteMenu = [CCPriorityMenu menuWithItems:deleteButton, nil];
 		displayingDeleteButton = YES;
         
 		CGSize size = [[CCDirector sharedDirector] winSize];
@@ -1566,17 +1746,27 @@
 	
 	} else {
 		// Load more
+        [backSelected stopAllActions];
 		backSelected.visible = NO;
 		
-		int load = 25;
+        /*
+		int load = ITEMS_PER_PAGE;
 		if (load > total - loaded) load = total - loaded;
 		loaded += load;
 		
 		int scroll = load;
-		if (scroll < 25) scroll--;
+		if (scroll < ITEMS_PER_PAGE) scroll--;
 		
 		[tableView reloadData];
 		[tableView setContentOffset:ccp(0,[tableView contentOffset].y-backSelected.contentSize.height*(scroll)) animated:NO];
+        */
+        
+        CCLabelFX *label = (CCLabelFX*)[cell getChildByTag:3];
+        [label setString:@"Loading..."];
+        
+        if (selectedPage == featured) [self scheduleOnce:@selector(_loadMoreFeatured) delay:0.1];
+        else if (selectedPage == browse) [self scheduleOnce:@selector(_loadMoreBrowse) delay:0.1];
+        else if (selectedPage == myGames) [self scheduleOnce:@selector(_loadMoreMyGames) delay:0.1];
 	}
 }
 
