@@ -431,6 +431,7 @@
 		16CC827F151BD18A004FEEEB /* Sans.png in Resources */ = {isa = PBXBuildFile; fileRef = 16CC827B151BD18A004FEEEB /* Sans.png */; };
 		16CC8281151BD256004FEEEB /* arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 16CC8280151BD255004FEEEB /* arrow.png */; };
 		16CC8285151BDCF6004FEEEB /* teleporter.png in Resources */ = {isa = PBXBuildFile; fileRef = 16CC8284151BDCF6004FEEEB /* teleporter.png */; };
+		2221670215180DC800613653 /* EnemyBehaviourState.m in Sources */ = {isa = PBXBuildFile; fileRef = 2221670115180DC800613653 /* EnemyBehaviourState.m */; };
 		2230953914DB6CB600D7D219 /* GameMenu.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2230953814DB6CB600D7D219 /* GameMenu.mm */; };
 		22386E0914F6DF8500C81C82 /* pause_menu_template-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 22386E0814F6DF8500C81C82 /* pause_menu_template-hd.png */; };
 		22386E0F14F6E47B00C81C82 /* pause_screen-hd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 22386E0B14F6E47900C81C82 /* pause_screen-hd.plist */; };
@@ -1183,6 +1184,8 @@
 		16CC827B151BD18A004FEEEB /* Sans.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Sans.png; path = Resources/Sans.png; sourceTree = "<group>"; };
 		16CC8280151BD255004FEEEB /* arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = arrow.png; path = Resources/arrow.png; sourceTree = "<group>"; };
 		16CC8284151BDCF6004FEEEB /* teleporter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = teleporter.png; sourceTree = "<group>"; };
+		2221670015180DC800613653 /* EnemyBehaviourState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EnemyBehaviourState.h; sourceTree = "<group>"; };
+		2221670115180DC800613653 /* EnemyBehaviourState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EnemyBehaviourState.m; sourceTree = "<group>"; };
 		2230953414DB68DB00D7D219 /* GameMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameMenu.h; path = ../Scenes/GameMenu.h; sourceTree = "<group>"; };
 		2230953814DB6CB600D7D219 /* GameMenu.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GameMenu.mm; path = ../Scenes/GameMenu.mm; sourceTree = "<group>"; };
 		22386E0814F6DF8500C81C82 /* pause_menu_template-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pause_menu_template-hd.png"; sourceTree = "<group>"; };
@@ -2288,6 +2291,8 @@
 				1643B70514D9B49D00A67057 /* Reachability.m */,
 				1643B70614D9B49D00A67057 /* Shared.h */,
 				1643B70714D9B49D00A67057 /* Shared.m */,
+				2221670015180DC800613653 /* EnemyBehaviourState.h */,
+				2221670115180DC800613653 /* EnemyBehaviourState.m */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -3136,6 +3141,7 @@
 				226838BB14FB3B8100D1EB94 /* AGProgressBar.m in Sources */,
 				226B314D1505772400BAD02A /* SimpleAudioEngine+playEffectLoop.m in Sources */,
 				165179EF1517683100DDE7D7 /* CCScheduler+BlockAddition.m in Sources */,
+				2221670215180DC800613653 /* EnemyBehaviourState.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3182,7 +3188,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Jose Miguel Gomez Gonzalez (5CQQCB462X)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -3192,7 +3197,6 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 4.2;
 				OTHER_LDFLAGS = "-lz";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "B9651E95-C630-4242-86E5-D3DA1D94A957";
 				USER_HEADER_SEARCH_PATHS = "\"GameFroot/libs\"";
 				WRAPPER_EXTENSION = app;
 			};
@@ -3202,7 +3206,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Jose Miguel Gomez Gonzalez (5CQQCB462X)";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = GameFroot/Prefix.pch;
@@ -3211,7 +3214,6 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 4.2;
 				OTHER_LDFLAGS = "-lz";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "B9651E95-C630-4242-86E5-D3DA1D94A957";
 				USER_HEADER_SEARCH_PATHS = "\"GameFroot/libs\"";
 				VALIDATE_PRODUCT = YES;
 				WRAPPER_EXTENSION = app;

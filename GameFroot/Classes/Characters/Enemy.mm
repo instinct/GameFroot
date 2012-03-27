@@ -12,6 +12,7 @@
 #import "Bullet.h"
 #import "Robot.h"
 #import "MovingPlatform.h"
+
 //#import "GB2ShapeCache.h"
 
 #define BAR_LIVE_WIDTH	43
@@ -20,6 +21,7 @@
 
 @synthesize collideTakeDamage;
 @synthesize collideGiveDamage;
+@synthesize behaviourCycle;
 
 -(void) setupEnemy:(int)_playerID properties:(NSDictionary *)properties player:(Player *)_player 
 {
@@ -42,10 +44,12 @@
     shootDelay = [[properties objectForKey:@"shotDelay"] intValue] / 100.0f;
     horizontalSpeed = [[properties objectForKey:@"speed"] intValue] / (PTM_RATIO*CC_CONTENT_SCALE_FACTOR());
     multiShot = [[properties objectForKey:@"multiShot"] intValue];
-    multiShotDelay = [[properties objectForKey:@"multiShotDelay"] intValue];
+    multiShotDelay = [[properties objectForKey:@"multiShotDelay"] intValue] / 100.0f;
     collideTakeDamage = [[properties objectForKey:@"collideTakeDamage"] intValue];
     collideGiveDamage = [[properties objectForKey:@"collideGiveDamage"] intValue];
     behaviour = [[properties objectForKey:@"behaviour"] intValue];
+    boss = (health > BOSS_THRESHOLD);
+    
     
     //CCLOG(@"Enemy.setupEnemy: %@", properties);
     
@@ -214,6 +218,69 @@
 			
 			break;
 	}
+    
+    // Create Enemy AI states based on settings
+
+    EnemyBehaviourState *shootBehav = [[[EnemyBehaviourState alloc] 
+                                       initWithMode:ENEMY_BEHAVIOUR_SHOOTING 
+                                       minDuration:0.001f 
+                                       maxDuration:0.001f 
+                                       updateSelString:@"shoot" 
+                                       initSelString:nil] autorelease];
+    
+    EnemyBehaviourState *walkBehav = [[[EnemyBehaviourState alloc] 
+                                       initWithMode:ENEMY_BEHAVIOUR_WALKING
+                                       minDuration:1.5f 
+                                       maxDuration:1.5f 
+                                       updateSelString:@"updateWalking" 
+                                       initSelString:nil] autorelease];
+    
+    EnemyBehaviourState *idleBehav = [[[EnemyBehaviourState alloc] 
+                                       initWithMode:ENEMY_BEHAVIOUR_NONE 
+                                       minDuration:shootDelay
+                                       maxDuration:shootDelay 
+                                       updateSelString:@"idle" 
+                                       initSelString:@"initIdle"] autorelease];
+    
+    EnemyBehaviourState *multiShotIdleBehav = [[[EnemyBehaviourState alloc] 
+                                       initWithMode:ENEMY_BEHAVIOUR_NONE 
+                                       minDuration:multiShotDelay
+                                       maxDuration:multiShotDelay 
+                                       updateSelString:@"idle" 
+                                       initSelString:@"initIdle"] autorelease];
+    
+    // depending on user settings, add appropriate behaviours to cycle
+    self.behaviourCycle = [[[NSMutableArray alloc] init] autorelease];
+    behaviourCyclePosition = 0;
+    behaviourTimer = 0.0f;
+    
+    if (!boss) [behaviourCycle insertObject:idleBehav atIndex:0];
+    
+    if (behaviour & ENEMY_BEHAVIOUR_WALKING) {
+        [behaviourCycle insertObject:walkBehav atIndex:0];
+    }
+    
+    if (behaviour & ENEMY_BEHAVIOUR_SHOOTING) {
+        [behaviourCycle insertObject:shootBehav atIndex:0];
+        for (int i = 0; i < multiShot; i++) {
+            if (!boss) [behaviourCycle insertObject:multiShotIdleBehav atIndex:0];
+            [behaviourCycle insertObject:shootBehav atIndex:0];
+        }
+    }
+    
+    if (behaviour & ENEMY_BEHAVIOUR_JUMPING) {
+        canJump = NO;
+        jumpDelay = ENEMY_JUMP_DELAY;
+    }
+    
+    if (![self isFacingPlayer]) {
+        if (facingLeft) {
+            [self faceRight];
+        } else {
+            [self faceLeft];
+        }
+    }
+    
 }
 
 -(void) createBox2dObject:(b2World*)world size:(CGSize)_size
@@ -572,6 +639,7 @@
     // bottom tile must be solid ground
     tile = [ self tileType:x y:( y - 1 ) ];
     
+    
     if ( ( tile != TILE_TYPE_SOLID ) && ( tile != TILE_TYPE_CLOUD ) ) return( NO );
     
     if (tilePos.y > 0) {
@@ -588,6 +656,7 @@
     
     return ( YES );
 }
+
 
 // --------------------------------------------------------------
 // check if a tile is jumpable
@@ -703,11 +772,10 @@
 // --------------------------------------------------------------
 
 -(void) update:( ccTime )dt {
-    CGPoint jumpPos;
-    CGPoint playerPos;
+    deltaTime = dt;
     
     if (paused || removed) return;
-	
+   	
     // check if visible, otherwise kill all AI
 	CGPoint pos = [ [ GameLayer getInstance ] convertToMapCoordinates:self.position ];
     
@@ -732,49 +800,42 @@
         }
 	}
     
-    // check for passive AI
-	if ( behaviour == ENEMY_BEHAVIOUR_NONE ) {
-        if ( [ self isMoonWalking ] == YES ) [ self resetForces ];
-        [ super update:dt ];
-        return;
-    }
-    
-    // *****************************
-    // AI control     
-    // *****************************
-    
-    // find positions
     tilePos = [ self getTilePosition ];
-    playerPos = [ player getTilePosition ];
     
-    // ********************
-    // check for firing solution
-    // ********************
-    if ((behaviour & ENEMY_BEHAVIOUR_SHOOTING) > 0) {
-        if ( ( playerPos.y == tilePos.y ) || ( playerPos.y - 1 == tilePos.y ) ) {
-            
-            if ((behaviour & ENEMY_BEHAVIOUR_WALKING) == 0) {
-                // If not walking, face player
-                if (player.position.x < self.position.x) [self faceLeft];
-                else if (player.position.x > self.position.x) [self faceRight];
-            }
-            
-            // shoot if facing correct
-            if ( [ self isFacingPlayer ] ) {
-                shootTimer -= dt;
-                if ( shootTimer <= 0 ) {
-                    [ self shoot ];
-                    shootTimer = shootDelay;
-                } 
-            }
-        } else {
-#if ENEMY_INITIAL_WEAPON_DELAY
-            shootTimer = shootDelay;
-#else
-            shootTimer -= dt;
-#endif
+    // *****************************
+    // AI control version 2.0 - This is as close to a port
+    // of the actionscript code as possible
+    // *****************************
+    
+    // maintain behaviour cycle
+    behaviourTimer += dt;
+    currentBehaviour = [self.behaviourCycle objectAtIndex:behaviourCyclePosition];
+    if (behaviourTimer >= currentBehaviour.maxDuration) {
+        
+        behaviourCyclePosition = (behaviourCyclePosition + 1 == [behaviourCycle count]) ? 0 : behaviourCyclePosition + 1;
+        behaviourTimer = 0;
+        
+        // init new mode
+
+        currentBehaviour = [behaviourCycle objectAtIndex:behaviourCyclePosition];
+        CCLOG(@"New behaviour: %i", currentBehaviour.mode);
+        
+        // fire init hook
+        if (currentBehaviour.init != nil) {
+            [self performSelector:NSSelectorFromString(currentBehaviour.init) withObject:self];
         }
     }
+    
+    // perform main behaviour update hook.
+    
+    if (currentBehaviour.update != nil) {
+        [self performSelector:NSSelectorFromString(currentBehaviour.update) withObject:self];
+    }
+    
+    if (self.position.y < player.position.y) {
+        [self jumpTimer];
+    }
+    
     
     // ********************
     // check for ongoing jump
@@ -793,6 +854,7 @@
         }
     }
     
+<<<<<<< HEAD
     // ********************
     // handle walking
     // ********************
@@ -874,72 +936,85 @@
     // jump handling
     // ********************
     // search for jump solutions
+=======
+    [super update:dt];
+}
+
+-(void) jumpTimer {
+    // handle jumping
+>>>>>>> refs/heads/new_enemy_ai
     if ((behaviour & ENEMY_BEHAVIOUR_JUMPING) > 0) {
-        
-        if ( ( tilePos.y != playerPos.y ) && ( direction == kDirectionNone ) ) {
-            if ( self.position.x > player.position.x ) {
-                [ self moveLeft ];
-            } else {
-                [ self moveRight ];
-            }
+        jumpDelay -= deltaTime;
+        if(jumpDelay <0) {
+            jumpDelay = ENEMY_JUMP_DELAY;
+            [self jump];
         }
-        
-        jumpPos = CGPointZero;
-        // check if player is above, and jump from any valid position
-        if ( playerPos.y < tilePos.y ) {
-            jumpPos = [ self jumpUpSolution ];
-        } else if ( [ self tileWalkable:1 y:0 ] == NO ) {
-            // only jump down and horizontally from end tiles
-            // if player is below
-            if ( playerPos.y > tilePos.y ) {
-                jumpPos = [ self jumpDownSolution ];
-            } else {
-                jumpPos = [ self jumpHorizontalSolution ];                
-            }
-        }
-        // check for jump
-        if ( jumpPos.x != 0 ) {
-            [ self jumpTo:jumpPos ];
-            jumping = YES;
+    }
+}
+
+// Check for edge of ledges and jump if that is enabled
+
+-(void) reverseNPCsAtLedges {
+    
+    int belowTile = [self tileType:0 y:-1];
+    int nextTileAhead = [self tileType:1 y:-1]; 
+    int threeAhead = [self tileType:3 y:-1];
+    int twoBelowAhead = [self tileType:1 y:-2];
+    
+    // if we are not falling
+    if (( ( belowTile == TILE_TYPE_SOLID ) || ( belowTile == TILE_TYPE_CLOUD ) )) {
+        // do some stuffs!!
+        if (( nextTileAhead != TILE_TYPE_SOLID ) && ( nextTileAhead != TILE_TYPE_CLOUD ) ) {
             
-        } else {
-            // no jump
-            if (tilePos.y == playerPos.y) {
-                // Enemy and player on same level 
-                
-                if ((behaviour & ENEMY_BEHAVIOUR_SHOOTING) == 0) {
-                    // Try to hit the player
-                    if (tilePos.y == playerPos.y) {
-                        if (player.position.x < self.position.x) [self moveLeft];
-                        else if (player.position.x > self.position.x) [self moveRight];
-                    }
-                    
+            if (( twoBelowAhead != TILE_TYPE_SOLID ) && ( twoBelowAhead != TILE_TYPE_CLOUD ) ) {
+                if (((behaviour & ENEMY_BEHAVIOUR_JUMPING) > 0) && ( threeAhead != TILE_TYPE_SOLID ) && ( threeAhead != TILE_TYPE_CLOUD )) {
+                    jumpDelay = 0;
+                    [self jumpTimer];
                 } else {
-                    // Stops ENEMY_WALKING_STOPAHEAD tiles in front of player
-                    if (tilePos.x > playerPos.x + ENEMY_WALKING_STOPAHEAD) {
-                        if (direction != kDirectionLeft) [self moveLeft];
-                        
-                    } else if (tilePos.x < playerPos.x - ENEMY_WALKING_STOPAHEAD) {
-                        if (direction != kDirectionRight) [self moveRight];
-                        
+                    if (facingLeft) {
+                        [self faceRight];
                     } else {
-                        // Enemy and player close enough, face player
-                        if (player.position.x < self.position.x) [self faceLeft];
-                        else if (player.position.x > self.position.x) [self faceRight];
+                        [self faceLeft];
                     }
+
                 }
-                
-            } else if ( [ self tileWalkable:1 y:0 ] == NO ) {
-                // ignore if jumping or falling
-                b2Vec2 vel = body->GetLinearVelocity();
-                if (!jumping && (fabsf(roundf(vel.y)) == 0)) [ self changeDirection ];
             }
         }
     }
-    
-    // done
-	[super update:dt];
 }
+
+// --------------------------------------------------------------
+// handle enemy behaviour callbacks
+
+-(void) initIdle {
+    //CCLOG(@"initIdle called");
+    [self stop];
+    // change direction toward player
+    if(![self isFacingPlayer] && facingLeft) 
+        [self faceRight];
+    else if(![self isFacingPlayer] && !facingLeft) {
+        [self faceLeft];
+    }
+}
+
+-(void) idle {
+    //CCLOG(@"idle called.");
+    [self stop];
+}
+
+-(void) updateWalking {
+    //CCLOG(@"update walking called");
+    
+    [self reverseNPCsAtLedges];
+    
+    if (facingLeft) {
+        [self moveLeft];
+    } else {
+        [self moveRight];
+    }
+}
+    
+
 
 // --------------------------------------------------------------
 // handle enemy collisions
@@ -1109,7 +1184,8 @@
 
 - (void) dealloc
 {
-	[super dealloc];
+	self.behaviourCycle = nil;
+    [super dealloc];
 }
 
 @end
