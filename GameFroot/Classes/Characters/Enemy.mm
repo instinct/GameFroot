@@ -854,95 +854,11 @@
         }
     }
     
-<<<<<<< HEAD
-    // ********************
-    // handle walking
-    // ********************
-    if ( ((behaviour & ENEMY_BEHAVIOUR_WALKING) > 0) && ((behaviour & ENEMY_BEHAVIOUR_JUMPING) == 0) ) {
-		
-        int floorInfront = [self tileType:1 y:-1];
-        //CCLOG(@"floorInfront: %i", floorInfront);
-        
-        if (tilePos.y == playerPos.y) {
-            // Player and enemy on same horizontal level
-            
-            if ((behaviour & ENEMY_BEHAVIOUR_SHOOTING) == 0) {
-                // Try to hit the player since it won't shoot
-                
-                if ((floorInfront != TILE_TYPE_SPIKE) && (floorInfront != TILE_TYPE_NONE)) { 
-                    if (player.position.x < self.position.x) {
-                        [self moveLeft];
-                        
-                    } else if (player.position.x > self.position.x) {
-                        [self moveRight];
-                    }
-                    
-                } else {
-                    // Enemy can't reach player, stop facing him
-                    if (player.position.x < self.position.x) [self faceLeft];
-                    else if (player.position.x > self.position.x) [self faceRight];
-                }
-                
-            } else {
-                
-                // Stops ENEMY_WALKING_STOPAHEAD tiles in front of player
-                if ((floorInfront != TILE_TYPE_SPIKE) && (floorInfront != TILE_TYPE_NONE)) { 
-                    if ( (tilePos.x > playerPos.x + ENEMY_WALKING_STOPAHEAD) ) {
-                        if (!facingLeft) [self moveLeft];
-                        
-                    } else if ( (tilePos.x < playerPos.x - ENEMY_WALKING_STOPAHEAD) ) {
-                        if (facingLeft) [self moveRight];
-                        
-                    } else {
-                        // Reached distance, stop face him
-                        if (player.position.x < self.position.x) [self faceLeft];
-                        else if (player.position.x > self.position.x) [self faceRight];
-                    }
-                    
-                } else {
-                    // Enemy and player on same level and close enough, face player
-                    if (player.position.x < self.position.x) [self faceLeft];
-                    else if (player.position.x > self.position.x) [self faceRight];
-                }
-            }
-            
-        } else {
-            // Enemy on different horizontal level
-            
-            b2Vec2 current = body->GetLinearVelocity();
-            
-            if (fabsf(roundf(current.x)) == 0) {
-                // Not moving, start randomly
-                int rnd = arc4random() % 2;
-                if (rnd == 0) [self moveLeft];
-                else [self moveRight];
-                
-            } else if ( ( [ self tileWalkable:1 y:0 ] == NO ) && ( [ self tileWalkable:-1 y:0 ] == YES ) ) {
-                // ignore if jumping or falling
-                b2Vec2 vel = body->GetLinearVelocity();
-                
-                if (!jumping && (fabsf(roundf(vel.y)) == 0)) {
-                    
-                    if ( !spawned || (floorInfront == TILE_TYPE_SPIKE) ) {
-                        // Ignore ledges flag if enemy spawned
-                        [ self changeDirection ];
-                    }
-                }
-            }
-        }
-	}
-    
-    // ********************
-    // jump handling
-    // ********************
-    // search for jump solutions
-=======
     [super update:dt];
 }
 
 -(void) jumpTimer {
     // handle jumping
->>>>>>> refs/heads/new_enemy_ai
     if ((behaviour & ENEMY_BEHAVIOUR_JUMPING) > 0) {
         jumpDelay -= deltaTime;
         if(jumpDelay <0) {
