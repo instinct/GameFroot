@@ -200,26 +200,26 @@
 	[[GameLayer getInstance] removeBullet:spriteSheet];
 }
 
+// --------------------------------------------------------------
+// check is bullet inside game area
+
+-( BOOL )isInsideScreen:( CGPoint )pos {
+    CGSize winSize = [ [ CCDirector sharedDirector ] winSize ];
+    CGRect rect;
+    
+    rect = CGRectMake( -self.contentSize.width - BULLET_TRACK_RANGE, 
+                      -self.contentSize.height - BULLET_TRACK_RANGE,
+                      winSize.width + ( self.contentSize.width * 2 ) + ( BULLET_TRACK_RANGE * 2 ),
+                      winSize.height + ( self.contentSize.height * 2 ) + ( BULLET_TRACK_RANGE * 2 ) );
+    return( CGRectContainsPoint( rect , pos ) );
+}
 
 -(void) update:(ccTime)dt
 {
-	CGSize winsize = [[CCDirector sharedDirector] winSize];
+    // check if visible, otherwise kill it
 	CGPoint pos = [[GameLayer getInstance] convertToMapCoordinates:self.position];
-	//CCLOG(@"%f,%f - %f, %f", pos.x, pos.y, self.contentSize.width, winsize.width);
 		
-	if (pos.x + self.contentSize.width < 0) {
-		[self die];
-		return;
-		
-	} else if (pos.x - self.contentSize.width > winsize.width) {
-		[self die];
-		return;
-		
-	} else if (pos.y + self.contentSize.height < 0) {
-		[self die];
-		return;
-		
-	} else if (pos.y - self.contentSize.height > winsize.height) {
+	if ( [ self isInsideScreen:pos ] == NO ) {
 		[self die];
 		return;
 	}
@@ -233,13 +233,12 @@
     
     // case handling
     switch ( object.type ) {
-        /*
+
         case kGameObjectBullet:
         case kGameObjectBulletEnemy:    
             [ ( Bullet* )object die ];
             [ self die ];
             break;
-        */
             
         case kGameObjectPlatform:
             [ self die ];

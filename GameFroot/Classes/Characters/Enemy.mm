@@ -818,7 +818,7 @@
         // init new mode
 
         currentBehaviour = [behaviourCycle objectAtIndex:behaviourCyclePosition];
-        CCLOG(@"New behaviour: %i", currentBehaviour.mode);
+        //CCLOG(@"New behaviour: %i", currentBehaviour.mode);
         
         // fire init hook
         if (currentBehaviour.init != nil) {

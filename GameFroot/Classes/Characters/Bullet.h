@@ -10,6 +10,8 @@
 #import "GameObject.h"
 #import "SimpleAudioEngine.h"
 
+#define BULLET_TRACK_RANGE               100             // how much to expand track range beyond visible screen
+
 @interface Bullet : GameObject
 {
 	CCSpriteBatchNode *spriteSheet;
