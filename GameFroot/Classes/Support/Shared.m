@@ -590,8 +590,8 @@ has been previously downloaded, return a path to the file otherwise load the ass
                      CCLOG(@"MusicCache: There was an error downloading or saving %@ !", [url objectForKey:@"url"]);
                      if (staleCache) {
                          CCLOG(@"MusicCache: unable to download latest file, using stale version: %@ instead", staleCacheFileName);
-                         [musicData setObject:staleCacheFileName forKey:[url objectForKey:@"id"]];
-                         if(isDefault) [musicData setObject:staleCacheFileName forKey:@"default"];
+                         [musicData setObject:[cacheDirectory stringByAppendingPathComponent:staleCacheFileName] forKey:[url objectForKey:@"id"]];
+                         if(isDefault) [musicData setObject:[cacheDirectory stringByAppendingPathComponent:staleCacheFileName] forKey:@"default"];
                      } else {
                          // all attemps to load music file have failed, use empty string
                          [musicData setObject:@"" forKey:[url objectForKey:@"id"]];
@@ -615,19 +615,23 @@ has been previously downloaded, return a path to the file otherwise load the ass
 */
 
 +(NSString *) generateMusicFileNameHashForUrl:(NSString *)url andFileName:(NSString *)musicFileName {
-    NSError *rerror = nil;
+    
     NSURLResponse *response = nil;
+    NSError *rerror = nil;
     NSString *cacheFileName = nil;
     
     CCLOG(@"MusicCache: getting file %@ details..", url);
     
     NSURL *musicUrl = [NSURL URLWithString:[url stringByAddingPercentEscapesUsingEncoding:
-                                            NSASCIIStringEncoding]];
+                                            NSUTF8StringEncoding]];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:musicUrl];
     [request setHTTPMethod:@"HEAD"];
     
+    [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&rerror];
+    
     if (rerror == nil && [response isMemberOfClass:[NSHTTPURLResponse class]]) {
         //NSLog(@"AllHeaderFields: %@", [((NSHTTPURLResponse *)response) allHeaderFields]);
+        CCLOG(@"MusicCache: file metadata aquired!");
         
         // extract the last modifed and the filesize strings to use in the cache hash
         NSString *modifiedString = [[((NSHTTPURLResponse *)response) allHeaderFields] objectForKey:@"Last-Modified"];
@@ -636,6 +640,8 @@ has been previously downloaded, return a path to the file otherwise load the ass
         cacheFileName = [NSString stringWithFormat:@"%@-%@", fileHash, musicFileName];
         CCLOG(@"MusicCache: generated cache filename: %@", cacheFileName);
 
+    } else {
+        CCLOG(@"MusicCache: cannot aquire file metadata for hash, no network connectivity?");
     }
     return cacheFileName;
 }

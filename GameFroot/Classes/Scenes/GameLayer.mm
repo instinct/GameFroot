@@ -646,8 +646,6 @@ GameLayer *instance;
             NSString *defaultMusicURL = [[headerData objectForKey:@"background"] objectForKey:@"default_music"];
             musicData = [[Shared loadMusic:musicArray fromServer:[self returnServer] ignoreCache:NO withDefault:defaultMusicURL] retain];
             
-            CCLOG(@"final musicData cache produced: %@",musicData);
-            
             // now set the default music
             [data setObject:[musicData objectForKey:@"default"] forKey:@"bgmusic"];
 		} else {
