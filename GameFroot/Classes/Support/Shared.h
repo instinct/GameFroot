@@ -57,7 +57,7 @@
 +(NSString*)stringWithContentsOfPostURL:(NSString*)url post:(NSString *)post;
 +(NSString*)stringWithContentsOfURL:(NSString*)url ignoreCache:(BOOL)ignoreCache;
 +(CCTexture2D*) getTexture2DFromWeb:(NSString*)url ignoreCache:(BOOL)ignoreCache;
-+(NSMutableDictionary*) loadMusic:(NSArray*)urls fromServer:(NSString*)server ignoreCache:(BOOL)ignoreCache;
++(NSMutableDictionary*) loadMusic:(NSArray*)urls fromServer:(NSString*)server ignoreCache:(BOOL)ignoreCache withDefault:(NSString*)d;
 +(CCSprite *)maskedSpriteWithSprite:(CCSprite *)textureSprite maskSprite:(CCSprite *)maskSprite;
 +(NSString *) generateMusicFileNameHashForUrl:(NSString *)url andFileName:(NSString *)musicFileName;
 

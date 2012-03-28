@@ -638,18 +638,16 @@ GameLayer *instance;
 	// Load Header Data
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	NSDictionary *headerData = [jsonData objectForKey:@"meta"];
-	if(headerData)
-	{
-        NSArray *musicArray = [[headerData objectForKey:@"background"] objectForKey:@"musics"];
-		if ((musicArray != nil) && [musicArray isKindOfClass:[NSArray class]] && [musicArray count] > 0) {
+	if(headerData) {
+        NSArray *musicArray = [[jsonData objectForKey:@"sprites"] objectForKey:@"background_music"];
+        
+        if ((musicArray != nil) && [musicArray isKindOfClass:[NSArray class]] && [musicArray count] > 0) {
             
-            // NOTE! This has been disabled until the new music url api has been added
-            //musicData = [[Shared loadMusic:musicArray fromServer:[self returnServer] ignoreCache:ignoreCache] retain];
+            NSString *defaultMusicURL = [[headerData objectForKey:@"background"] objectForKey:@"default_music"];
+            musicData = [[Shared loadMusic:musicArray fromServer:[self returnServer] ignoreCache:NO withDefault:defaultMusicURL] retain];
             
             // now set the default music
-            NSString *default_music = [[headerData objectForKey:@"background"] objectForKey:@"default_music"];
-           //[data setObject:[musicData objectForKey:default_music] forKey:@"bgmusic"];
-            [data setObject:default_music forKey:@"bgmusic"];
+            [data setObject:[musicData objectForKey:@"default"] forKey:@"bgmusic"];
 		} else {
 			[data setObject:@"" forKey:@"bgmusic"];
 		}
@@ -1874,8 +1872,7 @@ GameLayer *instance;
 	
 	NSString *bgmusic = [data objectForKey:@"bgmusic"];
 	if ((![bgmusic isEqualToString:@""]) && (musicPref == 0)) {
-		NSArray *values = [bgmusic componentsSeparatedByString:@"/"];
-		if ([values count] > 0) [[SimpleAudioEngine sharedEngine] playBackgroundMusic:[values lastObject] loop:YES];
+		[[SimpleAudioEngine sharedEngine] playBackgroundMusic:bgmusic loop:YES];
 	}
 	
 	[[SimpleAudioEngine sharedEngine] setBackgroundMusicVolume:BG_MUSIC_VOL];
