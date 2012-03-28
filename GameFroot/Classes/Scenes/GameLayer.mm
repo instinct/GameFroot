@@ -638,8 +638,9 @@ GameLayer *instance;
 	// Load Header Data
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	NSDictionary *headerData = [jsonData objectForKey:@"meta"];
-	if(headerData) {
+	if (headerData) {
         NSArray *musicArray = [[jsonData objectForKey:@"sprites"] objectForKey:@"background_music"];
+        CCLOG(@"%@", [musicArray description]);
         
         if ((musicArray != nil) && [musicArray isKindOfClass:[NSArray class]] && [musicArray count] > 0) {
             

@@ -235,9 +235,17 @@
     switch ( object.type ) {
 
         case kGameObjectBullet:
+            if (self.type == kGameObjectBulletEnemy) {
+                [ ( Bullet* )object die ];
+                [ self die ];
+            }
+            break;
+        
         case kGameObjectBulletEnemy:    
-            [ ( Bullet* )object die ];
-            [ self die ];
+            if (self.type == kGameObjectBullet) {
+                [ ( Bullet* )object die ];
+                [ self die ];
+            }
             break;
             
         case kGameObjectPlatform:

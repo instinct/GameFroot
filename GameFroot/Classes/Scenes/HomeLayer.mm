@@ -777,7 +777,7 @@
         
         featuredPage = 1;
         
-        NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], featuredPage];
+        NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=featured&page=%i", [self returnServer], featuredPage];
 		CCLOG(@"Load levels: %@",levelsURL);
         
         // Try to load cached version first, if not load online
@@ -845,7 +845,7 @@
     
     if (refreshInBackground) {
         // Now load in the background online levels
-        NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], 1];
+        NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=featured&page=%i", [self returnServer], 1];
         [self asynchronousContentsOfURL:levelsURL];
     }
 	
@@ -854,7 +854,7 @@
 -(void) _loadMoreFeatured {
     featuredPage++;
     
-    NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], featuredPage];
+    NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=featured&page=%i", [self returnServer], featuredPage];
     CCLOG(@"Load levels: %@",levelsURL);
     
     NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
@@ -1412,13 +1412,15 @@
     CGSize size = [[CCDirector sharedDirector] winSize];
     
     CCSprite *logo = [CCSprite spriteWithFile:@"funsplosion.png"];
-    [logo setPosition:ccp(size.width/2, size.height/2)];
+    [logo setPosition:ccp(size.width/2, size.height - 100 - logo.contentSize.height/2)];
     [more addChild:logo];
     
-    CCLabelTTF *copyright = [CCLabelTTF labelWithString:@"© 2010–2012 Instinct Entertainment" fontName:@"HelveticaNeue" fontSize:13];
-    copyright.color = ccc3(255,255,255);
-    copyright.position = ccp(size.width/2, logo.position.y - logo.contentSize.height/2 - copyright.contentSize.height/2 - 10);
-    [more addChild:copyright];
+    //CCLabelTTF *moreLabel = [CCLabelTTF labelWithString:@"© 2010–2012 Instinct Entertainment" fontName:@"HelveticaNeue" fontSize:13];
+    CCLabelTTF *moreLabel = [CCLabelTTF labelWithString:@"So want to make a game? well it's never been easier, simply head over to GameFroot.com today and enjoy what millions of others are doing!!" dimensions:CGSizeMake(size.width - 40,300) alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue" fontSize:17];
+    
+    moreLabel.color = ccc3(255,255,255);
+    moreLabel.position = ccp(size.width/2, logo.position.y - logo.contentSize.height/2 - moreLabel.contentSize.height/2 - 10);
+    [more addChild:moreLabel];
     
 #if COCOS2D_DEBUG
     [CCMenuItemFont setFontSize:17];
@@ -1487,6 +1489,7 @@
     //CCLOG(@"HomeLayer.numberOfCellsInTableView: %i, %i", total, loaded);
     
     if (selectedPage == playing) return total;
+    else if (total == 0) return 0;
     else return total % ITEMS_PER_PAGE == 0 ? total + 1 : total;
 }
 
