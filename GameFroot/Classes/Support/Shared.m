@@ -492,20 +492,21 @@ before consulting the Cache folder to see if it has been previously downloaded. 
 has been previously downloaded, return a path to the file otherwise load the asset.
 */
 
-+(NSMutableDictionary*) loadMusic:(NSArray*)urls fromServer:(NSString*)server ignoreCache:(BOOL)ignoreCache {
++(NSMutableDictionary*) loadMusic:(NSArray*)urls fromServer:(NSString*)server ignoreCache:(BOOL)ignoreCache withDefault:(NSString*)d {
     CCLOG(@"**** Music loading inited");
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSMutableDictionary *musicData = [[[NSMutableDictionary alloc] init] autorelease];
-     for (NSString *url in urls) {
+    NSMutableDictionary *musicData = [[[NSMutableDictionary alloc] init] autorelease];;
+     for (NSDictionary *url in urls) {
          
          bool cacheNotFound = NO;
          bool embedded = NO;
+         bool isDefault = [d isEqualToString:[url objectForKey:@"url"]];
          
          /*
          NSString *urlRequest = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_music_url&id=%@", server, mID];
          NSString *urlResponse = [Shared stringWithContentsOfURL:urlRequest ignoreCache:ignoreCache];
          */
-         NSString *musicFileName = [[url componentsSeparatedByString:@"/"] lastObject];
+         NSString *musicFileName = [[[url objectForKey:@"url"] componentsSeparatedByString:@"/"] lastObject];
          
          // Step 1: Check the music exists in the resource bundle
          NSString *embeddedResource = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:musicFileName];
@@ -515,7 +516,8 @@ has been previously downloaded, return a path to the file otherwise load the ass
          if(embedded) {
              CCLOG(@"MusicCache: Music track %@ is embedded", musicFileName);
              // as this is an embedded resource, we just use the filename
-             [musicData setObject:musicFileName forKey:url];
+             [musicData setObject:musicFileName forKey:[url objectForKey:@"id"]];
+             if(isDefault) [musicData setObject:musicFileName forKey:@"default"];
          } else {
              CCLOG(@"MusicCache: Music track %@ is NOT embedded", musicFileName);
                                    
@@ -532,10 +534,10 @@ has been previously downloaded, return a path to the file otherwise load the ass
              
              NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
              NSString *cacheDirectory = [paths objectAtIndex:0];
-             NSString *cacheFileName = [Shared generateMusicFileNameHashForUrl:url andFileName:musicFileName];
+             NSString *cacheFileName = [Shared generateMusicFileNameHashForUrl:[url objectForKey:@"url"] andFileName:musicFileName];
              NSString *staleCacheFileName = nil;
              
-             if (cacheFileName != nil) {
+             if (cacheFileName == nil) {
                  // we could not contact the server so hash generation failed, just use filename instead
                  cacheFileName = musicFileName;
              }
@@ -545,7 +547,8 @@ has been previously downloaded, return a path to the file otherwise load the ass
              if ([fileManager fileExistsAtPath:cachedFilePath isDirectory:NO] && !ignoreCache) {
                  // Cached file exists, use this file
                  CCLOG(@"MusicCache: Cache file exists, using cached version at %@", cachedFilePath);
-                 [musicData setObject:cachedFilePath forKey:url];
+                 [musicData setObject:cachedFilePath forKey:[url objectForKey:@"id"]];
+                 if(isDefault) [musicData setObject:cachedFilePath forKey:@"default"];
              } else {
                  cacheNotFound = YES;
                  // Cached file either dosn't exist or is stale.
@@ -570,26 +573,29 @@ has been previously downloaded, return a path to the file otherwise load the ass
                  
                  NSError *error = nil;
                  BOOL saved = NO;
-                 NSData *musicFileData = [NSData dataWithContentsOfURL:[NSURL URLWithString:url] options:NSDataReadingMapped error:&error];
+                 NSData *musicFileData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[[url objectForKey:@"url"] stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding]]options:NSDataReadingMapped error:&error];
                  
                  if (error == nil) {
-                     CCLOG(@"MusicCache: File %@ downloaded successfullly, attempting to save to: %@", url, cachedFilePath);
+                     CCLOG(@"MusicCache: File %@ downloaded successfullly, attempting to save to: %@", [url objectForKey:@"url"], cachedFilePath);
                      saved = [musicFileData writeToFile:cachedFilePath atomically:YES];
                      if (saved) {
                         CCLOG(@"MusicCache: cache file %@ saved successfully!", cachedFilePath);
-                        [musicData setObject:cachedFilePath forKey:url]; 
+                        [musicData setObject:cachedFilePath forKey:[url objectForKey:@"id"]];
+                        if(isDefault) [musicData setObject:cachedFilePath forKey:@"default"];
                      }
                  }
                  
                  // If can't download file, then used cached version if one is availible, even if stale
                  if (!saved || error != nil) {
-                     CCLOG(@"MusicCache: There was an error downloading or saving %@ !", url);
+                     CCLOG(@"MusicCache: There was an error downloading or saving %@ !", [url objectForKey:@"url"]);
                      if (staleCache) {
                          CCLOG(@"MusicCache: unable to download latest file, using stale version: %@ instead", staleCacheFileName);
-                         [musicData setObject:staleCacheFileName forKey:url];
+                         [musicData setObject:staleCacheFileName forKey:[url objectForKey:@"id"]];
+                         if(isDefault) [musicData setObject:staleCacheFileName forKey:@"default"];
                      } else {
                          // all attemps to load music file have failed, use empty string
-                         [musicData setObject:@"" forKey:url];
+                         [musicData setObject:@"" forKey:[url objectForKey:@"id"]];
+                         if(isDefault) [musicData setObject:@"" forKey:@"default"];
                      }
                  }
              }
