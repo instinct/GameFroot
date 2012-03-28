@@ -64,7 +64,7 @@
         NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
         serverUsed = [prefs integerForKey:@"server"];
         
-		CGSize size = [[CCDirector sharedDirector] winSize];	
+		CGSize size = [[CCDirector sharedDirector] winSize];
 			
 		// Initialise properties dictionary
 		NSString *mainBundlePath = [[NSBundle mainBundle] bundlePath];

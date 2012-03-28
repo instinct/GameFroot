@@ -644,8 +644,8 @@ GameLayer *instance;
         
         if ((musicArray != nil) && [musicArray isKindOfClass:[NSArray class]] && [musicArray count] > 0) {
             
-            NSString *defaultMusicURL = [[headerData objectForKey:@"background"] objectForKey:@"default_music"];
-            musicData = [[Shared loadMusic:musicArray fromServer:[self returnServer] ignoreCache:NO withDefault:defaultMusicURL] retain];
+            NSDictionary *defaultMusicURL = [[headerData objectForKey:@"background"] objectForKey:@"default_music"];
+            musicData = [[Shared loadMusic:musicArray fromServer:[self returnServer] ignoreCache:NO withDefault:[defaultMusicURL objectForKey:@"url"]] retain];
             
             // now set the default music
             [data setObject:[musicData objectForKey:@"default"] forKey:@"bgmusic"];
