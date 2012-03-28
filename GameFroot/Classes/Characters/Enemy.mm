@@ -50,6 +50,10 @@
     behaviour = [[properties objectForKey:@"behaviour"] intValue];
     boss = (health > BOSS_THRESHOLD);
     
+    // NOTE: this is a temporary assignment to get the super crate box level working
+    // in future this behaviour will be controlled via a robot script or enemy properties
+    // rather than the spawned value.
+    walksOffLedges = spawned;
     
     //CCLOG(@"Enemy.setupEnemy: %@", properties);
     
@@ -921,7 +925,9 @@
 -(void) updateWalking {
     //CCLOG(@"update walking called");
     
-    [self reverseNPCsAtLedges];
+    if (!walksOffLedges) {
+        [self reverseNPCsAtLedges];
+    }
     
     if (facingLeft) {
         [self moveLeft];

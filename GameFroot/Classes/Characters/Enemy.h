@@ -63,7 +63,7 @@
     float jumpDelay;                    // idle delay after jump finished
     float shootTimer;
     float jumpTimer;
-    
+    bool walksOffLedges;
     
     
     //behaviour states
