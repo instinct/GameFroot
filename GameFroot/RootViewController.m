@@ -55,16 +55,20 @@
 }
 
 - (void) showBanner {
-    if (adBannerView.bannerLoaded) {
-        adBannerView.hidden = NO;
-    } else {
-        needsShowBanner = YES;
+    if (adBannerView != nil) {
+        if (adBannerView.bannerLoaded) {
+            adBannerView.hidden = NO;
+        } else {
+            needsShowBanner = YES;
+        }
     }
 }
 
 - (void) hideBanner {
-    adBannerView.hidden = YES;
-    needsShowBanner = NO;
+    if (adBannerView != nil) {
+        adBannerView.hidden = YES;
+        needsShowBanner = NO;
+    }
 }
 
 

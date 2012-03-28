@@ -830,10 +830,10 @@
 	total = [tableData count];
 	if (total < ITEMS_PER_PAGE*featuredPage) loaded = total;
 	
-	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, 230)];
+	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, 280)]; // - 50 to height for iAd
 	
 	tableView.direction = SWScrollViewDirectionVertical;
-	tableView.position = ccp(0,(50 + 50));
+	tableView.position = ccp(0,(50)); // Add 50 to y for iAd
 	tableView.delegate = self;
 	tableView.verticalFillOrder = SWTableViewFillTopDown;
 	
@@ -912,10 +912,10 @@
 	
 	CGSize size = [[CCDirector sharedDirector] winSize];
 	
-	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, size.height - (45 + 50 + 50))];
+	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, size.height - (45 + 50))];
 	
 	tableView.direction = SWScrollViewDirectionVertical;
-	tableView.position = ccp(0,100);
+	tableView.position = ccp(0,50);
 	tableView.delegate = self;
 	tableView.verticalFillOrder = SWTableViewFillTopDown;
 	
@@ -1002,10 +1002,10 @@
 	total = [tableData count];
 	if (total < ITEMS_PER_PAGE*browsePage) loaded = total;
 	
-	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, size.height - (45 + 50 + 50))];
+	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, size.height - (45 + 50))];
 	
 	tableView.direction = SWScrollViewDirectionVertical;
-	tableView.position = ccp(0,100);
+	tableView.position = ccp(0,50);
 	tableView.delegate = self;
 	tableView.verticalFillOrder = SWTableViewFillTopDown;
 	
@@ -1088,10 +1088,10 @@
 	total = [tableData count];
 	if (total < ITEMS_PER_PAGE) loaded = total;
 	
-	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, size.height - (45 + 45 + 50 + 50))];
+	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, size.height - (45 + 45 + 50))];
 	
 	tableView.direction = SWScrollViewDirectionVertical;
-	tableView.position = ccp(0,100);
+	tableView.position = ccp(0,50);
 	tableView.delegate = self;
 	tableView.verticalFillOrder = SWTableViewFillTopDown;
 	
