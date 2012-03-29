@@ -13,6 +13,8 @@
 #import "Dialogue.h"
 
 #define TOUCH_PRIORITY		-10000
+#define FONT_NAME           @"ArialMT"
+#define FONT_SIZE           17
 
 @implementation MultiChoice
 
@@ -36,8 +38,12 @@
         CCSprite *button = [CCSprite spriteWithFile:@"option-btn.png"];
         CCSprite *buttonSelected = [CCSprite spriteWithFile:@"option-btn.png"];
         
-        CCLabelBMFont *label = [CCLabelBMFont labelWithString:[NSString stringWithFormat:@"Option %i",i+1] fntFile:@"Sans.fnt"];
-        CCLabelBMFont *labelSelected = [CCLabelBMFont labelWithString:[NSString stringWithFormat:@"Option %i",i+1] fntFile:@"Sans.fnt"];
+        //CCLabelBMFont *label = [CCLabelBMFont labelWithString:[NSString stringWithFormat:@"Option %i",i+1] fntFile:@"Sans.fnt"];
+        //CCLabelBMFont *labelSelected = [CCLabelBMFont labelWithString:[NSString stringWithFormat:@"Option %i",i+1] fntFile:@"Sans.fnt"];
+        
+        CCLabelTTF *label = [CCLabelTTF labelWithString:[NSString stringWithFormat:@"Option %i",i+1] fontName:FONT_NAME fontSize:FONT_SIZE];
+        CCLabelTTF *labelSelected = [CCLabelTTF labelWithString:[NSString stringWithFormat:@"Option %i",i+1] fontName:FONT_NAME fontSize:FONT_SIZE];
+        
         [labelSelected setColor:ccc3(255,255,0)];
         
         [label.textureAtlas.texture setAliasTexParameters];
@@ -72,8 +78,9 @@
 	[background setAnchorPoint:ccp(0,0)];
 	[background setPosition:ccp(10, 10)];
 	
-	CCLabelBMFontMultiline *label = [CCLabelBMFontMultiline labelWithString:text fntFile:@"Sans.fnt" width:background.contentSize.width - 100 alignment:LeftAlignment];
-	[label.textureAtlas.texture setAliasTexParameters];
+	//CCLabelBMFontMultiline *label = [CCLabelBMFontMultiline labelWithString:text fntFile:@"Sans.fnt" width:background.contentSize.width - 100 alignment:LeftAlignment];
+	//[label.textureAtlas.texture setAliasTexParameters];
+    CCLabelTTF *label = [CCLabelTTF labelWithString:text dimensions:CGSizeMake(background.contentSize.width - 100, background.contentSize.height) alignment:UITextAlignmentLeft lineBreakMode:UILineBreakModeWordWrap fontName:FONT_NAME fontSize:FONT_SIZE];
 	
     [label setAnchorPoint:ccp(0,1)];
     [label setPosition: ccp(25, background.contentSize.height + 8)];
@@ -129,7 +136,6 @@
 
 - (void)dealloc
 {
-	[text release];
     [super dealloc];
 }
 

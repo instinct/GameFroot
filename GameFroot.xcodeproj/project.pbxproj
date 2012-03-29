@@ -406,6 +406,8 @@
 		165179EF1517683100DDE7D7 /* CCScheduler+BlockAddition.m in Sources */ = {isa = PBXBuildFile; fileRef = 165179EE1517683100DDE7D7 /* CCScheduler+BlockAddition.m */; };
 		165906BD14E2B38E00321213 /* Controls.mm in Sources */ = {isa = PBXBuildFile; fileRef = 165906BC14E2B38D00321213 /* Controls.mm */; };
 		165BEB0114E2FC5100CF9A2B /* Pause.mm in Sources */ = {isa = PBXBuildFile; fileRef = 165BEB0014E2FC5100CF9A2B /* Pause.mm */; };
+		166448601524F271000CFA89 /* IG Story point page turn.caf in Resources */ = {isa = PBXBuildFile; fileRef = 1664485E1524F271000CFA89 /* IG Story point page turn.caf */; };
+		166448611524F271000CFA89 /* IG Story point.caf in Resources */ = {isa = PBXBuildFile; fileRef = 1664485F1524F271000CFA89 /* IG Story point.caf */; };
 		166977F714E280DE0081176B /* rate_controls_mockup-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 166977F614E280DE0081176B /* rate_controls_mockup-hd.png */; };
 		167016E214FC3430006E90A4 /* Chicpix-hd.fnt in Resources */ = {isa = PBXBuildFile; fileRef = 167016E014FC3430006E90A4 /* Chicpix-hd.fnt */; };
 		167016E314FC3430006E90A4 /* Chicpix-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 167016E114FC3430006E90A4 /* Chicpix-hd.png */; };
@@ -425,10 +427,6 @@
 		16A8534A14FF7CB900EEB19D /* blue-bg-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 16A8534914FF7CB900EEB19D /* blue-bg-hd.png */; };
 		16C8AC7A151FE95B00864ED0 /* funsplosion-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 16C8AC78151FE95B00864ED0 /* funsplosion-hd.png */; };
 		16C8AC7B151FE95B00864ED0 /* funsplosion.png in Resources */ = {isa = PBXBuildFile; fileRef = 16C8AC79151FE95B00864ED0 /* funsplosion.png */; };
-		16CC827C151BD18A004FEEEB /* Sans-hd.fnt in Resources */ = {isa = PBXBuildFile; fileRef = 16CC8278151BD18A004FEEEB /* Sans-hd.fnt */; };
-		16CC827D151BD18A004FEEEB /* Sans-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 16CC8279151BD18A004FEEEB /* Sans-hd.png */; };
-		16CC827E151BD18A004FEEEB /* Sans.fnt in Resources */ = {isa = PBXBuildFile; fileRef = 16CC827A151BD18A004FEEEB /* Sans.fnt */; };
-		16CC827F151BD18A004FEEEB /* Sans.png in Resources */ = {isa = PBXBuildFile; fileRef = 16CC827B151BD18A004FEEEB /* Sans.png */; };
 		16CC8281151BD256004FEEEB /* arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 16CC8280151BD255004FEEEB /* arrow.png */; };
 		16CC8285151BDCF6004FEEEB /* teleporter.png in Resources */ = {isa = PBXBuildFile; fileRef = 16CC8284151BDCF6004FEEEB /* teleporter.png */; };
 		2230953914DB6CB600D7D219 /* GameMenu.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2230953814DB6CB600D7D219 /* GameMenu.mm */; };
@@ -1159,6 +1157,8 @@
 		165906BC14E2B38D00321213 /* Controls.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Controls.mm; sourceTree = "<group>"; };
 		165BEAFF14E2FC5100CF9A2B /* Pause.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pause.h; sourceTree = "<group>"; };
 		165BEB0014E2FC5100CF9A2B /* Pause.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Pause.mm; sourceTree = "<group>"; };
+		1664485E1524F271000CFA89 /* IG Story point page turn.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IG Story point page turn.caf"; sourceTree = "<group>"; };
+		1664485F1524F271000CFA89 /* IG Story point.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IG Story point.caf"; sourceTree = "<group>"; };
 		166977F614E280DE0081176B /* rate_controls_mockup-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "rate_controls_mockup-hd.png"; sourceTree = "<group>"; };
 		167016E014FC3430006E90A4 /* Chicpix-hd.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "Chicpix-hd.fnt"; path = "Resources/Chicpix-hd.fnt"; sourceTree = "<group>"; };
 		167016E114FC3430006E90A4 /* Chicpix-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Chicpix-hd.png"; path = "Resources/Chicpix-hd.png"; sourceTree = "<group>"; };
@@ -1178,10 +1178,6 @@
 		16A8534914FF7CB900EEB19D /* blue-bg-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "blue-bg-hd.png"; sourceTree = "<group>"; };
 		16C8AC78151FE95B00864ED0 /* funsplosion-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "funsplosion-hd.png"; sourceTree = "<group>"; };
 		16C8AC79151FE95B00864ED0 /* funsplosion.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = funsplosion.png; sourceTree = "<group>"; };
-		16CC8278151BD18A004FEEEB /* Sans-hd.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "Sans-hd.fnt"; path = "Resources/Sans-hd.fnt"; sourceTree = "<group>"; };
-		16CC8279151BD18A004FEEEB /* Sans-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Sans-hd.png"; path = "Resources/Sans-hd.png"; sourceTree = "<group>"; };
-		16CC827A151BD18A004FEEEB /* Sans.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Sans.fnt; path = Resources/Sans.fnt; sourceTree = "<group>"; };
-		16CC827B151BD18A004FEEEB /* Sans.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Sans.png; path = Resources/Sans.png; sourceTree = "<group>"; };
 		16CC8280151BD255004FEEEB /* arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = arrow.png; path = Resources/arrow.png; sourceTree = "<group>"; };
 		16CC8284151BDCF6004FEEEB /* teleporter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = teleporter.png; sourceTree = "<group>"; };
 		2230953414DB68DB00D7D219 /* GameMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameMenu.h; path = ../Scenes/GameMenu.h; sourceTree = "<group>"; };
@@ -1373,10 +1369,6 @@
 				22F8D1CE14F5B52600780B13 /* controls-hd.png */,
 				22F8D1CF14F5B52600780B13 /* controls.plist */,
 				22F8D1D014F5B52600780B13 /* controls.png */,
-				16CC8278151BD18A004FEEEB /* Sans-hd.fnt */,
-				16CC8279151BD18A004FEEEB /* Sans-hd.png */,
-				16CC827A151BD18A004FEEEB /* Sans.fnt */,
-				16CC827B151BD18A004FEEEB /* Sans.png */,
 				1643B4D914D9B0BC00A67057 /* Chicago-hd.fnt */,
 				1643B4DA14D9B0BC00A67057 /* Chicago-hd.png */,
 				1643B4DB14D9B0BC00A67057 /* Chicago.fnt */,
@@ -2267,11 +2259,11 @@
 		1643B6E214D9B49D00A67057 /* Support */ = {
 			isa = PBXGroup;
 			children = (
-				22EF3EF515216B7300A17A5C /* EnemyBehaviourState.h */,
-				22EF3EF615216B7300A17A5C /* EnemyBehaviourState.m */,
 				1643B6E314D9B49D00A67057 /* Categories */,
 				1643B6F414D9B49D00A67057 /* CCLabelFX */,
 				1643B70814D9B49D00A67057 /* SW */,
+				22EF3EF515216B7300A17A5C /* EnemyBehaviourState.h */,
+				22EF3EF615216B7300A17A5C /* EnemyBehaviourState.m */,
 				226838B914FB3B8100D1EB94 /* AGProgressBar.h */,
 				226838BA14FB3B8100D1EB94 /* AGProgressBar.m */,
 				22FD013F14F4723000E3F1E0 /* CCRadioMenu.h */,
@@ -2419,6 +2411,8 @@
 				226B310B1505619E00BAD02A /* IG Speech and Speech page changes.caf */,
 				226B310C1505619E00BAD02A /* IG Speech Bubble.caf */,
 				226B310D1505619E00BAD02A /* IG Star and gem.caf */,
+				1664485E1524F271000CFA89 /* IG Story point page turn.caf */,
+				1664485F1524F271000CFA89 /* IG Story point.caf */,
 				226B310E1505619E00BAD02A /* IG Swipe Card.caf */,
 				226B310F1505619E00BAD02A /* IG Switches 2.caf */,
 				226B31101505619E00BAD02A /* IG Switches.caf */,
@@ -2917,15 +2911,13 @@
 				22D0E1F0150D4C2E00C19BFA /* Underworld Theme - 8 Bit.mp3 in Resources */,
 				22D0E1F3150D4C2E00C19BFA /* War Theme - 8 Bit.mp3 in Resources */,
 				22D0E1F6150D4C2E00C19BFA /* Western Theme - 8 bit.mp3 in Resources */,
-				16CC827C151BD18A004FEEEB /* Sans-hd.fnt in Resources */,
-				16CC827D151BD18A004FEEEB /* Sans-hd.png in Resources */,
-				16CC827E151BD18A004FEEEB /* Sans.fnt in Resources */,
-				16CC827F151BD18A004FEEEB /* Sans.png in Resources */,
 				16CC8281151BD256004FEEEB /* arrow.png in Resources */,
 				16CC8285151BDCF6004FEEEB /* teleporter.png in Resources */,
 				163CA8DE151E550C003CFE6B /* arrow-hd.png in Resources */,
 				16C8AC7A151FE95B00864ED0 /* funsplosion-hd.png in Resources */,
 				16C8AC7B151FE95B00864ED0 /* funsplosion.png in Resources */,
+				166448601524F271000CFA89 /* IG Story point page turn.caf in Resources */,
+				166448611524F271000CFA89 /* IG Story point.caf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

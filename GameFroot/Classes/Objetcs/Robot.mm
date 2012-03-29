@@ -2049,7 +2049,9 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 		[self runAction:dieAction];
         
     } else {
-        [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and Gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
+        
+        if (![name isEqualToString:@"Teleporter"] && ![name isEqualToString:@"Story-Point"])
+            [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and Gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
         [super remove];
     }
 }

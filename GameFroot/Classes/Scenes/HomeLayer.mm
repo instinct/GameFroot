@@ -697,6 +697,7 @@
     
     // Add top menu and buttons
     CCMenuItemSprite *topNavBackButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"back-button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"back-button.png"] target:self selector:@selector(gameDetailBack:)];
+    CCMenu *topNavMenu = [CCMenu menuWithItems:topNavBackButton, nil];
     
     // Add some stuff to the content area    
     CCMenuItemSprite *contentPlayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"play-button-up.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"play-button-down.png"] target:self selector:@selector(gameDetailPlay:)];
@@ -720,12 +721,12 @@
      */
     
     // position stuff
-    topNavBackButton.position = ccp(10 + (topNavBackButton.contentSize.width / 2) , size.height - (topNavBackButton.contentSize.height/2) - 7);
+    topNavMenu.position = ccp(10 + (topNavBackButton.contentSize.width / 2) , size.height - (topNavBackButton.contentSize.height/2) - 7);
     placeHolderText.position = ccp(size.width/2, size.height/2 + size.height/2 + 200);
     contentMenu.position = ccp(size.width/2, size.height /2 - 50);
     likeMenu.position = ccp(size.width/2, size.height/2 - 150);
     
-    [gameDetail addChild:topNavBackButton];
+    [gameDetail addChild:topNavMenu];
     [gameDetail addChild:placeHolderText];
     [gameDetail addChild:contentMenu]; 
     [gameDetail addChild:likeMenu];

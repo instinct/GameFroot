@@ -17,9 +17,19 @@
     CCSprite *arrow;
     int numPages;
     int selectPage;
-    CCLabelBMFontMultiline *label;
+    
+    //CCLabelBMFontMultiline *label;
+    CCLabelTTF *label;
+    
+    float speed;
+    CCArray *speechSpeeds;
+    BOOL animating;
+    int numCharacters;
+    int currentCharacter;
 }
 
 -(void) setupDialogue:(NSString *)_text;
+-(void) prepareText;
+-(void) animate;
 
 @end

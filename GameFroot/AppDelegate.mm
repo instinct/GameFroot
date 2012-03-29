@@ -172,7 +172,9 @@
     [[SimpleAudioEngine sharedEngine] preloadEffect:@"W Rocket launcher launch.caf"];
     [[SimpleAudioEngine sharedEngine] preloadEffect:@"W Shotgun.caf"];
     [[SimpleAudioEngine sharedEngine] preloadEffect:@"W Sword swoosh.caf"];
-	
+	[[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Story point page turn.caf"];
+    [[SimpleAudioEngine sharedEngine] preloadEffect:@"IG Story point.caf"];
+    
 	// Run the intro Scene
 	[[CCDirector sharedDirector] runWithScene: [SplashLayer scene]];
 	
