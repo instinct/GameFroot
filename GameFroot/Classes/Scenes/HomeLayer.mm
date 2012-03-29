@@ -75,15 +75,17 @@
 		[top setPosition:ccp(size.width/2, size.height - top.contentSize.height/2)];
 		[self addChild:top z:1];
 		
+        /*
 		CCSprite *logo1 = [CCSprite spriteWithFile:@"gamefroot.png"];
 		[[logo1 texture] setAntiAliasTexParameters];
-		[logo1 setPosition:ccp(size.width/2 + 15, size.height - logo1.contentSize.height + 2)];
-		[self addChild:logo1 z:2];
 		
-		CCSprite *logo2 = [CCSprite spriteWithFile:@"fruit.png"];
-		[[logo2 texture] setAntiAliasTexParameters];
-		[logo2 setPosition:ccp(logo1.position.x - logo1.contentSize.width/2 - logo2.contentSize.width/2 - 5, logo1.position.y)];
-		[self addChild:logo2 z:3];
+		[self addChild:logo1 z:2];
+		*/
+         
+		CCSprite *logo1 = [CCSprite spriteWithFile:@"fruit.png"];
+		[[logo1 texture] setAntiAliasTexParameters];
+		logo1.position = top.position; 
+		[self addChild:logo1 z:3];
 		
 		// Containers
 		featured = [CCNode node];
@@ -694,50 +696,53 @@
     placeHolderText.color = ccc3(255,255,255);
     
     // Add top menu and buttons
-    CCMenuItemSprite *topNavBackButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"placeholder_back_arrow.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"placeholder_back_arrow.png"] target:self selector:@selector(gameDetailBack:)];
-    CCMenuItemSprite *topNavPlayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"placeholder_play_arrow.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"placeholder_play_arrow.png"] target:self selector:@selector(gameDetailPlay:)];    
-    CCMenu *topNav = [CCMenu menuWithItems:topNavBackButton, topNavPlayButton, nil];
-    
+    CCMenuItemSprite *topNavBackButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"back-button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"back-button.png"] target:self selector:@selector(gameDetailBack:)];
     
     // Add some stuff to the content area    
-    CCMenuItemSprite *contentPlayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"placeholder_play.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"placeholder_play.png"] target:self selector:@selector(gameDetailPlay:)];
+    CCMenuItemSprite *contentPlayButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"play-button-up.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"play-button-down.png"] target:self selector:@selector(gameDetailPlay:)];
     CCMenu *contentMenu = [CCMenu menuWithItems:contentPlayButton, nil];
     
     // Like buttons
-    CCMenuItem *likeButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"like_button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"like_button_sel.png"] target:self selector:@selector(like:)];
+    CCMenuItem *likeButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"like-button-up.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"like-button-down.png"] target:self selector:@selector(like:)];
     
-    CCMenuItem *unlikeButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"unlike_button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"unlike_button_sel.png"] target:self selector:@selector(unlike:)];
+    CCMenuItem *unlikeButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"dislike-button-up.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"dislike-button-down.png"] target:self selector:@selector(unlike:)];
 
-    CCRadioMenu *likeMenu = [CCRadioMenu menuWithItems:likeButton, unlikeButton,nil];
+    CCRadioMenu *likeMenu = [CCMenu menuWithItems:likeButton, unlikeButton,nil];
     [likeMenu alignItemsHorizontally];
     
+    /*
     CCNode *container = [CCNode node];
     
     // parenting
-    [container addChild:topNav];
     [container addChild:contentMenu];
     [container addChild:placeHolderText];
     [container addChild:likeMenu];
+     */
     
     // position stuff
-    placeHolderText.position = ccp(size.width/2, size.height/2 + size.height/2 + 100);
-    [topNav alignItemsHorizontallyWithPadding:20];
-    topNav.position = ccp(size.width/2, size.height - topNavBackButton.contentSize.height/2 - 20 + size.height/2);
-    contentMenu.position = ccp(size.width/2,size.height/2 + size.height/2 - 20);
-    likeMenu.position = ccp(size.width/2, 0 + size.height/2 + 100);
+    topNavBackButton.position = ccp(10 + (topNavBackButton.contentSize.width / 2) , size.height - (topNavBackButton.contentSize.height/2) - 7);
+    placeHolderText.position = ccp(size.width/2, size.height/2 + size.height/2 + 200);
+    contentMenu.position = ccp(size.width/2, size.height /2 - 50);
+    likeMenu.position = ccp(size.width/2, size.height/2 - 150);
     
+    [gameDetail addChild:topNavBackButton];
+    [gameDetail addChild:placeHolderText];
+    [gameDetail addChild:contentMenu]; 
+    [gameDetail addChild:likeMenu];
+    /*
     // Calculate size of the layer
     // NOTE! cocos2d layers don't get size according to his cildren
-    CGSize sizeScroll = CGSizeMake(size.width, (topNav.position.y + topNav.contentSize.height/2) - (likeMenu.position.y) + 120);
+    CGSize sizeScroll = CGSizeMake(size.width, (placeHolderText.position.y + placeHolderText.contentSize.height/2) - (likeMenu.position.y) + 120);
     CGSize sizeView = CGSizeMake(size.width, size.height - (45 + 50)); // Screen size minus bottom and top navigation margins
     //CCLOG(@"scroll: %f,%f", sizeScroll.width, sizeScroll.height);
     //CCLOG(@"view: %f,%f", sizeView.width, sizeView.height);
+    
     
     gameDetailSV = [SWScrollView viewWithViewSize:sizeView container:container];
     gameDetailSV.contentSize = sizeScroll;
     gameDetailSV.direction = SWScrollViewDirectionVertical;
     gameDetailSV.position = ccp(0,50); // Bottom navigation margin
-    
+
 
     if(ratingsAnchorEnabled) {
         // Scroll to ratings section
@@ -750,9 +755,10 @@
     }
     
     [gameDetail addChild:gameDetailSV];
-    
-    loading = NO;
     gameDetailSV.visible = YES;
+     */
+    loading = NO;
+   
 	gameDetail.visible = YES;
     gameDetailLoaded = YES;
 }
