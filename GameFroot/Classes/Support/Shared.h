@@ -60,5 +60,6 @@
 +(NSMutableDictionary*) loadMusic:(NSArray*)urls fromServer:(NSString*)server ignoreCache:(BOOL)ignoreCache withDefault:(NSString*)d;
 +(CCSprite *)maskedSpriteWithSprite:(CCSprite *)textureSprite maskSprite:(CCSprite *)maskSprite;
 +(NSString *) generateMusicFileNameHashForUrl:(NSString *)url andFileName:(NSString *)musicFileName;
++(BOOL) existEmbeddedFile:(NSString *)name;
 
 @end

@@ -625,12 +625,11 @@ GameLayer *instance;
 	NSString *stringData = [Shared stringWithContentsOfURL:gameURL ignoreCache:ignoreCache];
 	NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
 	NSDictionary *jsonData = [[CJSONDeserializer deserializer] deserializeAsDictionary:rawData error:nil];
-	
-	if(!jsonData)
-	{
+    
+    if (!jsonData || ([jsonData objectForKey:@"map"] == nil) || [[jsonData objectForKey:@"map"] isMemberOfClass:[NSNull class]]) {
         [[CCDirector sharedDirector] replaceScene:[HomeLayer scene]];
-		return;
-	}
+        return;
+    }
 	
 	//CCLOG(@"%@", [jsonData description]);
 	
@@ -640,7 +639,7 @@ GameLayer *instance;
 	NSDictionary *headerData = [jsonData objectForKey:@"meta"];
 	if (headerData) {
         NSArray *musicArray = [[jsonData objectForKey:@"sprites"] objectForKey:@"background_music"];
-        CCLOG(@"%@", [musicArray description]);
+        //CCLOG(@"%@", [musicArray description]);
         
         if ((musicArray != nil) && [musicArray isKindOfClass:[NSArray class]] && [musicArray count] > 0) {
             

@@ -201,36 +201,6 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     return found;
 }
 
--(void) inShot
-{
-    int totalEvents = [behavior count];
-    for (int i=0; i<totalEvents; i++) {
-        NSDictionary *event = (NSDictionary *)[behavior objectAtIndex:i];
-        //CCLOG(@"%@", event);
-        
-        NSString *nameEvent = [event objectForKey:@"event"];
-        
-        if ([nameEvent isEqualToString:@"onInShot"]) {
-            [self resolve:i];
-        }
-    }
-}
-
--(void) outShot
-{
-    int totalEvents = [behavior count];
-    for (int i=0; i<totalEvents; i++) {
-        NSDictionary *event = (NSDictionary *)[behavior objectAtIndex:i];
-        //CCLOG(@"%@", event);
-        
-        NSString *nameEvent = [event objectForKey:@"event"];
-        
-        if ([nameEvent isEqualToString:@"onOutShot"]) {
-            [self resolve:i];
-        }
-    }
-}
-
 -( BOOL )isInsideScreen:( CGPoint )pos {
 #if ROBOT_TRACK_ALWAYS == 1
     return( YES );
@@ -271,7 +241,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
             //body->SetActive( false );
         }
         
-        if (!onOutShot && onInShot) [self outShot];
+        if (!onOutShot && onInShot) [self triggerEvent:@"outShot"];
         
         onOutShot = YES;
         onInShot = NO;
@@ -282,7 +252,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
             //body->SetActive( true );
         }
 		
-		if (!onInShot) [self inShot];
+		if (!onInShot) [self triggerEvent:@"inShot"];
         
         onInShot = YES;
         onOutShot = NO;
@@ -608,6 +578,22 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     if (TRACE_COMMANDS) CCLOG(@"Robot.facingRight: %i", !facingLeft);
     
 	return [NSNumber numberWithBool:!facingLeft];
+}
+
+-(void) faceLeft:(NSDictionary *)command
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.faceLeft");
+    
+    self.scaleX = -1;
+    facingLeft = YES;
+}
+
+-(void) faceRight:(NSDictionary *)command
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.faceRight");
+    
+    self.scaleX = 1;
+    facingLeft = NO;
 }
 
 -(void) faceObject:(NSDictionary *)command

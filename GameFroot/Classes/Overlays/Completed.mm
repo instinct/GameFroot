@@ -32,6 +32,8 @@
     CCLabelBMFontMultiline *title = [CCLabelBMFontMultiline labelWithString:text fntFile:@"Chicago.fnt" width:size.width - 20 alignment:CenterAlignment];    
     //CCLabelBMFont *title = [CCLabelBMFont labelWithString:text fntFile:@"Chicago.fnt"];
     
+    CCLOG(@"Completed.setup: %@", text);
+    
     [title setPosition:ccp(size.width*0.5,size.height*0.5)];
     [title.textureAtlas.texture setAliasTexParameters];
     [self addChild:title];

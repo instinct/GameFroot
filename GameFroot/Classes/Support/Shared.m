@@ -683,7 +683,7 @@ has been previously downloaded, return a path to the file otherwise load the ass
 		
 	} else {
 		NSError *error = nil;
-		NSData *imgData = [NSData dataWithContentsOfURL:[NSURL URLWithString:url] options:NSDataReadingMapped error:&error];
+		NSData *imgData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[url stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding]] options:NSDataReadingMapped error:&error];
 		
 		if (error == nil) {
 			BOOL saved = [imgData writeToFile:resource atomically:YES];
@@ -737,6 +737,14 @@ has been previously downloaded, return a path to the file otherwise load the ass
     CCSprite *retval = [CCSprite spriteWithTexture:rt.sprite.texture];
     retval.flipY = YES;
     return retval;
+}
+
++(BOOL) existEmbeddedFile:(NSString *)name
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *embeddedResource = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:name];
+    //CCLOG(@"Checking resource bundle at: %@ ...", embeddedResource);
+    return[fileManager fileExistsAtPath:embeddedResource];
 }
 
 @end

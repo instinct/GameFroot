@@ -1711,11 +1711,23 @@
 			CCSprite *bg;
 			if ((background != nil) && ![background isEqualToString:@""]) {
 				//CCLOG(@"Thumb: %@", background);
-				//CCSprite *original = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:background ignoreCache:NO]];
-				//CCSprite *original = [CCSprite spriteWithFile:@"back0_thumb.jpg"];
+                
 				NSArray *values = [background componentsSeparatedByString:@"/"];
 				//CCLOG(@"Thumb: %@", [values lastObject]);
-				CCSprite *original = [CCSprite spriteWithFile:[values lastObject]];
+                
+                CCSprite *original;
+                
+                if ([Shared existEmbeddedFile:[values lastObject]]) {
+                    // Use default embedded background thumb
+                    //CCLOG(@"Use default thumb: %@", [values lastObject]);
+                    original = [CCSprite spriteWithFile:[values lastObject]];
+                    
+                } else {
+                    // Download custom background thumb
+                    //CCLOG(@"Download custom thumb: %@", background);
+                    original = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:background ignoreCache:NO]];
+                }
+				
 				
 				[original setScale:CC_CONTENT_SCALE_FACTOR()];
 				CCSprite *mask = [CCSprite spriteWithFile:@"mask.png"];
@@ -1755,11 +1767,22 @@
 				CCSprite *bg;
 				if ((background != nil) && ![background isEqualToString:@""]) {
 					//CCLOG(@"Thumb: %@", background);
-					//CCSprite *original = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:background ignoreCache:NO]];
-					//CCSprite *original = [CCSprite spriteWithFile:@"back0_thumb.jpg"];
-					NSArray *values = [background componentsSeparatedByString:@"/"];
-					//CCLOG(@"Thumb: %@", [values lastObject]);
-					CCSprite *original = [CCSprite spriteWithFile:[values lastObject]];
+                    
+                    NSArray *values = [background componentsSeparatedByString:@"/"];
+                    //CCLOG(@"Thumb: %@", [values lastObject]);
+                    
+                    CCSprite *original;
+                    
+                    if ([Shared existEmbeddedFile:[values lastObject]]) {
+                        // Use default embedded background thumb
+                        //CCLOG(@"Use default thumb: %@", [values lastObject]);
+                        original = [CCSprite spriteWithFile:[values lastObject]];
+                        
+                    } else {
+                        // Download custom background thumb
+                        //CCLOG(@"Download custom thumb: %@", background);
+                        original = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:background ignoreCache:NO]];
+                    }
 					
 					[original setScale:CC_CONTENT_SCALE_FACTOR()];
 					CCSprite *mask = [CCSprite spriteWithFile:@"mask.png"];

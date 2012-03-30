@@ -62,13 +62,9 @@
     [label setPosition: ccp(25, background.contentSize.height + 8)];
     
     selectPage = 0;
+    
     if (numPages == 1) arrow.visible = NO;
-    
-    ////label.contentSize.height / background.contentSize.height;
-    ////float exact = label.contentSize.height / background.contentSize.height;
-    ////if (exact > (float)numPages) numPages++;
-    
-    //numPages = label.pages; 
+    //numPages = label.pages; // CCLabelBMFontMultiline
     
     //CCLOG(@"Dialogue.setupDialogue: %@, pages: %i", text, numPages);
     
@@ -87,6 +83,7 @@
     }
     
     [self animate];
+    //[label animate]; // CCLabelBMFontMultiline
 }
 
 -(void) animate 
@@ -269,27 +266,19 @@
 
 -(BOOL) ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event
 {
-    //CCLOG(@"selected page: %i, num pages: %i", selectPage, numPages);
     if (selectPage < numPages - 1) {
         
         if (animating) {
-            //CCLOG(@"Skip page");
             [self finishAnimation];
             
         } else {
             
             // Display next page
             selectPage++;
+      
+            if (selectPage == numPages) arrow.visible = NO;
             
-            //[label setPosition:ccp(label.position.x, label.position.y + background.contentSize.height)];
-            
-            if (selectPage == numPages) {
-                arrow.visible = NO;
-                //CCLOG(@"Animate last page");
-            } else {
-                //CCLOG(@"Animate page");
-            }
-            
+            // CCLabelBMFontMultiline
             //[self removeChild:label cleanup:YES];
             //label = [CCLabelBMFontMultiline labelWithString:text fntFile:@"Sans.fnt" width:background.contentSize.width - 30 alignment:LeftAlignment page:selectPage linesPerPage:5];
             //[label.textureAtlas.texture setAliasTexParameters];
@@ -303,6 +292,7 @@
             [[SimpleAudioEngine sharedEngine] playEffect:@"IG Story point page turn.caf"];
             
             [self animate];
+            //[label animate]; // CCLabelBMFontMultiline
         }
         
     } else if (animating) {
