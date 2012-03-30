@@ -15,10 +15,11 @@
 #define FONT_SIZE           17
 #define LINE_SPACE          4
 #define LINES_PER_PAGE      5
+#define MAX_TEXT_HEIGHT     2048
 
 @implementation Dialogue
 
--(CGSize) calculateLabelSize:(NSString *)string withFont:(UIFont *)font  maxSize:(CGSize)maxSize
+-(CGSize) calculateLabelSize:(NSString *)string withFont:(UIFont *)font maxSize:(CGSize)maxSize
 {
     return [string
             sizeWithFont:font
@@ -44,15 +45,14 @@
 	
     [self prepareText];
     
-    CGSize sizeText = [self calculateLabelSize:text withFont:[UIFont fontWithName:FONT_NAME size:FONT_SIZE] maxSize:CGSizeMake(background.contentSize.width - 30, 20000)];
-    CCLOG(@"text size: %f,%f", sizeText.width, sizeText.height);       
+    fontReference = [[UIFont fontWithName:FONT_NAME size:FONT_SIZE] retain];
+    
+    CGSize sizeText = [self calculateLabelSize:text withFont:fontReference maxSize:CGSizeMake(background.contentSize.width - 30, MAX_TEXT_HEIGHT)];
+    //CCLOG(@"text size: %f,%f", sizeText.width, sizeText.height);       
     
     numPages = (int)((sizeText.height / (FONT_SIZE + LINE_SPACE)) / LINES_PER_PAGE);
-    CCLOG(@"%i", numPages);
     float exact = (sizeText.height / (float)(FONT_SIZE + LINE_SPACE)) / (float)LINES_PER_PAGE;
-    CCLOG(@"%f", exact);
     if (exact > (float)numPages) numPages++;
-    CCLOG(@"%i", numPages);
     
 	//label = [CCLabelBMFontMultiline labelWithString:text fntFile:@"Sans.fnt" width:background.contentSize.width - 30 alignment:LeftAlignment page:0 linesPerPage:5];
 	//[label.textureAtlas.texture setAliasTexParameters];
@@ -182,7 +182,7 @@
             [label setString:display];
             
             
-            CGSize sizeText = [self calculateLabelSize:display withFont:[UIFont fontWithName:FONT_NAME size:FONT_SIZE] maxSize:CGSizeMake(background.contentSize.width - 30, 20000)];
+            CGSize sizeText = [self calculateLabelSize:display withFont:fontReference maxSize:CGSizeMake(background.contentSize.width - 30, MAX_TEXT_HEIGHT)];
             
             if (sizeText.height > ((selectPage + 1) * (FONT_SIZE + LINE_SPACE) * LINES_PER_PAGE)) {
                 animating = NO;
@@ -209,9 +209,8 @@
         
         NSRange range = NSMakeRange(0, i);
         NSString *display = [text substringWithRange:range];
-        [label setString:display];
         
-        CGSize sizeText = [self calculateLabelSize:display withFont:[UIFont fontWithName:FONT_NAME size:FONT_SIZE] maxSize:CGSizeMake(background.contentSize.width - 30, 20000)];
+        CGSize sizeText = [self calculateLabelSize:display withFont:fontReference maxSize:CGSizeMake(background.contentSize.width - 30, MAX_TEXT_HEIGHT)];
         
         if (sizeText.height > ((selectPage + 1) * (FONT_SIZE + LINE_SPACE) * LINES_PER_PAGE)) {
             break; 
@@ -220,6 +219,8 @@
     
     //CCLOG(@"Skip characters from %i to %i", 0, i - 1);
     currentCharacter = i - 1;
+    
+    [label setString:[text substringWithRange:NSMakeRange(0, currentCharacter)]];
     
     if (currentCharacter < numCharacters - 1) [self stepBackAnimation];
 }
@@ -295,8 +296,9 @@
             //[label setAnchorPoint:ccp(0,1)];
             //[label setPosition: ccp(25, background.contentSize.height + 8)];    
             //[self addChild:label z:2];
-        
-            [label setPosition: ccp(25, background.contentSize.height + 8 + (selectPage * (FONT_SIZE + LINE_SPACE) * LINES_PER_PAGE))];
+            
+            if (CC_CONTENT_SCALE_FACTOR() == 2) [label setPosition: ccp(25, background.contentSize.height + 8 + ((selectPage * (FONT_SIZE + LINE_SPACE) * LINES_PER_PAGE) - (2*selectPage)))];
+            else [label setPosition: ccp(25, background.contentSize.height + 8 + (selectPage * (FONT_SIZE + LINE_SPACE) * LINES_PER_PAGE))];
             
             [[SimpleAudioEngine sharedEngine] playEffect:@"IG Story point page turn.caf"];
             
@@ -330,7 +332,7 @@
 - (void) visit 
 {
 	glEnable(GL_SCISSOR_TEST);
-	glScissor((10)*CC_CONTENT_SCALE_FACTOR(), 10*CC_CONTENT_SCALE_FACTOR(), (background.contentSize.height) *CC_CONTENT_SCALE_FACTOR(), background.contentSize.width*CC_CONTENT_SCALE_FACTOR());
+	glScissor(10*CC_CONTENT_SCALE_FACTOR(), 10*CC_CONTENT_SCALE_FACTOR(), background.contentSize.height*CC_CONTENT_SCALE_FACTOR(), background.contentSize.width*CC_CONTENT_SCALE_FACTOR());
 	[super visit];
 	glDisable(GL_SCISSOR_TEST);
     
@@ -340,6 +342,7 @@
 {
     [text release];
     [speechSpeeds release];
+    [fontReference release];
     
     [super dealloc];
 }

@@ -103,6 +103,7 @@
 	[self addChild:label z:2];
 	
 	[[GameLayer getInstance] addOverlay:self];
+    [[SimpleAudioEngine sharedEngine] playEffect:@"IG Story point.caf"];
 	
 	[[CCDirector sharedDirector] pause];
 	[[CCDirector sharedDirector] stopAnimation];

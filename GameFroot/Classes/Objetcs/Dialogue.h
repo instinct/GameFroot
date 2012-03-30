@@ -26,6 +26,7 @@
     BOOL animating;
     int numCharacters;
     int currentCharacter;
+    UIFont *fontReference;
 }
 
 -(void) setupDialogue:(NSString *)_text;
