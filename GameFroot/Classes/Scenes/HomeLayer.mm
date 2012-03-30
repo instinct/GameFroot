@@ -515,12 +515,29 @@
 }
 
 -(void) gameDetailRemix:(id)sender {
-    UIAlertView *alertView = [[[UIAlertView alloc] initWithTitle: @"Remix!" 
-                                                         message: @"You remixed this game. Open the editor an a web browser to make changes."
-                                                        delegate: nil 
-                                               cancelButtonTitle: @"Ok" 
-                                               otherButtonTitles: nil] autorelease];
-    [alertView show];
+    
+    AppDelegate *app = (AppDelegate *)[UIApplication sharedApplication].delegate;
+    
+    if (![[app facebook] isSessionValid] || (![Shared connectedToNetwork])) {
+        // Not logged
+        UIAlertView *alertView1 = [[[UIAlertView alloc] initWithTitle: @"Login required to remix" 
+                                                             message: @"You must be logged in to remix the game, select login to be redirected to the My Games section and hit Login"
+                                                            delegate: nil 
+                                                   cancelButtonTitle: @"Cancel" 
+                                                   otherButtonTitles: @"My Games", nil] autorelease];
+        [alertView1 show];
+
+        
+    } else {
+        // logged in
+        UIAlertView *alertView2 = [[[UIAlertView alloc] initWithTitle: @"Remix!" 
+                                                             message: @"You remixed this game. Open the editor an a web browser to make changes."
+                                                            delegate: nil 
+                                                   cancelButtonTitle: @"Ok" 
+                                                   otherButtonTitles: nil] autorelease];
+        [alertView2 show];        
+    }
+    
 }
 
 -(void) gameDetailPlay:(id)sender {
@@ -1461,7 +1478,7 @@
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-	NSString *title = [alertView buttonTitleAtIndex:buttonIndex];
+    NSString *title = [alertView buttonTitleAtIndex:buttonIndex];
 	if([title isEqualToString:@"Ok"])
     {
 		[self fbLogout:nil];
