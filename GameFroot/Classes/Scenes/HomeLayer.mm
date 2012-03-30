@@ -58,7 +58,7 @@
 	
 	// always call "super" init
 	// Apple recommends to re-assign "self" with the "super" return value
-	if( (self=[super initWithColor:ccc4(52,52,52,255)])) {
+	if( (self=[super initWithColor:ccc4(28,28,28,255)])) {
         
         // Check what server to use, if staging or live
         NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
@@ -514,6 +514,15 @@
     }
 }
 
+-(void) gameDetailRemix:(id)sender {
+    UIAlertView *alertView = [[[UIAlertView alloc] initWithTitle: @"Remix!" 
+                                                         message: @"You remixed this game. Open the editor an a web browser to make changes."
+                                                        delegate: nil 
+                                               cancelButtonTitle: @"Ok" 
+                                               otherButtonTitles: nil] autorelease];
+    [alertView show];
+}
+
 -(void) gameDetailPlay:(id)sender {
     
     // Add level to favourites
@@ -548,16 +557,57 @@
 
 -(void) like:(id)sender {
     
+    NSMutableDictionary *ld = [Shared getLevel];
+    
+    NSString *url = @"http://gamefroot.com/?eventstats_api&log_event";
+    NSString *postData = [NSString stringWithFormat:@"event_type=like&resource_id=%@&user_id=%@&source_type=%@&source_id=%@",
+                          [ld objectForKey:@"id"],
+                          @"0",
+                          @"iOS",
+                          [NSString stringWithFormat:@"%@ %@", [Shared getDevice], [Shared getOSVersion]]
+                          ];
+    
+    NSString *result = [Shared stringWithContentsOfPostURL:url post:postData];
+    CCLOG(@"LIKE! Result: %@",  result);
+    
+    
+    UIAlertView *alertView = [[[UIAlertView alloc] initWithTitle: @"Like!" 
+                                                         message: @"You liked this game! The result has been recorded on the GameFroot website."
+                                                        delegate: nil 
+                                               cancelButtonTitle: @"Ok" 
+                                               otherButtonTitles: nil] autorelease];
+    [alertView show];
 }
 
 -(void) unlike:(id)sender {
     
+    NSMutableDictionary *ld = [Shared getLevel];
+    
+    NSString *url = @"http://gamefroot.com/?eventstats_api&log_event";
+    NSString *postData = [NSString stringWithFormat:@"event_type=dislike&resource_id=%@&user_id=%@&source_type=%@&source_id=%@",
+                          [ld objectForKey:@"id"],
+                          @"0",
+                          @"iOS",
+                          [NSString stringWithFormat:@"%@ %@", [Shared getDevice], [Shared getOSVersion]]
+                          ];
+    
+    NSString *result = [Shared stringWithContentsOfPostURL:url post:postData];
+    CCLOG(@"DISLIKE! Result: %@",  result);
+
+    
+    UIAlertView *alertView = [[[UIAlertView alloc] initWithTitle: @"Dislike!" 
+                                                         message: @"You disliked this game! The result has been recorded on the GameFroot website."
+                                                        delegate: nil 
+                                               cancelButtonTitle: @"Ok" 
+                                               otherButtonTitles: nil] autorelease];
+    [alertView show];
 }
 
 
 
 #pragma mark -
 #pragma mark Connection
+
 
 - (void)asynchronousContentsOfURL:(NSString *)url
 {
@@ -571,7 +621,7 @@
         
     } else {
         UIAlertView *alertView = [[[UIAlertView alloc] initWithTitle: @"Server Connection" 
-                                                             message: @"We cannot connect to our servers, pleaser review your internet connection." 
+                                                             message: @"We cannot connect to our servers, please review your internet connection." 
                                                             delegate: nil 
                                                    cancelButtonTitle: @"Ok" 
                                                    otherButtonTitles: nil] autorelease];
@@ -690,10 +740,18 @@
     
     [gameDetail removeAllChildrenWithCleanup:YES];
     
-    // non spritesheet enitites
-    CCLabelTTF *placeHolderText = [CCLabelTTF labelWithString:@"Game detail screen" fontName:@"HelveticaNeue-Bold" fontSize:16];
-    
-    placeHolderText.color = ccc3(255,255,255);
+    NSMutableDictionary *ld = [Shared getLevel];
+    CCLOG(@"levelData = %@", ld);
+     
+    // Text Stuff!
+    CCLabelTTF *levelNameText = [CCLabelTTF labelWithString:[ld objectForKey:@"title"] fontName:@"HelveticaNeue-Bold" fontSize:12];
+    [levelNameText setColor:ccc3(219, 138, 89)];
+    CCLabelTTF *authorText = [CCLabelTTF labelWithString:[NSString stringWithFormat:@"by %@", [ld objectForKey:@"author"]] fontName:@"HelveticaNeue-Bold" fontSize:12];
+    [authorText setColor:ccc3(110, 165, 193)];
+    CCLabelTTF *descriptionText = [CCLabelTTF labelWithString:[ld objectForKey:@"content"] dimensions:CGSizeMake(size.width - 20.0f, 70.0f) alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue" fontSize:10];
+    [descriptionText setColor:ccc3(189, 189, 189)];
+    CCSprite *gameImage = [CCSprite spriteWithFile:@"game_detail_proxy_image.png"];
+    CCSprite *imageOverlay = [CCSprite spriteWithFile:@"game_detail_image_overlay.png"];
     
     // Add top menu and buttons
     CCMenuItemSprite *topNavBackButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"back-button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"back-button.png"] target:self selector:@selector(gameDetailBack:)];
@@ -707,9 +765,11 @@
     CCMenuItem *likeButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"like-button-up.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"like-button-down.png"] target:self selector:@selector(like:)];
     
     CCMenuItem *unlikeButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"dislike-button-up.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"dislike-button-down.png"] target:self selector:@selector(unlike:)];
-
-    CCRadioMenu *likeMenu = [CCMenu menuWithItems:likeButton, unlikeButton,nil];
-    [likeMenu alignItemsHorizontally];
+    
+    CCMenuItem *remixButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"remix-button-up.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"remix-button-down.png"] target:self selector:@selector(gameDetailRemix:)];
+    
+    CCRadioMenu *likeMenu = [CCMenu menuWithItems:likeButton, unlikeButton,remixButton,nil];
+    [likeMenu alignItemsHorizontallyWithPadding:20];
     
     /*
     CCNode *container = [CCNode node];
@@ -722,14 +782,23 @@
     
     // position stuff
     topNavMenu.position = ccp(10 + (topNavBackButton.contentSize.width / 2) , size.height - (topNavBackButton.contentSize.height/2) - 7);
-    placeHolderText.position = ccp(size.width/2, size.height/2 + size.height/2 + 200);
-    contentMenu.position = ccp(size.width/2, size.height /2 - 50);
+    contentMenu.position = ccp(size.width/2, size.height /2 - 70);
     likeMenu.position = ccp(size.width/2, size.height/2 - 150);
+    gameImage.position = ccp(size.width/2, size.height/2 + 115);
+    imageOverlay.position = gameImage.position;
+    levelNameText.position = ccp(levelNameText.contentSize.width/2 + 10, gameImage.position.y - gameImage.contentSize.height/2 - 20);
+    authorText.position = ccp(levelNameText.contentSize.width + authorText.contentSize.width/2 + 15, levelNameText.position.y);
+    descriptionText.position = ccp(size.width/2, levelNameText.position.y - levelNameText.contentSize.height/2 - 36);
     
     [gameDetail addChild:topNavMenu];
-    [gameDetail addChild:placeHolderText];
-    [gameDetail addChild:contentMenu]; 
+    [gameDetail addChild:contentMenu];
     [gameDetail addChild:likeMenu];
+    [gameDetail addChild:levelNameText];
+    [gameDetail addChild:authorText];
+    [gameDetail addChild:descriptionText];
+    [gameDetail addChild:gameImage];
+    [gameDetail addChild:imageOverlay z:20];
+    
     /*
     // Calculate size of the layer
     // NOTE! cocos2d layers don't get size according to his cildren
@@ -757,7 +826,8 @@
     
     [gameDetail addChild:gameDetailSV];
     gameDetailSV.visible = YES;
-     */
+    */
+    
     loading = NO;
    
 	gameDetail.visible = YES;

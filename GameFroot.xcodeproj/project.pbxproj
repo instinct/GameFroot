@@ -486,6 +486,10 @@
 		226B314D1505772400BAD02A /* SimpleAudioEngine+playEffectLoop.m in Sources */ = {isa = PBXBuildFile; fileRef = 226B314C1505772400BAD02A /* SimpleAudioEngine+playEffectLoop.m */; };
 		228F2E7B1508100E00527338 /* IG Transporter.caf in Resources */ = {isa = PBXBuildFile; fileRef = 228F2E7A1508100E00527338 /* IG Transporter.caf */; };
 		2299CFAC14FDD123005C7F14 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2299CFAB14FDD123005C7F14 /* iAd.framework */; };
+		22CEE3C51525183C0090FCAB /* game_detail_proxy_image-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 22CEE3C31525183C0090FCAB /* game_detail_proxy_image-hd.png */; };
+		22CEE3C61525183C0090FCAB /* game_detail_proxy_image.png in Resources */ = {isa = PBXBuildFile; fileRef = 22CEE3C41525183C0090FCAB /* game_detail_proxy_image.png */; };
+		22CEE3CA1525436B0090FCAB /* game_detail_image_overlay.png in Resources */ = {isa = PBXBuildFile; fileRef = 22CEE3C81525436B0090FCAB /* game_detail_image_overlay.png */; };
+		22CEE3CB1525436B0090FCAB /* game_detail_image_overlay-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 22CEE3C91525436B0090FCAB /* game_detail_image_overlay-hd.png */; };
 		22D0E1B6150D4C2E00C19BFA /* Desert Theme - 8 bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E162150D4C2E00C19BFA /* Desert Theme - 8 bit.mp3 */; };
 		22D0E1BA150D4C2E00C19BFA /* Dungeon Theme - 8 bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E167150D4C2E00C19BFA /* Dungeon Theme - 8 bit.mp3 */; };
 		22D0E1BF150D4C2E00C19BFA /* Forest Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E16D150D4C2E00C19BFA /* Forest Theme - 8 Bit.mp3 */; };
@@ -1240,6 +1244,10 @@
 		226B314C1505772400BAD02A /* SimpleAudioEngine+playEffectLoop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SimpleAudioEngine+playEffectLoop.m"; sourceTree = "<group>"; };
 		228F2E7A1508100E00527338 /* IG Transporter.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IG Transporter.caf"; sourceTree = "<group>"; };
 		2299CFAB14FDD123005C7F14 /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
+		22CEE3C31525183C0090FCAB /* game_detail_proxy_image-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "game_detail_proxy_image-hd.png"; sourceTree = "<group>"; };
+		22CEE3C41525183C0090FCAB /* game_detail_proxy_image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = game_detail_proxy_image.png; sourceTree = "<group>"; };
+		22CEE3C81525436B0090FCAB /* game_detail_image_overlay.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = game_detail_image_overlay.png; sourceTree = "<group>"; };
+		22CEE3C91525436B0090FCAB /* game_detail_image_overlay-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "game_detail_image_overlay-hd.png"; sourceTree = "<group>"; };
 		22D0E162150D4C2E00C19BFA /* Desert Theme - 8 bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Desert Theme - 8 bit.mp3"; sourceTree = "<group>"; };
 		22D0E167150D4C2E00C19BFA /* Dungeon Theme - 8 bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Dungeon Theme - 8 bit.mp3"; sourceTree = "<group>"; };
 		22D0E16D150D4C2E00C19BFA /* Forest Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Forest Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
@@ -1884,6 +1892,10 @@
 		1643B4A014D9B0BC00A67057 /* welcome */ = {
 			isa = PBXGroup;
 			children = (
+				22CEE3C81525436B0090FCAB /* game_detail_image_overlay.png */,
+				22CEE3C91525436B0090FCAB /* game_detail_image_overlay-hd.png */,
+				22CEE3C31525183C0090FCAB /* game_detail_proxy_image-hd.png */,
+				22CEE3C41525183C0090FCAB /* game_detail_proxy_image.png */,
 				16C8AC78151FE95B00864ED0 /* funsplosion-hd.png */,
 				16C8AC79151FE95B00864ED0 /* funsplosion.png */,
 				22FD013714F4634100E3F1E0 /* game_detail-hd.plist */,
@@ -2918,6 +2930,10 @@
 				16C8AC7B151FE95B00864ED0 /* funsplosion.png in Resources */,
 				166448601524F271000CFA89 /* IG Story point page turn.caf in Resources */,
 				166448611524F271000CFA89 /* IG Story point.caf in Resources */,
+				22CEE3C51525183C0090FCAB /* game_detail_proxy_image-hd.png in Resources */,
+				22CEE3C61525183C0090FCAB /* game_detail_proxy_image.png in Resources */,
+				22CEE3CA1525436B0090FCAB /* game_detail_image_overlay.png in Resources */,
+				22CEE3CB1525436B0090FCAB /* game_detail_image_overlay-hd.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
