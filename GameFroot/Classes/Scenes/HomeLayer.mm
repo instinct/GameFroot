@@ -16,9 +16,11 @@
 #import "CCLabelFX.h"
 #import "FilteredMenu.h"
 #import "OnPressMenu.h"
+#import "GravatarLoader.h"
 #import "AppDelegate.h"
 
 #define ITEMS_PER_PAGE  20
+#define AVATAR_TAG      12345
 
 @implementation CCPriorityMenu
 
@@ -214,6 +216,8 @@
 		jsonDataBrowse = nil;
 		jsonDataMyGames = nil;
 		userName = nil;
+        emailAddress = nil;
+        conn = nil;
 		
 		jsonDataPlaying = [[prefs objectForKey:@"favourites"] mutableCopy];
 		if (!jsonDataPlaying) {
@@ -254,6 +258,19 @@
                 selectedPage = gameDetail;
             }
         //}
+        
+        
+        //  Load gravatar
+        loadedAvatar = NO;
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        emailAddress = [defaults objectForKey:@"FBEmailAddress"];
+        //CCLOG(@">>>> check avatar: %@", emailAddress);
+        AppDelegate *app = (AppDelegate *)[UIApplication sharedApplication].delegate;
+		if ((emailAddress != nil) && [[app facebook] isSessionValid] && ([Shared connectedToNetwork])) {
+            GravatarLoader *gravatarLoader = [[[GravatarLoader alloc] initWithTarget:self andHandle:@selector(setGravatarImage:)] autorelease];
+            [gravatarLoader loadEmail:emailAddress withSize:32*CC_CONTENT_SCALE_FACTOR()];
+            loadedAvatar = YES;
+        }
 	}
 	
 	return self;
@@ -285,6 +302,8 @@
     
     RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
     [rvc hideBanner];
+    
+    [self cancelAsynchronousConnection];
     
 	[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
 }
@@ -522,7 +541,7 @@
         // Not logged
         UIAlertView *alertView1 = [[[UIAlertView alloc] initWithTitle: @"Login required to remix" 
                                                              message: @"You must be logged in to remix the game, select login to be redirected to the My Games section and hit Login"
-                                                            delegate: nil 
+                                                            delegate: self 
                                                    cancelButtonTitle: @"Cancel" 
                                                    otherButtonTitles: @"My Games", nil] autorelease];
         [alertView1 show];
@@ -530,12 +549,12 @@
         
     } else {
         // logged in
-        UIAlertView *alertView2 = [[[UIAlertView alloc] initWithTitle: @"Remix!" 
-                                                             message: @"You remixed this game. Open the editor an a web browser to make changes."
-                                                            delegate: nil 
-                                                   cancelButtonTitle: @"Ok" 
-                                                   otherButtonTitles: nil] autorelease];
-        [alertView2 show];        
+        UIAlertView *alertView2 = [[[UIAlertView alloc] initWithTitle: @"Think you can improve this game?" 
+                                                              message: @"Take a copy of this game for yourself and do a remix of it! Building upon what has made, you can change it in any way you wish."
+                                                             delegate: self 
+                                                    cancelButtonTitle: @"Cancel" 
+                                                    otherButtonTitles: @"Start a remix", nil] autorelease];
+        [alertView2 show];
     }
     
 }
@@ -576,7 +595,8 @@
     
     NSMutableDictionary *ld = [Shared getLevel];
     
-    NSString *url = @"http://gamefroot.com/?eventstats_api&log_event";
+    NSString *url = [NSString stringWithFormat:@"%@?eventstats_api&log_event", [self returnServer]];
+    
     NSString *postData = [NSString stringWithFormat:@"event_type=like&resource_id=%@&user_id=%@&source_type=%@&source_id=%@",
                           [ld objectForKey:@"id"],
                           @"0",
@@ -600,7 +620,8 @@
     
     NSMutableDictionary *ld = [Shared getLevel];
     
-    NSString *url = @"http://gamefroot.com/?eventstats_api&log_event";
+    NSString *url = [NSString stringWithFormat:@"%@?eventstats_api&log_event", [self returnServer]];
+    
     NSString *postData = [NSString stringWithFormat:@"event_type=dislike&resource_id=%@&user_id=%@&source_type=%@&source_id=%@",
                           [ld objectForKey:@"id"],
                           @"0",
@@ -710,8 +731,16 @@
     // release the connection, and the data object
 	[connection release];
     [receivedData release];
+    conn = nil;
 }
 
+-(void) cancelAsynchronousConnection
+{
+    if (conn != nil) {
+        [conn cancel];
+        conn = nil;
+    }
+}
 
 #pragma mark -
 #pragma mark Welcome
@@ -745,6 +774,7 @@
 #pragma mark GameDetail
 
 -(void) loadGameDetail {
+    [self cancelAsynchronousConnection];
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadGameDetail)];
     loading = YES;
@@ -760,10 +790,16 @@
     NSMutableDictionary *ld = [Shared getLevel];
     CCLOG(@"levelData = %@", ld);
      
+    NSString *author = [ld objectForKey:@"author"];
+    if ([author isMemberOfClass:[NSNull class]]) {
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        author = [defaults objectForKey:@"FBFullName"];
+    }
+    
     // Text Stuff!
     CCLabelTTF *levelNameText = [CCLabelTTF labelWithString:[ld objectForKey:@"title"] fontName:@"HelveticaNeue-Bold" fontSize:12];
     [levelNameText setColor:ccc3(219, 138, 89)];
-    CCLabelTTF *authorText = [CCLabelTTF labelWithString:[NSString stringWithFormat:@"by %@", [ld objectForKey:@"author"]] fontName:@"HelveticaNeue-Bold" fontSize:12];
+    CCLabelTTF *authorText = [CCLabelTTF labelWithString:[NSString stringWithFormat:@"by %@", author] fontName:@"HelveticaNeue-Bold" fontSize:12];
     [authorText setColor:ccc3(110, 165, 193)];
     CCLabelTTF *descriptionText = [CCLabelTTF labelWithString:[ld objectForKey:@"content"] dimensions:CGSizeMake(size.width - 20.0f, 70.0f) alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue" fontSize:10];
     [descriptionText setColor:ccc3(189, 189, 189)];
@@ -911,9 +947,11 @@
 	CCMenuItemSprite *featured2Button = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"feature-icon.png"] selectedSprite:[CCSprite spriteWithFile:@"feature-icon.png"] target:self selector:@selector(featured2:)];		
 	CCMenu *menuFeatured = [CCMenu menuWithItems:featured1Button, featured2Button, nil];
 	menuFeatured.position = ccp(size.width/2, size.height - 44 - featured1Button.contentSize.height/2 - 5);
-	[menuFeatured alignItemsHorizontally];
-	[featured addChild:menuFeatured z:4];
+    //menuFeatured.position = ccp(featured1Button.contentSize.width/2 + 10, size.height - 44 - featured1Button.contentSize.height/2 - 5);
 	
+    [menuFeatured alignItemsHorizontally];
+	[featured addChild:menuFeatured z:4];
+    
     // Filter array
 	NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
 	if (filteredArray != nil) [filteredArray release];
@@ -1024,7 +1062,7 @@
 #pragma mark Browse
 
 -(void) loadBrowse {
-	if (selectedPage == browse) return;
+	if ((selectedPage == browse) && !gameDetailLoaded) return;
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	selectedPage = browse;
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadBrowse)];
@@ -1214,7 +1252,7 @@
 #pragma mark My Games
 
 -(void) loadMyGames {
-	if (selectedPage == myGames) return;
+	if ((selectedPage == myGames) && !gameDetailLoaded) return;
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	selectedPage = myGames;
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadMyGames)];
@@ -1242,7 +1280,7 @@
 	if(!jsonDataMyGames)
 	{
 		loading = NO;
-		playing.visible = YES;	
+		myGames.visible = YES;	
 		return;
 	}
 	
@@ -1334,14 +1372,21 @@
 			NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 			userName = [defaults objectForKey:@"FBFullName"];
 		}
-		
+        
 		if (userName == nil) {
 			[[app facebook] requestWithGraphPath:@"me" andDelegate:self];
 			[Loader showAsynchronousLoader];
 			
 		} else {
-			[self setupMyGamesHeader];
-			[Loader showAsynchronousLoaderWithDelayedAction:0.1f target:self selector:@selector(displayMyGames)];
+            if ((emailAddress != nil) && [self checkLogin:emailAddress]) {
+                [self setupMyGamesHeader];
+                [Loader showAsynchronousLoaderWithDelayedAction:0.1f target:self selector:@selector(displayMyGames)];
+            
+            } else {
+                [[app facebook] requestWithGraphPath:@"me" andDelegate:self];
+                [Loader showAsynchronousLoader];
+                
+            }
 		}
 	}
 }
@@ -1373,14 +1418,13 @@
 }
 
 -(void) fbDidLogin {
-	//CCLOG(@">>>>>>>>>>>> Facebook Connect logging succesful");
+	//CCLOG(@">>>>>>>>>>>> Facebook Connect logging succesful: %@, %@", userName, emailAddress);
 	
 	AppDelegate *app = (AppDelegate *)[UIApplication sharedApplication].delegate;
 	
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:[[app facebook] accessToken] forKey:@"FBAccessTokenKey"];
     [defaults setObject:[[app facebook] expirationDate] forKey:@"FBExpirationDateKey"];
-	[defaults setObject:userName forKey:@"FBFullName"];
     [defaults synchronize];
 	
 	[[app facebook] requestWithGraphPath:@"me" andDelegate:self];
@@ -1405,15 +1449,23 @@
         [defaults removeObjectForKey:@"FBAccessTokenKey"];
         [defaults removeObjectForKey:@"FBExpirationDateKey"];
 		[defaults removeObjectForKey:@"FBFullName"];
+        [defaults removeObjectForKey:@"FBEmailAddress"];
         [defaults synchronize];
     }
-	
+    
+    [self removeChildByTag:AVATAR_TAG cleanup:YES];
+    [self removeChildByTag:AVATAR_TAG+1 cleanup:YES];
+	loadedAvatar = NO;
+    
 	[jsonDataMyGames release];
 	jsonDataMyGames = nil;
 	
 	[userName release];
 	userName = nil;
-	
+    
+    [emailAddress release];
+	emailAddress = nil;
+    
 	[self featured:nil];
 }
 
@@ -1439,34 +1491,43 @@
 	[myGames removeChildByTag:100 cleanup:YES]; // remove login button	
 }
 
--(void)request:(FBRequest *)request didLoad:(id)result {
-	//CCLOG(@">>>>>>>>>>>> Facebook Connect request succesful: %@", result);
-	
-	if (selectedPage != myGames) return;
-	
-	//NSString *email = [result objectForKey:@"email"];
-	//NSString *facebookid = [result objectForKey:@"id"];
-	//NSString *key = [NSString stringWithFormat:@"%@%@", facebookid, email];
-	//NSString *userLoginURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=ios_login&email=%@&code=%@", [self returnServer], email, [Shared md5:key]];
-	//NSString *stringData = [Shared stringWithContentsOfURL:userLoginURL ignoreCache:YES];
-	
-	NSString *userLoginURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=ios_login", [self returnServer]];
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+-(BOOL) checkLogin:(NSString *)email
+{
+    if (jsonDataMyGames != nil) return YES;
+    
+    NSString *userLoginURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=ios_login", [self returnServer]];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSString *post = [NSString stringWithFormat:@"token=%@", [defaults objectForKey:@"FBAccessTokenKey"]];
 	NSString *stringData = [Shared stringWithContentsOfPostURL:userLoginURL post:post];
 	
 	CCLOG(@"ios_login result: %@ (%@)", stringData, post);
 	
-	if ([stringData isEqualToString:@"success"]) {
+	return ([stringData isEqualToString:@"success"]);
+}
+
+-(void)request:(FBRequest *)request didLoad:(id)result {
+	//CCLOG(@">>>>>>>>>>>> Facebook Connect request succesful: %@", result);
+	
+	if (selectedPage != myGames) return;
+	
+    NSString *email = [result objectForKey:@"email"];	
+    
+	if ([self checkLogin:email]) {
 		userName = [[result objectForKey:@"name"] retain];
+        emailAddress = [email retain];
 		[self setupMyGamesHeader];
 		[Loader showAsynchronousLoaderWithDelayedAction:0.1f target:self selector:@selector(displayMyGames)];
 		
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        [defaults setObject:userName forKey:@"FBFullName"];
+        [defaults setObject:emailAddress forKey:@"FBEmailAddress"];
+        [defaults synchronize];
+        
 	} else {
 		UIAlertView *alertView = [[[UIAlertView alloc] initWithTitle: @"Facebook Connect" 
 								message: @"There was a problem with your request" 
 								delegate: self 
-								cancelButtonTitle: @"Ok" 
+								cancelButtonTitle: @"Logout" 
 								otherButtonTitles: nil] autorelease];
 		[alertView show];
 		[Loader hideAsynchronousLoader];
@@ -1474,14 +1535,80 @@
         loading = NO;
         myGames.visible = NO;
 	}
+    
+    if (!loadedAvatar) {
+        GravatarLoader *gravatarLoader = [[[GravatarLoader alloc] initWithTarget:self andHandle:@selector(setGravatarImage:)] autorelease];
+        [gravatarLoader loadEmail:emailAddress withSize:32*CC_CONTENT_SCALE_FACTOR()];
+        loadedAvatar = YES;
+    }
 }
+
+-(void) setGravatarImage:(UIImage *)img
+{
+    //CCLOG(@">>>>>>>>>>>> Gravatar: %@", img);
+    
+    CCTexture2D *tex;
+    
+    if (CC_CONTENT_SCALE_FACTOR() == 2) tex = [[CCTexture2D alloc] initWithImage:img resolutionType:kCCResolutionRetinaDisplay];
+    else tex = [[CCTexture2D alloc] initWithImage:img resolutionType:kCCResolutionStandard];
+    
+    CCSprite *avatar = [CCSprite spriteWithTexture:tex];
+    
+    CGSize size = [[CCDirector sharedDirector] winSize];
+    [avatar setPosition:ccp(size.width - avatar.contentSize.width/2 - 4, size.height - avatar.contentSize.height/2 - 4)];
+    [self addChild:avatar z:AVATAR_TAG tag:AVATAR_TAG];
+    
+    CCMenuItem *item = [CCMenuItem itemWithTarget:self selector:@selector(loadMyGames)];
+    item.contentSize = avatar.contentSize;
+    CCMenu *menu = [CCMenu menuWithItems:item, nil];
+    [menu setPosition:avatar.position];
+    [self addChild:menu z:AVATAR_TAG-1 tag:AVATAR_TAG-1];
+}
+
+#pragma mark -
+#pragma mark AlertView handler
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
     NSString *title = [alertView buttonTitleAtIndex:buttonIndex];
-	if([title isEqualToString:@"Ok"])
+	if([title isEqualToString:@"Logout"])
     {
 		[self fbLogout:nil];
+        
+    } else if([title isEqualToString:@"My Games"]) {
+        if (gameDetailLoaded) {
+            [gameDetail removeAllChildrenWithCleanup:YES];
+            gameDetailLoaded = NO;
+        }
+        [self loadMyGames];
+     
+    } else if([title isEqualToString:@"Start a remix"]) {
+        
+        NSMutableDictionary *ld = [Shared getLevel];
+        
+        NSString *url = [NSString stringWithFormat:@"%@?gamemakers_api&type=clone_level", [self returnServer]];
+        NSString *postData = [NSString stringWithFormat:@"id=%@", [ld objectForKey:@"id"]];
+        
+        NSString *result = [Shared stringWithContentsOfPostURL:url post:postData];
+        CCLOG(@"CLONE! Result: %@",  result);
+        
+        if ([result intValue] > 0) {
+        
+            UIAlertView *alertView1 = [[[UIAlertView alloc] initWithTitle: @"Your copy is ready." 
+                                                              message: @"Open the level editor on a web browser and make your changes. Don't forget to publish your level when you're done so others can build on what you've made!"
+                                                             delegate: nil 
+                                                    cancelButtonTitle: @"Ok" 
+                                                    otherButtonTitles: nil] autorelease];
+            [alertView1 show];
+            
+        } else {
+            UIAlertView *alertView2 = [[[UIAlertView alloc] initWithTitle: @"Error" 
+                                                                 message: @"There was a problem, please try again later." 
+                                                                delegate: nil 
+                                                       cancelButtonTitle: @"Ok" 
+                                                       otherButtonTitles: nil] autorelease];
+            [alertView2 show];
+        }
     }
 }
 

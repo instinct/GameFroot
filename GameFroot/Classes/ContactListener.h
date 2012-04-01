@@ -14,14 +14,6 @@ public:
 	ContactListener();
 	~ContactListener();
 	
-    /*
-    virtual bool Above(b2Contact *contact);
-    virtual bool Below(b2Contact *contact);
-    virtual bool BelowPos(GameObject *o1, GameObject *o2);
-    virtual bool BelowCloud(GameObject *o1, GameObject *o2);
-    virtual bool Right(b2Contact *contact);
-    virtual bool Left(b2Contact *contact);
-    */
     virtual CONTACT_IS solveContactPosition( b2Contact* contact );
     
 	virtual void BeginContact(b2Contact *contact);

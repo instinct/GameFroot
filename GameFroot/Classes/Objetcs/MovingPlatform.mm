@@ -14,6 +14,7 @@
 @synthesize goingForward;
 @synthesize velocity;
 @synthesize isCloud;
+@synthesize isKiller;
 
 - (id) init 
 {
@@ -24,6 +25,7 @@
 		stopped = NO;
 		startedOff = NO;
         isCloud = YES;
+        isKiller = NO;
 	}
 	return self;
 }
@@ -97,10 +99,10 @@
 	
 	velocity = b2Vec2(0, vel);
 	finalPosition = origPosition + b2Vec2(0, translationYInPixels/PTM_RATIO);
-		
+    
+    origAngle = b2Cross(origPosition, finalPosition);
+ 
 	body->SetLinearVelocity(velocity);
-	
-	//[self schedule:@selector(updatePlatform:) interval:duration];
 }
 
 -(void) moveHorizontally:(float)_translationInPixels duration:(float)_duration 
@@ -116,10 +118,10 @@
 	
 	velocity = b2Vec2(vel, 0);
 	finalPosition = origPosition + b2Vec2(translationXInPixels/PTM_RATIO, 0);
-		
+    
+    origAngle = b2Cross(origPosition, finalPosition);
+
 	body->SetLinearVelocity(velocity);
-	
-	//[self schedule:@selector(updatePlatform:) interval:duration];
 }
 
 -(void) moveTo:(CGPoint)_pos duration:(float)_duration {
@@ -137,150 +139,39 @@
 	
 	velocity = b2Vec2(velX, velY);
 	finalPosition = origPosition + b2Vec2(translationXInPixels/PTM_RATIO, translationYInPixels/PTM_RATIO);
-		
+    
+    origAngle = b2Cross(origPosition, finalPosition);
+
 	body->SetLinearVelocity(velocity);
-	
-	//[self schedule:@selector(updatePlatform:) interval:duration];
 }
 
 -(void) changeDirection
 {
-	b2Vec2 pos = body->GetPosition();
-	
-	if ((velocity.x != 0) && (velocity.y == 0))
-	{		
-		// Horizontal platform
-		if (goingForward) {
-			//float diff = (pos.x - origPosition.x) * PTM_RATIO;
-			//float newDuration = (diff * duration) / translationXInPixels;
-			
-			body->SetLinearVelocity(-velocity);
-			goingForward = NO;
-			
-			//[self unschedule:@selector(updatePlatform:)];
-			//[self schedule:@selector(updateChangedPlatform:) interval:newDuration];
-			
-		} else {
-			//float diff = (finalPosition.x - pos.x) * PTM_RATIO;
-			//float newDuration = (diff * duration) / translationXInPixels;
-			
-			body->SetLinearVelocity(velocity);
-			goingForward = YES;
-			
-			//[self unschedule:@selector(updatePlatform:)];
-			//[self schedule:@selector(updateChangedPlatform:) interval:newDuration];
-		}
-		
-	} else if ((velocity.x == 0) && (velocity.y != 0))
-	{			
-		// Vertical platform
-		if (goingForward) {
-			//float diff = (pos.y - origPosition.y) * PTM_RATIO;
-			//float newDuration = (diff * duration) / translationYInPixels;
-			
-			body->SetLinearVelocity(-velocity);
-			goingForward = NO;
-			
-			//[self unschedule:@selector(updatePlatform:)];
-			//[self schedule:@selector(updateChangedPlatform:) interval:newDuration];
-			
-		} else {
-			//float diff = (finalPosition.y - pos.y) * PTM_RATIO;
-			//float newDuration = (diff * duration) / translationYInPixels;
-			
-			body->SetLinearVelocity(velocity);
-			goingForward = YES;
-			
-			//[self unschedule:@selector(updatePlatform:)];
-			//[self schedule:@selector(updateChangedPlatform:) interval:newDuration];
-		}
-		
-			
-	} else if ((velocity.x != 0) && (velocity.y != 0))
-	{
-		// Diagonal platfrom
-		if (goingForward) {
-			//float diff = (pos.x - origPosition.x) * PTM_RATIO;
-			//float newDuration = (diff * duration) / translationXInPixels;
-			
-			body->SetLinearVelocity(-velocity);
-			goingForward = NO;
-			
-			//[self unschedule:@selector(updatePlatform:)];
-			//[self schedule:@selector(updateChangedPlatform:) interval:newDuration];
-			
-		} else {
-			//float diff = (finalPosition.x - pos.x) * PTM_RATIO;
-			//float newDuration = (diff * duration) / translationXInPixels;
-			
-			body->SetLinearVelocity(velocity);
-			goingForward = YES;
-			
-			//[self unschedule:@selector(updatePlatform:)];
-			//[self schedule:@selector(updateChangedPlatform:) interval:newDuration];
-		}
-	}
+	if (goingForward) {			
+        body->SetLinearVelocity(-velocity);
+        goingForward = NO;
+        
+    } else {
+        body->SetLinearVelocity(velocity);
+        goingForward = YES;
+    }
 }
 
 -(void) resetStatus:(BOOL)initial 
 {
-	if (initial && startedOff) {
-		//[self unschedule:@selector(updateChangedPlatform:)];
-		//[self unschedule:@selector(updatePlatform:)];
-		
+	if (initial && startedOff) {		
 		[self startsOff];
 		body->SetTransform(origPosition, 0);
 		goingForward = YES;
-       
-        //[self schedule:@selector(updatePlatform:) interval:duration];
+
         [self pause];
 		
 	} else if (!paused) {
-		//[self unschedule:@selector(updateChangedPlatform:)];
-		//[self unschedule:@selector(updatePlatform:)];
-		
-		body->SetTransform(origPosition, 0);
-		body->SetLinearVelocity(velocity);
-		goingForward = YES;
-		
-		//[self schedule:@selector(updatePlatform:) interval:duration];
-        
-	}
-}
-
-/*
--(void) updateChangedPlatform:(ccTime)dt
-{
-	[self unschedule:@selector(updateChangedPlatform:)];
-	
-	if (goingForward) {
-		body->SetTransform(finalPosition, 0);
-		body->SetLinearVelocity(-velocity);
-		goingForward = NO;
-		
-	} else {
 		body->SetTransform(origPosition, 0);
 		body->SetLinearVelocity(velocity);
 		goingForward = YES;
 	}
-	
-	[self schedule:@selector(updatePlatform:) interval:duration];
 }
-
--(void) updatePlatform:(ccTime)dt
-{
-	if (goingForward) {
-		body->SetTransform(finalPosition, 0);
-		body->SetLinearVelocity(-velocity);
-		goingForward = NO;
-		
-	} else {
-		body->SetTransform(origPosition, 0);
-		body->SetLinearVelocity( velocity );
-		goingForward = YES;
-	}
-}
-*/
 
 -( BOOL )isInsideScreen:( CGPoint )pos {
 #if PLATFORM_TRACK_ALWAYS == 1
@@ -295,11 +186,6 @@
                       winSize.height + ( self.contentSize.height * 2 ) + ( PLATFORM_TRACK_RANGE * 2 ) );
     return( CGRectContainsPoint( rect , pos ) );
 #endif
-}
-
--(float) distanceDestination:(b2Vec2)pos1 pos2:(b2Vec2)pos2
-{
-    return (pos2.x - pos1.x) + (pos2.y - pos1.y);
 }
 
 -(void) update:(ccTime)dt
@@ -322,14 +208,14 @@
     b2Vec2 bodyPos = body->GetPosition();
     
     if (goingForward) {
-        float diff = [self distanceDestination:bodyPos pos2:finalPosition];
-        //if ( [ self isInsideScreen:pos ] ) CCLOG(@"moving forward: %f", diff);
-        if (diff < 0) [self changeDirection];
+        float currentAngle = b2Cross(bodyPos, finalPosition);
+        if ((origAngle >= 0) && (currentAngle < 0)) [self changeDirection];
+        else if ((origAngle < 0) && (currentAngle >= 0)) [self changeDirection];
         
     } else {
-        float diff = [self distanceDestination:bodyPos pos2:origPosition];
-        //if ( [ self isInsideScreen:pos ] ) CCLOG(@"moving backward: %f", diff);
-        if (diff > 0) [self changeDirection];
+        float currentAngle = b2Cross(bodyPos, origPosition);
+        if ((origAngle >= 0) && (currentAngle >= 0)) [self changeDirection];
+        else if ((origAngle < 0) && (currentAngle < 0)) [self changeDirection];
     }
     
 	[super update:dt];

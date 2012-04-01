@@ -1087,8 +1087,6 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 {
     if (debugImmortal) return;
     
-    [[SimpleAudioEngine sharedEngine] playEffect:@"IG Hero Damage.caf" pitch:1.0f pan:0.0f gain:1.0f];
-    
     health -= force;
 	if (health <= 0) health = 0;
 	[[GameLayer getInstance] setHealth:health];
@@ -1358,6 +1356,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
         if (hurtFall > 0) {
             // Apply damage when falling at high speed
             //CCLOG(@"Player.hitsFloor: speed: %f, hurt: %i", current.y * PTM_RATIO, hurtFall);
+            [[SimpleAudioEngine sharedEngine] playEffect:@"IG Hero Damage.caf" pitch:1.0f pan:0.0f gain:1.0f];
             [self hit: hurtFall];
         }
     }
@@ -1599,12 +1598,19 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             
         case kGameObjectBulletEnemy:
 			if ( self.action != PRONE ) {
+                [[SimpleAudioEngine sharedEngine] playEffect:@"IG Hero Damage.caf" pitch:1.0f pan:0.0f gain:1.0f];
 				[ self hit:( ( Bullet* )object ).damage ];
 				[ ( Bullet* )object die ];
 			}
             break;            
             
         case kGameObjectMovingPlatform:
+            
+            if (( ( MovingPlatform* )object ).isKiller) {
+                if (debugImmortal) if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ]; // just to be sure it can walk/jump
+                [ self die ];
+            }
+            
             velocity = ( ( MovingPlatform* )object ).body->GetLinearVelocity( );
             
             if ( (( MovingPlatform* )object ).isCloud ) {

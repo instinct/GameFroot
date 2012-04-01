@@ -498,6 +498,8 @@ has been previously downloaded, return a path to the file otherwise load the ass
     NSMutableDictionary *musicData = [[[NSMutableDictionary alloc] init] autorelease];;
      for (NSDictionary *url in urls) {
          
+         if (![url isKindOfClass:[NSDictionary class]]) return musicData;
+         
          bool cacheNotFound = NO;
          bool embedded = NO;
          bool isDefault = [d isEqualToString:[url objectForKey:@"url"]];
@@ -506,6 +508,7 @@ has been previously downloaded, return a path to the file otherwise load the ass
          NSString *urlRequest = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_music_url&id=%@", server, mID];
          NSString *urlResponse = [Shared stringWithContentsOfURL:urlRequest ignoreCache:ignoreCache];
          */
+         
          NSString *musicFileName = [[[url objectForKey:@"url"] componentsSeparatedByString:@"/"] lastObject];
          
          // Step 1: Check the music exists in the resource bundle

@@ -947,6 +947,7 @@
     switch ( object.type ) {
             
         case kGameObjectPlayer:
+            [[SimpleAudioEngine sharedEngine] playEffect:@"IG Hero Damage.caf" pitch:1.0f pan:0.0f gain:1.0f];
 			[ player hit:self.collideGiveDamage];
 			[ self hit:self.collideTakeDamage];
            

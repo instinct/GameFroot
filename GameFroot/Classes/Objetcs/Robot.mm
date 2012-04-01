@@ -15,6 +15,7 @@
 
 #define FLASH_VELOCITY_FACTOR	50.0f
 #define DELAY_FACTOR			1000.0f
+#define MIN_DELAY               100.0f
 
 void runDynamicMessage(id self, SEL _cmd, id selector, NSDictionary *command)
 {
@@ -58,8 +59,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	playerBodyDef.fixedRotation = true;
 	
 	// Try to use dynamic bodies, but ignoring gravity
-	//playerBodyDef.type = b2_kinematicBody;
-    if (!physics && solid) playerBodyDef.type = b2_staticBody;
+    if (!physics && solid) playerBodyDef.type = b2_kinematicBody; // was b2_staticBody before but then we cannot move it, need to keep an eye on this!!
     else playerBodyDef.type = b2_dynamicBody;
 	
 	playerBodyDef.position.Set(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO);
@@ -189,6 +189,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 		NSDictionary *event = (NSDictionary *)[behavior objectAtIndex:i];
 		NSString *nameEvent = [event objectForKey:@"event"];
         
+        //CCLOG(@"Robot.triggerEvent: %@ == %@", nameEvent, eventName);
 		if ([nameEvent isEqualToString:eventName]) {
             //CCLOG(@"Robot.%@: %@", name, event);
             
@@ -241,7 +242,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
             //body->SetActive( false );
         }
         
-        if (!onOutShot && onInShot) [self triggerEvent:@"outShot"];
+        if (!onOutShot && onInShot) [self triggerEvent:@"onOutShot"];
         
         onOutShot = YES;
         onInShot = NO;
@@ -252,7 +253,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
             //body->SetActive( true );
         }
 		
-		if (!onInShot) [self triggerEvent:@"inShot"];
+		if (!onInShot) [self triggerEvent:@"onInShot"];
         
         onInShot = YES;
         onOutShot = NO;
@@ -263,6 +264,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	//}
 	
 	b2Vec2 current = body->GetLinearVelocity();
+    
 	if (current.x > 0) {
 		facingLeft = NO;
 		
@@ -860,6 +862,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	NSString *token = [[command objectForKey:@"instance"] objectForKey:@"token"];
 	if ([token isEqualToString:@"player"]) {
 		if (amount < 0) {
+            if (touchingPlayer) [[SimpleAudioEngine sharedEngine] playEffect:@"IG Hero Damage.caf" pitch:1.0f pan:0.0f gain:1.0f];
 			[[GameLayer getInstance] decreaseHealth:amount];
 			
 		} else {
@@ -1391,6 +1394,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 		delay = [[command objectForKey:@"delay"] floatValue];
 	}
 	
+    if (delay < MIN_DELAY) delay = MIN_DELAY; // Just for security in case someone sets a very low delay!!
+    
     NSString *message = [command objectForKey:@"message"];
     if (TRACE_COMMANDS) CCLOG(@"Robot.messageSelfAfterDelay: %@ (%f)", message, delay/DELAY_FACTOR);
     
@@ -1417,6 +1422,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	} else {
 		delay = [[command objectForKey:@"delay"] floatValue];
 	}
+    
+    if (delay < MIN_DELAY) delay = MIN_DELAY; // Just for security in case someone sets a very low delay!!
     
     NSString *message = [command objectForKey:@"message"];
     if (TRACE_COMMANDS) CCLOG(@"Robot.broadcastMessageAfterDelay: %@ (%f)", message, delay/DELAY_FACTOR);
@@ -2019,6 +2026,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     body->SetAngularVelocity(0);
     
     [self stopAllActions];
+    
+    [self triggerEvent:@"onSpawn"];
 }
 
 -(void) remove
@@ -2037,7 +2046,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     } else {
         
         if (![name isEqualToString:@"Teleporter"] && ![name isEqualToString:@"Story-Point"])
-            [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and Gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
+            [[SimpleAudioEngine sharedEngine] playEffect:@"IG Star and gem.caf" pitch:1.0f pan:0.0f gain:1.0f];
         [super remove];
     }
 }
@@ -2066,8 +2075,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
             break;
             
         case kGameObjectPlayer:
-            [ self touched:object ];
             touchingPlayer = YES;
+            [ self touched:object ];
             break;
             
         case kGameObjectBullet:

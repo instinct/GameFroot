@@ -73,6 +73,8 @@
     
 	// My games
 	NSString *userName;
+    NSString *emailAddress;
+    BOOL loadedAvatar;
     
     // Async connection
     NSURLConnection *conn;
@@ -92,6 +94,7 @@
 // returns a CCScene that contains the HomeLayer as the only child
 +(CCScene *) scene;
 
+-(void) cancelAsynchronousConnection;
 -(void) loadWelcome;
 -(void) loadGameDetail;
 -(void) loadFeatured;
@@ -101,5 +104,6 @@
 -(void) loadMore;
 -(void) updatePlayedBadge;
 -(void) setupMyGamesHeader;
+-(BOOL) checkLogin:(NSString *)email;
 
 @end

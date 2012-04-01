@@ -644,10 +644,18 @@ GameLayer *instance;
         if ((musicArray != nil) && [musicArray isKindOfClass:[NSArray class]] && [musicArray count] > 0) {
             
             NSDictionary *defaultMusicURL = [[headerData objectForKey:@"background"] objectForKey:@"default_music"];
-            musicData = [[Shared loadMusic:musicArray fromServer:[self returnServer] ignoreCache:NO withDefault:[defaultMusicURL objectForKey:@"url"]] retain];
             
-            // now set the default music
-            [data setObject:[musicData objectForKey:@"default"] forKey:@"bgmusic"];
+            if ([defaultMusicURL isKindOfClass:[NSDictionary class]]) {
+                musicData = [[Shared loadMusic:musicArray fromServer:[self returnServer] ignoreCache:NO withDefault:[defaultMusicURL objectForKey:@"url"]] retain];
+                
+                // now set the default music
+                [data setObject:[musicData objectForKey:@"default"] forKey:@"bgmusic"];
+                
+            } else {
+                [data setObject:@"" forKey:@"bgmusic"];
+            }
+            
+            
 		} else {
 			[data setObject:@"" forKey:@"bgmusic"];
 		}
@@ -1155,7 +1163,7 @@ GameLayer *instance;
 				[movingPlatforms addObject:platform];
 				
 				if (behaviour == 1) platform.isCloud = NO;
-				else if (behaviour == 3) [platform setType:kGameObjectKiller];
+				else if (behaviour == 3) platform.isKiller = YES;
                 
 				if (frames > 1) {
 					// Set animation (if frames)
