@@ -47,7 +47,7 @@ enum GameControlType{
 #define VERTICAL_SPEED		10.0f
 #define BULLET_SPEED		9.0f
 #define JETPACK_IMPULSE		1.8f
-#define JETPACK_SPEED		0.4f
+#define JETPACK_SPEED		0.3f
 
 #define MAP_TILE_WIDTH	48.0f / CC_CONTENT_SCALE_FACTOR()
 #define MAP_TILE_HEIGHT	48.0f / CC_CONTENT_SCALE_FACTOR()

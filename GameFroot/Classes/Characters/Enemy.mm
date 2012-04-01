@@ -955,7 +955,7 @@
             else if ( data.position == CONTACT_IS_ABOVE ) [ player hitsFloor ];
             break;
         
-        case kGameObjectEnemy:
+        //case kGameObjectEnemy:
         case kGameObjectCollectable:
             data.contact->SetEnabled( false );
             break;
@@ -1009,9 +1009,9 @@
             if (!ENEMY_BLOCKS_PLAYER || dying) data.contact->SetEnabled( false );
             break;
             
-        case kGameObjectEnemy:
-            data.contact->SetEnabled( false );
-            break;
+        //case kGameObjectEnemy:
+        //    data.contact->SetEnabled( false );
+        //    break;
             
         case kGameObjectCloud:
             if ( [self isBelowCloud:object]) data.contact->SetEnabled( false );
