@@ -26,7 +26,7 @@
 #define ENEMY_JUMP_DOWN_LOOKAHEAD       3               // tiles to look ahead for jump down solutions
 #define ENEMY_JUMP_DOWN_LOOKDOWN        3               // tiles to look down for ump down solutions
 
-#define ENEMY_JUMP_GAIN                 2.0f           // how powerful jumps are
+#define ENEMY_JUMP_GAIN                 2.0f            // how powerful jumps are
 #define ENEMY_JUMP_DELAY                4.0f            // jump delay after jump ( should be randomized )    
 #define ENEMY_INITIAL_WEAPON_DELAY      0               // firing weapon will have an initial delay
 #define ENEMY_TRACK_RANGE               300             // how much to expand track range beyond visible screen

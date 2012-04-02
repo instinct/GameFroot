@@ -18,7 +18,7 @@
 +(CGSize)cellSize 
 {
 	CGSize size = [[CCDirector sharedDirector] winSize];
-    return CGSizeMake(size.width, 57);
+    return CGSizeMake(size.width, 58);
 }
 
 @end

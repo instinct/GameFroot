@@ -612,7 +612,7 @@
     }
     // apply impulse
     [self resetForces];
-    body->ApplyLinearImpulse( impulse, body->GetWorldCenter( ) );    
+    body->ApplyLinearImpulse( impulse, body->GetWorldCenter( ) );
     [ self setState:JUMPING ];
     jumping = YES;
     

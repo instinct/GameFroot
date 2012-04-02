@@ -67,6 +67,10 @@
         serverUsed = [prefs integerForKey:@"server"];
         
 		CGSize size = [[CCDirector sharedDirector] winSize];
+        
+        CCSprite *background = [CCSprite spriteWithFile:@"background.png"];
+		[background setPosition:ccp(size.width/2, size.height/2)];
+		[self addChild:background z:1];
 			
 		// Initialise properties dictionary
 		NSString *mainBundlePath = [[NSBundle mainBundle] bundlePath];
@@ -75,14 +79,7 @@
     
 		CCSprite *top = [CCSprite spriteWithFile:@"top-bar.png"];
 		[top setPosition:ccp(size.width/2, size.height - top.contentSize.height/2)];
-		[self addChild:top z:1];
-		
-        /*
-		CCSprite *logo1 = [CCSprite spriteWithFile:@"gamefroot.png"];
-		[[logo1 texture] setAntiAliasTexParameters];
-		
-		[self addChild:logo1 z:2];
-		*/
+		[self addChild:top z:2];
          
 		CCSprite *logo1 = [CCSprite spriteWithFile:@"fruit.png"];
 		[[logo1 texture] setAntiAliasTexParameters];
@@ -714,15 +711,16 @@
 		//CCLOG(@"Levels: %@", [jsonData description]);
         CCLOG(@"HomeLayer.connectionDidFinishLoading: featured refresh list");
         
+        // Cache result
+        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+        [prefs setObject:jsonDataFeatured forKey:@"featured"];
+        [prefs synchronize];
+        
         // Filter array
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
         if (filteredArray != nil) [filteredArray release];
         filteredArray = [[jsonDataFeatured filteredArrayUsingPredicate:predicate] retain];
         tableData = [filteredArray mutableCopy];
-        
-        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-        [prefs setObject:jsonDataFeatured forKey:@"featured"];
-        [prefs synchronize];
         
         [tableView reloadData];
     }
@@ -780,6 +778,15 @@
     loading = YES;
 }
 
+-(CGSize) calculateLabelSize:(NSString *)string withFont:(UIFont *)font maxSize:(CGSize)maxSize
+{
+    return [string
+            sizeWithFont:font
+            constrainedToSize:maxSize
+            lineBreakMode:UILineBreakModeWordWrap];
+    
+}
+
 -(void) _loadGameDetail {    
     CGSize size = [[CCDirector sharedDirector] winSize];
         
@@ -801,8 +808,16 @@
     [levelNameText setColor:ccc3(219, 138, 89)];
     CCLabelTTF *authorText = [CCLabelTTF labelWithString:[NSString stringWithFormat:@"by %@", author] fontName:@"HelveticaNeue-Bold" fontSize:12];
     [authorText setColor:ccc3(110, 165, 193)];
-    CCLabelTTF *descriptionText = [CCLabelTTF labelWithString:[ld objectForKey:@"content"] dimensions:CGSizeMake(size.width - 20.0f, 70.0f) alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue" fontSize:10];
+    
+    NSString *desc = [ld objectForKey:@"content"];
+    //NSString *desc = @"Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?";
+    //NSString *desc = @"Sed ut perspiciatis unde omnis iste";
+    
+    UIFont *fontReference = [UIFont fontWithName:@"HelveticaNeue" size:10];
+    CGSize sizeText = [self calculateLabelSize:desc withFont:fontReference maxSize:CGSizeMake(size.width - 24, 1024)];
+    CCLabelTTF *descriptionText = [CCLabelTTF labelWithString:desc dimensions:sizeText alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue" fontSize:10];
     [descriptionText setColor:ccc3(189, 189, 189)];
+    
     CCSprite *gameImage = [CCSprite spriteWithFile:@"game_detail_proxy_image.png"];
     CCSprite *imageOverlay = [CCSprite spriteWithFile:@"game_detail_image_overlay.png"];
     
@@ -824,26 +839,34 @@
     CCRadioMenu *likeMenu = [CCMenu menuWithItems:likeButton, unlikeButton,remixButton,nil];
     [likeMenu alignItemsHorizontallyWithPadding:20];
     
-    /*
     CCNode *container = [CCNode node];
+    //CCLayerColor *container = [CCLayerColor layerWithColor:ccc4(255,0,0,255)];
     
-    // parenting
-    [container addChild:contentMenu];
-    [container addChild:placeHolderText];
-    [container addChild:likeMenu];
-     */
+    // Calculate size of the layer
+    // NOTE! cocos2d layers don't get size according to his cildren
+    CGSize sizeScroll = CGSizeMake(size.width, 32 + gameImage.contentSize.height + 32 + levelNameText.contentSize.height + 12 + sizeText.height + 32 + contentPlayButton.contentSize.height + 32 + likeButton.contentSize.height);
+    CGSize sizeView = CGSizeMake(size.width, size.height - (45 + 50)); // Screen size minus bottom and top navigation margins
+    //CCLOG(@"scroll: %f,%f", sizeScroll.width, sizeScroll.height);
+    //CCLOG(@"view: %f,%f", sizeView.width, sizeView.height);
     
     // position stuff
     topNavMenu.position = ccp(10 + (topNavBackButton.contentSize.width / 2) , size.height - (topNavBackButton.contentSize.height/2) - 7);
-    contentMenu.position = ccp(size.width/2, size.height /2 - 70);
-    likeMenu.position = ccp(size.width/2, size.height/2 - 150);
-    gameImage.position = ccp(size.width/2, size.height/2 + 115);
+    //
+    gameImage.position = ccp(size.width/2, sizeScroll.height - 18 - gameImage.contentSize.height/2);
     imageOverlay.position = gameImage.position;
-    levelNameText.position = ccp(levelNameText.contentSize.width/2 + 10, gameImage.position.y - gameImage.contentSize.height/2 - 20);
-    authorText.position = ccp(levelNameText.contentSize.width + authorText.contentSize.width/2 + 15, levelNameText.position.y);
-    descriptionText.position = ccp(size.width/2, levelNameText.position.y - levelNameText.contentSize.height/2 - 36);
+    levelNameText.position = ccp(levelNameText.contentSize.width/2 + 12, gameImage.position.y - gameImage.contentSize.height/2 - 20);
+    authorText.position = ccp(levelNameText.contentSize.width + authorText.contentSize.width/2 + 17, levelNameText.position.y);
+    descriptionText.position = ccp(descriptionText.contentSize.width/2 + 12, levelNameText.position.y - levelNameText.contentSize.height/2 - sizeText.height/2 - 4);
+    
+    //contentMenu.position = ccp(size.width/2, size.height /2 - 70);
+    //likeMenu.position = ccp(size.width/2, size.height/2 - 150);
+    contentMenu.position = ccp(size.width/2, descriptionText.position.y - sizeText.height/2 - contentPlayButton.contentSize.height/2 - 12);
+    likeMenu.position = ccp(size.width/2, contentMenu.position.y - 83);
+    
     
     [gameDetail addChild:topNavMenu];
+    
+    /*
     [gameDetail addChild:contentMenu];
     [gameDetail addChild:likeMenu];
     [gameDetail addChild:levelNameText];
@@ -851,14 +874,15 @@
     [gameDetail addChild:descriptionText];
     [gameDetail addChild:gameImage];
     [gameDetail addChild:imageOverlay z:20];
-    
-    /*
-    // Calculate size of the layer
-    // NOTE! cocos2d layers don't get size according to his cildren
-    CGSize sizeScroll = CGSizeMake(size.width, (placeHolderText.position.y + placeHolderText.contentSize.height/2) - (likeMenu.position.y) + 120);
-    CGSize sizeView = CGSizeMake(size.width, size.height - (45 + 50)); // Screen size minus bottom and top navigation margins
-    //CCLOG(@"scroll: %f,%f", sizeScroll.width, sizeScroll.height);
-    //CCLOG(@"view: %f,%f", sizeView.width, sizeView.height);
+    */
+
+    [container addChild:contentMenu];
+    [container addChild:likeMenu];
+    [container addChild:levelNameText];
+    [container addChild:authorText];
+    [container addChild:descriptionText];
+    [container addChild:gameImage];
+    [container addChild:imageOverlay z:20];
     
     
     gameDetailSV = [SWScrollView viewWithViewSize:sizeView container:container];
@@ -866,7 +890,7 @@
     gameDetailSV.direction = SWScrollViewDirectionVertical;
     gameDetailSV.position = ccp(0,50); // Bottom navigation margin
 
-
+    /*
     if(ratingsAnchorEnabled) {
         // Scroll to ratings section
         [gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height)) animated:NO];
@@ -876,10 +900,10 @@
         // Scroll to top
         [gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height)) animated:NO];
     }
+    */
     
     [gameDetail addChild:gameDetailSV];
     gameDetailSV.visible = YES;
-    */
     
     loading = NO;
    
@@ -946,7 +970,7 @@
 	CCMenuItemSprite *featured1Button = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"young-isaac-icon.png"] selectedSprite:[CCSprite spriteWithFile:@"young-isaac-icon.png"] target:self selector:@selector(featured1:)];
 	CCMenuItemSprite *featured2Button = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"feature-icon.png"] selectedSprite:[CCSprite spriteWithFile:@"feature-icon.png"] target:self selector:@selector(featured2:)];		
 	CCMenu *menuFeatured = [CCMenu menuWithItems:featured1Button, featured2Button, nil];
-	menuFeatured.position = ccp(size.width/2, size.height - 44 - featured1Button.contentSize.height/2 - 5);
+	menuFeatured.position = ccp(size.width/2, size.height - 44 - featured1Button.contentSize.height/2 - 10);
     //menuFeatured.position = ccp(featured1Button.contentSize.width/2 + 10, size.height - 44 - featured1Button.contentSize.height/2 - 5);
 	
     [menuFeatured alignItemsHorizontally];
@@ -962,7 +986,7 @@
 	total = [tableData count];
 	if (total < ITEMS_PER_PAGE*featuredPage) loaded = total;
 	
-	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, 280)]; // - 50 to height for iAd
+	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, 270)]; // - 50 to height for iAd
 	
 	tableView.direction = SWScrollViewDirectionVertical;
 	tableView.position = ccp(0,(50)); // Add 50 to y for iAd
@@ -1014,7 +1038,7 @@
 	
     
     [tableView reloadData];
-    [tableView setContentOffset:ccp(0,[tableView contentOffset].y-57*([jsonDataMoreFeatured count])) animated:NO];
+    [tableView setContentOffset:ccp(0,[tableView contentOffset].y-58*([jsonDataMoreFeatured count])) animated:NO];
 }
 
 #pragma mark -
@@ -1179,7 +1203,7 @@
 	
     
     [tableView reloadData];
-    [tableView setContentOffset:ccp(0,[tableView contentOffset].y-57*([jsonDataMoreBrowse count])) animated:NO];
+    [tableView setContentOffset:ccp(0,[tableView contentOffset].y-58*([jsonDataMoreBrowse count])) animated:NO];
 }
 
 -(void) reloadBrowse {
@@ -1341,7 +1365,7 @@
 	
     
     [tableView reloadData];
-    [tableView setContentOffset:ccp(0,[tableView contentOffset].y-57*([jsonDataMoreMyGames count])) animated:NO];
+    [tableView setContentOffset:ccp(0,[tableView contentOffset].y-58*([jsonDataMoreMyGames count])) animated:NO];
 }
 
 -(void) _loadMyGames {
@@ -1349,10 +1373,12 @@
 	
 	CGSize size = [[CCDirector sharedDirector] winSize];
 	
+    /*
 	CCSprite *headerBox = [CCSprite spriteWithFile:@"header-box.png"];
 	[myGames addChild:headerBox z:6];
 	headerBox.position = ccp(size.width/2,size.height - 45 - headerBox.contentSize.height/2);
-	
+	*/
+    
 	AppDelegate *app = (AppDelegate *)[UIApplication sharedApplication].delegate;
 	
 	if (![[app facebook] isSessionValid] || (![Shared connectedToNetwork])) {
@@ -1552,10 +1578,13 @@
     if (CC_CONTENT_SCALE_FACTOR() == 2) tex = [[CCTexture2D alloc] initWithImage:img resolutionType:kCCResolutionRetinaDisplay];
     else tex = [[CCTexture2D alloc] initWithImage:img resolutionType:kCCResolutionStandard];
     
-    CCSprite *avatar = [CCSprite spriteWithTexture:tex];
+    CCSprite *original = [CCSprite spriteWithTexture:tex];
+    
+    CCSprite *mask = [CCSprite spriteWithFile:@"mask-avatar.png"];
+    CCSprite *avatar = [Shared maskedSpriteWithSprite:original maskSprite:mask];
     
     CGSize size = [[CCDirector sharedDirector] winSize];
-    [avatar setPosition:ccp(size.width - avatar.contentSize.width/2 - 4, size.height - avatar.contentSize.height/2 - 4)];
+    [avatar setPosition:ccp(size.width - avatar.contentSize.width/2 - 10, size.height - avatar.contentSize.height/2 - 10)];
     [self addChild:avatar z:AVATAR_TAG tag:AVATAR_TAG];
     
     CCMenuItem *item = [CCMenuItem itemWithTarget:self selector:@selector(loadMyGames)];
@@ -1728,11 +1757,15 @@
 			//CCLOG(@"Add more cell: %i, %i", idx, 0);
 			
 			// Button more
-			CCSprite *back = [CCSprite spriteWithFile:@"light-row.png"];
-			back.anchorPoint = CGPointZero;
-			
-			if (idx%2 == 0) back.opacity = 255;
-			else back.opacity = 128;
+			CCSprite *back;
+			if (idx%2 == 1) {
+                back = [CCSprite spriteWithFile:@"dark-row.png"];
+                
+            } else {
+                back = [CCSprite spriteWithFile:@"light-row.png"];
+            }
+            
+            back.anchorPoint = CGPointZero;
 			
 			CCSprite *backSelected = [CCSprite spriteWithFile:@"selected-row.png"];
 			backSelected.anchorPoint = CGPointZero;
@@ -1763,10 +1796,19 @@
 		} else {
 			//CCLOG(@"Replace more cell: %i, %i (%i, %i)", idx, 0, cell.index, cell.levelId);
 			
-			CCSprite *back = (CCSprite*)[cell getChildByTag:1];
-			if (idx%2 == 0) back.opacity = 255;
-			else back.opacity = 128;
-			
+			[cell removeChildByTag:1 cleanup:YES];
+            
+            CCSprite *back;
+			if (idx%2 == 1) {
+                back = [CCSprite spriteWithFile:@"dark-row.png"];
+                
+            } else {
+                back = [CCSprite spriteWithFile:@"light-row.png"];
+            }
+            
+            back.anchorPoint = CGPointZero;
+			[cell addChild:back z:1 tag:1];
+            
 			if (cell.levelId > 0) {
 				[cell removeChildByTag:4 cleanup:YES];
 			}
@@ -1802,11 +1844,15 @@
 			//CCLOG(@"Add cell: %i, %i", idx, levelId);
 			
 			// Button row
-			CCSprite *back = [CCSprite spriteWithFile:@"light-row.png"];
-			back.anchorPoint = CGPointZero;
-			
-			if (idx%2 == 0) back.opacity = 255;
-			else back.opacity = 128;
+			CCSprite *back;
+			if (idx%2 == 1) {
+                back = [CCSprite spriteWithFile:@"dark-row.png"];
+                
+            } else {
+                back = [CCSprite spriteWithFile:@"light-row.png"];
+            }
+            
+            back.anchorPoint = CGPointZero;
 			
 			CCSprite *backSelected = [CCSprite spriteWithFile:@"selected-row.png"];
 			backSelected.anchorPoint = CGPointZero;
@@ -1883,10 +1929,19 @@
 			if (cell.index != (int)idx) {
 				//CCLOG(@"Replace cell: %i, %i (%i, %i)", idx, levelId, cell.index, cell.levelId);
 				
-				CCSprite *back = (CCSprite*)[cell getChildByTag:1];
-				if (idx%2 == 0) back.opacity = 255;
-				else back.opacity = 128;
-				
+				[cell removeChildByTag:1 cleanup:YES];
+                
+                CCSprite *back;
+                if (idx%2 == 1) {
+                    back = [CCSprite spriteWithFile:@"dark-row.png"];
+                    
+                } else {
+                    back = [CCSprite spriteWithFile:@"light-row.png"];
+                }
+                
+                back.anchorPoint = CGPointZero;
+				[cell addChild:back z:1 tag:1];
+                
 				if ((cell.levelId > 0) || (cell.levelId == -1)) {
 					[cell removeChildByTag:4 cleanup:YES];
 				}
@@ -1957,6 +2012,8 @@
 -(void)table:(SWTableView *)table cellTouched:(SWTableViewCell *)cell {
     //CCLOG(@"cell touched at index: %i", cell.idx);
 	
+    [self cancelAsynchronousConnection];
+    
     if (displayingDeleteButton) {
         if ((deleteMenu != nil) && ([deleteMenu.parent getChildByTag:10] != nil)) {   
             [deleteMenu.parent removeChildByTag:10 cleanup:YES]; // remove any delete button
@@ -2117,7 +2174,7 @@
 
 -(CGSize)cellSizeForTable:(SWTableView *)table {
 	CGSize size = [[CCDirector sharedDirector] winSize];
-    return CGSizeMake(size.width, 57);
+    return CGSizeMake(size.width, 58);
 }
 
 #pragma mark -
