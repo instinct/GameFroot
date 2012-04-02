@@ -890,17 +890,16 @@
     gameDetailSV.direction = SWScrollViewDirectionVertical;
     gameDetailSV.position = ccp(0,50); // Bottom navigation margin
 
-    /*
     if(ratingsAnchorEnabled) {
         // Scroll to ratings section
         [gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height)) animated:NO];
-        [gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height) + sizeScroll.height - likeMenu.contentSize.height - 20) animated:YES];
+        //[gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height) + sizeScroll.height - likeMenu.contentSize.height - 20) animated:YES];
         ratingsAnchorEnabled = NO;
+        
     } else {
         // Scroll to top
         [gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height)) animated:NO];
     }
-    */
     
     [gameDetail addChild:gameDetailSV];
     gameDetailSV.visible = YES;
