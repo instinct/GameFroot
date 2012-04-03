@@ -716,6 +716,8 @@
         [prefs setObject:jsonDataFeatured forKey:@"featured"];
         [prefs synchronize];
         
+        // Too dangerous to refresh this asynchronous list since it may be in use
+        /*
         // Filter array
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
         if (filteredArray != nil) [filteredArray release];
@@ -723,6 +725,7 @@
         tableData = [filteredArray mutableCopy];
         
         [tableView reloadData];
+        */
     }
 	
 	
@@ -743,14 +746,16 @@
 #pragma mark -
 #pragma mark Welcome
 
--(void) loadWelcome {
+-(void) loadWelcome 
+{
 	selectedPage = welcome;
     CCLOG(@"HomeLayer.loadWelcome called!");
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadWelcome)];
 	loading = YES;
 }
 
--(void) _loadWelcome {
+-(void) _loadWelcome 
+{
     [Loader hideAsynchronousLoader];
     
 	CGSize size = [[CCDirector sharedDirector] winSize];
@@ -771,8 +776,10 @@
 #pragma mark -
 #pragma mark GameDetail
 
--(void) loadGameDetail {
-    [self cancelAsynchronousConnection];
+-(void) loadGameDetail 
+{
+    //[self cancelAsynchronousConnection];
+    
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadGameDetail)];
     loading = YES;
@@ -844,7 +851,7 @@
     
     // Calculate size of the layer
     // NOTE! cocos2d layers don't get size according to his cildren
-    CGSize sizeScroll = CGSizeMake(size.width, 32 + gameImage.contentSize.height + 32 + levelNameText.contentSize.height + 12 + sizeText.height + 32 + contentPlayButton.contentSize.height + 32 + likeButton.contentSize.height);
+    CGSize sizeScroll = CGSizeMake(size.width, 18 + gameImage.contentSize.height + 20 + levelNameText.contentSize.height + 12 + sizeText.height + 12 + contentPlayButton.contentSize.height + 12 + likeButton.contentSize.height);
     CGSize sizeView = CGSizeMake(size.width, size.height - (45 + 50)); // Screen size minus bottom and top navigation margins
     //CCLOG(@"scroll: %f,%f", sizeScroll.width, sizeScroll.height);
     //CCLOG(@"view: %f,%f", sizeView.width, sizeView.height);
@@ -893,7 +900,11 @@
     if(ratingsAnchorEnabled) {
         // Scroll to ratings section
         [gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height)) animated:NO];
-        //[gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height) + sizeScroll.height - likeMenu.contentSize.height - 20) animated:YES];
+        
+        if (sizeScroll.height > sizeView.height) {
+            //[gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height) + sizeScroll.height - likeMenu.contentSize.height - 20) animated:YES];
+            [gameDetailSV setContentOffset:ccp(0, -(sizeScroll.height - sizeView.height) + (sizeScroll.height - sizeView.height)) animated:YES];            
+        }
         ratingsAnchorEnabled = NO;
         
     } else {
@@ -2011,7 +2022,7 @@
 -(void)table:(SWTableView *)table cellTouched:(SWTableViewCell *)cell {
     //CCLOG(@"cell touched at index: %i", cell.idx);
 	
-    [self cancelAsynchronousConnection];
+    //[self cancelAsynchronousConnection];
     
     if (displayingDeleteButton) {
         if ((deleteMenu != nil) && ([deleteMenu.parent getChildByTag:10] != nil)) {   

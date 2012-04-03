@@ -1293,7 +1293,9 @@ GameLayer *instance;
 								
 								// Create collision body
 								[block setPosition:ccp(initialPos.x - (MAP_TILE_WIDTH/2.0f) + (MAP_TILE_WIDTH * ((float)(countTiles)/2.0f)), initialPos.y)];
-								[block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH * countTiles, MAP_TILE_HEIGHT)];
+								
+                                if (initialType == 3) [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH/2 * countTiles, MAP_TILE_HEIGHT/2)];
+                                else [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH * countTiles, MAP_TILE_HEIGHT)];
 								
 								if (initialType == 2) [block setType:kGameObjectCloud];
 								else if (initialType == 3) [block setType:kGameObjectKiller];
@@ -1347,7 +1349,9 @@ GameLayer *instance;
 								
 								// Create collision body
 								[block setPosition:ccp(initialPos.x - (MAP_TILE_WIDTH/2.0f) + (MAP_TILE_WIDTH * ((float)(countTiles)/2.0f)), initialPos.y)];
-								[block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH * countTiles, MAP_TILE_HEIGHT)];
+								
+                                if (initialType == 3) [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH/2 * countTiles, MAP_TILE_HEIGHT/2)];
+                                else [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH * countTiles, MAP_TILE_HEIGHT)];
 								
 								if (initialType == 2) [block setType:kGameObjectCloud];
 								else if (initialType == 3) [block setType:kGameObjectKiller];
@@ -1399,7 +1403,9 @@ GameLayer *instance;
 				
 				// Create collision body
 				[block setPosition:ccp(initialPos.x - (MAP_TILE_WIDTH/2.0f) + (MAP_TILE_WIDTH * ((float)(countTiles)/2.0f)), initialPos.y)];
-				[block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH * countTiles, MAP_TILE_HEIGHT)];
+				
+                if (initialType == 3) [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH/2 * countTiles, MAP_TILE_HEIGHT/2)];
+                else [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH * countTiles, MAP_TILE_HEIGHT)];
 				
 				if (initialType == 2) [block setType:kGameObjectCloud];
 				else if (initialType == 3) [block setType:kGameObjectKiller];

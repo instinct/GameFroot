@@ -81,7 +81,7 @@
         groundBox.Set(lowerRight - b2Vec2(MAP_TILE_WIDTH/PTM_RATIO, 0), upperRight - b2Vec2(MAP_TILE_WIDTH/PTM_RATIO, 0));
         body->CreateFixture(&groundBox,0);
         
-    } else {
+    } else if (size.width == MAP_TILE_WIDTH) {
         // Add cross edge to avoid bullets going through
         groundBox.Set(lowerRight, upperRight - b2Vec2(MAP_TILE_WIDTH/PTM_RATIO, 0));
         body->CreateFixture(&groundBox,0); 
