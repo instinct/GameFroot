@@ -45,7 +45,7 @@
         
         CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"back_button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"back_pressed.png"] target:self selector:@selector(backMenu:)];
         
-        CCMenu *mainMenu = [CCMenu menuWithItems:backButton, _playButton, helpButton, nil];
+        mainMenu = [CCMenu menuWithItems:backButton, _playButton, helpButton, nil];
         mainMenu.position = ccp(size.width*0.5, size.height*0.4);
         helpButton.position = ccpSub(helpButton.position, ccp(0,(4*CC_CONTENT_SCALE_FACTOR())));
         [mainMenu alignItemsHorizontallyWithPadding:30];
@@ -65,6 +65,13 @@
         //[self hideProgressBar];
         [self addChild:_progressBar z:10];
         [self hideProgressBar];
+        
+        //\\//\\ Help Screen Setup //\\//
+        
+        _helpScreen = [HelpScreen node];
+        _helpScreen.zOrder = 2000;
+        _helpScreen.visible = NO;
+        [self addChild:_helpScreen];
     }
     return self;
 }
@@ -89,7 +96,13 @@
 }
 
 -(void) _onHelp:(id)sender {
-    CCLOG(@"onHelp pushed!");
+    mainMenu.visible = NO;
+    _helpScreen.visible = YES;
+}
+
+-(void) closeHelp {
+    mainMenu.visible = YES;
+    _helpScreen.visible = NO;
 }
 
 -(void) showProgressBar {
@@ -104,10 +117,10 @@
     [self setProgressBar:0.0f];
 }
 
-
 -(void) setProgressBar:(float)percent
 {
     [_progressBar setPercent:percent];
 }
+
 
 @end
