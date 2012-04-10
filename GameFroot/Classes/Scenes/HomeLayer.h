@@ -108,5 +108,6 @@
 -(void) setupMyGamesHeader;
 -(BOOL) checkLogin:(NSString *)email;
 -(void) changeServer:(int)server;
+-(BOOL) usingStagingServer;
 
 @end

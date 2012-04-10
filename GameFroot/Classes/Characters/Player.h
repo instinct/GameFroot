@@ -38,7 +38,7 @@ enum ANIM { STAND = 0, WALK, CROUCH, PRONE, JUMPING, FALLING };
 	
 	int initialX, initialY, originalX, originalY;
 	
-    int horizontalSpeed;
+    float horizontalSpeed;
 	BOOL dying;
 	BOOL immortal;
 	BOOL paused;

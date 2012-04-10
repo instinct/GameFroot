@@ -321,24 +321,24 @@
             [self changeServer:1];
             UIAlertView *av = [[[UIAlertView alloc] initWithTitle: @"Beta Mode Disabled" 
                                                                  message: @"You have disabled Beta Mode."
-                                                                delegate: nil 
-                                                       cancelButtonTitle: @"Ok" 
+                                                                delegate: self 
+                                                       cancelButtonTitle: @"Refresh" 
                                                        otherButtonTitles: nil] autorelease];
             [av show];
             
         } else {
             CCLOG(@"Beta mode on!");
-            // Check what server to use, if staging or live
             NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
             [Shared setBetaMode:YES];
-            [self changeServer:[prefs integerForKey:@"server"]];
+            [self changeServer:[prefs integerForKey:@"server"]];;
             UIAlertView *av = [[[UIAlertView alloc] initWithTitle: @"Beta Mode Enabled" 
                                   message: @"Beta mode is now enabled. This is for developers only. To disable Beta mode, touch the GameFroot logo 6 times."
-                                  delegate: nil 
-                                  cancelButtonTitle: @"Ok" 
+                                  delegate: self 
+                                  cancelButtonTitle: @"Refresh" 
                                   otherButtonTitles: nil] autorelease];
             [av show];
         }
+        
     }
 }
 
@@ -1738,18 +1738,35 @@
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
     NSString *title = [alertView buttonTitleAtIndex:buttonIndex];
-	if([title isEqualToString:@"Logout"])
+	if ([title isEqualToString:@"Logout"])
     {
 		[self fbLogout:nil];
         
-    } else if([title isEqualToString:@"My Games"]) {
+    } else if ([title isEqualToString:@"My Games"]) {
         if (gameDetailLoaded) {
             [gameDetail removeAllChildrenWithCleanup:YES];
             gameDetailLoaded = NO;
         }
         [self loadMyGames];
      
-    } else if([title isEqualToString:@"Start a remix"]) {
+    } else if ([title isEqualToString:@"Refresh"]) {
+        // Refresh current page
+        CCNode *previousPage = selectedPage;
+        if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
+        selectedPage = nil;
+        if(previousPage == featured) {
+            [self loadFeatured];
+        } else if(previousPage == playing) {
+            [self loadPlaying];
+        } else if(previousPage == browse) {
+            [self loadBrowse];
+        } else if(previousPage == myGames) {
+            [self loadMyGames];
+        } else {
+            [self loadFeatured];
+        }
+    
+    } else if ([title isEqualToString:@"Start a remix"]) {
         
         NSMutableDictionary *ld = [Shared getLevel];
         
@@ -1829,6 +1846,9 @@
         NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
         int immortal = [prefs integerForKey:@"immortal"];
         [debugOptions setSelectedIndex:immortal];
+        
+        int server = [prefs integerForKey:@"server"];
+        [serverOptions setSelectedIndex:server];
         
         CCMenu *menu = [CCMenu menuWithItems:serverOptions, debugOptions, nil];
         [menu alignItemsHorizontallyWithPadding:25.0f];

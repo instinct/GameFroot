@@ -55,7 +55,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     startsWithWeapon = [[properties objectForKey:@"hasWeapon"] boolValue];
     startsWithJetpack = [[properties objectForKey:@"hasJetpack"] intValue] == 1;
     
-    horizontalSpeed = ([[properties objectForKey:@"speed"] intValue] * 65) / (PTM_RATIO*CC_CONTENT_SCALE_FACTOR());
+    horizontalSpeed = ([[properties objectForKey:@"speed"] floatValue] * 70.0f) / (PTM_RATIO*CC_CONTENT_SCALE_FACTOR());
+    //CCLOG(@">>>>>>> player horizontal seepd: %f", horizontalSpeed);
     
     [[GameLayer getInstance] setLives:lives];
     
@@ -1349,6 +1350,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 {
 	b2Vec2 current = body->GetLinearVelocity();
 	
+    if (current.y > 0) return; // Ignore floor hits when we just walk into another different type of platform (so different body)
+        
     //CCLOG(@"Player.hitsFloor: speed: %f", current.y);
     
     if (current.y < 0) {
