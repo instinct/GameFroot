@@ -318,24 +318,26 @@
         if ([Shared isBetaMode]) {
             CCLOG(@"Beta mode off!");
             [Shared setBetaMode:NO];
+            [self changeServer:1];
             UIAlertView *av = [[[UIAlertView alloc] initWithTitle: @"Beta Mode Disabled" 
                                                                  message: @"You have disabled Beta Mode."
                                                                 delegate: nil 
                                                        cancelButtonTitle: @"Ok" 
                                                        otherButtonTitles: nil] autorelease];
-            
-            
             [av show];
             
         } else {
             CCLOG(@"Beta mode on!");
+            // Check what server to use, if staging or live
+            NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
             [Shared setBetaMode:YES];
+            [self changeServer:[prefs integerForKey:@"server"]];
             UIAlertView *av = [[[UIAlertView alloc] initWithTitle: @"Beta Mode Enabled" 
                                   message: @"Beta mode is now enabled. This is for developers only. To disable Beta mode, touch the GameFroot logo 6 times."
                                   delegate: nil 
                                   cancelButtonTitle: @"Ok" 
                                   otherButtonTitles: nil] autorelease];
-            [av show]; 
+            [av show];
         }
     }
 }
@@ -1833,8 +1835,11 @@
 }
 
 -(void) server:(id)sender {
-    serverUsed = [sender selectedIndex];
-    
+    [self changeServer:[sender selectedIndex]];
+}
+
+-(void) changeServer:(int)server {
+    serverUsed = server;
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	[prefs setInteger:serverUsed forKey:@"server"];
 	[prefs synchronize];

@@ -26,11 +26,11 @@
         [helpTitle setPosition:ccp(size.width*0.5,size.height*0.9)];
         [self addChild:helpTitle];
         
-        NSString *instructions = @"Move: Left and Right arrows\n Shoot: A [left most]\nJump: B [right most]\nSwipe down to crouch and look down\nPause button: game options and quit game.";
+        NSString *instructions = @"Move: Left and Right arrows\nShoot: A [left most]\nJump: B [right most]\nSwipe down to crouch and look down\nPause button: game options and quit game.";
         
         // Set up help text
-        CCLabelTTF *helpText = [CCLabelTTF labelWithString:instructions dimensions:CGSizeMake(size.width-20, size.height-50) alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue-Bold" fontSize:12];
-        [helpText setPosition:ccp(size.width*0.5,size.height*0.3)];
+        CCLabelTTF *helpText = [CCLabelTTF labelWithString:instructions dimensions:CGSizeMake(size.width-30, size.height-50) alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue-Bold" fontSize:16];
+        [helpText setPosition:ccp(size.width*0.65,size.height*0.3)];
         [self addChild:helpText];
         
         // Set up back button

@@ -47,6 +47,7 @@ static BOOL betaMode = NO;
 
 +(void) setBetaMode:(BOOL)m {
     betaMode = m;
+    [CCDirector sharedDirector].displayFPS = betaMode;
 }
 
 +(BOOL) isBetaMode {

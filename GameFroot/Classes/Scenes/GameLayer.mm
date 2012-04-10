@@ -228,7 +228,6 @@ GameLayer *instance;
 -(id) init
 {    
 	[[CCDirector sharedDirector] setDeviceOrientation:kCCDeviceOrientationLandscapeLeft];
-	[[CCDirector sharedDirector] setDisplayFPS:YES];
 	
 	// always call "super" init
 	// Apple recommends to re-assign "self" with the "super" return value

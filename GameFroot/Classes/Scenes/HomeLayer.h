@@ -108,5 +108,6 @@
 -(void) updatePlayedBadge;
 -(void) setupMyGamesHeader;
 -(BOOL) checkLogin:(NSString *)email;
+-(void) changeServer:(int)server;
 
 @end
