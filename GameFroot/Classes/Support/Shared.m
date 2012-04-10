@@ -23,6 +23,7 @@ static BOOL playing = NO;
 static BOOL paused = YES;
 static BOOL welcomeShown = NO;
 static BOOL simulator = NO;
+static BOOL betaMode = NO;
 
 #pragma mark -
 #pragma mark Generic functions
@@ -42,6 +43,15 @@ static BOOL simulator = NO;
     [formatter release];
     [cal release];
     return ret;
+}
+
++(void) setBetaMode:(BOOL)m {
+    betaMode = m;
+    [CCDirector sharedDirector].displayFPS = betaMode;
+}
+
++(BOOL) isBetaMode {
+    return betaMode;
 }
 
 +(NSMutableDictionary*) getLevelData {

@@ -228,9 +228,7 @@ GameLayer *instance;
 -(id) init
 {    
 	[[CCDirector sharedDirector] setDeviceOrientation:kCCDeviceOrientationLandscapeLeft];
-#ifdef DEBUG    
-	[[CCDirector sharedDirector] setDisplayFPS:YES];
-#endif
+
 	// always call "super" init
 	// Apple recommends to re-assign "self" with the "super" return value
 	if( (self=[super init])) {
@@ -241,7 +239,11 @@ GameLayer *instance;
 		
         // Check what server to use, if staging or live
         NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-        serverUsed = [prefs integerForKey:@"server"];
+        if([Shared isBetaMode]) {
+            serverUsed = [prefs integerForKey:@"server"];
+        } else {
+            serverUsed = 1;
+        }
         
 		// Check if we need to download the level data or use cache
 		ignoreCache = YES;		

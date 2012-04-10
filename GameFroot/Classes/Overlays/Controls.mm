@@ -33,8 +33,8 @@
         dpadRight = [CCSprite spriteWithSpriteFrameName:@"dpad_side.png"];
         dpadUp = [CCSprite spriteWithSpriteFrameName:@"dpad_up.png"];
         dpadDown = [CCSprite spriteWithSpriteFrameName:@"dpad_down.png"];
-        aButton = [CCSprite spriteWithSpriteFrameName:@"a_button.png"];
-        bButton = [CCSprite spriteWithSpriteFrameName:@"b_button.png"];
+        aButton = [CCSprite spriteWithSpriteFrameName:@"b_button.png"];
+        bButton = [CCSprite spriteWithSpriteFrameName:@"a_button.png"];
         psLeft = [CCSprite spriteWithSpriteFrameName:@"left.png"];
         psRight = [CCSprite spriteWithSpriteFrameName:@"right.png"];
         psProne = [CCSprite spriteWithSpriteFrameName:@"prone_icon.png"];

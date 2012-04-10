@@ -10,11 +10,14 @@
 #import "GameLayer.h"
 #import "Shared.h"
 #import "AGProgressBar.h"
+#import "HelpScreen.h"
 
 @interface GameMenu : CCLayer {
     @private
         CCMenuItemSprite *_playButton;
         AGProgressBar *_progressBar;
+        CCLayer *_helpScreen;
+        CCMenu *mainMenu;
         bool playMode;
 }
 
@@ -23,6 +26,7 @@
 -(void) hideProgressBar;
 -(void) setProgressBar:(float)percent;
 -(void) playModeOn:(bool)status;
+-(void) closeHelp;
 
 
 @end

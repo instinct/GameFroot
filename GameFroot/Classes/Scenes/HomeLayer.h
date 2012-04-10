@@ -26,6 +26,9 @@
 > {
 	// Properties
 	NSDictionary *properties;
+    
+    // Beta mode
+    int secretTaps;
 	
 	// Containers
     CCNode *welcome;
@@ -104,5 +107,6 @@
 -(void) updatePlayedBadge;
 -(void) setupMyGamesHeader;
 -(BOOL) checkLogin:(NSString *)email;
+-(void) changeServer:(int)server;
 
 @end

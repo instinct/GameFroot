@@ -519,6 +519,7 @@
 		22D0E1F3150D4C2E00C19BFA /* War Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1AE150D4C2E00C19BFA /* War Theme - 8 Bit.mp3 */; };
 		22D0E1F6150D4C2E00C19BFA /* Western Theme - 8 bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1B2150D4C2E00C19BFA /* Western Theme - 8 bit.mp3 */; };
 		22D3A6DA14E2276B00EAB052 /* rate_controls_mockup.png in Resources */ = {isa = PBXBuildFile; fileRef = 22D3A6D914E2276B00EAB052 /* rate_controls_mockup.png */; };
+		22D77A8815338AED00F2C982 /* HelpScreen.mm in Sources */ = {isa = PBXBuildFile; fileRef = 22D77A8715338AED00F2C982 /* HelpScreen.mm */; };
 		22EF3EF715216B7300A17A5C /* EnemyBehaviourState.m in Sources */ = {isa = PBXBuildFile; fileRef = 22EF3EF615216B7300A17A5C /* EnemyBehaviourState.m */; };
 		22F8D1D114F5B52600780B13 /* controls-hd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 22F8D1CD14F5B52600780B13 /* controls-hd.plist */; };
 		22F8D1D214F5B52600780B13 /* controls-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 22F8D1CE14F5B52600780B13 /* controls-hd.png */; };
@@ -1285,6 +1286,8 @@
 		22D0E1AE150D4C2E00C19BFA /* War Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "War Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
 		22D0E1B2150D4C2E00C19BFA /* Western Theme - 8 bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Western Theme - 8 bit.mp3"; sourceTree = "<group>"; };
 		22D3A6D914E2276B00EAB052 /* rate_controls_mockup.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rate_controls_mockup.png; sourceTree = "<group>"; };
+		22D77A8615338AED00F2C982 /* HelpScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelpScreen.h; sourceTree = "<group>"; };
+		22D77A8715338AED00F2C982 /* HelpScreen.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HelpScreen.mm; sourceTree = "<group>"; };
 		22EF3EF515216B7300A17A5C /* EnemyBehaviourState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EnemyBehaviourState.h; sourceTree = "<group>"; };
 		22EF3EF615216B7300A17A5C /* EnemyBehaviourState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EnemyBehaviourState.m; sourceTree = "<group>"; };
 		22F8D1CD14F5B52600780B13 /* controls-hd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "controls-hd.plist"; sourceTree = "<group>"; };
@@ -2270,6 +2273,8 @@
 				1643B6D814D9B49D00A67057 /* Lose.mm */,
 				1643B6D914D9B49D00A67057 /* Win.h */,
 				1643B6DA14D9B49D00A67057 /* Win.mm */,
+				22D77A8615338AED00F2C982 /* HelpScreen.h */,
+				22D77A8715338AED00F2C982 /* HelpScreen.mm */,
 			);
 			path = Overlays;
 			sourceTree = "<group>";
@@ -3188,6 +3193,7 @@
 				165179EF1517683100DDE7D7 /* CCScheduler+BlockAddition.m in Sources */,
 				22EF3EF715216B7300A17A5C /* EnemyBehaviourState.m in Sources */,
 				1693D3A41526ED4100A34306 /* GravatarLoader.m in Sources */,
+				22D77A8815338AED00F2C982 /* HelpScreen.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

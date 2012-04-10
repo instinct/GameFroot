@@ -57,6 +57,7 @@
 {
 	[[CCDirector sharedDirector] setDeviceOrientation:kCCDeviceOrientationPortrait];
 	[[CCDirector sharedDirector] setDisplayFPS:NO];
+    
 	
 	// always call "super" init
 	// Apple recommends to re-assign "self" with the "super" return value
@@ -64,7 +65,12 @@
         
         // Check what server to use, if staging or live
         NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-        serverUsed = [prefs integerForKey:@"server"];
+        
+        if ([Shared isBetaMode]) {
+            serverUsed = [prefs integerForKey:@"server"];
+        } else {
+            serverUsed = 1;
+        }
         
 		CGSize size = [[CCDirector sharedDirector] winSize];
         
@@ -81,10 +87,21 @@
 		[top setPosition:ccp(size.width/2, size.height - top.contentSize.height/2)];
 		[self addChild:top z:2];
          
-		CCSprite *logo1 = [CCSprite spriteWithFile:@"fruit.png"];
-		[[logo1 texture] setAntiAliasTexParameters];
-		logo1.position = top.position; 
-		[self addChild:logo1 z:3];
+        /*
+            The GameFroot Logo is a secret button that triggers beta mode.
+            To trigger beta mode, tap the logo 5 times
+         */
+        
+        secretTaps = 0;
+        
+		CCSprite *logo1Normal = [CCSprite spriteWithFile:@"fruit.png"];
+        CCSprite *logo1Selected = [CCSprite spriteWithFile:@"fruit.png"];
+		[[logo1Normal texture] setAntiAliasTexParameters];
+        [[logo1Selected texture] setAliasTexParameters];
+        CCMenuItemSprite *secretButton = [CCMenuItemSprite itemFromNormalSprite:logo1Normal selectedSprite:logo1Selected target:self selector:@selector(_onBetaButtonTap:)];
+        CCMenu *secretMenu = [CCMenu menuWithItems:secretButton, nil];
+        secretMenu.position = top.position;
+		[self addChild:secretMenu z:3];
 		
 		// Containers
 		featured = [CCNode node];
@@ -294,6 +311,37 @@
 #pragma mark -
 #pragma mark Event handlers
 
+-(void) _onBetaButtonTap:(id)sender {
+    secretTaps++;
+    if(secretTaps == 6) {
+        secretTaps = 0;
+        if ([Shared isBetaMode]) {
+            CCLOG(@"Beta mode off!");
+            [Shared setBetaMode:NO];
+            [self changeServer:1];
+            UIAlertView *av = [[[UIAlertView alloc] initWithTitle: @"Beta Mode Disabled" 
+                                                                 message: @"You have disabled Beta Mode."
+                                                                delegate: nil 
+                                                       cancelButtonTitle: @"Ok" 
+                                                       otherButtonTitles: nil] autorelease];
+            [av show];
+            
+        } else {
+            CCLOG(@"Beta mode on!");
+            // Check what server to use, if staging or live
+            NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+            [Shared setBetaMode:YES];
+            [self changeServer:[prefs integerForKey:@"server"]];
+            UIAlertView *av = [[[UIAlertView alloc] initWithTitle: @"Beta Mode Enabled" 
+                                  message: @"Beta mode is now enabled. This is for developers only. To disable Beta mode, touch the GameFroot logo 6 times."
+                                  delegate: nil 
+                                  cancelButtonTitle: @"Ok" 
+                                  otherButtonTitles: nil] autorelease];
+            [av show];
+        }
+    }
+}
+
 -(void) selectedLevel:(id)sender {
     [Loader hideAsynchronousLoader];
     
@@ -306,8 +354,18 @@
 
 // Selected featured buttons
 -(void) featured1:(id)sender {
-
-    NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=promotional", [self returnServer]];
+    
+    // HACK: This is hardcoded for now.
+    int featuredGameID = 4320;
+    
+    NSString *levelsURL;
+    
+    if([Shared isBetaMode]) {
+        levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=promotional", [self returnServer]];
+    } else {
+        levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=ios-promotional", [self returnServer]];
+    }
+    
     CCLOG(@"Load promotional levels: %@", levelsURL);
     
     // Try to load cached version first, if not load online
@@ -315,9 +373,7 @@
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];        
     if ([prefs objectForKey:@"promotional"] != nil) {
         data = [[prefs objectForKey:@"promotional"] mutableCopy];
-        
         CCLOG(@"Load cached promotional levels");
-        
     } else {
         NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:NO];
         NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
@@ -331,15 +387,34 @@
         return;
     }
     
-	if ([data count] == 1) [Shared setLevel:[[data objectAtIndex:0] mutableCopy]];
-    else if ([data count] > 1) [Shared setLevel:[[data objectAtIndex:1] mutableCopy]];
+    NSDictionary *levelD;
+    
+    // Find the featured game ID
+    for (NSDictionary *level in data) {
+        if ([[level objectForKey:@"id"] intValue] == featuredGameID) {
+            levelD = level;
+        }
+    }
+    
+    if(levelD == NULL) return;
+    
+    // use the map Id for the Issac game
+	[Shared setLevel:[levelD mutableCopy]];
     
     //[self selectedLevel:nil];
     [self loadGameDetail];
 }
 
 -(void) featured2:(id)sender {
-	NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=promotional", [self returnServer]];
+	
+    NSString *levelsURL;
+    
+    if([Shared isBetaMode]) {
+        levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=promotional", [self returnServer]];
+    } else {
+        levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=ios-promotional", [self returnServer]];
+    }
+
     CCLOG(@"Load promotional levels: %@", levelsURL);
     
     // Try to load cached version first, if not load online
@@ -546,10 +621,10 @@
     } else {
         // logged in
         UIAlertView *alertView2 = [[[UIAlertView alloc] initWithTitle: @"Think you can improve this game?" 
-                                                              message: @"Take a copy of this game for yourself and do a remix of it! Building upon what has made, you can change it in any way you wish."
+                                                              message: @"Take a copy of this game, then modify it on a computer."
                                                              delegate: self 
                                                     cancelButtonTitle: @"Cancel" 
-                                                    otherButtonTitles: @"Start a remix", nil] autorelease];
+                                                    otherButtonTitles: @"Start a Remix", nil] autorelease];
         [alertView2 show];
     }
     
@@ -767,14 +842,14 @@
 #pragma mark GameDetail
 
 -(void) loadGameDetail 
-{    
+{
+    // [self cancelAsynchronousConnection];
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadGameDetail)];
     loading = YES;
 }
 
--(CGSize) calculateLabelSize:(NSString *)string withFont:(UIFont *)font maxSize:(CGSize)maxSize
-{
+-(CGSize) calculateLabelSize:(NSString *)string withFont:(UIFont *)font maxSize:(CGSize)maxSize {
     return [string
             sizeWithFont:font
             constrainedToSize:maxSize
@@ -948,7 +1023,14 @@
         
         featuredPage = 1;
         
-        NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=featured&page=%i", [self returnServer], featuredPage];
+        NSString *levelsURL;
+        
+        if([Shared isBetaMode]) {
+            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=featured&page=%i", [self returnServer], featuredPage];
+        } else {
+            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=ios-featured&page=%i", [self returnServer], featuredPage];
+        }
+
 		CCLOG(@"Load levels: %@",levelsURL);
         
         // Try to load cached version first, if not load online
@@ -985,8 +1067,11 @@
 	
 	// Featured panel
 	CCMenuItemSprite *featured1Button = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"young-isaac-icon.png"] selectedSprite:[CCSprite spriteWithFile:@"young-isaac-icon.png"] target:self selector:@selector(featured1:)];
-	CCMenuItemSprite *featured2Button = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"feature-icon.png"] selectedSprite:[CCSprite spriteWithFile:@"feature-icon.png"] target:self selector:@selector(featured2:)];		
-	CCMenu *menuFeatured = [CCMenu menuWithItems:featured1Button, featured2Button, nil];
+    /*
+	CCMenuItemSprite *featured2Button = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"feature-icon.png"] selectedSprite:[CCSprite spriteWithFile:@"feature-icon.png"] target:self selector:@selector(featured2:)];
+     */
+    
+	CCMenu *menuFeatured = [CCMenu menuWithItems:featured1Button, /*featured2Button,*/ nil];
 	menuFeatured.position = ccp(size.width/2, size.height - 44 - featured1Button.contentSize.height/2 - 10);
     //menuFeatured.position = ccp(featured1Button.contentSize.width/2 + 10, size.height - 44 - featured1Button.contentSize.height/2 - 5);
 	
@@ -1018,7 +1103,14 @@
     
     if (refreshInBackground) {
         // Now load in the background online levels
-        NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=featured&page=%i", [self returnServer], 1];
+        NSString *levelsURL;
+        
+        if([Shared isBetaMode]) {
+            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=featured&page=%i", [self returnServer], 1];
+        } else {
+            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=ios-featured&page=%i", [self returnServer], 1];
+        }
+
         [self asynchronousContentsOfURL:levelsURL];
     }
 	
@@ -1026,8 +1118,14 @@
 
 -(void) _loadMoreFeatured {
     featuredPage++;
+    NSString *levelsURL;
     
-    NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=featured&page=%i", [self returnServer], featuredPage];
+    if([Shared isBetaMode]) {
+        levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=featured&page=%i", [self returnServer], featuredPage];
+    } else {
+        levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=ios-featured&page=%i", [self returnServer], featuredPage];
+    }
+
     CCLOG(@"Load levels: %@",levelsURL);
     
     NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
@@ -1149,7 +1247,17 @@
         
         browsePage = 1;
 		
-		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], browsePage];
+        // use differnt catagory depending on wether we are in beta mode or not
+        // If beta mode use standard categories, if not beta use special ios categories
+        
+        NSString *levelsURL;
+        
+        if([Shared isBetaMode]) {
+            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], browsePage];
+        } else {
+            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=ios-browse&page=%i", [self returnServer], browsePage];
+        }
+		
 		CCLOG(@"Load levels: %@",levelsURL);
 		
 		NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
@@ -1191,8 +1299,14 @@
 
 -(void) _loadMoreBrowse {
     browsePage++;
+    NSString *levelsURL;
     
-    NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], browsePage];
+    if([Shared isBetaMode]) {
+        levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], browsePage];
+    } else {
+        levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=ios-browse&page=%i", [self returnServer], browsePage];
+    }
+
     CCLOG(@"Load levels: %@",levelsURL);
     
     NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
@@ -1234,7 +1348,14 @@
 	
 	if (jsonDataBrowse == nil) {
 		
-		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels", [self returnServer]];
+		NSString *levelsURL;
+        
+        if([Shared isBetaMode]) {
+            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels", [self returnServer]];
+        } else {
+            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=ios-browse", [self returnServer]];
+        }
+
 		CCLOG(@"Load levels: %@",levelsURL);
 		
 		NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
@@ -1640,10 +1761,10 @@
         
         if ([result intValue] > 0) {
         
-            UIAlertView *alertView1 = [[[UIAlertView alloc] initWithTitle: @"Your copy is ready." 
-                                                              message: @"Open the level editor on a web browser and make your changes. Don't forget to publish your level when you're done so others can build on what you've made!"
+            UIAlertView *alertView1 = [[[UIAlertView alloc] initWithTitle: @"Remix Copy Ready." 
+                                                              message: @"A copy of this game is now ready for remixing on gamefroot.com. Visit our website on a computer, open this level in the level editor and make your changes!"
                                                              delegate: nil 
-                                                    cancelButtonTitle: @"Ok" 
+                                                    cancelButtonTitle: @"Awesome!" 
                                                     otherButtonTitles: nil] autorelease];
             [alertView1 show];
             
@@ -1690,29 +1811,31 @@
     [more addChild:moreLabel];
     
 #if COCOS2D_DEBUG
-    [CCMenuItemFont setFontSize:17];
-	[CCMenuItemFont setFontName:@"HelveticaNeue"];
-    
-    CCMenuItemToggle *serverOptions = [CCMenuItemToggle itemWithTarget:self selector:@selector(server:) items:
-             [CCMenuItemFont itemFromString: @"Staging"],
-             [CCMenuItemFont itemFromString: @"Live"],
-            nil];
-    [serverOptions setSelectedIndex:serverUsed];
-    
-    CCMenuItemToggle *debugOptions = [CCMenuItemToggle itemWithTarget:self selector:@selector(immortal:) items:
-                                       [CCMenuItemFont itemFromString: @"Mortal"],
-                                       [CCMenuItemFont itemFromString: @"Immortal"],
-                                       nil];
-    
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    int immortal = [prefs integerForKey:@"immortal"];
-    [debugOptions setSelectedIndex:immortal];
-    
-    CCMenu *menu = [CCMenu menuWithItems:serverOptions, debugOptions, nil];
-    [menu alignItemsHorizontallyWithPadding:25.0f];
-    [more addChild:menu];
-    
-    [menu setPosition:ccp(size.width/2, size.height - 50 - serverOptions.contentSize.height/2)];
+    if ([Shared isBetaMode]) {
+        [CCMenuItemFont setFontSize:17];
+        [CCMenuItemFont setFontName:@"HelveticaNeue"];
+        
+        CCMenuItemToggle *serverOptions = [CCMenuItemToggle itemWithTarget:self selector:@selector(server:) items:
+                                           [CCMenuItemFont itemFromString: @"Staging"],
+                                           [CCMenuItemFont itemFromString: @"Live"],
+                                           nil];
+        [serverOptions setSelectedIndex:serverUsed];
+        
+        CCMenuItemToggle *debugOptions = [CCMenuItemToggle itemWithTarget:self selector:@selector(immortal:) items:
+                                          [CCMenuItemFont itemFromString: @"Mortal"],
+                                          [CCMenuItemFont itemFromString: @"Immortal"],
+                                          nil];
+        
+        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+        int immortal = [prefs integerForKey:@"immortal"];
+        [debugOptions setSelectedIndex:immortal];
+        
+        CCMenu *menu = [CCMenu menuWithItems:serverOptions, debugOptions, nil];
+        [menu alignItemsHorizontallyWithPadding:25.0f];
+        [more addChild:menu];
+        
+        [menu setPosition:ccp(size.width/2, size.height - 50 - serverOptions.contentSize.height/2)];
+    }
 #endif
     
 	loading = NO;
@@ -1720,8 +1843,11 @@
 }
 
 -(void) server:(id)sender {
-    serverUsed = [sender selectedIndex];
-    
+    [self changeServer:[sender selectedIndex]];
+}
+
+-(void) changeServer:(int)server {
+    serverUsed = server;
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	[prefs setInteger:serverUsed forKey:@"server"];
 	[prefs synchronize];
@@ -2191,6 +2317,7 @@
 	CGSize size = [[CCDirector sharedDirector] winSize];
     return CGSizeMake(size.width, 58);
 }
+
 
 #pragma mark -
 #pragma mark Dealloc
