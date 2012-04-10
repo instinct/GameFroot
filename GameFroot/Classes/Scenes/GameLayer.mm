@@ -228,8 +228,9 @@ GameLayer *instance;
 -(id) init
 {    
 	[[CCDirector sharedDirector] setDeviceOrientation:kCCDeviceOrientationLandscapeLeft];
+#ifdef DEBUG    
 	[[CCDirector sharedDirector] setDisplayFPS:YES];
-	
+#endif
 	// always call "super" init
 	// Apple recommends to re-assign "self" with the "super" return value
 	if( (self=[super init])) {
@@ -458,10 +459,9 @@ GameLayer *instance;
 		
 	} else {
 		NSString *bgmusic = [data objectForKey:@"bgmusic"];
-		if (![bgmusic isEqualToString:@""]) {
-			NSArray *values = [bgmusic componentsSeparatedByString:@"/"];
-			if ([values count] > 0) [[SimpleAudioEngine sharedEngine] playBackgroundMusic:[values lastObject] loop:YES];
-		}
+        if (![bgmusic isEqualToString:@""]) {
+            [[SimpleAudioEngine sharedEngine] playBackgroundMusic:bgmusic loop:YES];
+        }
 	}
 }
 
@@ -1984,6 +1984,8 @@ GameLayer *instance;
 	MovingPlatform *platform; CCARRAY_FOREACH(movingPlatforms, platform) {
 		[platform resetStatus:false];
 	}
+    
+    [self cleanup];
 }
 
 #pragma mark -

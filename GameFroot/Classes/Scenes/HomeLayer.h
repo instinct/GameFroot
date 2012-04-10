@@ -94,7 +94,6 @@
 // returns a CCScene that contains the HomeLayer as the only child
 +(CCScene *) scene;
 
--(void) cancelAsynchronousConnection;
 -(void) loadWelcome;
 -(void) loadGameDetail;
 -(void) loadFeatured;

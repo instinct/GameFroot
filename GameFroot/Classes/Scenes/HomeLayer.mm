@@ -300,8 +300,6 @@
     RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
     [rvc hideBanner];
     
-    [self cancelAsynchronousConnection];
-    
 	[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
 }
 
@@ -321,7 +319,7 @@
         CCLOG(@"Load cached promotional levels");
         
     } else {
-        NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
+        NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:NO];
         NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
         data = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] mutableCopy];
     }
@@ -333,7 +331,8 @@
         return;
     }
     
-	[Shared setLevel:[[data objectAtIndex:0] mutableCopy]];
+	if ([data count] == 1) [Shared setLevel:[[data objectAtIndex:0] mutableCopy]];
+    else if ([data count] > 1) [Shared setLevel:[[data objectAtIndex:1] mutableCopy]];
     
     //[self selectedLevel:nil];
     [self loadGameDetail];
@@ -352,7 +351,7 @@
         CCLOG(@"Load cached promotional levels");
         
     } else {
-        NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
+        NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:NO];
         NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
         data = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] mutableCopy];
     }
@@ -687,7 +686,7 @@
     [connection release];
     [receivedData release];
 	connecting = NO;
-	
+    
     // inform the user
     UIAlertView *alertView = [[[UIAlertView alloc] initWithTitle: @"Server Connection" 
                                                          message: @"We cannot connect to our servers, pleaser review your internet connection." 
@@ -707,21 +706,21 @@
 	
     if (selectedPage == featured) {
         
-		jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:receivedData error:nil] mutableCopy];
-		//CCLOG(@"Levels: %@", [jsonData description]);
+		NSMutableArray *jsonDataUpdatedFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:receivedData error:nil] mutableCopy];
+		//CCLOG(@"Levels: %@", [jsonDataUpdatedFeatured description]);
         CCLOG(@"HomeLayer.connectionDidFinishLoading: featured refresh list");
         
         // Cache result
         NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-        [prefs setObject:jsonDataFeatured forKey:@"featured"];
+        [prefs setObject:jsonDataUpdatedFeatured forKey:@"featured"];
         [prefs synchronize];
         
-        // Too dangerous to refresh this asynchronous list since it may be in use
+        // Too dangerous to refresh the list asynchronously since it may be in use
         /*
         // Filter array
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
         if (filteredArray != nil) [filteredArray release];
-        filteredArray = [[jsonDataFeatured filteredArrayUsingPredicate:predicate] retain];
+        filteredArray = [[jsonDataUpdatedFeatured filteredArrayUsingPredicate:predicate] retain];
         tableData = [filteredArray mutableCopy];
         
         [tableView reloadData];
@@ -732,15 +731,6 @@
     // release the connection, and the data object
 	[connection release];
     [receivedData release];
-    conn = nil;
-}
-
--(void) cancelAsynchronousConnection
-{
-    if (conn != nil) {
-        [conn cancel];
-        conn = nil;
-    }
 }
 
 #pragma mark -
@@ -777,9 +767,7 @@
 #pragma mark GameDetail
 
 -(void) loadGameDetail 
-{
-    //[self cancelAsynchronousConnection];
-    
+{    
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadGameDetail)];
     loading = YES;
@@ -824,6 +812,25 @@
     CGSize sizeText = [self calculateLabelSize:desc withFont:fontReference maxSize:CGSizeMake(size.width - 24, 1024)];
     CCLabelTTF *descriptionText = [CCLabelTTF labelWithString:desc dimensions:sizeText alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue" fontSize:10];
     [descriptionText setColor:ccc3(189, 189, 189)];
+    
+    // Game thumb
+    /*
+    CCSprite *gameImage;
+    NSString *urlThumb = [NSString stringWithFormat:@"%@wp-content/plugins/game_data/thumbs/%@.png", [self returnServer], [ld objectForKey:@"id"]];
+    CCLOG(@"Load thumb: %@", urlThumb);
+    NSURLRequest* request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlThumb] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:5.0];
+    NSHTTPURLResponse* response = nil;
+    NSError* error = nil;
+    [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+    NSLog(@"statusCode = %d", [response statusCode]);
+    
+    if ([response statusCode] == 404) {
+        gameImage = [CCSprite spriteWithFile:@"game_detail_proxy_image.png"];
+        
+    } else {
+        gameImage = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:urlThumb ignoreCache:NO]];
+    }
+    */
     
     CCSprite *gameImage = [CCSprite spriteWithFile:@"game_detail_proxy_image.png"];
     CCSprite *imageOverlay = [CCSprite spriteWithFile:@"game_detail_image_overlay.png"];
@@ -1597,7 +1604,7 @@
     [avatar setPosition:ccp(size.width - avatar.contentSize.width/2 - 10, size.height - avatar.contentSize.height/2 - 10)];
     [self addChild:avatar z:AVATAR_TAG tag:AVATAR_TAG];
     
-    CCMenuItem *item = [CCMenuItem itemWithTarget:self selector:@selector(loadMyGames)];
+    CCMenuItem *item = [CCMenuItem itemWithTarget:self selector:@selector(myGames:)];
     item.contentSize = avatar.contentSize;
     CCMenu *menu = [CCMenu menuWithItems:item, nil];
     [menu setPosition:avatar.position];
@@ -1676,7 +1683,7 @@
     [more addChild:logo];
     
     //CCLabelTTF *moreLabel = [CCLabelTTF labelWithString:@"© 2010–2012 Instinct Entertainment" fontName:@"HelveticaNeue" fontSize:13];
-    CCLabelTTF *moreLabel = [CCLabelTTF labelWithString:@"So want to make a game? well it's never been easier, simply head over to GameFroot.com today and enjoy what millions of others are doing!!" dimensions:CGSizeMake(size.width - 40,300) alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue" fontSize:17];
+    CCLabelTTF *moreLabel = [CCLabelTTF labelWithString:@"So you want to make a game? It's never been easier! Just head over to gamefroot.com login, and start creating! Anybody can do it!" dimensions:CGSizeMake(size.width - 40,300) alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue" fontSize:17];
     
     moreLabel.color = ccc3(255,255,255);
     moreLabel.position = ccp(size.width/2, logo.position.y - logo.contentSize.height/2 - moreLabel.contentSize.height/2 - 10);
@@ -2021,8 +2028,6 @@
 
 -(void)table:(SWTableView *)table cellTouched:(SWTableViewCell *)cell {
     //CCLOG(@"cell touched at index: %i", cell.idx);
-	
-    //[self cancelAsynchronousConnection];
     
     if (displayingDeleteButton) {
         if ((deleteMenu != nil) && ([deleteMenu.parent getChildByTag:10] != nil)) {   

@@ -639,10 +639,15 @@ has been previously downloaded, return a path to the file otherwise load the ass
         // extract the last modifed and the filesize strings to use in the cache hash
         NSString *modifiedString = [[((NSHTTPURLResponse *)response) allHeaderFields] objectForKey:@"Last-Modified"];
         NSString *fileSize = [[((NSHTTPURLResponse *)response) allHeaderFields] objectForKey:@"Content-Length"];
-        NSString *fileHash = [Shared md5:[[modifiedString stringByAppendingString:fileSize] stringByAppendingString:musicFileName]];
-        cacheFileName = [NSString stringWithFormat:@"%@-%@", fileHash, musicFileName];
-        CCLOG(@"MusicCache: generated cache filename: %@", cacheFileName);
-
+        
+        if (modifiedString != nil && fileSize != nil && musicFileName != nil) { // Crash reported on next line
+            // Crash reported on next line, so trying to be sure the strings are not nil
+            
+            NSString *fileHash = [Shared md5:[[modifiedString stringByAppendingString:fileSize] stringByAppendingString:musicFileName]];
+            cacheFileName = [NSString stringWithFormat:@"%@-%@", fileHash, musicFileName];
+            CCLOG(@"MusicCache: generated cache filename: %@", cacheFileName);
+        }
+        
     } else {
         CCLOG(@"MusicCache: cannot aquire file metadata for hash, no network connectivity?");
     }
@@ -698,7 +703,9 @@ has been previously downloaded, return a path to the file otherwise load the ass
 			} else {
 				//CCLOG(@"Shared.getTexture2DFromWeb (ONLINE, NOT SAVED:%i): %@", saved, cachedFile);
 				UIImage *img = [[UIImage alloc] initWithData:imgData];
-				CCTexture2D *tex = [[CCTexture2D alloc] initWithImage:img resolutionType:kCCResolutionStandard];
+				CCTexture2D *tex;
+                if (CC_CONTENT_SCALE_FACTOR() == 2) tex = [[CCTexture2D alloc] initWithImage:img resolutionType:kCCResolutionRetinaDisplay];
+                else tex = [[CCTexture2D alloc] initWithImage:img resolutionType:kCCResolutionStandard];
 				return tex;
 			}
 			
@@ -712,7 +719,9 @@ has been previously downloaded, return a path to the file otherwise load the ass
 			} else {
 				UIImage *img = [[UIImage alloc] initWithData:[NSData dataWithContentsOfFile:resource]];
 				//CCLOG(@"Shared.getTexture2DFromWeb (ERROR, NOT CACHED): %@", cachedFile);
-				CCTexture2D *tex = [[CCTexture2D alloc] initWithImage:img resolutionType:kCCResolutionStandard];
+				CCTexture2D *tex;
+                if (CC_CONTENT_SCALE_FACTOR() == 2) tex = [[CCTexture2D alloc] initWithImage:img resolutionType:kCCResolutionRetinaDisplay];
+                else tex = [[CCTexture2D alloc] initWithImage:img resolutionType:kCCResolutionStandard];
 				return tex;
 			}
 			

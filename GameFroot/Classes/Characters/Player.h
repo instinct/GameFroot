@@ -95,6 +95,8 @@ enum ANIM { STAND = 0, WALK, CROUCH, PRONE, JUMPING, FALLING };
     BOOL autoSafepoint;
     
     int debugImmortal;
+    
+    BOOL touchingSomeone;
 }
 
 @property (nonatomic,assign) int action;
