@@ -443,7 +443,6 @@
 		22386E1114F6E47B00C81C82 /* pause_screen.plist in Resources */ = {isa = PBXBuildFile; fileRef = 22386E0D14F6E47A00C81C82 /* pause_screen.plist */; };
 		22386E1214F6E47B00C81C82 /* pause_screen.png in Resources */ = {isa = PBXBuildFile; fileRef = 22386E0E14F6E47A00C81C82 /* pause_screen.png */; };
 		22386E1414F6E5A900C81C82 /* pause_menu_template.png in Resources */ = {isa = PBXBuildFile; fileRef = 22386E1314F6E5A900C81C82 /* pause_menu_template.png */; };
-		223D96321533B88800252EB7 /* SecretBetaButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 223D96311533B88800252EB7 /* SecretBetaButton.m */; };
 		226838BB14FB3B8100D1EB94 /* AGProgressBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 226838BA14FB3B8100D1EB94 /* AGProgressBar.m */; };
 		226838C214FB3C0500D1EB94 /* blue-bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 226838BD14FB3C0500D1EB94 /* blue-bg.png */; };
 		226838C314FB3C0500D1EB94 /* main_menu-hd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 226838BE14FB3C0500D1EB94 /* main_menu-hd.plist */; };
@@ -1209,8 +1208,6 @@
 		22386E0D14F6E47A00C81C82 /* pause_screen.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = pause_screen.plist; sourceTree = "<group>"; };
 		22386E0E14F6E47A00C81C82 /* pause_screen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pause_screen.png; sourceTree = "<group>"; };
 		22386E1314F6E5A900C81C82 /* pause_menu_template.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pause_menu_template.png; sourceTree = "<group>"; };
-		223D96301533B88800252EB7 /* SecretBetaButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SecretBetaButton.h; sourceTree = "<group>"; };
-		223D96311533B88800252EB7 /* SecretBetaButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SecretBetaButton.m; sourceTree = "<group>"; };
 		226838B914FB3B8100D1EB94 /* AGProgressBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGProgressBar.h; sourceTree = "<group>"; };
 		226838BA14FB3B8100D1EB94 /* AGProgressBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGProgressBar.m; sourceTree = "<group>"; };
 		226838BD14FB3C0500D1EB94 /* blue-bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "blue-bg.png"; sourceTree = "<group>"; };
@@ -2327,8 +2324,6 @@
 				1643B70514D9B49D00A67057 /* Reachability.m */,
 				1643B70614D9B49D00A67057 /* Shared.h */,
 				1643B70714D9B49D00A67057 /* Shared.m */,
-				223D96301533B88800252EB7 /* SecretBetaButton.h */,
-				223D96311533B88800252EB7 /* SecretBetaButton.m */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -3199,7 +3194,6 @@
 				22EF3EF715216B7300A17A5C /* EnemyBehaviourState.m in Sources */,
 				1693D3A41526ED4100A34306 /* GravatarLoader.m in Sources */,
 				22D77A8815338AED00F2C982 /* HelpScreen.mm in Sources */,
-				223D96321533B88800252EB7 /* SecretBetaButton.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

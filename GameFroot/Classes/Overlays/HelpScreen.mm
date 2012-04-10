@@ -26,7 +26,7 @@
         [helpTitle setPosition:ccp(size.width*0.5,size.height*0.9)];
         [self addChild:helpTitle];
         
-        NSString *instructions = @"Here are the instructions for playing a GameFroot game. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non mauris vel ligula vestibulum laoreet et nec orci. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla pharetra mauris non turpis tristique ornare. Ut fermentum orci in nulla dignissim vehicula. Pellentesque in mi ut mauris tristique mollis. Donec nec nisi felis, malesuada pulvinar quam. Vivamus auctor nunc nulla.";
+        NSString *instructions = @"Move: Left and Right arrows\n Shoot: A [left most]\nJump: B [right most]\nSwipe down to crouch and look down\nPause button: game options and quit game.";
         
         // Set up help text
         CCLabelTTF *helpText = [CCLabelTTF labelWithString:instructions dimensions:CGSizeMake(size.width-20, size.height-50) alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue-Bold" fontSize:12];

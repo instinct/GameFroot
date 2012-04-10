@@ -26,6 +26,9 @@
 > {
 	// Properties
 	NSDictionary *properties;
+    
+    // Beta mode
+    int secretTaps;
 	
 	// Containers
     CCNode *welcome;

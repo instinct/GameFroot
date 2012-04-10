@@ -240,7 +240,11 @@ GameLayer *instance;
 		
         // Check what server to use, if staging or live
         NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-        serverUsed = [prefs integerForKey:@"server"];
+        if([Shared isBetaMode]) {
+            serverUsed = [prefs integerForKey:@"server"];
+        } else {
+            serverUsed = 1;
+        }
         
 		// Check if we need to download the level data or use cache
 		ignoreCache = YES;		
