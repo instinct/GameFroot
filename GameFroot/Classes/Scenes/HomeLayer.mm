@@ -355,6 +355,9 @@
 // Selected featured buttons
 -(void) featured1:(id)sender {
     
+    // HACK: This is hardcoded for now.
+    int featuredGameID = 4320;
+    
     NSString *levelsURL;
     
     if([Shared isBetaMode]) {
@@ -370,9 +373,7 @@
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];        
     if ([prefs objectForKey:@"promotional"] != nil) {
         data = [[prefs objectForKey:@"promotional"] mutableCopy];
-        
         CCLOG(@"Load cached promotional levels");
-        
     } else {
         NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
         NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
@@ -386,7 +387,19 @@
         return;
     }
     
-	[Shared setLevel:[[data objectAtIndex:0] mutableCopy]];
+    NSDictionary *levelD;
+    
+    // Find the featured game ID
+    for (NSDictionary *level in data) {
+        if ([[level objectForKey:@"id"] intValue] == featuredGameID) {
+            levelD = level;
+        }
+    }
+    
+    if(levelD == NULL) return;
+    
+    // use the map Id for the Issac game
+	[Shared setLevel:[levelD mutableCopy]];
     
     //[self selectedLevel:nil];
     [self loadGameDetail];
@@ -839,15 +852,13 @@
 
 -(void) loadGameDetail 
 {
-    //[self cancelAsynchronousConnection];
-    
+    // [self cancelAsynchronousConnection];
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadGameDetail)];
     loading = YES;
 }
 
--(CGSize) calculateLabelSize:(NSString *)string withFont:(UIFont *)font maxSize:(CGSize)maxSize
-{
+-(CGSize) calculateLabelSize:(NSString *)string withFont:(UIFont *)font maxSize:(CGSize)maxSize {
     return [string
             sizeWithFont:font
             constrainedToSize:maxSize
