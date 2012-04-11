@@ -2550,6 +2550,7 @@ GameLayer *instance;
     mainMenu = [GameMenu node];
     [mainMenu setPosition:ccp(0,0)];
     [self addChild:mainMenu z:1000];
+    [[SimpleAudioEngine sharedEngine] stopBackgroundMusic];
     
     // IMPORTANT!! Since box2d uses the main layer, we scroll self, so we need 
     [self setPosition:ccp(0,0)]; 
@@ -2620,7 +2621,6 @@ GameLayer *instance;
 	
     [player restart];
 	[self resetControls];
-    
     [Shared setPlaying:YES];
 }
 

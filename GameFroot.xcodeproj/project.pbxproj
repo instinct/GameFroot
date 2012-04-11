@@ -924,7 +924,7 @@
 		1643B4FC14D9B0BC00A67057 /* Icon-Small@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Small@2x.png"; path = "Resources/Icon-Small@2x.png"; sourceTree = "<group>"; };
 		1643B4FD14D9B0BC00A67057 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = Resources/Icon.png; sourceTree = "<group>"; };
 		1643B4FE14D9B0BC00A67057 /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon@2x.png"; path = "Resources/Icon@2x.png"; sourceTree = "<group>"; };
-		1643B4FF14D9B0BC00A67057 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Resources/Info.plist; sourceTree = "<group>"; };
+		1643B4FF14D9B0BC00A67057 /* GameFroot-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GameFroot-Info.plist"; path = "Resources/GameFroot-Info.plist"; sourceTree = "<group>"; };
 		1643B50014D9B0BC00A67057 /* iTunesArtwork */ = {isa = PBXFileReference; lastKnownFileType = file; name = iTunesArtwork; path = Resources/iTunesArtwork; sourceTree = "<group>"; };
 		1643B50114D9B0BC00A67057 /* jetpack-sheet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "jetpack-sheet.png"; path = "Resources/jetpack-sheet.png"; sourceTree = "<group>"; };
 		1643B50214D9B0BC00A67057 /* loading-bar-bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "loading-bar-bg.png"; path = "Resources/loading-bar-bg.png"; sourceTree = "<group>"; };
@@ -1427,7 +1427,6 @@
 				1643B4FC14D9B0BC00A67057 /* Icon-Small@2x.png */,
 				1643B4FD14D9B0BC00A67057 /* Icon.png */,
 				1643B4FE14D9B0BC00A67057 /* Icon@2x.png */,
-				1643B4FF14D9B0BC00A67057 /* Info.plist */,
 				1643B50014D9B0BC00A67057 /* iTunesArtwork */,
 				1643B50114D9B0BC00A67057 /* jetpack-sheet.png */,
 				1616ADE114E809A6004FF504 /* jetpack-single.png */,
@@ -1706,6 +1705,7 @@
 		1643B41214D9B01300A67057 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				1643B4FF14D9B0BC00A67057 /* GameFroot-Info.plist */,
 				1643B41314D9B01300A67057 /* Prefix.pch */,
 				1643B41414D9B01300A67057 /* main.m */,
 			);
@@ -3215,7 +3215,9 @@
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "GameFroot-info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				PRODUCT_NAME = GameFroot;
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -3230,8 +3232,10 @@
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "GameFroot-info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				PRODUCT_NAME = GameFroot;
 				SDKROOT = iphoneos;
 			};
 			name = Release;
@@ -3276,6 +3280,45 @@
 			};
 			name = Release;
 		};
+		221697B21535067A0032CCD1 /* Distribution */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "GameFroot-info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				PRODUCT_NAME = GameFroot;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				SDKROOT = iphoneos;
+			};
+			name = Distribution;
+		};
+		221697B31535067A0032CCD1 /* Distribution */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = GameFroot/Prefix.pch;
+				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
+				INFOPLIST_FILE = GameFroot/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.2;
+				OTHER_LDFLAGS = "-lz";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				USER_HEADER_SEARCH_PATHS = "\"GameFroot/libs\"";
+				VALIDATE_PRODUCT = YES;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Distribution;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -3284,18 +3327,20 @@
 			buildConfigurations = (
 				1643B42514D9B01300A67057 /* Debug */,
 				1643B42614D9B01300A67057 /* Release */,
+				221697B21535067A0032CCD1 /* Distribution */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Distribution;
 		};
 		1643B42714D9B01300A67057 /* Build configuration list for PBXNativeTarget "GameFroot" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1643B42814D9B01300A67057 /* Debug */,
 				1643B42914D9B01300A67057 /* Release */,
+				221697B31535067A0032CCD1 /* Distribution */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Distribution;
 		};
 /* End XCConfigurationList section */
 	};
