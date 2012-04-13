@@ -779,8 +779,10 @@
     // receivedData is declared as a method instance elsewhere
 	connecting = NO;
 	
+    
     if (selectedPage == featured) {
         
+        /*
 		NSMutableArray *jsonDataUpdatedFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:receivedData error:nil] mutableCopy];
 		//CCLOG(@"Levels: %@", [jsonDataUpdatedFeatured description]);
         CCLOG(@"HomeLayer.connectionDidFinishLoading: featured refresh list");
@@ -789,6 +791,7 @@
         NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
         [prefs setObject:jsonDataUpdatedFeatured forKey:@"featured"];
         [prefs synchronize];
+        */
         
         // Too dangerous to refresh the list asynchronously since it may be in use
         /*
@@ -1017,7 +1020,7 @@
 
 -(void) _loadFeatured {
 	
-    BOOL refreshInBackground = NO;
+    //BOOL refreshInBackground = NO;
     
 	if (jsonDataFeatured == nil) {
         
@@ -1033,6 +1036,7 @@
 
 		CCLOG(@"Load levels: %@",levelsURL);
         
+        /*
         // Try to load cached version first, if not load online
         
         NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];        
@@ -1044,6 +1048,7 @@
             
         } else {
             // Cache not found, load online
+        */
             NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
             
             NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
@@ -1054,11 +1059,12 @@
             {
                 return;
             }
-            
+        
+        /*
             // Save locally for next time
             [prefs setObject:jsonDataFeatured forKey:@"featured"];
             [prefs synchronize];
-        }
+        }*/
 	}
 	
     [Loader hideAsynchronousLoader];
@@ -1101,6 +1107,7 @@
 	loading = NO;
 	featured.visible = YES;
     
+    /*
     if (refreshInBackground) {
         // Now load in the background online levels
         NSString *levelsURL;
@@ -1113,7 +1120,7 @@
 
         [self asynchronousContentsOfURL:levelsURL];
     }
-	
+	*/
 }
 
 -(void) _loadMoreFeatured {

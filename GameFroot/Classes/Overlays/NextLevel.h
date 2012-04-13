@@ -7,14 +7,13 @@
 //
 
 #import "cocos2d.h"
-#import "GameLayer.h"
 #import "Shared.h"
+#import "AGProgressBar.h"
 
 @interface NextLevel : CCLayer {
 @private
     CCSprite *_loadingTitle;
-    CCSprite *_progressBar;
-    CCSprite *_progressBarBack;
+    AGProgressBar *_progressBar;
 }
 
 -(void) resetProgressBar;

@@ -60,4 +60,14 @@ enum GameControlType{
 
 #define REDUCE_FACTOR	0.75f * CC_CONTENT_SCALE_FACTOR()
 
-#define DEBUG_WORLD				0
+#define PLAYER_ANCHOR_X 0.41
+#define PLAYER_ANCHOR_Y 0.41
+#define PLAYER_WIDTH    28.0
+#define PLAYER_HEIGHT   92.0
+
+#define ENEMY_ANCHOR_X  0.41
+#define ENEMY_ANCHOR_Y  0.33
+#define ENEMY_WIDTH     34.0
+#define ENEMY_HEIGHT    76.0
+
+#define DEBUG_WORLD		0

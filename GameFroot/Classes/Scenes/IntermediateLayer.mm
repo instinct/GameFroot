@@ -8,6 +8,7 @@
 
 #import "IntermediateLayer.h"
 #import "GameLayer.h"
+#import "Shared.h"
 
 @implementation IntermediateLayer
 
@@ -15,7 +16,7 @@
 {
 	// 'scene' is an autorelease object.
 	CCScene *scene = [CCScene node];
-	
+    
 	// 'layer' is an autorelease object.
 	IntermediateLayer *layer = [IntermediateLayer node];
 	
@@ -35,22 +36,44 @@
 		
 		CGSize size = [[CCDirector sharedDirector] winSize];	
 		
-		CCSprite *bg = [CCSprite spriteWithFile:@"loading-bg.png"];
-        [bg setScale:CC_CONTENT_SCALE_FACTOR()];
-        [bg setPosition:ccp(size.width*0.5,size.height*0.5)];
+        CCSprite *bg;
+        
+        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+        NSString *background = [prefs valueForKey:@"nextBackground"];
+        
+        if (background == nil) 
+        {
+            CCLOG(@"IntermediateLayer: Error, loading default one");
+            bg = [CCSprite spriteWithFile:@"loading-bg.png"];
+        }
+        else if ( ([background rangeOfString:@"http://"].location != NSNotFound) ||
+            ([background rangeOfString:@"https://"].location != NSNotFound) )
+        {
+            CCLOG(@"IntermediateLayer: Load custom background: %@", background);
+            
+            // Load Custom background
+            @try
+            {
+                bg = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:background ignoreCache:NO]];
+            }
+            @catch (NSException * e)
+            {
+                CCLOG(@"IntermediateLayer: Error, loading default one");
+                bg = [CCSprite spriteWithFile:@"loading-bg.png"];
+            }
+            
+        } 
+        else 
+        {
+            CCLOG(@"IntermediateLayer: Load embedded background: %@", [NSString stringWithFormat:@"%@.png", background]);
+            bg = [CCSprite spriteWithFile:[NSString stringWithFormat:@"%@.png", background]];
+        }
+        
+        // PNG is 768x512
+        bg.scale = 0.625 * CC_CONTENT_SCALE_FACTOR();
+        [bg setPosition:ccp(size.width/2, size.height/2)];
+        
         [self addChild:bg];
-        
-        // Loading progress bar assets
-        CCSprite *_loadingTitle = [CCSprite spriteWithFile:@"loading-title.png"];
-        [_loadingTitle setScale:CC_CONTENT_SCALE_FACTOR()];
-        [_loadingTitle setPosition:ccp(size.width*0.5,size.height/2 + 35)];
-        
-        CCSprite *_progressBarBack = [CCSprite spriteWithFile:@"loading-bar-bg.png"];
-        [_progressBarBack setScale:CC_CONTENT_SCALE_FACTOR()];
-        [_progressBarBack setPosition:ccp(size.width*0.5,size.height/2 - 10)];
-        
-        [self addChild:_loadingTitle];
-        [self addChild:_progressBarBack];
         
         [self scheduleOnce:@selector(_loadLevel) delay:1.0/60.0];
 	}

@@ -616,6 +616,14 @@ GameLayer *instance;
 	
 }
 
+-(int) getIntValue:(NSString *)value
+{
+    if ((value != nil) && ![value isMemberOfClass:[NSNull class]] && [value respondsToSelector:@selector(intValue)]) {
+        return [value intValue];
+        
+    } else return 0;
+}
+
 -(void) loadLevelData:(int)gameID
 {
 	data = [[NSMutableDictionary dictionary] retain];
@@ -629,8 +637,21 @@ GameLayer *instance;
 	NSDictionary *jsonData = [[CJSONDeserializer deserializer] deserializeAsDictionary:rawData error:nil];
     
     if (!jsonData || ([jsonData objectForKey:@"map"] == nil) || [[jsonData objectForKey:@"map"] isMemberOfClass:[NSNull class]]) {
-        [[CCDirector sharedDirector] replaceScene:[HomeLayer scene]];
-        return;
+        
+        if (![Shared connectedToNetwork]) {
+            UIAlertView *alertView = [[[UIAlertView alloc] initWithTitle: @"Server Connection" 
+                                                                 message: @"We cannot connect to our servers, please review your internet connection." 
+                                                                delegate: self 
+                                                       cancelButtonTitle: @"Back" 
+                                                       otherButtonTitles: nil] autorelease];
+            [alertView show];
+            return;
+            
+        } else {
+        
+            [[CCDirector sharedDirector] replaceScene:[HomeLayer scene]];
+            return;
+        }
     }
 	
 	//CCLOG(@"%@", [jsonData description]);
@@ -718,25 +739,25 @@ GameLayer *instance;
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//CCLOG(@"Player: %@", [[jsonData objectForKey:@"map"] objectForKey:@"player"]);
     NSMutableDictionary *playerData = [[NSMutableDictionary alloc] init];
-	[playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"num"] intValue]] forKey:@"type"];
-	[playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"xpos"] intValue]] forKey:@"positionX"];
-	[playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"ypos"] intValue]] forKey:@"positionY"];
-    [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"player_jetpack"] intValue]] forKey:@"hasJetpack"];
-    [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"starting_health"] intValue]] forKey:@"health"];
-    [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"starting_lives"] intValue]] forKey:@"lives"];
-    [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"max_speed"] intValue]] forKey:@"speed"];
+	[playerData setObject:[NSNumber numberWithInt:[self getIntValue:[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"num"]]] forKey:@"type"];
+	[playerData setObject:[NSNumber numberWithInt:[self getIntValue:[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"xpos"]]] forKey:@"positionX"];
+	[playerData setObject:[NSNumber numberWithInt:[self getIntValue:[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"ypos"]]] forKey:@"positionY"];
+    [playerData setObject:[NSNumber numberWithInt:[self getIntValue:[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"player_jetpack"]]] forKey:@"hasJetpack"];
+    [playerData setObject:[NSNumber numberWithInt:[self getIntValue:[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"starting_health"]]] forKey:@"health"];
+    [playerData setObject:[NSNumber numberWithInt:[self getIntValue:[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"starting_lives"]]] forKey:@"lives"];
+    [playerData setObject:[NSNumber numberWithInt:[self getIntValue:[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"max_speed"]]] forKey:@"speed"];
     
     // Check backward compatibilty with previus API to avoid crashes
     if ([[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"has_weapon"] != nil)
-        [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"has_weapon"] intValue]] forKey:@"hasWeapon"];
+        [playerData setObject:[NSNumber numberWithInt:[self getIntValue:[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"has_weapon"]]] forKey:@"hasWeapon"];
     else if ([[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"player_weapon"] != nil)
-        [playerData setObject:[NSNumber numberWithInt:[[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"player_weapon"] intValue]] forKey:@"hasWeapon"];
+        [playerData setObject:[NSNumber numberWithInt:[self getIntValue:[[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"player_weapon"]]] forKey:@"hasWeapon"];
     else 
         [playerData setObject:[NSNumber numberWithInt:0] forKey:@"has_weapon"];
     
     // Check backward compatibilty with previus API to avoid crashes
     id weapon = [[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"chosen_weapon"];
-    if (![weapon isMemberOfClass:[NSString class]]) 
+    if ([weapon isMemberOfClass:[NSString class]]) 
         [playerData setObject:[NSNumber numberWithInt:[weapon intValue]] forKey:@"weapon"];
     else 
         [playerData setObject:[NSNumber numberWithInt:0] forKey:@"weapon"];
@@ -756,20 +777,20 @@ GameLayer *instance;
 		{
             //CCLOG(@"Enemy: %@", [characterElements objectAtIndex:i]);
 			NSMutableDictionary *characterData = [[NSMutableDictionary alloc] init];
-			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"health"] intValue]] forKey:@"health"];
-			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"num"] intValue]] forKey:@"type"];
-			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"xpos"] intValue]] forKey:@"positionX"];
-			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"ypos"] intValue]] forKey:@"positionY"];
-			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"score"] intValue]] forKey:@"score"];
-			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"damage"] intValue]] forKey:@"damage"];
+			[characterData setObject:[NSNumber numberWithInt:[self getIntValue:[[characterElements objectAtIndex:i] objectForKey:@"health"]]] forKey:@"health"];
+			[characterData setObject:[NSNumber numberWithInt:[self getIntValue:[[characterElements objectAtIndex:i] objectForKey:@"num"]]] forKey:@"type"];
+			[characterData setObject:[NSNumber numberWithInt:[self getIntValue:[[characterElements objectAtIndex:i] objectForKey:@"xpos"]]] forKey:@"positionX"];
+			[characterData setObject:[NSNumber numberWithInt:[self getIntValue:[[characterElements objectAtIndex:i] objectForKey:@"ypos"]]] forKey:@"positionY"];
+			[characterData setObject:[NSNumber numberWithInt:[self getIntValue:[[characterElements objectAtIndex:i] objectForKey:@"score"]]] forKey:@"score"];
+			[characterData setObject:[NSNumber numberWithInt:[self getIntValue:[[characterElements objectAtIndex:i] objectForKey:@"damage"]]] forKey:@"damage"];
 			[characterData setObject:[[characterElements objectAtIndex:i] objectForKey:@"weapon"] forKey:@"weapon"];
-			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"shot_delay"] intValue]] forKey:@"shotDelay"];
-			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"speed"] intValue]] forKey:@"speed"];
-			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"multi_shot"] intValue]] forKey:@"multiShot"];
-			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"multi_shot_delay"] intValue]] forKey:@"multiShotDelay"];
-			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"collide_take"] intValue]] forKey:@"collideTakeDamage"];
-			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"collide_give"] intValue]] forKey:@"collideGiveDamage"];
-			[characterData setObject:[NSNumber numberWithInt:[[[characterElements objectAtIndex:i] objectForKey:@"enemy_type"] intValue]] forKey:@"behaviour"];
+			[characterData setObject:[NSNumber numberWithInt:[self getIntValue:[[characterElements objectAtIndex:i] objectForKey:@"shot_delay"]]] forKey:@"shotDelay"];
+			[characterData setObject:[NSNumber numberWithInt:[self getIntValue:[[characterElements objectAtIndex:i] objectForKey:@"speed"]]] forKey:@"speed"];
+			[characterData setObject:[NSNumber numberWithInt:[self getIntValue:[[characterElements objectAtIndex:i] objectForKey:@"multi_shot"]]] forKey:@"multiShot"];
+			[characterData setObject:[NSNumber numberWithInt:[self getIntValue:[[characterElements objectAtIndex:i] objectForKey:@"multi_shot_delay"]]] forKey:@"multiShotDelay"];
+			[characterData setObject:[NSNumber numberWithInt:[self getIntValue:[[characterElements objectAtIndex:i] objectForKey:@"collide_take"]]] forKey:@"collideTakeDamage"];
+			[characterData setObject:[NSNumber numberWithInt:[self getIntValue:[[characterElements objectAtIndex:i] objectForKey:@"collide_give"]]] forKey:@"collideGiveDamage"];
+			[characterData setObject:[NSNumber numberWithInt:[self getIntValue:[[characterElements objectAtIndex:i] objectForKey:@"enemy_type"]]] forKey:@"behaviour"];
 			
 			[characters addObject:characterData];
 		}
@@ -790,8 +811,8 @@ GameLayer *instance;
 			NSMutableDictionary *itemData = [[NSMutableDictionary alloc] init];
 			//CCLOG(@"Item data: %@", [[itemElements objectAtIndex:i] description]);
 			
-			int animationId = [[[itemElements objectAtIndex:i] objectForKey:@"animation_id"] intValue];
-			int tileNum = [[[itemElements objectAtIndex:i] objectForKey:@"num"] intValue];
+			int animationId = [self getIntValue:[[itemElements objectAtIndex:i] objectForKey:@"animation_id"]];
+			int tileNum = [self getIntValue:[[itemElements objectAtIndex:i] objectForKey:@"num"]];
 			BOOL isEmbedded = [itemsIds objectForKey:[NSNumber numberWithInt:tileNum]] != nil;
 			
 			if (!isEmbedded) customTiles = YES;
@@ -803,8 +824,8 @@ GameLayer *instance;
 			[itemData setObject:[NSNumber numberWithInt:tileNum] forKey:@"tileNum"];
 						
 			// Get position
-			[itemData setObject:[NSNumber numberWithInt:[[[itemElements objectAtIndex:i] objectForKey:@"xpos"] intValue]] forKey:@"positionX"];
-			[itemData setObject:[NSNumber numberWithInt:[[[itemElements objectAtIndex:i] objectForKey:@"ypos"] intValue]] forKey:@"positionY"];
+			[itemData setObject:[NSNumber numberWithInt:[self getIntValue:[[itemElements objectAtIndex:i] objectForKey:@"xpos"]]] forKey:@"positionX"];
+			[itemData setObject:[NSNumber numberWithInt:[self getIntValue:[[itemElements objectAtIndex:i] objectForKey:@"ypos"]]] forKey:@"positionY"];
 			
 			// Get behaviour
 			NSArray *behaviour = [[itemElements objectAtIndex:i] objectForKey:@"behaviour"];
@@ -831,7 +852,7 @@ GameLayer *instance;
 				
 			} else if ([robot isKindOfClass:[NSDictionary class]]) {
                 if ([robotsIds objectForKey:[robot objectForKey:@"id"]] != nil) [itemData setObject:[robotsIds objectForKey:[robot objectForKey:@"id"]] forKey:@"robot"];
-                else if ([robotsIds objectForKey:[NSNumber numberWithInt:[[robot objectForKey:@"id"] intValue]]] != nil) [itemData setObject:[robotsIds objectForKey:[NSNumber numberWithInt:[[robot objectForKey:@"id"] intValue]]] forKey:@"robot"];
+                else if ([robotsIds objectForKey:[NSNumber numberWithInt:[self getIntValue:[robot objectForKey:@"id"]]]] != nil) [itemData setObject:[robotsIds objectForKey:[NSNumber numberWithInt:[self getIntValue:[robot objectForKey:@"id"]]]] forKey:@"robot"];
                 else [itemData setObject:[NSDictionary dictionary] forKey:@"robot"];
                 
                 [itemData setObject:robot forKey:@"robotParameters"];
@@ -854,8 +875,8 @@ GameLayer *instance;
 		NSMutableDictionary *tileData = [[NSMutableDictionary alloc] init];
 		//CCLOG(@"tile: %@", [[tiles objectAtIndex:i] description]);
 		
-		int animationId = [[[tiles objectAtIndex:i] objectForKey:@"animation_id"] intValue];
-		int tileNum = [[[tiles objectAtIndex:i] objectForKey:@"num"] intValue];
+		int animationId = [self getIntValue:[[tiles objectAtIndex:i] objectForKey:@"animation_id"]];
+		int tileNum = [self getIntValue:[[tiles objectAtIndex:i] objectForKey:@"num"]];
 		BOOL isEmbedded = [tilesIds objectForKey:[NSNumber numberWithInt:tileNum]] != nil;
 		
 		if (!isEmbedded) customTiles = YES;
@@ -992,14 +1013,14 @@ GameLayer *instance;
 		
 		[objects addChild:spriteSheet z:LAYER_TILES];
         
+        teleportSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"teleporter.png"];
+        [objects addChild:teleportSpriteSheet z:LAYER_TILES+1];
+        
         // Add telepoter hardcoded animation
         id animation = [[CCAnimationCache sharedAnimationCache] animationByName:@"teleport"];
         if (animation == nil) {
             
             CCLOG(@"Load spritesheet teleport");
-            
-            teleportSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"teleporter.png"];
-            [objects addChild:teleportSpriteSheet z:LAYER_TILES+1];
             
             float speed = 0.1f;
             
@@ -1619,7 +1640,7 @@ GameLayer *instance;
 	
 	//CCLOG(@"Player size: %f,%f", spriteWidth,spriteHeight);
 	
-    CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
+    CGSize hitArea = CGSizeMake(PLAYER_WIDTH / CC_CONTENT_SCALE_FACTOR(), PLAYER_HEIGHT / CC_CONTENT_SCALE_FACTOR());
 	CGPoint pos = ccp(dx * MAP_TILE_WIDTH, ((mapHeight - dy - 1) * MAP_TILE_HEIGHT));
 	pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
 	pos.y += hitArea.height/2.0f;
@@ -1627,7 +1648,7 @@ GameLayer *instance;
 	// Create player
 	player = [Player spriteWithBatchNode:playerSpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];        
 	[player setPosition:pos];
-	[player setAnchorPoint:ccp(0.41,0.33)];
+	[player setAnchorPoint:ccp(PLAYER_ANCHOR_X,PLAYER_ANCHOR_Y)];
 	[player setupPlayer:playerID properties:dict];
     [player createBox2dObject:world size:hitArea];
 	[playerSpriteSheet addChild:player z:LAYER_PLAYER];
@@ -1689,7 +1710,7 @@ GameLayer *instance;
 		float spriteWidth = enemySpriteSheet.texture.contentSize.width / 8;
 		float spriteHeight = enemySpriteSheet.texture.contentSize.height / 2;
 		
-        CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
+        CGSize hitArea = CGSizeMake(ENEMY_WIDTH / CC_CONTENT_SCALE_FACTOR(), ENEMY_HEIGHT / CC_CONTENT_SCALE_FACTOR());
         CGPoint pos = ccp(dx * MAP_TILE_WIDTH, ((mapHeight - dy - 1) * MAP_TILE_HEIGHT));
         pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
         pos.y += hitArea.height/2.0f;
@@ -1697,7 +1718,7 @@ GameLayer *instance;
 		// Create player		
 		Enemy *enemy = [Enemy spriteWithBatchNode:enemySpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];        
 		[enemy setPosition:pos];
-		[enemy setAnchorPoint:ccp(0.41,0.33)];
+		[enemy setAnchorPoint:ccp(ENEMY_ANCHOR_X,ENEMY_ANCHOR_Y)];
 		[enemy setupEnemy:enemyID properties:dict player:player];
 		[enemy createBox2dObject:world size:hitArea];
 		[enemySpriteSheet addChild:enemy z:LAYER_PLAYER];
@@ -1767,7 +1788,7 @@ GameLayer *instance;
     float spriteWidth = enemySpriteSheet.texture.contentSize.width / 8;
     float spriteHeight = enemySpriteSheet.texture.contentSize.height / 2;
     
-    CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
+    CGSize hitArea = CGSizeMake(ENEMY_WIDTH / CC_CONTENT_SCALE_FACTOR(), ENEMY_HEIGHT / CC_CONTENT_SCALE_FACTOR());
     
     /*
     CGPoint pos = ccp(mapPos.x * MAP_TILE_WIDTH, ((mapHeight - mapPos.y - 1) * MAP_TILE_HEIGHT));
@@ -1778,7 +1799,7 @@ GameLayer *instance;
     // Create player		
     Enemy *enemy = [Enemy spriteWithBatchNode:enemySpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];        
     [enemy setPosition:pos];
-    [enemy setAnchorPoint:ccp(0.41,0.33)];
+    [enemy setAnchorPoint:ccp(ENEMY_ANCHOR_X,ENEMY_ANCHOR_Y)];
     [enemy setupEnemy:enemyID properties:dict player:player];
     [enemy createBox2dObject:world size:hitArea];
     [enemySpriteSheet addChild:enemy z:LAYER_PLAYER];
@@ -2504,8 +2525,26 @@ GameLayer *instance;
 {
     [Shared setNextLevelID:gameID];
     
+    [[SimpleAudioEngine sharedEngine] stopBackgroundMusic];
+    
     // IMPORTANT!! It seems we cannot replace scene with another instance of current scene,
     // so I created an intermediate scene that will simply load the game scene again.
+    
+    NSString *backgroundFilename = [data objectForKey:@"mapBackground"];
+    if ( ([backgroundFilename rangeOfString:@".png"].location != NSNotFound) ||
+        ([backgroundFilename rangeOfString:@".jpg"].location != NSNotFound) ||
+        ([backgroundFilename rangeOfString:@".gif"].location != NSNotFound) )
+    {
+        
+        backgroundFilename = [NSString stringWithFormat:@"%@wp-content/plugins/game_data/backgrounds/user/%@", [self returnServer], backgroundFilename];
+    
+    } else {
+        backgroundFilename = [NSString stringWithFormat:@"%@.png", backgroundFilename];
+    }
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    [prefs setValue:backgroundFilename forKey:@"nextBackground"];
+	[prefs synchronize];
+    
     [[CCDirector sharedDirector] replaceScene:[IntermediateLayer scene]];
 }
 
@@ -2628,6 +2667,18 @@ GameLayer *instance;
 {
     [self resumeGame];
     [self restartGame];
+}
+
+#pragma mark -
+#pragma mark AlertView handler
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    NSString *title = [alertView buttonTitleAtIndex:buttonIndex];
+	if ([title isEqualToString:@"Back"])
+    {
+        [[CCDirector sharedDirector] replaceScene:[HomeLayer scene]];
+    }
 }
 
 #pragma mark -

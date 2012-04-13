@@ -7,8 +7,14 @@
 //
 
 #import "NextLevel.h"
+#import "GameLayer.h"
+#import "Shared.h"
+
+#define MAIN_MENU_PROGRESS_BAR_LENGTH 410
 
 @implementation NextLevel
+
+NSString *backgroundNext = nil;
 
 - (id)init {
     self = [super init];
@@ -17,32 +23,59 @@
         
         // Loading base assets
         
-        CCSprite *bg = [CCSprite spriteWithFile:@"loading-bg.png"];
-        [bg setScale:CC_CONTENT_SCALE_FACTOR()];
-        [bg setPosition:ccp(size.width*0.5,size.height*0.5)];
-        [self addChild:bg];
+        CCSprite *bg;
         
-        //CCLabelBMFont *level = [CCLabelBMFont labelWithString:[Shared getLevelTitle] fntFile:@"Chicago.fnt"];
-        //[level setPosition:ccp(size.width*0.5,size.height*0.8)];
-        //[self addChild:level];
+        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+        NSString *background = [prefs valueForKey:@"nextBackground"];
+        
+        if (background == nil) 
+        {
+            CCLOG(@"IntermediateLayer: Error, loading default one");
+            bg = [CCSprite spriteWithFile:@"loading-bg.png"];
+        }
+        else if ( ([background rangeOfString:@"http://"].location != NSNotFound) ||
+                 ([background rangeOfString:@"https://"].location != NSNotFound) )
+        {
+            CCLOG(@"IntermediateLayer: Load custom background: %@", background);
+            
+            // Load Custom background
+            @try
+            {
+                bg = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:background ignoreCache:NO]];
+            }
+            @catch (NSException * e)
+            {
+                CCLOG(@"IntermediateLayer: Error, loading default one");
+                bg = [CCSprite spriteWithFile:@"loading-bg.png"];
+            }
+            
+        } 
+        else 
+        {
+            CCLOG(@"IntermediateLayer: Load embedded background: %@", [NSString stringWithFormat:@"%@.png", background]);
+            bg = [CCSprite spriteWithFile:[NSString stringWithFormat:@"%@.png", background]];
+        }
+        
+        // PNG is 768x512
+        bg.scale = 0.625 * CC_CONTENT_SCALE_FACTOR();
+        [bg setPosition:ccp(size.width/2, size.height/2)];
+        
+        [self addChild:bg];
         
         // Loading progress bar assets
         _loadingTitle = [CCSprite spriteWithFile:@"loading-title.png"];
         [_loadingTitle setScale:CC_CONTENT_SCALE_FACTOR()];
         [_loadingTitle setPosition:ccp(size.width*0.5,size.height/2 + 35)];
-        
-        _progressBarBack = [CCSprite spriteWithFile:@"loading-bar-bg.png"];
-        [_progressBarBack setScale:CC_CONTENT_SCALE_FACTOR()];
-        [_progressBarBack setPosition:ccp(size.width*0.5,size.height/2 - 10)];
-        
-        _progressBar = [CCSprite spriteWithFile:@"loading-bar-overlay.png"];
-        [_progressBar setScale:CC_CONTENT_SCALE_FACTOR()];
-        [_progressBar setPosition:ccp(size.width*0.225,size.height/2 - 8)];
-        [_progressBar setAnchorPoint:ccp(0,0.5)];
-        
-        [self resetProgressBar];
         [self addChild:_loadingTitle];
-        [self addChild:_progressBarBack];
+        
+        // Loading progress bar assets
+        _progressBar = [AGProgressBar progressBarWithFile:@"main_menu.png"];
+		[_progressBar.textureAtlas.texture setAliasTexParameters];
+        [_progressBar setupWithFrameNamesLeft:@"bar_left.png" right:@"bar_right.png" middle:@"bar_middle.png" andBackgroundLeft:@"loading_bar_back_left.png" right:@"loading_bar_back_right.png" middle:@"loading_bar_back.png" andWidth:(MAIN_MENU_PROGRESS_BAR_LENGTH)];
+        
+        _progressBar.position = ccp(size.width*0.06,size.height*0.33);
+        
+        //[self hideProgressBar];
         [self addChild:_progressBar z:10];
     }
     return self;
@@ -52,10 +85,9 @@
     [self setProgressBar:0.0f];
 }
 
-
 -(void) setProgressBar:(float)percent
 {
-	[_progressBar setTextureRect:CGRectMake(0,0,263*(float)(percent / 100.0f),18/CC_CONTENT_SCALE_FACTOR())];
+    [_progressBar setPercent:percent];
     if (percent >= 100.0f) {
         [[GameLayer getInstance] removeNextLevelScreen];
     }

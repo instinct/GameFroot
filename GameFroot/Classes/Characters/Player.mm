@@ -231,7 +231,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	float spriteHeight = weaponSpriteSheet.texture.contentSize.height;
 	
 	weapon = [CCSprite spriteWithBatchNode:weaponSpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];
-	[weapon setAnchorPoint:ccp(0.41,0.33)];
+	[weapon setAnchorPoint:ccp(PLAYER_ANCHOR_X,PLAYER_ANCHOR_Y)];
 	[weapon retain];
 	[weaponSpriteSheet addChild:weapon];
 	
@@ -777,7 +777,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		float spriteHeight = jetpackSpriteSheet.texture.contentSize.height;
 		
 		jetpack = [CCSprite spriteWithBatchNode:jetpackSpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];
-		[jetpack setAnchorPoint:ccp(0.41,0.33)];
+		[jetpack setAnchorPoint:ccp(PLAYER_ANCHOR_X,PLAYER_ANCHOR_Y)];
 		[jetpack retain];
 		[jetpackSpriteSheet addChild:jetpack];
 		
@@ -1182,7 +1182,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
         CGPoint pos;
         if (autoSafepoint && (!CGPointEqualToPoint(safePositon, CGPointZero))) pos = safePositon;
         else {
-            CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
+            CGSize hitArea = CGSizeMake(PLAYER_WIDTH / CC_CONTENT_SCALE_FACTOR(), PLAYER_HEIGHT / CC_CONTENT_SCALE_FACTOR());
             pos = ccp(initialX * MAP_TILE_WIDTH, (([GameLayer getInstance].mapHeight - initialY - 1) * MAP_TILE_HEIGHT));
             pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
             pos.y += hitArea.height/2.0f;
@@ -1309,7 +1309,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 {
 	[self stop];
 	    
-    CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
+    CGSize hitArea = CGSizeMake(PLAYER_WIDTH / CC_CONTENT_SCALE_FACTOR(), PLAYER_HEIGHT / CC_CONTENT_SCALE_FACTOR());
     CGPoint pos = ccp(auxX * MAP_TILE_WIDTH, (([GameLayer getInstance].mapHeight - auxY - 1) * MAP_TILE_HEIGHT));
     pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
     pos.y += hitArea.height/2.0f;
@@ -1358,7 +1358,6 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
         int hurtFall = (-(current.y * PTM_RATIO) - 800) / 10;
         if (hurtFall > 0) {
             // Apply damage when falling at high speed
-            //CCLOG(@"Player.hitsFloor: speed: %f, hurt: %i", current.y * PTM_RATIO, hurtFall);
             [[SimpleAudioEngine sharedEngine] playEffect:@"IG Hero Damage.caf" pitch:1.0f pan:0.0f gain:1.0f];
             [self hit: hurtFall];
         }

@@ -476,7 +476,7 @@
     lives = 1;
     health = topHealth;
     
-    CGSize hitArea = CGSizeMake(34.0 / CC_CONTENT_SCALE_FACTOR(), 76.0 / CC_CONTENT_SCALE_FACTOR());
+    CGSize hitArea = CGSizeMake(ENEMY_WIDTH / CC_CONTENT_SCALE_FACTOR(), ENEMY_HEIGHT / CC_CONTENT_SCALE_FACTOR());
     CGPoint pos = ccp(initialX * MAP_TILE_WIDTH, (([GameLayer getInstance].mapHeight - initialY - 1) * MAP_TILE_HEIGHT));
     pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
     pos.y += hitArea.height/2.0f;
