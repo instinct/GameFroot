@@ -1454,11 +1454,13 @@
 	}
 	
 	// Filter array
-	NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
+	/*NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
 	if (filteredArray != nil) [filteredArray release];
 	filteredArray = [[jsonDataMyGames filteredArrayUsingPredicate:predicate] retain];
 	tableData = [filteredArray mutableCopy];
-	
+	*/
+    tableData = [jsonDataMyGames mutableCopy];
+    
 	CGSize size = [[CCDirector sharedDirector] winSize];
 	
 	loaded = ITEMS_PER_PAGE*myGamesPage;
@@ -1499,11 +1501,13 @@
     [jsonDataMyGames addObjectsFromArray:jsonDataMoreMyGames];
     
     // Filter array
-	NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
+	/*NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
 	if (filteredArray != nil) [filteredArray release];
 	filteredArray = [[jsonDataMyGames filteredArrayUsingPredicate:predicate] retain];
 	tableData = [filteredArray mutableCopy];
-	
+	*/
+    tableData = [jsonDataMyGames mutableCopy];
+    
 	loaded = ITEMS_PER_PAGE*myGamesPage;
 	total = [tableData count];
 	if (total < ITEMS_PER_PAGE*myGamesPage) loaded = total;
