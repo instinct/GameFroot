@@ -164,7 +164,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			
 			shootDamage = 25;
 			shootDelay= 0.5f;
-			bulletOffsetY = -2/CC_CONTENT_SCALE_FACTOR();
+			bulletOffsetY = (-2-7)/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
 			
@@ -172,7 +172,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			
 			shootDamage = 25;
 			shootDelay = 0.2f;
-			bulletOffsetY = -5/CC_CONTENT_SCALE_FACTOR();
+			bulletOffsetY = (-5-7)/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
 			
@@ -180,7 +180,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			
 			shootDamage = 50;
 			shootDelay = 0.1f;
-			bulletOffsetY = -5/CC_CONTENT_SCALE_FACTOR();
+			bulletOffsetY = (-5-9)/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
 			
@@ -188,7 +188,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			
 			shootDamage = 150;
 			shootDelay = 1.0f;
-			bulletOffsetY = 0;
+			bulletOffsetY = (0-9)/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
 			
@@ -196,7 +196,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			
 			shootDamage = 70;
 			shootDelay = 0.05f;
-			bulletOffsetY = -5/CC_CONTENT_SCALE_FACTOR();
+			bulletOffsetY = (-5-9)/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
 			
@@ -204,7 +204,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			
 			shootDamage = 120;
 			shootDelay = 0.05f;
-			bulletOffsetY = -5/CC_CONTENT_SCALE_FACTOR();
+			bulletOffsetY = (-5-9)/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
 			
@@ -212,7 +212,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			
 			shootDamage = 400;
 			shootDelay = 1.2f;
-			bulletOffsetY = 5/CC_CONTENT_SCALE_FACTOR();
+			bulletOffsetY = (5-7)/CC_CONTENT_SCALE_FACTOR();
 			
 			break;
 	}
@@ -1355,7 +1355,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     //CCLOG(@"Player.hitsFloor: speed: %f", current.y);
     
     if (current.y < 0) {
-        int hurtFall = (-(current.y * PTM_RATIO) - 800) / 10;
+        int hurtFall = (-(current.y * PTM_RATIO * CC_CONTENT_SCALE_FACTOR()) - 800) / 12;
         if (hurtFall > 0) {
             // Apply damage when falling at high speed
             [[SimpleAudioEngine sharedEngine] playEffect:@"IG Hero Damage.caf" pitch:1.0f pan:0.0f gain:1.0f];
