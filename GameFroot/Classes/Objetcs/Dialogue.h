@@ -23,6 +23,7 @@
     
     float speed;
     CCArray *speechSpeeds;
+    CCArray *pages;
     BOOL animating;
     int numCharacters;
     int currentCharacter;
