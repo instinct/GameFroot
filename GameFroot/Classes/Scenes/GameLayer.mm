@@ -2348,7 +2348,7 @@ GameLayer *instance;
 
 -(void) say:(NSString *)msg
 {
-	Dialogue *npcs = [Dialogue node];
+    Dialogue *npcs = [Dialogue node];
     [npcs setupDialogue:msg];
 }
 

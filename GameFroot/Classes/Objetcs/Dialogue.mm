@@ -285,33 +285,35 @@
     
     //\\//\\ Manage the pagination //\\//\\
         
-    // First find page break tokens
-    NSError *error = NULL;
-    
-    NSRegularExpression *pageRegex = [NSRegularExpression regularExpressionWithPattern:@"\\{page\\}"
-                                                                                options:NSRegularExpressionCaseInsensitive
-                                                                                  error:&error];
-    
-    NSArray *pageTokenMatches = [pageRegex matchesInString:text options:0 range:NSMakeRange(0, [text length])];
     [pages removeAllObjects];
     
-    uint pageStart = 0;
-    numPages = 0;
-    int offset = 0;
-    CCLOG(@"Text to paginate: %@",text);
-    CCLOG(@"Orginal text on one page? : %i", [self willFitOnPage:text]);
+   
+    //CCLOG(@"Text to paginate: %@",text);
+    //CCLOG(@"Orginal text on one page? : %i", [self willFitOnPage:text]);
     
     // Step 1. do basic pagination based on text width RECURSION!!!!
     [self paginate:text result:pages];
     
+    /*
     NSString *s; CCARRAY_FOREACH(pages, s) {
         CCLOG(@"PAGE: %@", s);
     }
+    */
     
-    // Step 2: Create page breaks based on {page} tags
+    // Step 1: Create page breaks based on {page} tags
     
+    // First find page break tokens
+    NSError *error = NULL;
+    int pageStart = 0;
+    numPages = 0;
+    int offset = 0;
     
-    /*
+    NSRegularExpression *pageRegex = [NSRegularExpression regularExpressionWithPattern:@"\\{page\\}"
+                                                                               options:NSRegularExpressionCaseInsensitive
+                                                                                 error:&error];
+    
+    NSArray *pageTokenMatches = [pageRegex matchesInString:text options:0 range:NSMakeRange(0, [text length])];
+    
     for (NSTextCheckingResult *match in pageTokenMatches) {
         NSRange matchRange = [match range];
         NSString *matchText = [text substringWithRange:NSMakeRange(pageStart, matchRange.location - offset)];
@@ -323,20 +325,19 @@
         matchText = [matchText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         [pages addObject:matchText];
         pageStart = matchRange.location + matchRange.length;
-        numPages++;
+       
     }
     
     // Add final text to last page
     NSString *matchText = [text substringFromIndex:pageStart];
     matchText = [matchText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     [pages addObject:matchText];
-    numPages++;
-    
-    */
     
     error = NULL;
     
     //\\//\\ Manage the speech commands (speed) //\\//
+    
+    /*
     
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\{[a-z]*\\}"
                                                                            options:NSRegularExpressionCaseInsensitive
@@ -363,7 +364,7 @@
     }
     
     
-    
+    */
     
     [text release];
     text = [regex stringByReplacingMatchesInString:text
