@@ -16,6 +16,7 @@
 #define LINE_SPACE          4
 #define LINES_PER_PAGE      5
 #define MAX_TEXT_HEIGHT     2048
+#define HARD_BREAK_LIMIT    30
 
 @implementation Dialogue
 
@@ -43,19 +44,13 @@
     
 	[[CCTouchDispatcher sharedDispatcher] addTargetedDelegate:self priority:TOUCH_PRIORITY swallowsTouches:YES];
 	
-    [self prepareText];
-    
     fontReference = [[UIFont fontWithName:FONT_NAME size:FONT_SIZE] retain];
     
-    CGSize sizeText = [self calculateLabelSize:text withFont:fontReference maxSize:CGSizeMake(background.contentSize.width - 30, MAX_TEXT_HEIGHT)];
+    [self prepareText];
+    
+    CGSize sizeText = [self calculateLabelSize:text withFont:fontReference maxSize:CGSizeMake(background.contentSize.width - 30, background.contentSize.height)];
     //CCLOG(@"text size: %f,%f", sizeText.width, sizeText.height);       
     
-    numPages = (int)((sizeText.height / (FONT_SIZE + LINE_SPACE)) / LINES_PER_PAGE);
-    float exact = (sizeText.height / (float)(FONT_SIZE + LINE_SPACE)) / (float)LINES_PER_PAGE;
-    if (exact > (float)numPages) numPages++;
-    
-	//label = [CCLabelBMFontMultiline labelWithString:text fntFile:@"Sans.fnt" width:background.contentSize.width - 30 alignment:LeftAlignment page:0 linesPerPage:5];
-	//[label.textureAtlas.texture setAliasTexParameters];
     label = [CCLabelTTF labelWithString:@"" dimensions:sizeText alignment:UITextAlignmentLeft lineBreakMode:UILineBreakModeWordWrap fontName:FONT_NAME fontSize:FONT_SIZE];
     
     [label setAnchorPoint:ccp(0,1)];
@@ -222,14 +217,127 @@
     if (currentCharacter < numCharacters - 1) [self stepBackAnimation];
 }
 
+
+-(BOOL) willFitOnPage:(NSString*)t {
+    
+    CGSize sizeText = [self calculateLabelSize:t withFont:fontReference maxSize:CGSizeMake(background.contentSize.width - 30, MAX_TEXT_HEIGHT)];
+    //CCLOG(@"text size: %f,%f", sizeText.width, sizeText.height); 
+    int nPages = (int)((sizeText.height / (FONT_SIZE + LINE_SPACE)) / LINES_PER_PAGE);
+    float exact = (sizeText.height / (float)(FONT_SIZE + LINE_SPACE)) / (float)LINES_PER_PAGE;
+    if (exact > (float)nPages) nPages++;
+    return (nPages == 1);
+}
+
+
+-(uint) getIndexBeforeLastWord:(NSString*)str {
+    uint currentIndex = str.length - 1;
+    while (![[str substringWithRange:NSMakeRange(currentIndex, 1)] isEqualToString:@" "] && currentIndex != 0) {
+        currentIndex--;
+    }
+    return currentIndex;
+}
+
+-(uint) getPageBreakIndexForString:(NSString*)t {
+    
+    if(t.length == 0) return 0;
+    
+    uint pageBreakIndex;
+    NSString *str = [t copy];
+    
+    while (![self willFitOnPage:str]) {
+        // remove a word from the end of the string
+        pageBreakIndex = [self getIndexBeforeLastWord:str];
+        str = [str substringWithRange:NSMakeRange(0, pageBreakIndex)];
+    }
+    return pageBreakIndex;
+}
+
+// recursive function that paginates the text
+-(void) paginate:(NSString*)t result:(CCArray*)r {
+    if ([self willFitOnPage:t]) {
+        // Base case
+        [r addObject:t];
+        numPages++;
+    } else {
+        // recursive case
+        // 1. split text at one page worth and add to result
+        uint pBreak = [self getPageBreakIndexForString:t];
+        if (pBreak == 0) {
+            CCLOG(@"Dialog: The break was on 0, page is one contigous word, overflow will occur");
+            [r addObject:t];
+            numPages++;
+        } else {
+            [r addObject:[t substringToIndex:pBreak]];
+            numPages++;
+            // recurse on the rest
+            [self paginate:[t substringFromIndex:pBreak] result:r];
+        }
+    }
+}
+
+
 -(void) prepareText
 {
     speed = 50.0f;
     speechSpeeds = [[CCArray array] retain];
+    pages = [[CCArray array] retain];
     currentCharacter = 0;
     
-    // Manage the speech commands (speed)
+    //\\//\\ Manage the pagination //\\//\\
+        
+    // First find page break tokens
     NSError *error = NULL;
+    
+    NSRegularExpression *pageRegex = [NSRegularExpression regularExpressionWithPattern:@"\\{page\\}"
+                                                                                options:NSRegularExpressionCaseInsensitive
+                                                                                  error:&error];
+    
+    NSArray *pageTokenMatches = [pageRegex matchesInString:text options:0 range:NSMakeRange(0, [text length])];
+    [pages removeAllObjects];
+    
+    uint pageStart = 0;
+    numPages = 0;
+    int offset = 0;
+    CCLOG(@"Text to paginate: %@",text);
+    CCLOG(@"Orginal text on one page? : %i", [self willFitOnPage:text]);
+    
+    // Step 1. do basic pagination based on text width RECURSION!!!!
+    [self paginate:text result:pages];
+    
+    NSString *s; CCARRAY_FOREACH(pages, s) {
+        CCLOG(@"PAGE: %@", s);
+    }
+    
+    // Step 2: Create page breaks based on {page} tags
+    
+    
+    /*
+    for (NSTextCheckingResult *match in pageTokenMatches) {
+        NSRange matchRange = [match range];
+        NSString *matchText = [text substringWithRange:NSMakeRange(pageStart, matchRange.location - offset)];
+        offset += matchText.length;
+        matchText = [pageRegex stringByReplacingMatchesInString:matchText
+                                                    options:0
+                                                      range:NSMakeRange(0, [matchText length])
+                                               withTemplate:@""];
+        matchText = [matchText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        [pages addObject:matchText];
+        pageStart = matchRange.location + matchRange.length;
+        numPages++;
+    }
+    
+    // Add final text to last page
+    NSString *matchText = [text substringFromIndex:pageStart];
+    matchText = [matchText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    [pages addObject:matchText];
+    numPages++;
+    
+    */
+    
+    error = NULL;
+    
+    //\\//\\ Manage the speech commands (speed) //\\//
+    
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\{[a-z]*\\}"
                                                                            options:NSRegularExpressionCaseInsensitive
                                                                              error:&error];
@@ -238,8 +346,8 @@
                                         range:NSMakeRange(0, [text length])];
     
     [speechSpeeds removeAllObjects];
+    offset = 0;
     
-    int offset = 0;
     for (NSTextCheckingResult *match in matches) {
         NSString *matchText = [text substringWithRange:[match range]];
         NSRange matchRange = [match range];
@@ -253,6 +361,9 @@
         
         offset += matchText.length;
     }
+    
+    
+    
     
     [text release];
     text = [regex stringByReplacingMatchesInString:text
@@ -286,8 +397,10 @@
             //[label setPosition: ccp(25, background.contentSize.height + 8)];    
             //[self addChild:label z:2];
             
+            /*
             if (CC_CONTENT_SCALE_FACTOR() == 2) [label setPosition: ccp(25, background.contentSize.height + 8 + ((selectPage * (FONT_SIZE + LINE_SPACE) * LINES_PER_PAGE) - (2*selectPage)))];
             else [label setPosition: ccp(25, background.contentSize.height + 8 + (selectPage * (FONT_SIZE + LINE_SPACE) * LINES_PER_PAGE))];
+             */
             
             [[SimpleAudioEngine sharedEngine] playEffect:@"IG Story point page turn.caf"];
             
@@ -333,7 +446,7 @@
     [text release];
     [speechSpeeds release];
     [fontReference release];
-    
+    [pages release];
     [super dealloc];
 }
 
