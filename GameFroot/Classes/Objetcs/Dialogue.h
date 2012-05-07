@@ -15,7 +15,6 @@
     NSString *text;
 	CCSprite *background;
     CCSprite *arrow;
-    int numPages;
     int selectPage;
     
     //CCLabelBMFontMultiline *label;
@@ -23,7 +22,7 @@
     
     float speed;
     CCArray *speechSpeeds;
-    CCArray *pages;
+    NSMutableArray *pages;
     BOOL animating;
     int numCharacters;
     int currentCharacter;

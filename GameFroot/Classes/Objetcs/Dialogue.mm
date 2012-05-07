@@ -56,10 +56,13 @@
     [label setAnchorPoint:ccp(0,1)];
     [label setPosition: ccp(25, background.contentSize.height + 8)];
     
-    selectPage = 0;
     
-    if (numPages == 1) arrow.visible = NO;
-    //numPages = label.pages; // CCLabelBMFontMultiline
+    // Init page and char counters
+    selectPage = 0;
+    numCharacters = [[pages objectAtIndex:selectPage] length];
+    currentCharacter = 0;
+    
+    arrow.visible = ([pages count] != 1);
     
     //CCLOG(@"Dialogue.setupDialogue: %@, pages: %i", text, numPages);
     
@@ -84,8 +87,9 @@
 -(void) animate 
 {
     animating = YES;
-    
+    // TODO: speed integration
     // Find previous speed
+    /*
     CCArray *values; CCARRAY_FOREACH(speechSpeeds, values) {
         NSRange range = [[values objectAtIndex:0] rangeValue];
         if (range.location < currentCharacter) {
@@ -100,37 +104,17 @@
     
     [self unschedule:@selector(animateCharacter:)];
     //CCLOG(@"Animate with speed %f", speed);
+     */
     [self schedule:@selector(animateCharacter:) interval:speed / 1000.0f];
-}
-
-- (void) stepBackAnimation 
-{   
-    if (currentCharacter == 0) return;
-    
-    int i;
-    NSRange range;
-    
-    for (i=currentCharacter; i >= 0; i--) {
-        range = NSMakeRange(i, 1);
-        NSString *character = [text substringWithRange:range];
-        //CCLOG(@"step back char: %@", character);
-        
-        if ([character isEqualToString:@" "]) {            
-            break;
-        }
-    }
-    
-    currentCharacter = i;
-    
-    range = NSMakeRange(0, currentCharacter);
-    NSString *display = [text substringWithRange:range];
-    [label setString:display];
 }
 
 -(void) animateCharacter:(ccTime) dt
 {
     if (animating) {
         
+        /*
+        TODO: Speech speeds
+         
         CCArray *values; CCARRAY_FOREACH(speechSpeeds, values) {
             NSRange range = [[values objectAtIndex:0] rangeValue];
             BOOL used = [[values objectAtIndex:2] boolValue];
@@ -162,6 +146,8 @@
                 break;
             }
         }
+         
+         */
         
         //CCLOG(@"Animate characters from %i to %i", 0, currentCharacter);
         
@@ -170,17 +156,8 @@
             currentCharacter++;
             
             NSRange range = NSMakeRange(0, currentCharacter);
-            NSString *display = [text substringWithRange:range];
+            NSString *display = [[pages objectAtIndex:selectPage] substringWithRange:range];
             [label setString:display];
-            
-            
-            CGSize sizeText = [self calculateLabelSize:display withFont:fontReference maxSize:CGSizeMake(background.contentSize.width - 30, MAX_TEXT_HEIGHT)];
-            
-            if (sizeText.height > ((selectPage + 1) * (FONT_SIZE + LINE_SPACE) * LINES_PER_PAGE)) {
-                animating = NO;
-                [self unschedule:@selector(animateCharacter:)];
-                [self stepBackAnimation];
-            }
             
         } else {
             animating = NO;
@@ -193,28 +170,9 @@
 - (void) finishAnimation 
 {
     animating = NO;
+    [self unschedule:@selector(animateCharacter:)];
+    [label setString:[pages objectAtIndex:selectPage]];
     
-    [self unschedule:@selector(animateCharacter:)];   
-    
-    int i;
-    for (i=currentCharacter; i < numCharacters; i++) {
-        
-        NSRange range = NSMakeRange(0, i);
-        NSString *display = [text substringWithRange:range];
-        
-        CGSize sizeText = [self calculateLabelSize:display withFont:fontReference maxSize:CGSizeMake(background.contentSize.width - 30, MAX_TEXT_HEIGHT)];
-        
-        if (sizeText.height > ((selectPage + 1) * (FONT_SIZE + LINE_SPACE) * LINES_PER_PAGE)) {
-            break; 
-        }
-    }
-    
-    //CCLOG(@"Skip characters from %i to %i", 0, i - 1);
-    currentCharacter = i - 1;
-    
-    [label setString:[text substringWithRange:NSMakeRange(0, currentCharacter)]];
-    
-    if (currentCharacter < numCharacters - 1) [self stepBackAnimation];
 }
 
 
@@ -257,7 +215,6 @@
     if ([self willFitOnPage:t]) {
         // Base case
         [r addObject:t];
-        numPages++;
     } else {
         // recursive case
         // 1. split text at one page worth and add to result
@@ -265,10 +222,8 @@
         if (pBreak == 0) {
             CCLOG(@"Dialog: The break was on 0, page is one contigous word, overflow will occur");
             [r addObject:t];
-            numPages++;
         } else {
             [r addObject:[t substringToIndex:pBreak]];
-            numPages++;
             // recurse on the rest
             [self paginate:[t substringFromIndex:pBreak] result:r];
         }
@@ -280,8 +235,7 @@
 {
     speed = 50.0f;
     speechSpeeds = [[CCArray array] retain];
-    pages = [[CCArray array] retain];
-    currentCharacter = 0;
+    pages = [[NSMutableArray alloc] init];
     
     //\\//\\ Manage the pagination //\\//\\
         
@@ -292,20 +246,15 @@
     //CCLOG(@"Orginal text on one page? : %i", [self willFitOnPage:text]);
     
     // Step 1. do basic pagination based on text width RECURSION!!!!
-    [self paginate:text result:pages];
+    //[self paginate:text result:pages];
     
-    /*
-    NSString *s; CCARRAY_FOREACH(pages, s) {
-        CCLOG(@"PAGE: %@", s);
-    }
-    */
+    NSMutableArray *pageBreakText = [[NSMutableArray alloc] init];
     
     // Step 1: Create page breaks based on {page} tags
     
     // First find page break tokens
     NSError *error = NULL;
     int pageStart = 0;
-    numPages = 0;
     int offset = 0;
     
     NSRegularExpression *pageRegex = [NSRegularExpression regularExpressionWithPattern:@"\\{page\\}"
@@ -323,7 +272,7 @@
                                                       range:NSMakeRange(0, [matchText length])
                                                withTemplate:@""];
         matchText = [matchText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        [pages addObject:matchText];
+        [pageBreakText addObject:matchText];
         pageStart = matchRange.location + matchRange.length;
        
     }
@@ -331,9 +280,29 @@
     // Add final text to last page
     NSString *matchText = [text substringFromIndex:pageStart];
     matchText = [matchText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-    [pages addObject:matchText];
+    [pageBreakText addObject:matchText];
     
-    error = NULL;
+    
+    // Step 2: for each chunk of text in the pages array, paginate them
+    for (NSString *pbtext in pageBreakText) {
+        CCArray *pgRes = [CCArray array];
+        [self paginate:pbtext result:pgRes];
+        NSString *s; CCARRAY_FOREACH(pgRes, s) {
+            [pages addObject:s];
+        }
+    }
+    
+    [pageBreakText release];
+    
+    CCLOG(@"Final paginated result: ");
+    int i=0;
+    for (NSString *s in pages) {
+        i++;
+        CCLOG(@"PAGE: %i",i);
+        CCLOG(@"%@", s);
+    }
+    
+    //error = NULL;
     
     //\\//\\ Manage the speech commands (speed) //\\//
     
@@ -364,7 +333,7 @@
     }
     
     
-    */
+
     
     [text release];
     text = [regex stringByReplacingMatchesInString:text
@@ -374,11 +343,13 @@
     [text retain];
     
     numCharacters = [text length];
+     
+    */ 
 }
 
 -(BOOL) ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event
 {
-    if (selectPage < numPages - 1) {
+    if (selectPage < ([pages count] - 1)) {
         
         if (animating) {
             [self finishAnimation];
@@ -387,22 +358,12 @@
             
             // Display next page
             selectPage++;
-      
-            if (selectPage == numPages) arrow.visible = NO;
+            currentCharacter = 0;
+            numCharacters = [[pages objectAtIndex:selectPage] length];
+            arrow.visible = (selectPage < ([pages count] - 1));
+            [label setString:@""];
             
-            // CCLabelBMFontMultiline
-            //[self removeChild:label cleanup:YES];
-            //label = [CCLabelBMFontMultiline labelWithString:text fntFile:@"Sans.fnt" width:background.contentSize.width - 30 alignment:LeftAlignment page:selectPage linesPerPage:5];
-            //[label.textureAtlas.texture setAliasTexParameters];
-            //[label setAnchorPoint:ccp(0,1)];
-            //[label setPosition: ccp(25, background.contentSize.height + 8)];    
-            //[self addChild:label z:2];
-            
-            /*
-            if (CC_CONTENT_SCALE_FACTOR() == 2) [label setPosition: ccp(25, background.contentSize.height + 8 + ((selectPage * (FONT_SIZE + LINE_SPACE) * LINES_PER_PAGE) - (2*selectPage)))];
-            else [label setPosition: ccp(25, background.contentSize.height + 8 + (selectPage * (FONT_SIZE + LINE_SPACE) * LINES_PER_PAGE))];
-             */
-            
+                    
             [[SimpleAudioEngine sharedEngine] playEffect:@"IG Story point page turn.caf"];
             
             [self animate];
