@@ -233,8 +233,8 @@
     
     EnemyBehaviourState *walkBehav = [[[EnemyBehaviourState alloc] 
                                        initWithMode:ENEMY_BEHAVIOUR_WALKING
-                                       minDuration:1.5f 
-                                       maxDuration:1.5f 
+                                       minDuration:2.0f 
+                                       maxDuration:2.0f 
                                        updateSelString:@"updateWalking" 
                                        initSelString:nil] autorelease];
     
@@ -284,6 +284,7 @@
         }
     }
     
+    
 }
 
 -(void) createBox2dObject:(b2World*)world size:(CGSize)_size
@@ -306,7 +307,8 @@
 	shape.SetAsBox((size.width/2.0)/PTM_RATIO, (size.height/2.0f)/PTM_RATIO);
 	b2FixtureDef fixtureDef;
 	fixtureDef.shape = &shape;
-	fixtureDef.density = 1.0;
+    fixtureDef.density = 1.0;
+    
 	fixtureDef.friction = 0.0; // we need this 0 so when moving it doens't slow down
 	fixtureDef.restitution = 0.0; // bouncing
     
@@ -314,6 +316,13 @@
     fixtureDef.filter.maskBits = ~0x2; // = 0xFFFD
     
 	body->CreateFixture(&fixtureDef);
+    
+    if(spawned) {
+        b2MassData *md = new b2MassData;
+        body->GetMassData(md);
+        md->mass = 100.0f;
+        body->SetMassData(md);
+    }
     
 	removed = NO;
 }
