@@ -26,6 +26,7 @@
     BOOL animating;
     int numCharacters;
     int currentCharacter;
+    int currentSpeedIndex;
     UIFont *fontReference;
 }
 

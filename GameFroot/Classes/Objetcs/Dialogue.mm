@@ -48,7 +48,7 @@
     
     [self prepareText];
     
-    CGSize sizeText = [self calculateLabelSize:text withFont:fontReference maxSize:CGSizeMake(background.contentSize.width - 30, background.contentSize.height)];
+    CGSize sizeText = [self calculateLabelSize:text withFont:fontReference maxSize:CGSizeMake(background.contentSize.width - 20, background.contentSize.height)];
     //CCLOG(@"text size: %f,%f", sizeText.width, sizeText.height);       
     
     label = [CCLabelTTF labelWithString:@"" dimensions:sizeText alignment:UITextAlignmentLeft lineBreakMode:UILineBreakModeWordWrap fontName:FONT_NAME fontSize:FONT_SIZE];
@@ -56,11 +56,11 @@
     [label setAnchorPoint:ccp(0,1)];
     [label setPosition: ccp(25, background.contentSize.height + 8)];
     
-    
     // Init page and char counters
     selectPage = 0;
     numCharacters = [[pages objectAtIndex:selectPage] length];
     currentCharacter = 0;
+    currentSpeedIndex = 0;
     
     arrow.visible = ([pages count] != 1);
     
@@ -87,38 +87,37 @@
 -(void) animate 
 {
     animating = YES;
-    // TODO: speed integration
     // Find previous speed
-    /*
+    
     CCArray *values; CCARRAY_FOREACH(speechSpeeds, values) {
         NSRange range = [[values objectAtIndex:0] rangeValue];
-        if (range.location < currentCharacter) {
+        if (range.location < currentSpeedIndex) {
             NSString *command = [values objectAtIndex:1];
             if ([command isEqualToString:@"{slow}"]) speed = 150;
             else if ([command isEqualToString:@"{fast}"]) speed = 20;
             else if ([command isEqualToString:@"{talk}"]) speed = 50;
-            
+            else if ([command isEqualToString:@"{pause}"]) {
+                speed = 1100.0f;
+                //CCLOG(@"Found command %@ on index %i with speed %f", command, range.location, speed);
+            }
             //CCLOG(@"Found previous speed %f", speed);
         }
     }
     
     [self unschedule:@selector(animateCharacter:)];
     //CCLOG(@"Animate with speed %f", speed);
-     */
+    
     [self schedule:@selector(animateCharacter:) interval:speed / 1000.0f];
 }
 
 -(void) animateCharacter:(ccTime) dt
 {
     if (animating) {
-        
-        /*
-        TODO: Speech speeds
          
         CCArray *values; CCARRAY_FOREACH(speechSpeeds, values) {
             NSRange range = [[values objectAtIndex:0] rangeValue];
             BOOL used = [[values objectAtIndex:2] boolValue];
-            if (!used && range.location == currentCharacter) {
+            if (!used && range.location == currentSpeedIndex) {
                 NSString *command = [values objectAtIndex:1];
                 
                 [values removeObjectAtIndex:2];
@@ -131,9 +130,9 @@
                 else if ([command isEqualToString:@"{pause}"]) {
                     speed = 1100.0f;
                     //CCLOG(@"Found command %@ on index %i with speed %f", command, range.location, speed);
-                    [self unschedule:@selector(animateCharacter:)];
-                    [self schedule:@selector(animateCharacter:) interval:speed / 1000.0f];
-                    return;
+                    //[self unschedule:@selector(animateCharacter:)];
+                    //[self schedule:@selector(animateCharacter:) interval:speed / 1000.0f];
+                    //return;
                 }
                 
                 //CCLOG(@"Found command %@ on index %i with speed %f", command, range.location, speed);
@@ -146,14 +145,13 @@
                 break;
             }
         }
-         
-         */
         
         //CCLOG(@"Animate characters from %i to %i", 0, currentCharacter);
         
-        if (currentCharacter < numCharacters - 1) {
+        if (currentCharacter < numCharacters) {
             
             currentCharacter++;
+            currentSpeedIndex++;
             
             NSRange range = NSMakeRange(0, currentCharacter);
             NSString *display = [[pages objectAtIndex:selectPage] substringWithRange:range];
@@ -163,16 +161,15 @@
             animating = NO;
             [self unschedule:@selector(animateCharacter:)]; 
         }
-        
     }
 }
 
 - (void) finishAnimation 
 {
     animating = NO;
+    currentSpeedIndex += ([[pages objectAtIndex:selectPage] length] - currentCharacter);
     [self unschedule:@selector(animateCharacter:)];
     [label setString:[pages objectAtIndex:selectPage]];
-    
 }
 
 
@@ -181,7 +178,7 @@
     CGSize sizeText = [self calculateLabelSize:t withFont:fontReference maxSize:CGSizeMake(background.contentSize.width - 30, MAX_TEXT_HEIGHT)];
     //CCLOG(@"text size: %f,%f", sizeText.width, sizeText.height); 
     int nPages = (int)((sizeText.height / (FONT_SIZE + LINE_SPACE)) / LINES_PER_PAGE);
-    float exact = (sizeText.height / (float)(FONT_SIZE + LINE_SPACE)) / (float)LINES_PER_PAGE;
+    float exact = (sizeText.height / (float)(FONT_SIZE + 2.0f + LINE_SPACE)) / (float)LINES_PER_PAGE;
     if (exact > (float)nPages) nPages++;
     return (nPages == 1);
 }
@@ -230,18 +227,12 @@
     }
 }
 
-
--(void) prepareText
-{
-    speed = 50.0f;
-    speechSpeeds = [[CCArray array] retain];
-    pages = [[NSMutableArray alloc] init];
-    
+-(void) buildPaginationForDialog {
     //\\//\\ Manage the pagination //\\//\\
-        
+    
     [pages removeAllObjects];
     
-   
+    
     //CCLOG(@"Text to paginate: %@",text);
     //CCLOG(@"Orginal text on one page? : %i", [self willFitOnPage:text]);
     
@@ -268,18 +259,18 @@
         NSString *matchText = [text substringWithRange:NSMakeRange(pageStart, matchRange.location - offset)];
         offset += matchText.length;
         matchText = [pageRegex stringByReplacingMatchesInString:matchText
-                                                    options:0
-                                                      range:NSMakeRange(0, [matchText length])
-                                               withTemplate:@""];
-        matchText = [matchText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+                                                        options:0
+                                                          range:NSMakeRange(0, [matchText length])
+                                                   withTemplate:@""];
+        //matchText = [matchText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         [pageBreakText addObject:matchText];
         pageStart = matchRange.location + matchRange.length;
-       
+        
     }
     
     // Add final text to last page
     NSString *matchText = [text substringFromIndex:pageStart];
-    matchText = [matchText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    //matchText = [matchText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     [pageBreakText addObject:matchText];
     
     
@@ -301,50 +292,62 @@
         CCLOG(@"PAGE: %i",i);
         CCLOG(@"%@", s);
     }
-    
-    //error = NULL;
+
+}
+
+-(void) buildSpeedIndex {
     
     //\\//\\ Manage the speech commands (speed) //\\//
     
-    /*
+    NSRegularExpression *re = [NSRegularExpression regularExpressionWithPattern:@"\\{page\\}"
+                                                                               options:NSRegularExpressionCaseInsensitive
+                                                                                 error:nil];
     
-    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\{[a-z]*\\}"
-                                                                           options:NSRegularExpressionCaseInsensitive
-                                                                             error:&error];
-    NSArray *matches = [regex matchesInString:text
-                                      options:0
-                                        range:NSMakeRange(0, [text length])];
+    NSString *textWithoutPageBreakTokens = [re stringByReplacingMatchesInString:text
+                                                                             options:0
+                                                                               range:NSMakeRange(0, [text length])
+                                                                        withTemplate:@""];
     
-    [speechSpeeds removeAllObjects];
-    offset = 0;
+    NSError *error = NULL;
+    int offset = 0;
     
-    for (NSTextCheckingResult *match in matches) {
-        NSString *matchText = [text substringWithRange:[match range]];
-        NSRange matchRange = [match range];
-        //CCLOG(@">>>> %@: %i, %i", matchText, matchRange.location, matchRange.length);
-        
-        CCArray *values = [CCArray arrayWithCapacity:2];
-        [values addObject:[NSValue valueWithRange:NSMakeRange(matchRange.location - offset, matchRange.length)]];
-        [values addObject:matchText];
-        [values addObject:[NSNumber numberWithBool:NO]];
-        [speechSpeeds addObject:values];
-        
-        offset += matchText.length;
-    }
-    
-    
-
-    
-    [text release];
-    text = [regex stringByReplacingMatchesInString:text
-                                                      options:0
-                                                        range:NSMakeRange(0, [text length])
-                                                 withTemplate:@""];
-    [text retain];
-    
-    numCharacters = [text length];
+     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\{(slow|fast|talk|pause)\\}"
+     options:NSRegularExpressionCaseInsensitive
+     error:&error];
+     NSArray *matches = [regex matchesInString:textWithoutPageBreakTokens
+     options:0
+     range:NSMakeRange(0, [textWithoutPageBreakTokens length])];
      
-    */ 
+     [speechSpeeds removeAllObjects];
+     
+     for (NSTextCheckingResult *match in matches) {
+         NSString *matchText = [textWithoutPageBreakTokens substringWithRange:[match range]];
+         NSRange matchRange = [match range];
+     //CCLOG(@">>>> %@: %i, %i", matchText, matchRange.location, matchRange.length);
+     
+         CCArray *values = [CCArray arrayWithCapacity:2];
+         [values addObject:[NSValue valueWithRange:NSMakeRange(matchRange.location - offset, matchRange.length)]];
+         [values addObject:matchText];
+         [values addObject:[NSNumber numberWithBool:NO]];
+         [speechSpeeds addObject:values];
+         offset += matchText.length;
+     }
+     
+     [text release];
+     text = [regex stringByReplacingMatchesInString:text
+     options:0
+     range:NSMakeRange(0, [text length])
+     withTemplate:@""];
+     [text retain];
+}
+
+-(void) prepareText
+{
+    speed = 50.0f;
+    speechSpeeds = [[CCArray array] retain];
+    pages = [[NSMutableArray alloc] init];
+    [self buildSpeedIndex];
+    [self buildPaginationForDialog];
 }
 
 -(BOOL) ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event
