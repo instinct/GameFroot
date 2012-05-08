@@ -1797,13 +1797,14 @@ GameLayer *instance;
     */
     
     // Create player		
-    Enemy *enemy = [Enemy spriteWithBatchNode:enemySpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];        
+    Enemy *enemy = [Enemy spriteWithBatchNode:enemySpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];
     [enemy setPosition:pos];
     [enemy setAnchorPoint:ccp(ENEMY_ANCHOR_X,ENEMY_ANCHOR_Y)];
+     enemy.spawned = YES;
     [enemy setupEnemy:enemyID properties:dict player:player];
     [enemy createBox2dObject:world size:hitArea];
     [enemySpriteSheet addChild:enemy z:LAYER_PLAYER];
-    enemy.spawned = YES;
+   
     
     [enemies addObject:enemy];
 }
