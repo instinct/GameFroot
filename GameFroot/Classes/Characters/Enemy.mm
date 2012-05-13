@@ -233,7 +233,7 @@
     
     EnemyBehaviourState *walkBehav = [[[EnemyBehaviourState alloc] 
                                        initWithMode:ENEMY_BEHAVIOUR_WALKING
-                                       minDuration:2.0f 
+                                       minDuration:1.5f 
                                        maxDuration:2.0f 
                                        updateSelString:@"updateWalking" 
                                        initSelString:nil] autorelease];
@@ -822,7 +822,13 @@
     // maintain behaviour cycle
     behaviourTimer += dt;
     currentBehaviour = [self.behaviourCycle objectAtIndex:behaviourCyclePosition];
-    if (behaviourTimer >= currentBehaviour.maxDuration) {
+    
+    // Add randomness to states
+
+    float diff = currentBehaviour.maxDuration - currentBehaviour.minDuration;
+    float randDuration = (((float) (arc4random() % ((unsigned)RAND_MAX + 1)) / RAND_MAX) * diff) + currentBehaviour.minDuration;
+    
+    if (behaviourTimer >= randDuration) {
         
         behaviourCyclePosition = (behaviourCyclePosition + 1 == [behaviourCycle count]) ? 0 : behaviourCyclePosition + 1;
         behaviourTimer = 0;
@@ -960,6 +966,16 @@
            
             if (!ENEMY_BLOCKS_PLAYER || dying) data.contact->SetEnabled( false );
             else if ( data.position == CONTACT_IS_ABOVE ) [ player hitsFloor ];
+            break;
+            
+        case kGameObjectEnemy:
+            if(spawned && object.spawned) {
+                if (facingLeft) {
+                    [self moveRight];
+                } else {
+                    [self moveLeft];
+                }
+            }
             break;
         
         //case kGameObjectEnemy:
