@@ -10,6 +10,7 @@
 #import "CJSONDeserializer.h"
 #import "GameLayer.h"
 #import "Bullet.h"
+#import "Shared.h"
 #import "SimpleAudioEngine.h"
 #include <objc/runtime.h>
 
@@ -45,6 +46,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         shooted = NO;
         touchingPlayer = NO;
         touching = touchingNone;
+        spray = nil;
+        firework = nil;
     }
     
     return self;
@@ -281,6 +284,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	
     //this is required since if is a reserved keyword!
 	if ([nameMethod isEqualToString:@"if"]) nameMethod = @"conditionIf";
+    if ([nameMethod isEqualToString:@"setOpacity"]) nameMethod = @"setTransparency";
     
 	if (anObject != nil) method = [NSString stringWithFormat:@"%@:", nameMethod];
 	else method = nameMethod;
@@ -489,6 +493,14 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         
     } else  if ([[obj objectForKey:@"words"] isKindOfClass:[NSString class]]) {
         [[GameLayer getInstance] say:[obj objectForKey:@"words"]];
+        
+    } else  if ([[obj objectForKey:@"sentence"] isKindOfClass:[NSDictionary class]]) {
+        NSString *token = [[obj objectForKey:@"sentence"] objectForKey:@"token"];
+		NSString *msg = [self runMethod:token withObject:[obj objectForKey:@"sentence"]];
+        [[GameLayer getInstance] say:msg];
+        
+    } else  if ([[obj objectForKey:@"sentence"] isKindOfClass:[NSString class]]) {
+        [[GameLayer getInstance] say:[obj objectForKey:@"sentence"]];
     }
 }
 
@@ -554,7 +566,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 {
     if (TRACE_COMMANDS) CCLOG(@"Robot.goVisible");
     
-	self.visible = YES;
+	self.opacity = 0xFF;
     invisible = NO;
 	return [NSNumber numberWithBool:!invisible];
 }
@@ -563,9 +575,28 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 {
     if (TRACE_COMMANDS) CCLOG(@"Robot.goInvisible");
     
-	self.visible = NO;
+	self.opacity = 0x00;
     invisible = YES;
 	return [NSNumber numberWithBool:!invisible];
+}
+
+-(void) setTransparency:(NSDictionary *)command
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.setOpacity");
+    
+    int amount;
+	
+	if ([[command objectForKey:@"amount"] isKindOfClass:[NSDictionary class]]) {
+		
+		NSString *token = [[command objectForKey:@"amount"] objectForKey:@"token"];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"amount"]];
+		amount = [num intValue];
+		
+	} else {
+		amount = [[command objectForKey:@"amount"] intValue];
+	}
+    
+	self.opacity = 0xFF * ((float)amount / 100.0f);
 }
 
 -(NSNumber *) facingLeft:(id)obj
@@ -711,20 +742,20 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 		
 		NSString *token = [[obj objectForKey:@"xMod"] objectForKey:@"token"];
 		NSNumber *num = [self runMethod:token withObject:[obj objectForKey:@"xMod"]];
-		x += [num floatValue];
+		x += [num floatValue] / CC_CONTENT_SCALE_FACTOR();
 		
 	} else {
-		x += [[obj objectForKey:@"xMod"] floatValue];
+		x += [[obj objectForKey:@"xMod"] floatValue] / CC_CONTENT_SCALE_FACTOR();
 	}
 	
 	if ([[obj objectForKey:@"yMod"] isKindOfClass:[NSDictionary class]]) {
 		
 		NSString *token = [[obj objectForKey:@"yMod"] objectForKey:@"token"];
 		NSNumber *num = [self runMethod:token withObject:[obj objectForKey:@"yMod"]];
-		y -= [num floatValue];
+		y -= [num floatValue] / CC_CONTENT_SCALE_FACTOR();
 		
 	} else {
-		y -= [[obj objectForKey:@"yMod"] floatValue];
+		y -= [[obj objectForKey:@"yMod"] floatValue] / CC_CONTENT_SCALE_FACTOR();
 	}		
 	
 	//node.y += int(obj.yMod) * -1;
@@ -789,7 +820,18 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 {
     if (TRACE_COMMANDS) CCLOG(@"Robot.changeScore: %@", command);
     
-	int amount = [[command objectForKey:@"amount"] intValue];
+	int amount;
+	
+	if ([[command objectForKey:@"amount"] isKindOfClass:[NSDictionary class]]) {
+		
+		NSString *token = [[command objectForKey:@"amount"] objectForKey:@"token"];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"amount"]];
+		amount = [num intValue];
+		
+	} else {
+		amount = [[command objectForKey:@"amount"] intValue];
+	}
+    
 	[[GameLayer getInstance] increasePoints:amount];
 }
 
@@ -829,17 +871,12 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	} else {
 		amount = [[command objectForKey:@"amount"] intValue];
 	}
-	
-	if (amount < 0) {
-		int changeAmount = amount * -1;
-		health -= changeAmount;
-		
-	} else {
-		health += amount;
-	}		
-
-	if ((health < 0) && (!immortal)) [self die:nil];
-	
+    
+    health += amount;		
+    
+    if (health < 0) health = 0;
+	if (health == 0) [self die:nil];
+        
 	return [NSNumber numberWithInt:health];
 }
 
@@ -869,6 +906,13 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 			[[GameLayer getInstance] increaseHealth:amount];
 		}
 	}
+}
+
+-(NSNumber *) myHealth:(id)obj
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.myHealth: %@", obj);
+	
+	return [NSNumber numberWithInt:health];
 }
 
 -(void) changeLives:(NSDictionary *)command 
@@ -952,7 +996,101 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         amount = [[command objectForKey:@"amount"] intValue];
 	}
     
-	[[GameLayer getInstance] setTime:amount];
+	[[GameLayer getInstance] increaseTime:amount];
+}
+
+-(void) showClock:(id)obj
+{
+    [[GameLayer getInstance] showClock];
+}
+
+-(void) hideClock:(id)obj
+{
+    [[GameLayer getInstance] hideClock];
+}
+
+-(void) hideHealth:(id)obj
+{
+    [[GameLayer getInstance] hideHealth];
+}
+
+-(void) hideScore:(id)obj
+{
+    [[GameLayer getInstance] hideScore];
+}
+
+-(void) showHealth:(id)obj
+{
+    [[GameLayer getInstance] showHealth];
+}
+
+-(void) showScore:(id)obj
+{
+    [[GameLayer getInstance] showScore];
+}
+
+-(NSNumber *) timeLeft:(id)obj
+{
+	return [NSNumber numberWithInt:[[GameLayer getInstance] timeLeft]];
+}
+
+-(void) pauseBgm:(id)obj
+{
+    [[GameLayer getInstance] pauseBgm];
+}
+
+-(void) resumeBgm:(id)obj
+{
+    [[GameLayer getInstance] resumeBgm];
+}
+
+-(void) restartBgm:(id)obj
+{
+    [[GameLayer getInstance] restartBgm];
+}
+
+-(void) godModeOff:(id)obj
+{
+    [[GameLayer getInstance] godModeOff];
+}
+
+-(void) godModeOn:(id)obj
+{
+    [[GameLayer getInstance] godModeOn];
+}
+
+-(void) changeMaxHealth:(NSDictionary *)command 
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.changeMaxHealth: %@", command);
+    
+    int amount;
+	
+	if ([[command objectForKey:@"amount"] isKindOfClass:[NSDictionary class]]) {
+		
+		NSString *token = [[command objectForKey:@"amount"] objectForKey:@"token"];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"amount"]];
+        amount = [num intValue];
+		
+	} else {
+        amount = [[command objectForKey:@"amount"] intValue];
+	}
+    
+    topHealth = amount;
+	//[[GameLayer getInstance] changeMaxHealth:amount];
+}
+
+
+-(void) setScore:(NSDictionary *)command 
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.setScore: %@", command);
+
+    int amount = [[command objectForKey:@"amount"] intValue];
+	[[GameLayer getInstance] setPoints:amount];
+}
+
+-(NSNumber *) getScore:(id)obj
+{
+	return [NSNumber numberWithInt:[GameLayer getInstance].points];
 }
 
 -(void) triggerCheckpoint:(NSDictionary *)command 
@@ -1020,7 +1158,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         
         if ([[[command objectForKey:@"instance"] objectForKey:@"token"] isEqualToString:@"player"]) {
             
-            if (TRACE_COMMANDS) CCLOG(@"Robot.teleportInstance: %f, %f", auxX, auxY);
+            if (TRACE_COMMANDS) CCLOG(@"Robot.teleportInstance (map position): %f, %f", auxX, auxY);
             
             // This is the only case where we need to run the hardcoded teleport animation
             [[GameLayer getInstance] runTeleportAnimation:self.position];
@@ -1036,9 +1174,10 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
        
         if ([[[command objectForKey:@"instance"] objectForKey:@"token"] isEqualToString:@"player"]) {
             
-            if (TRACE_COMMANDS) CCLOG(@"Robot.teleportInstance: %f, %f", auxX, auxY);
+            if (TRACE_COMMANDS) CCLOG(@"Robot.teleportInstance (screen position): %f, %f", auxX, auxY);
             
             [[GameLayer getInstance] transportPlayerToPosition:ccp(auxX, auxY)];
+            //[[GameLayer getInstance] transportPlayerToX:auxX andY:auxY];
         }
     }
 }
@@ -1202,6 +1341,46 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     return [NSNumber numberWithFloat:speed];
 }
 
+-(void) lockPlayerYSpeed:(NSDictionary *)command 
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.lockPlayerYSpeed: %@", command);
+    
+	float speed;
+	
+	if ([[command objectForKey:@"speed"] isKindOfClass:[NSDictionary class]]) {
+		
+		NSString *token = [[command objectForKey:@"speed"] objectForKey:@"token"];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"speed"]];
+        speed = [num floatValue];
+		
+	} else {
+        speed = [[command objectForKey:@"speed"] floatValue];
+	}
+	
+	
+    [[GameLayer getInstance] lockPlayerYSpeed:speed];
+}
+
+-(void) lockPlayerXSpeed:(NSDictionary *)command 
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.lockPlayerXSpeed: %@", command);
+    
+	float speed;
+	
+	if ([[command objectForKey:@"speed"] isKindOfClass:[NSDictionary class]]) {
+		
+		NSString *token = [[command objectForKey:@"speed"] objectForKey:@"token"];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"speed"]];
+        speed = [num floatValue];
+		
+	} else {
+        speed = [[command objectForKey:@"speed"] floatValue];
+	}
+	
+	
+    [[GameLayer getInstance] lockPlayerXSpeed:speed];
+}
+
 -(void) spawnNewObject:(NSDictionary *)command 
 {
     if (TRACE_COMMANDS) CCLOG(@"Robot.spawnNewObject: %@", command);
@@ -1296,6 +1475,14 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     
     freezed = NO;
 }
+
+-(NSNumber *) playerHealth:(id)obj
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.playerHealth: %@", obj);
+	
+	return [NSNumber numberWithInt:[[GameLayer getInstance] playerHealth]];
+}
+
 
 -(void) freezePhysics:(id)obj
 {
@@ -1752,6 +1939,257 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	return [NSNumber numberWithFloat:ccpDistance(point1, point2)];
 }
 
+-(void) stopCameraMove:(NSDictionary *)command 
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.stopCameraMove: %@", command);
+    
+    [[GameLayer getInstance] stopCameraMove];
+}
+
+-(void) cameraOnPlayer:(NSDictionary *)command 
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.cameraOnPlayer: %@", command);
+    
+    [[GameLayer getInstance] cameraOnPlayer];
+}
+
+-(void) panToLocation:(NSDictionary *)command 
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.panToLocation: %@", command);
+    
+    NSDictionary *location = [command objectForKey:@"location"];
+	NSString *token = [location objectForKey:@"token"];
+	
+    id result = [self runMethod:token withObject:location];
+    
+    float auxX, auxY;
+    
+    if ([result isKindOfClass:[NSDictionary class]]) {
+        NSDictionary *position = (NSDictionary *)result;
+        auxX = [[position objectForKey:@"xpos"] floatValue];
+        auxY = [[position objectForKey:@"ypos"] floatValue];
+        
+        [[GameLayer getInstance] panToLocation:ccp(auxX, auxY)];
+        
+	} else if ([result isKindOfClass:[NSArray class]]) {
+        NSArray *position = (NSArray *)result;
+        auxX = [[position objectAtIndex:0] floatValue];
+        auxY = [[position objectAtIndex:1] floatValue];
+        
+        [[GameLayer getInstance] panToLocation:ccp(auxX, auxY)];
+    }
+}
+
+-(void) snapToLocation:(NSDictionary *)command 
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.snapToLocation: %@", command);
+    
+    NSDictionary *location = [command objectForKey:@"location"];
+	NSString *token = [location objectForKey:@"token"];
+	
+    id result = [self runMethod:token withObject:location];
+    
+    float auxX, auxY;
+    
+    if ([result isKindOfClass:[NSDictionary class]]) {
+        NSDictionary *position = (NSDictionary *)result;
+        auxX = [[position objectForKey:@"xpos"] floatValue];
+        auxY = [[position objectForKey:@"ypos"] floatValue];
+        
+        [[GameLayer getInstance] snapToLocation:ccp(auxX, auxY)];
+        
+	} else if ([result isKindOfClass:[NSArray class]]) {
+        NSArray *position = (NSArray *)result;
+        auxX = [[position objectAtIndex:0] floatValue];
+        auxY = [[position objectAtIndex:1] floatValue];
+        
+        [[GameLayer getInstance] snapToLocation:ccp(auxX, auxY)];
+    }
+}
+
+-(void) cameraLockdown:(NSDictionary *)command 
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.cameraLockdown: %@", command);
+}
+
+-(void) cameraPlatformer:(NSDictionary *)command 
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.cameraPlatformer: %@", command);
+}
+
+-(void) offsetCameraY:(NSDictionary *)command 
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.offsetCameraY: %@", command);
+    
+    int amount;
+	
+	if ([[command objectForKey:@"amount"] isKindOfClass:[NSDictionary class]]) {
+		
+		NSString *token = [[command objectForKey:@"amount"] objectForKey:@"token"];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"amount"]];
+		amount = [num intValue];
+		
+	} else {
+		amount = [[command objectForKey:@"amount"] intValue];
+	}
+    
+    [[GameLayer getInstance] offsetCameraY:amount];
+}
+
+-(void) offsetCameraX:(NSDictionary *)command 
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.offsetCameraX: %@", command);
+    
+    int amount;
+	
+	if ([[command objectForKey:@"amount"] isKindOfClass:[NSDictionary class]]) {
+		
+		NSString *token = [[command objectForKey:@"amount"] objectForKey:@"token"];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"amount"]];
+		amount = [num intValue];
+		
+	} else {
+		amount = [[command objectForKey:@"amount"] intValue];
+	}
+    
+    [[GameLayer getInstance] offsetCameraX:amount];
+}
+
+-(void) createSprayWithColor:(NSString *)color amount:(int)amount frequency:(float)frequency life:(float)life velocity:(float)velocity
+{
+    if (spray == nil) {
+        spray=[[[CCParticleSystemQuad alloc] initWithTotalParticles:amount] autorelease];
+        spray.emissionRate=amount * frequency;
+        spray.angle=90.0;
+        spray.angleVar=360.0;
+        ccBlendFunc blendFunc={GL_ONE,GL_ONE_MINUS_SRC_ALPHA};
+        spray.blendFunc=blendFunc;
+        spray.duration=-1.00;
+        spray.emitterMode=kCCParticleModeGravity;
+        ccColor4F startColor=ccc4FFromccc4B([Shared colorForHex:color withTransparency:255]);
+        spray.startColor=startColor;
+        ccColor4F startColorVar={0.00,0.00,0.00,0.00};
+        spray.startColorVar=startColorVar;
+        ccColor4F endColor=ccc4FFromccc4B([Shared colorForHex:color withTransparency:255]);
+        spray.endColor=endColor;
+        ccColor4F endColorVar={0.00,0.00,0.00,0.00};
+        spray.endColorVar=endColorVar;
+        spray.startSize=5.00 / CC_CONTENT_SCALE_FACTOR();
+        spray.startSizeVar=0.00;
+        spray.endSize=-1.00;
+        spray.endSizeVar=0.00;
+        spray.gravity=ccp(0.00,0.00);
+        spray.radialAccel=0.00;
+        spray.radialAccelVar=0.00;
+        spray.speed=velocity;
+        spray.speedVar= 0;
+        spray.tangentialAccel= 0;
+        spray.tangentialAccelVar= 0;
+        spray.totalParticles=20;
+        spray.life=life;
+        spray.lifeVar=0.00;
+        spray.startSpin=0.00;
+        spray.startSpinVar=0.00;
+        spray.endSpin=0.00;
+        spray.endSpinVar=0.00;
+        spray.position=self.position;
+        spray.posVar=ccp(0.00,0.00);
+        spray.positionType = kCCPositionTypeGrouped;
+        
+        [[GameLayer getInstance] addObject:spray withZOrder:LAYER_PLAYER-1];
+    }
+}
+
+-(void) createFireworkWithColor:(NSString *)color amount:(int)amount frequency:(float)frequency life:(float)life velocity:(float)velocity
+{
+    if (firework == nil) {
+        firework=[[[CCParticleSystemQuad alloc] initWithTotalParticles:amount] autorelease];
+        firework.emissionRate=amount / frequency;
+        firework.angle=90.0;
+        firework.angleVar=360.0;
+        ccBlendFunc blendFunc={GL_ONE,GL_ONE_MINUS_SRC_ALPHA};
+        firework.blendFunc=blendFunc;
+        firework.duration=life;
+        firework.emitterMode=kCCParticleModeGravity;
+        ccColor4F startColor=ccc4FFromccc4B([Shared colorForHex:color withTransparency:255]);
+        firework.startColor=startColor;
+        ccColor4F startColorVar={0.00,0.00,0.00,0.00};
+        firework.startColorVar=startColorVar;
+        ccColor4F endColor=ccc4FFromccc4B([Shared colorForHex:color withTransparency:255]);
+        firework.endColor=endColor;
+        ccColor4F endColorVar={0.00,0.00,0.00,0.00};
+        firework.endColorVar=endColorVar;
+        firework.startSize=5.00 / CC_CONTENT_SCALE_FACTOR();
+        firework.startSizeVar=0.00;
+        firework.endSize=-1.00;
+        firework.endSizeVar=0.00;
+        firework.gravity=ccp(0.00,0.00);
+        firework.radialAccel=0.00;
+        firework.radialAccelVar=0.00;
+        firework.speed=velocity;
+        firework.speedVar= 0;
+        firework.tangentialAccel= 0;
+        firework.tangentialAccelVar= 0;
+        firework.totalParticles=20;
+        firework.life=life;
+        firework.lifeVar=0.00;
+        firework.startSpin=0.00;
+        firework.startSpinVar=0.00;
+        firework.endSpin=0.00;
+        firework.endSpinVar=0.00;
+        firework.position=self.position;
+        firework.posVar=ccp(0.00,0.00);
+        firework.positionType = kCCPositionTypeGrouped;
+        
+        [[GameLayer getInstance] addObject:firework withZOrder:LAYER_PLAYER-1];
+        
+    } else {
+        [firework resetSystem];
+    }
+}
+
+-(void) sprayParticles:(NSDictionary *)command 
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.sprayParticles: %@", command);
+    
+    NSString *color = [command objectForKey:@"color"];
+    int amount = [[command objectForKey:@"amount"] intValue];
+    float frequency = [[command objectForKey:@"frequency"] floatValue];
+    float life = [[command objectForKey:@"life"] floatValue];
+    float velocity = [[command objectForKey:@"velocity"] floatValue];
+    
+    [self createSprayWithColor:color amount:amount frequency:frequency life:life velocity:velocity];
+}
+
+-(void) fireWorks:(NSDictionary *)command 
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.fireWorks: %@", command);
+    
+    NSString *color = [command objectForKey:@"color"];
+    int amount = [[command objectForKey:@"amount"] intValue];
+    float frequency = [[command objectForKey:@"frequency"] floatValue];
+    float life = [[command objectForKey:@"life"] floatValue];
+    float velocity = [[command objectForKey:@"velocity"] floatValue];
+    
+    [self createFireworkWithColor:color amount:amount frequency:frequency life:life velocity:velocity];
+}
+
+-(void) playerSmokeOn:(id)obj
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.playerSmokeOn");
+    
+    [[GameLayer getInstance] playerSmokeOn];
+    
+}
+
+-(void) playerSmokeOff:(id)obj
+{
+    if (TRACE_COMMANDS) CCLOG(@"Robot.playerSmokeOff");
+    
+    [[GameLayer getInstance] playerSmokeOff];
+    
+}
+
 -(void) quakeCamera:(NSDictionary *)command 
 {
     if (TRACE_COMMANDS) CCLOG(@"Robot.quakeCamera: %@", command);
@@ -1766,7 +2204,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 {
     if (TRACE_COMMANDS) CCLOG(@"Robot.flashScreen: %@", command);
     
-    int color = [[command objectForKey:@"color"] intValue];
+    NSString *color = [command objectForKey:@"color"];
     int time = [[command objectForKey:@"time"] intValue];
     
     [[GameLayer getInstance] flashScreenWithColor:color during:time];
@@ -1958,8 +2396,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     
 	//CCLOG(@"Robot.touched: %@ (%i)", behavior, onTouchStart);
 	if (!onTouchStart) {
-		[self execute:@"onTouchStart" type:kGameObjectPlayer];
-		onTouchStart = YES;
+        onTouchStart = YES;
+        [self triggerEvent:@"onTouchStart"];
 	}
     
     /*
@@ -1976,6 +2414,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 {
 	//CCLOG(@"Robot.finished: %@", behavior);
 	onTouchStart = NO;
+    [self triggerEvent:@"onTouchEnd"];
     
     if (!wasMoving) {
         body->SetLinearVelocity(b2Vec2(0,0));
@@ -1985,10 +2424,14 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 
 -(void) hit:(int)force 
 {
-	health -= force;
+    if (!immortal) {
+        health -= force;
 	
-	if (health < 0 && !immortal) [self die:nil];
-    else [self triggerEvent:@"onDamage"];
+        if (health < 0) health = 0;
+        if (health == 0) [self die:nil];
+    }
+    
+    [self triggerEvent:@"onDamage"];
 }
 
 -(void) shootTo:(b2Vec2)vel

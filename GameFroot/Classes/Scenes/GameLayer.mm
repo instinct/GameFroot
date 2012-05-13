@@ -176,6 +176,8 @@ GameLayer *instance;
             if ([sprite applyPendingBox2dActions]) [sprite update:dt];
 		}
 	}
+    
+    [self setViewpointCenter];
 }
 
 -(void) timer:(ccTime)dt {
@@ -337,6 +339,13 @@ GameLayer *instance;
         checkpoints = NO;
 		paused = YES;
         
+        //
+        cameraBehaviour = kCameraFollowPlayer;
+        cameraLocation = CGPointZero;
+        cameraXOffset = 0;
+        cameraYOffset = 0;
+        
+        //
 		pauseBtn = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"pause.png"] selectedSprite:[CCSprite spriteWithFile:@"pause.png"] target:self selector:@selector(pauseGame)];
 		[[(CCSprite *)pauseBtn.normalImage texture] setAliasTexParameters];
 		((CCSprite *)pauseBtn.normalImage).opacity = 100;
@@ -374,8 +383,8 @@ GameLayer *instance;
 		
 		//
 		barBGLeft = [CCSprite spriteWithSpriteFrameName:@"FatBarBGLeft.png"];
-		CCSprite *barBGMiddle = [CCSprite spriteWithSpriteFrameName:@"FatBarBGMiddle.png"];
-		CCSprite *barBGRight = [CCSprite spriteWithSpriteFrameName:@"FatBarBGRight.png"];
+		barBGMiddle = [CCSprite spriteWithSpriteFrameName:@"FatBarBGMiddle.png"];
+		barBGRight = [CCSprite spriteWithSpriteFrameName:@"FatBarBGRight.png"];
 		[hudSpriteSheet addChild:barBGLeft];
 		[hudSpriteSheet addChild:barBGMiddle];
 		[hudSpriteSheet addChild:barBGRight];
@@ -757,10 +766,7 @@ GameLayer *instance;
     
     // Check backward compatibilty with previus API to avoid crashes
     id weapon = [[[jsonData objectForKey:@"map"] objectForKey:@"player"] objectForKey:@"chosen_weapon"];
-    if ([weapon isMemberOfClass:[NSString class]]) 
-        [playerData setObject:[NSNumber numberWithInt:[weapon intValue]] forKey:@"weapon"];
-    else 
-        [playerData setObject:[NSNumber numberWithInt:0] forKey:@"weapon"];
+    [playerData setObject:[NSNumber numberWithInt:[weapon intValue]] forKey:@"weapon"];
 	
     [data setObject:playerData forKey:@"player"];
 	//CCLOG(@"Player: %@", [playerData description]);
@@ -1900,10 +1906,7 @@ GameLayer *instance;
 	NSString *resource = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"cachedLevel%i",[Shared getLevelID]]];
 	[published writeToFile:resource atomically:YES encoding:NSASCIIStringEncoding error:nil];
 	CCLOG(@"Write level cache: %@ on: %@", published, resource);
-    
-	// Start camera follow (fails with scaled contents!! use viewpoint center)
-	//[self runAction:[CCFollow actionWithTarget:player worldBoundary:CGRectMake(0, 0, mapWidth*MAP_TILE_WIDTH, mapHeight*MAP_TILE_HEIGHT)]];
-	
+    	
 	// Init music
 	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	int musicPref = [prefs integerForKey:@"music"];
@@ -1923,9 +1926,68 @@ GameLayer *instance;
 	}
 }
 
-- (void)setViewpointCenter:(CGPoint)point {
-	point = ccp(point.x*REDUCE_FACTOR, point.y*REDUCE_FACTOR);
-	
+-(void) offsetCameraX:(float)offset
+{
+    cameraXOffset = offset;
+}
+
+-(void) offsetCameraY:(float)offset
+{
+    cameraYOffset = offset;
+}
+
+-(void) cameraOnPlayer
+{
+    cameraBehaviour = kCameraFollowPlayer;
+}
+
+-(void) stopCameraMove
+{
+    cameraBehaviour = kCameraFixed;
+}
+
+-(void) panToLocation:(CGPoint)location
+{
+    cameraLocation = location;
+    cameraBehaviour = kCameraPanToLocation;
+}
+
+-(void) snapToLocation:(CGPoint)location
+{
+    cameraLocation = location;
+    cameraBehaviour = kCameraSnapToLocation;
+}
+
+-(void) setViewpointCenter 
+{
+    CGPoint point;
+    
+    if (cameraBehaviour == kCameraFixed) {
+        point = previousLocation;
+    }
+	else if (cameraBehaviour == kCameraSnapToLocation) 
+    {
+        point = cameraLocation;
+    }
+	else if (cameraBehaviour == kCameraPanToLocation) 
+    {
+        float diff = ccpDistance(cameraLocation, previousLocation);
+        if (diff < 1.0) {
+            point = cameraLocation;
+        }
+        else 
+        {    
+            float angle = findAngle(cameraLocation, previousLocation);
+            point = findPoint(previousLocation, angle, 2.0f);
+        }
+    } 
+    else { //kCameraFollowPlayer
+        point = player.position;
+    }
+    
+    previousLocation = point;
+	point = ccp((point.x + cameraXOffset) * REDUCE_FACTOR, (point.y + cameraYOffset) * REDUCE_FACTOR);
+    
 	CGSize size = [[CCDirector sharedDirector] winSize];
 	CGPoint centerPoint = ccp(size.width/2, size.height/2);
 	CGPoint viewPoint = ccpSub(centerPoint, point);
@@ -1976,6 +2038,8 @@ GameLayer *instance;
         Robot *robot; CCARRAY_FOREACH(robots, robot) {
             [robot pause];
         }
+        
+        [player pause];
     }
 }
 
@@ -2000,6 +2064,8 @@ GameLayer *instance;
         Robot *robot; CCARRAY_FOREACH(robots, robot) {
             [robot resume];
         }
+        
+        [player resume];
     }
 }
 
@@ -2163,9 +2229,11 @@ GameLayer *instance;
 		ammoBarRight.visible = NO;
 		
 	} else {
-		ammoBarLeft.visible = YES;
-		ammoBarMiddle.visible = YES;
-		ammoBarRight.visible = YES;
+        if (ammoIcon.visible) {
+            ammoBarLeft.visible = YES;
+            ammoBarMiddle.visible = YES;
+            ammoBarRight.visible = YES;
+        }
 		
 		ammoBarMiddle.scaleX = 79 * (_ammo/100.0f);
 		[ammoBarMiddle setPosition:ccp(ammoBarLeft.position.x + ammoBarLeft.contentSize.width/2, ammoBarLeft.position.y)];
@@ -2207,6 +2275,46 @@ GameLayer *instance;
 	[player decreaseHealth:amount];
 }
 
+-(void) changeMaxHealth:(int)amount
+{
+    [player setMaxHealth:amount];
+}
+
+-(int) playerHealth
+{
+    return player.health;
+}
+
+-(void) godModeOff
+{
+    player.immune = NO;
+}
+
+-(void) godModeOn
+{
+    player.immune = YES;    
+}
+
+-(void) lockPlayerYSpeed:(float)speed
+{
+    player.fixedYSpeed = speed;
+}
+
+-(void) lockPlayerXSpeed:(float)speed
+{
+    player.fixedXSpeed = speed;
+}
+
+-(void) playerSmokeOn
+{
+    [player displaySmoke];
+}
+
+-(void) playerSmokeOff
+{
+    [player removeSmoke];
+}
+
 -(void) setTime:(int)amount
 {
     seconds = amount;
@@ -2231,6 +2339,46 @@ GameLayer *instance;
 	if (timerEnabled && (seconds == 0)) {
 		[player lose];
 	}
+}
+
+-(void) showClock
+{
+    timerLabel.visible = YES;
+}
+
+-(void) hideClock
+{
+    timerLabel.visible = NO;
+}
+
+-(ccTime) timeLeft
+{
+    return seconds;
+}
+
+-(void) pauseBgm
+{
+    NSString *bgmusic = [data objectForKey:@"bgmusic"];
+    if (![bgmusic isEqualToString:@""]) {
+        [[SimpleAudioEngine sharedEngine] pauseBackgroundMusic];
+    }
+}
+
+-(void) resumeBgm
+{
+    NSString *bgmusic = [data objectForKey:@"bgmusic"];
+    if (![bgmusic isEqualToString:@""]) {
+        [[SimpleAudioEngine sharedEngine] resumeBackgroundMusic];
+    }
+}
+
+-(void) restartBgm
+{
+    NSString *bgmusic = [data objectForKey:@"bgmusic"];
+    if (![bgmusic isEqualToString:@""]) {
+        [[SimpleAudioEngine sharedEngine] stopBackgroundMusic];
+        [[SimpleAudioEngine sharedEngine] playBackgroundMusic:bgmusic loop:YES];
+    }
 }
 
 -(void) increaseLive:(int)amount
@@ -2292,6 +2440,56 @@ GameLayer *instance;
     }
 }
 
+-(void) hideHealth
+{
+    barBGLeft.visible = NO;
+    barBGMiddle.visible = NO;
+    barBGRight.visible = NO;
+	barLeft.visible = NO;
+	barMiddle.visible = NO;
+	barRight.visible = NO;
+	
+    ammoIcon.visible = NO;
+    ammoBarBGMiddle.visible = NO;
+    ammoBarBGRight.visible = NO;
+	ammoBarBGLeft.visible = NO;
+	ammoBarLeft.visible = NO;
+	ammoBarMiddle.visible = NO;
+	ammoBarRight.visible = NO;
+    
+    livesLabel.visible = NO;
+}
+
+-(void) hideScore
+{
+    pointsLabel.visible = NO;
+}
+
+-(void) showHealth
+{
+    barBGLeft.visible = YES;
+    barBGMiddle.visible = YES;
+    barBGRight.visible = YES;
+	barLeft.visible = YES;
+	barMiddle.visible = YES;
+	barRight.visible = YES;
+	
+    ammoIcon.visible = YES;
+    ammoBarBGMiddle.visible = YES;
+    ammoBarBGRight.visible = YES;
+	ammoBarBGLeft.visible = YES;
+	ammoBarLeft.visible = YES;
+	ammoBarMiddle.visible = YES;
+	ammoBarRight.visible = YES;
+    
+    livesLabel.visible = YES;
+}
+
+-(void) showScore
+{
+    pointsLabel.visible = YES;
+}
+
 -(void) quakeCameraWithIntensity:(int)intensity during:(int)milliseconds
 {
     originalPosition = scene.position;
@@ -2330,9 +2528,9 @@ GameLayer *instance;
     [scene setPosition:originalPosition];
 }
 
--(void) flashScreenWithColor:(int)color during:(int)milliseconds
+-(void) flashScreenWithColor:(NSString *)color during:(int)milliseconds
 {
-    CCLayerColor *layer = [CCLayerColor layerWithColor:ccc4(0,0,0,255)];
+    CCLayerColor *layer = [CCLayerColor layerWithColor:[Shared colorForHex:color withTransparency:255]];
     [hud addChild:layer z:5001 tag:5001];
     
     id action = [CCSequence actions:
@@ -2439,6 +2637,13 @@ GameLayer *instance;
 {
 	points += _points;
 	[pointsLabel setString:[NSString stringWithFormat:@"%06d", points]];
+}
+
+-(void) setPoints:(int)_points
+{
+    points = _points;
+	[pointsLabel setString:[NSString stringWithFormat:@"%06d", points]];
+
 }
 
 #pragma mark -
@@ -2662,6 +2867,14 @@ GameLayer *instance;
     [player restart];
 	[self resetControls];
     [Shared setPlaying:YES];
+    
+    [self showHealth];
+    [self showScore];
+    
+    cameraBehaviour = kCameraFollowPlayer;
+    cameraLocation = CGPointZero;
+    cameraXOffset = 0;
+    cameraYOffset = 0;
 }
 
 -(void) restartGameFromPause

@@ -97,6 +97,12 @@ enum ANIM { STAND = 0, WALK, CROUCH, PRONE, JUMPING, FALLING };
     int debugImmortal;
     
     BOOL touchingSomeone;
+    
+    BOOL immune;
+    
+    float fixedXSpeed, fixedYSpeed;
+    
+    BOOL smokeOn;
 }
 
 @property (nonatomic,assign) int action;
@@ -107,6 +113,9 @@ enum ANIM { STAND = 0, WALK, CROUCH, PRONE, JUMPING, FALLING };
 @property (nonatomic,assign) int health;
 @property (nonatomic,assign) int initialHealth;
 @property (nonatomic,assign) int topHealth;
+@property (nonatomic,assign) BOOL immune;
+@property (nonatomic,assign) float fixedXSpeed;
+@property (nonatomic,assign) float fixedYSpeed;
 
 -(void) setupPlayer:(int)_playerID properties:(NSDictionary *)properties;
 -(void) removeWeapon;
@@ -124,10 +133,13 @@ enum ANIM { STAND = 0, WALK, CROUCH, PRONE, JUMPING, FALLING };
 -(void) crouch;
 -(void) prone;
 -(void) shoot;
+-(void) displaySmoke;
+-(void) removeSmoke;
 -(void) addJetpack;
 -(void) removeJetpack;
 -(void) increaseHealth:(int)amount;
 -(void) decreaseHealth:(int)amount;
+-(void) setMaxHealth:(int)amount;
 -(void) increaseLive:(int)amount;
 -(void) decreaseLive:(int)amount;
 -(void) immortal;

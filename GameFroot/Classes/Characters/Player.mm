@@ -27,9 +27,14 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 @synthesize health;
 @synthesize initialHealth;
 @synthesize topHealth;
+@synthesize immune;
+@synthesize fixedXSpeed;
+@synthesize fixedYSpeed;
 
 -(void) setupPlayer:(int)_playerID properties:(NSDictionary *)properties
 {
+    //CCLOG(@"Player.setupPlayer: %@", properties);
+    
 	playerID = _playerID;
     
 	type = kGameObjectPlayer;
@@ -44,6 +49,11 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	hasWeapon = NO;
     safePositon = self.position;
     interact = nil;
+    immune = NO;
+    fixedXSpeed = 0;
+    fixedYSpeed = 0;
+    particle = nil;
+    smokeOn = NO;
     
     initialX = originalX = [[properties objectForKey:@"positionX"] intValue];
 	initialY = originalY = [[properties objectForKey:@"positionY"] intValue];
@@ -56,7 +66,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     startsWithJetpack = [[properties objectForKey:@"hasJetpack"] intValue] == 1;
     
     horizontalSpeed = ([[properties objectForKey:@"speed"] floatValue] * 70.0f) / (PTM_RATIO*CC_CONTENT_SCALE_FACTOR());
-    //CCLOG(@">>>>>>> player horizontal seepd: %f", horizontalSpeed);
+    //CCLOG(@">>>>>>> player horizontal seed: %f", horizontalSpeed);
     
     [[GameLayer getInstance] setLives:lives];
     
@@ -420,6 +430,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             
 			if (jetpackCollected) {
 				jetpack.scaleX = 1;
+			}
+            
+            if (jetpackCollected || smokeOn) {
 				particle.angle = 240.0;
 			}
 		}
@@ -447,6 +460,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             
 			if (jetpackCollected) {
 				jetpack.scaleX = -1;
+			}
+            
+            if (jetpackCollected || smokeOn) {
 				particle.angle = 280.0;
 			}
 		}
@@ -712,7 +728,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     if (!dying) {
         b2Vec2 vel = body->GetLinearVelocity();
         body->SetLinearVelocity(b2Vec2(horizontalSpeedOffset, vel.y));
-        if (!jetpackActivated) [self setState:STAND];
+        if (!jetpackActivated && !jumping) [self setState:STAND];
         moving = NO;
         direction = kDirectionNone;
     }
@@ -740,6 +756,73 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	}
 }
 
+-(void) createSmoke
+{
+    if (particle == nil) {
+        particle = [[[CCParticleSystemQuad alloc] initWithTotalParticles:10] autorelease];
+        CCTexture2D *texture = [[CCTextureCache sharedTextureCache] addImage:@"smoke.png"];
+        particle.texture=texture;
+        particle.emissionRate=5.00;
+        particle.angle=240.0;
+        particle.angleVar=20.0;
+        ccBlendFunc blendFunc={GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA};
+        particle.blendFunc=blendFunc;
+        particle.duration=-1.00;
+        particle.emitterMode=kCCParticleModeGravity;
+        ccColor4F startColor={1.00,1.00,1.00,1.00};
+        particle.startColor=startColor;
+        ccColor4F startColorVar={0.00,0.00,0.00,0.00};
+        particle.startColorVar=startColorVar;
+        ccColor4F endColor={1.00,1.00,1.00,0.00};
+        particle.endColor=endColor;
+        ccColor4F endColorVar={0.00,0.00,0.00,0.00};
+        particle.endColorVar=endColorVar;
+        particle.startSize=80.00/CC_CONTENT_SCALE_FACTOR();
+        particle.startSizeVar=0.00;
+        particle.endSize=50.00/CC_CONTENT_SCALE_FACTOR();
+        particle.endSizeVar=0.00;
+        particle.gravity=ccp(0.00,0.00);
+        particle.radialAccel=0.00;
+        particle.radialAccelVar=30.00;
+        particle.speed=120;
+        particle.speedVar=50;
+        particle.tangentialAccel= 0;
+        particle.tangentialAccelVar= 0;
+        particle.totalParticles=10;
+        particle.life=1.00;
+        particle.lifeVar=0.10;
+        particle.startSpin=0.00;
+        particle.startSpinVar=0.00;
+        particle.endSpin=0.00;
+        particle.endSpinVar=0.00;
+        particle.position=ccp(239.22,186.55);
+        particle.posVar=ccp(5.00,0.00);
+        
+        if (facingLeft) particle.angle=280.0;
+        else particle.angle=240.0;
+        
+        particle.autoRemoveOnFinish = NO;
+        
+        [[GameLayer getInstance] addObject:particle withZOrder:LAYER_PLAYER-1];
+    }
+}
+
+-(void) displaySmoke
+{
+    smokeOn = YES;
+    [self createSmoke];
+    
+    if (!jetpackCollected || !jetpackActivated) {
+        [particle resetSystem];
+    }
+}
+
+-(void) removeSmoke
+{
+    smokeOn = NO;
+    [particle stopSystem];
+}
+ 
 -(void) addJetpack
 {
 	if (jetpackCollected) {
@@ -849,51 +932,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			jetpack.scaleX = 1;
 		}
 		
-		particle = [[[CCParticleSystemQuad alloc] initWithTotalParticles:10] autorelease];
-		CCTexture2D *texture = [[CCTextureCache sharedTextureCache] addImage:@"smoke.png"];
-		particle.texture=texture;
-		particle.emissionRate=5.00;
-		particle.angle=240.0;
-		particle.angleVar=20.0;
-		ccBlendFunc blendFunc={GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA};
-		particle.blendFunc=blendFunc;
-		particle.duration=-1.00;
-		particle.emitterMode=kCCParticleModeGravity;
-		ccColor4F startColor={1.00,1.00,1.00,1.00};
-		particle.startColor=startColor;
-		ccColor4F startColorVar={0.00,0.00,0.00,0.00};
-		particle.startColorVar=startColorVar;
-		ccColor4F endColor={1.00,1.00,1.00,0.00};
-		particle.endColor=endColor;
-		ccColor4F endColorVar={0.00,0.00,0.00,0.00};
-		particle.endColorVar=endColorVar;
-		particle.startSize=80.00/CC_CONTENT_SCALE_FACTOR();
-		particle.startSizeVar=0.00;
-		particle.endSize=50.00/CC_CONTENT_SCALE_FACTOR();
-		particle.endSizeVar=0.00;
-		particle.gravity=ccp(0.00,0.00);
-		particle.radialAccel=0.00;
-		particle.radialAccelVar=30.00;
-		particle.speed=120;
-		particle.speedVar=50;
-		particle.tangentialAccel= 0;
-		particle.tangentialAccelVar= 0;
-		particle.totalParticles=10;
-		particle.life=1.00;
-		particle.lifeVar=0.10;
-		particle.startSpin=0.00;
-		particle.startSpinVar=0.00;
-		particle.endSpin=0.00;
-		particle.endSpinVar=0.00;
-		particle.position=ccp(239.22,186.55);
-		particle.posVar=ccp(5.00,0.00);
-		
-		if (facingLeft) particle.angle=280.0;
-		else particle.angle=240.0;
-		
-		particle.autoRemoveOnFinish = NO;
-		
-		[[GameLayer getInstance] addObject:particle withZOrder:LAYER_PLAYER-1];
+        [self createSmoke];        
 		[particle stopSystem];
 	}
 }
@@ -909,7 +948,11 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		jetpackActivated = NO;
 		[[SimpleAudioEngine sharedEngine] stopEffectWithHandle:jetpackSoundHandle];
 		jetpack.visible = NO;
-		particle.visible = NO;
+		
+        if (!smokeOn) {
+            particle.visible = NO;
+            [particle stopSystem];
+        }
 		
 		//[[GameLayer getInstance] removeObject:jetpackSpriteSheet];
 		//[[GameLayer getInstance] removeObject:particle];
@@ -930,6 +973,12 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 -(void) decreaseHealth:(int)amount
 {
 	[self hit:-amount];
+}
+
+-(void) setMaxHealth:(int)amount
+{
+    topHealth = amount;
+    [[GameLayer getInstance] setHealth:health];
 }
 
 -(void) increaseLive:(int)amount
@@ -1088,6 +1137,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 {
     if (debugImmortal) return;
     
+    if (immune) return;
+    
     health -= force;
 	if (health <= 0) health = 0;
 	[[GameLayer getInstance] setHealth:health];
@@ -1100,6 +1151,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 -(void) die
 {
     if (debugImmortal) return;
+    
+    if (immune) return;
     
 	if (!dying && !immortal) {
 		
@@ -1243,6 +1296,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
  
     [self resetForces];
 	[self resetPosition];
+    [self removeSmoke];
 }
 
 -(void) changePositionX:(int)dx andY:(int)dy
@@ -1292,6 +1346,10 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 {
 	[self stop];
 	
+    CGSize hitArea = CGSizeMake(PLAYER_WIDTH / CC_CONTENT_SCALE_FACTOR(), PLAYER_HEIGHT / CC_CONTENT_SCALE_FACTOR());
+    pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f - (MAP_TILE_WIDTH);
+    pos.y += hitArea.height/2.0f - (MAP_TILE_HEIGHT/2.0f);
+    
 	self.position = pos;
 	
 	//body->SetTransform(b2Vec2(self.position.x/PTM_RATIO, self.position.y/PTM_RATIO),0);
@@ -1419,12 +1477,18 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 -(void) resume 
 {
 	[self resumeSchedulerAndActions];
+    [weapon resumeSchedulerAndActions];
+    [jetpack resumeSchedulerAndActions];
+    
     paused = NO;
 }
 
 -(void) pause 
 {
 	[self pauseSchedulerAndActions];
+    [weapon pauseSchedulerAndActions];
+    [jetpack pauseSchedulerAndActions];
+    
     paused = YES;
 }
 
@@ -1477,12 +1541,29 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			[self removeJetpack];
 		}
 	}
-	
-    // ********************
-    // direction check
-    // ********************
-    // if player is pushed, the physics engine might result in "moonwalking"
-    if ( [ self isMoonWalking ] == YES ) [ self resetForces ];
+
+    if (fixedXSpeed != 0) {
+        b2Vec2 current = body->GetLinearVelocity();
+		b2Vec2 velocity = b2Vec2(fixedXSpeed / PTM_RATIO, current.y);
+		body->SetLinearVelocity(velocity);
+    }
+    
+    if (fixedYSpeed != 0) {
+        b2Vec2 current = body->GetLinearVelocity();
+		b2Vec2 velocity = b2Vec2(current.x, -fixedYSpeed / PTM_RATIO);
+		body->SetLinearVelocity(velocity);
+        
+        if (fixedYSpeed > 0) [self setState:JUMPING];
+        else [self setState:FALLING];
+    }
+        
+    if ((fixedXSpeed == 0) && (fixedYSpeed == 0)) {
+        // ********************
+        // direction check
+        // ********************
+        // if player is pushed, the physics engine might result in "moonwalking"
+        if ( [ self isMoonWalking ] == YES ) [ self resetForces ];
+    }
     
     // done
 	[super update:dt];
@@ -1509,23 +1590,29 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			
             //CCLOG(@">>>>> %f, %f, %f, %f", scrollOnProne, scrollOnProneMax, winSize.height, localPoint.y);
             
-			[[GameLayer getInstance] setViewpointCenter:ccp(point.x,point.y - scrollOnProne/CC_CONTENT_SCALE_FACTOR())];
+			//[[GameLayer getInstance] setViewpointCenter:ccp(point.x,point.y - scrollOnProne/CC_CONTENT_SCALE_FACTOR())];
+            [[GameLayer getInstance] offsetCameraY: -scrollOnProne/CC_CONTENT_SCALE_FACTOR()];
 			
 		} else if (scrollOnProne > 0) {
 			scrollOnProne -= 4;
 			if (scrollOnProne < 0) scrollOnProne = 0;
             scrollOnProneDelayCount = 0;
 			
-			[[GameLayer getInstance] setViewpointCenter:ccp(point.x,point.y - scrollOnProne/CC_CONTENT_SCALE_FACTOR())];
+			//[[GameLayer getInstance] setViewpointCenter:ccp(point.x,point.y - scrollOnProne/CC_CONTENT_SCALE_FACTOR())];
+            [[GameLayer getInstance] offsetCameraY: -scrollOnProne/CC_CONTENT_SCALE_FACTOR()];
 			
 		} else {
-			[[GameLayer getInstance] setViewpointCenter:ccp(point.x,point.y)];
+			//[[GameLayer getInstance] setViewpointCenter:ccp(point.x,point.y)];
+            [[GameLayer getInstance] offsetCameraY: 0];
 		}
 		
         if (hasWeapon) [weapon setPosition:point];
 		
 		if (jetpackCollected) {
 			[jetpack setPosition:point];
+        }
+        
+        if (jetpackCollected || smokeOn) {
 			if (facingLeft) [particle setPosition:ccp(point.x + 40.0f/CC_CONTENT_SCALE_FACTOR(), point.y - 40.0f/CC_CONTENT_SCALE_FACTOR())];
 			else [particle setPosition:ccp(point.x - 40.0f/CC_CONTENT_SCALE_FACTOR(), point.y - 40.0f/CC_CONTENT_SCALE_FACTOR())];
 		}
@@ -1580,7 +1667,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             break;
             
         case kGameObjectKiller:
-            if (debugImmortal) if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ]; // just to be sure it can walk/jump
+            if (debugImmortal || immune) if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ]; // just to be sure it can walk/jump
             [ self die ];
             break;
             
@@ -1609,7 +1696,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
         case kGameObjectMovingPlatform:
             
             if (( ( MovingPlatform* )object ).isKiller) {
-                if (debugImmortal) if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ]; // just to be sure it can walk/jump
+                if (debugImmortal || immune) if ( data.position == CONTACT_IS_BELOW ) [ self hitsFloor ]; // just to be sure it can walk/jump
                 [ self die ];
             }
             

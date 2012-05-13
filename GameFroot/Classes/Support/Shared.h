@@ -64,4 +64,6 @@
 +(NSString *) generateMusicFileNameHashForUrl:(NSString *)url andFileName:(NSString *)musicFileName;
 +(BOOL) existEmbeddedFile:(NSString *)name;
 
++(ccColor4B) colorForHex:(NSString *)hexColor withTransparency:(float)alpha;
+
 @end
