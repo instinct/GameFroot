@@ -2085,8 +2085,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         spray.speedVar= 0;
         spray.tangentialAccel= 0;
         spray.tangentialAccelVar= 0;
-        spray.totalParticles=20;
-        spray.life=life;
+        spray.totalParticles=amount;
+        spray.life=life / CC_CONTENT_SCALE_FACTOR();
         spray.lifeVar=0.00;
         spray.startSpin=0.00;
         spray.startSpinVar=0.00;
@@ -2130,8 +2130,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         firework.speedVar= 0;
         firework.tangentialAccel= 0;
         firework.tangentialAccelVar= 0;
-        firework.totalParticles=20;
-        firework.life=life;
+        firework.totalParticles=amount;
+        firework.life=life / CC_CONTENT_SCALE_FACTOR();
         firework.lifeVar=0.00;
         firework.startSpin=0.00;
         firework.startSpinVar=0.00;
