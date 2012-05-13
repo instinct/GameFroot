@@ -2097,6 +2097,9 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         spray.positionType = kCCPositionTypeGrouped;
         
         [[GameLayer getInstance] addObject:spray withZOrder:LAYER_PLAYER-1];
+        
+    } else {
+        [spray resetSystem];
     }
 }
 
@@ -2464,13 +2467,18 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	onTouchStart = NO;
 	onInShot = NO;
     onOutShot = NO;
-   
+    
+    self.opacity = 0xff;
+    if (spray != nil) [spray stopSystem];
+    if (firework != nil) [firework stopSystem];
+    
     body->SetLinearVelocity(b2Vec2(0,0));
     body->SetAngularVelocity(0);
     
     [self stopAllActions];
     
     [self triggerEvent:@"onSpawn"];
+
 }
 
 -(void) remove

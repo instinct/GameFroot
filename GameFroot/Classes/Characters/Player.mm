@@ -1294,6 +1294,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     initialX = originalX;
     initialY = originalY;
  
+    fixedXSpeed = 0;
+    fixedYSpeed = 0;
+    
     [self resetForces];
 	[self resetPosition];
     [self removeSmoke];

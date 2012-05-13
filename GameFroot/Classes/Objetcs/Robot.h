@@ -11,7 +11,7 @@
 #define ROBOT_TRACK_RANGE               0               // how much to expand track range beyond visible screen
 #define ROBOT_TRACK_ALWAYS              0               // track even if out of screen
 
-#define TRACE_COMMANDS                  1               // Traces all robot scripts commands on the terminal
+#define TRACE_COMMANDS                  0               // Traces all robot scripts commands on the terminal
 
 enum RobotTouchingType{
     touchingNone,
