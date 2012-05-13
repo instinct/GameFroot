@@ -24,6 +24,13 @@
 @class Enemy;
 @class MultiChoice;
 
+typedef enum{
+	kCameraFixed = 0,
+	kCameraPanToLocation,
+    kCameraSnapToLocation,
+    kCameraFollowPlayer
+} CameraBehaviour;
+
 // GameLayer
 @interface GameLayer : CCLayer
 {
@@ -90,6 +97,8 @@
 	ccTime seconds;
 	
 	CCSprite *barBGLeft;
+    CCSprite *barBGMiddle;
+    CCSprite *barBGRight;
 	CCSprite *barLeft;
 	CCSprite *barMiddle;
 	CCSprite *barRight;
@@ -118,6 +127,12 @@
     int serverUsed;
     
     BOOL checkpoints;
+    
+    CameraBehaviour cameraBehaviour;
+    CGPoint cameraLocation;
+    float cameraXOffset;
+    float cameraYOffset;
+    CGPoint previousLocation;
 }
 
 @property(nonatomic,assign) Controls *controls;
@@ -186,7 +201,13 @@
 -(CGPoint) playerPosition;
 -(void) broadcastMessageToRobots:(NSDictionary *)command;
 
--(void)setViewpointCenter:(CGPoint)point;
+-(void) cameraOnPlayer;
+-(void) stopCameraMove;
+-(void) offsetCameraX:(float)offset;
+-(void) offsetCameraY:(float)offset;
+-(void) panToLocation:(CGPoint)location;
+-(void) snapToLocation:(CGPoint)location;
+-(void) setViewpointCenter;
 -(CGPoint)convertToMapCoordinates:(CGPoint)point;
 
 -(void) setAmmo:(int)_ammo;
@@ -197,6 +218,15 @@
 -(void) changeWeapon:(int)_weaponID;
 -(void) increaseHealth:(int)amount;
 -(void) decreaseHealth:(int)amount;
+-(void) changeMaxHealth:(int)amount;
+-(int) playerHealth;
+-(void) godModeOff;
+-(void) godModeOn;
+-(void) lockPlayerYSpeed:(float)speed;
+-(void) lockPlayerXSpeed:(float)speed;
+-(void) playerSmokeOn;
+-(void) playerSmokeOff;
+
 -(void) setTime:(int)amount;
 -(void) increaseTime:(int)amount;
 -(void) decreaseTime:(int)amount;
@@ -207,8 +237,13 @@
 -(void) enableTimer;
 -(void) pauseTimer;
 -(void) disableTimer;
+-(void) hideHealth;
+-(void) hideScore;
+-(void) showHealth;
+-(void) showScore;
+
 -(void) quakeCameraWithIntensity:(int)intensity during:(int)milliseconds;
--(void) flashScreenWithColor:(int)color during:(int)milliseconds;
+-(void) flashScreenWithColor:(NSString *)color during:(int)milliseconds;
 -(void) say:(NSString *)msg;
 -(void) think:(NSString *)msg;
 -(void) sayInChatPanel:(NSString *)msg;
@@ -218,6 +253,15 @@
 -(void) setLives:(int)_lives;
 -(void) setHealth:(int)_health;
 -(void) increasePoints:(int)_points;
+-(void) setPoints:(int)_points;
+
+-(void) showClock;
+-(void) hideClock;
+-(ccTime) timeLeft;
+
+-(void) pauseBgm;
+-(void) resumeBgm;
+-(void) restartBgm;
 
 -(void) resetControls;
 

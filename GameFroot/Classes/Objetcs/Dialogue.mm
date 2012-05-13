@@ -75,8 +75,8 @@
     if (![[GameLayer getInstance] isPaused]) {
         //[[CCDirector sharedDirector] pause];
         //[[CCDirector sharedDirector] stopAnimation];
-        [[GameLayer getInstance] stopPlayer];
         [[GameLayer getInstance] pause];
+        [[GameLayer getInstance] stopPlayer];
         [[GameLayer getInstance] resetControls];
     }
     
