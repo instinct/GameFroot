@@ -1,33 +1,5 @@
 #!/usr/bin/env python
 
-'''
-	1. 
-	- create folder structure
-	- Download list of games from website
-
-	2.
-
-	For each game in list:
-		- * Check to see if not downloaded already
-		* If not then:
-			- download json of level
-			- download custom spritesheets
-			- download custom backgrounds
-			- download custom sfx
-			- download custom music
-			- download custom tilesheets
-			- download custom weapon spritesheets
-			- check for jump to level robot, if found for each level:
-				load level as above. (recurse)
-	
-	3. 	
-	write plist
-
-	* Add default bundle to check for existing files
-
-'''
-
-
 # Bundlenator - The Gamefroot IAP packaging tool
 #
 # By Sam Win-Mason (sam@albedogames.com)
@@ -74,6 +46,7 @@ import optparse
 import time
 import urllib
 import json
+import hashlib
 
 # Some global config strings, change as required
 
@@ -82,8 +55,9 @@ GET_TILES_API_STRING = '?gamemakers_api=1&type=get_game_animations&id='
 GET_MAP_API_STRING = '?gamemakers_api=1&type=json&map_id='
 GET_BACKGROUND_URL = '/wp-content/plugins/game_data/backgrounds/user/'
 GET_CHARACTER_URL = '/wp-content/characters/'
+BUNDLE_FOLDER_NAME = 'iap_bundle'
 
-DEFAULT_BUNDLE_INFO = str('{ "product_id":0, "" }')
+DEFAULT_BUNDLE_INFO = str('{ "product_id":0, "name":"My Amazing Game Bundle", "release_date":"", "size":"script will fill in"}')
 
 
 def loadGameData():
@@ -100,7 +74,7 @@ def loadGameData():
 
 
 def loadAsset(dirName, urlString):
-	localFilePath = args[2] + "iap_bundle/" + dirName + "/" + os.path.split(urlString)[1]
+	localFilePath = args[2] + BUNDLE_FOLDER_NAME + "/" + dirName + "/" + os.path.split(urlString)[1]
 	if(not os.path.exists(localFilePath)):
 		try:
 			inetFH = urllib.urlopen(urlString)
@@ -138,21 +112,21 @@ def loadGameAssets():
 		
 
 def loadLevelAssets(mapId):
-	localFilePath = args[2] + "iap_bundle/levels/" + `mapId` + ".map"
+	localFilePath = args[2] + BUNDLE_FOLDER_NAME + "/levels/" + `mapId` + ".map"
 	if(not os.path.exists(localFilePath)):
 		try:
 			inetFH = urllib.urlopen(args[1] + GET_MAP_API_STRING + `mapId`)
 			levelData = json.load(inetFH)
-			# localFH = open(localFilePath, 'w')
-			# localFH.write(inetFH.read())
+			localFH = open(localFilePath, 'w')
+			localFH.write(inetFH.read())
 
 			# Load custom bg music
 			for music in levelData['sprites']['background_music']:
-				# loadAsset('music', music['url'])
-				pass
+				loadAsset('music', music['url'])
+				
 
 			# Load backgrounds
-			# loadAsset('backgrounds', (args[1] + GET_BACKGROUND_URL + levelData['meta']['background']['image']))
+			loadAsset('backgrounds', (args[1] + GET_BACKGROUND_URL + levelData['meta']['background']['image']))
 
 			# Load custom spritesheets
 			# Load enemies
@@ -167,7 +141,7 @@ def loadLevelAssets(mapId):
 					sheetName = 'enemy' + `enemyNum` + '.png'
 		
 			# print args[1] + GET_CHARACTER_URL + sheetName
-			# loadAsset('characters', args[1] + GET_CHARACTER_URL + sheetName)	
+			loadAsset('characters', args[1] + GET_CHARACTER_URL + sheetName)	
 
 			# Load character
 			if (int(levelData['map']['player']['num']) < 100):
@@ -176,17 +150,17 @@ def loadLevelAssets(mapId):
 				sheetName = "character" + `levelData['map']['player']['num']` + ".png"
 
 			# print args[1] + GET_CHARACTER_URL + sheetName
-			# loadAsset('characters', args[1] + GET_CHARACTER_URL + sheetName)
+			loadAsset('characters', args[1] + GET_CHARACTER_URL + sheetName)
 
 			# Load custom SFX
 			for sfx in levelData['sprites']['sounds']:
-				# loadAsset('sfx', sfx['url']);
-				pass
+				loadAsset('sfx', sfx['url']);
+			
 
 			# Load custom weapon spritesheets
 			for weapon in levelData['sprites']['weapons']:
-				# loadAsset('weapons', weapon['file'])
-				pass
+				loadAsset('weapons', weapon['file'])
+			
 
 			# Load custom tilesets
 			# print args[1] + GET_TILES_API_STRING + `mapId`
@@ -226,8 +200,8 @@ def createDirectoryStructure():
 		print "creating bundle directory structure..."
 		try:
 			os.chdir(args[2])
-			os.mkdir("iap_bundle")
-			os.chdir("iap_bundle")
+			os.mkdir(BUNDLE_FOLDER_NAME)
+			os.chdir(BUNDLE_FOLDER_NAME)
 			os.mkdir("thumbs")
 			os.mkdir("backgrounds")
 			os.mkdir("characters")
@@ -245,7 +219,23 @@ def createDirectoryStructure():
 
 
 def writePackageReceipt():
-	pass
+	packageJSON = json.loads(DEFAULT_BUNDLE_INFO)
+	
+	# Add size
+	packageJSON['size'] = len(gamedata)
+	try:
+		metadataFilename = args[2] + BUNDLE_FOLDER_NAME + "/metadata.json"
+		metaDataFH = open(metadataFilename, 'w')
+		metaDataFH.write(json.dumps(packageJSON))
+		metaDataFH.close()
+	except Exception, e:
+		print "unable to wite package metadata [Failwhale]"
+		raise
+	else:
+		pass
+	finally:
+		pass
+	open()
 
 
 def main ():
@@ -259,7 +249,7 @@ def main ():
 	# Create folder structure
 	if(len(args) == 3):
 
-		# createDirectoryStructure()
+		createDirectoryStructure()
 		loadGameData()
 		loadGameAssets()
 		writePackageReceipt()
