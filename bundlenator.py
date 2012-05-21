@@ -15,11 +15,11 @@
 """
 SYNOPSIS
 
-    bundlenator [-h] [-v,--verbose] [--version] category_name endpoint_url bundle_output_path
+    bundlenator [-h] [-v,--verbose] [--version] category_name endpoint_url bundle_output_path [existing bundle paths...]
 
 DESCRIPTION
 	
-	usage: bundlenator [-h] [-v,--verbose] [--version] category_name endpoint_url bundle_output_path
+	usage: bundlenator [-h] [-v,--verbose] [--version] category_name endpoint_url bundle_output_path [existing bundle paths...]
 
 EXAMPLES
 
@@ -80,29 +80,40 @@ def loadGameData():
 	finally:
 		pass
 	
-	
+
 
 def loadAsset(dirName, urlString, filename=None):
 	localFilePath = ''
+	bundleRelativePath = ''
 
 	if(filename):
 		localFilePath = args[2] + BUNDLE_FOLDER_NAME + "/" + dirName + "/" + filename
+		bundleRelativePath = BUNDLE_FOLDER_NAME + "/" + dirName + "/" + filename
 	else:
 		localFilePath = args[2] + BUNDLE_FOLDER_NAME + "/" + dirName + "/" + os.path.split(urlString)[1]
+		bundleRelativePath = BUNDLE_FOLDER_NAME + "/" + dirName + "/" + os.path.split(urlString)[1]
 	
 	if(not os.path.exists(localFilePath)):
-		try:
-			if options.verbose: sys.stdout.write('\tdownloading asset ' + urlString + '...') 
-			inetFH = urllib.urlopen(urlString)
-			localFH = open(localFilePath, 'w')
-			localFH.write(inetFH.read())
-			if options.verbose: sys.stdout.write('[done] ') 
-		except Exception, e:
-			raise
-		else:
-			pass
-		finally:
-			if options.verbose: sys.stdout.write('[saved]\n')
+
+		# Check in existing supplied bindle paths to see if the assets exist
+		assetExists = False
+		for bPath in existingBundles:
+			if os.path.exists(bpath + bundleRelativePath) :
+				assetExists = True
+
+		if not assetExists :
+			try:
+				if options.verbose: sys.stdout.write('\tdownloading asset ' + urlString + '...') 
+				inetFH = urllib.urlopen(urlString)
+				localFH = open(localFilePath, 'w')
+				localFH.write(inetFH.read())
+				if options.verbose: sys.stdout.write('[done] ') 
+			except Exception, e:
+				raise
+			else:
+				pass
+			finally:
+				if options.verbose: sys.stdout.write('[saved]\n')
 
 
 
@@ -260,22 +271,27 @@ def writePackageReceipt():
 
 def main ():
 
-	global options, args
+	global options, args, existingBundles
 
 	sys.stdout.write('Bundlenator - The Gamefroot IAP packaging tool\n\n')
 
 	# print 'Getting list of games from server ... ';
 	
 	# Create folder structure
-	if(len(args) == 3):
-
+	if(len(args) >= 3):
+		
+		if(len(args) > 3):
+			existingBundles = args[4:]
+		else:
+			existingBundles = []
+		
 		createDirectoryStructure()
 		loadGameData()
 		loadGameAssets()
 		writePackageReceipt()
 
 	else:
-		sys.stdout.write( "USAGE: bundlenator [-h] [-v,--verbose] [--version] category_name endpoint_url bundle_output_path")
+		sys.stdout.write( "USAGE: bundlenator [-h] [-v,--verbose] [--version] category_name endpoint_url bundle_output_path [existing bundle paths...]")
 
 
 
