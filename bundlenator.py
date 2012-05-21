@@ -64,50 +64,65 @@ def loadGameData():
 
 	global gamedata
 
-	if options.verbose: print "retrieving game list for category " + args[0] + "..."
+	if options.verbose: sys.stdout.write( "retrieving game list for category " + args[0] + "...")
 
 	# get game data
 	requestString = args[1] + GET_LEVELS_API_STRING + args[0]
 	gameDataFH = urllib.urlopen(requestString)
 	gamedata = json.load(gameDataFH)
+	if options.verbose: sys.stdout.write("[done]\n")
+	try:
+		open(args[2] + BUNDLE_FOLDER_NAME + "/games.json", 'w').write(json.dumps(gamedata))
+	except Exception, e:
+		raise
+	else:
+		pass
+	finally:
+		pass
+	
+	
 
+def loadAsset(dirName, urlString, filename=None):
+	localFilePath = ''
 
-
-def loadAsset(dirName, urlString):
-	localFilePath = args[2] + BUNDLE_FOLDER_NAME + "/" + dirName + "/" + os.path.split(urlString)[1]
+	if(filename):
+		localFilePath = args[2] + BUNDLE_FOLDER_NAME + "/" + dirName + "/" + filename
+	else:
+		localFilePath = args[2] + BUNDLE_FOLDER_NAME + "/" + dirName + "/" + os.path.split(urlString)[1]
+	
 	if(not os.path.exists(localFilePath)):
 		try:
+			if options.verbose: sys.stdout.write('\tdownloading asset ' + urlString + '...') 
 			inetFH = urllib.urlopen(urlString)
-			if options.verbose: print '[done]'
 			localFH = open(localFilePath, 'w')
 			localFH.write(inetFH.read())
+			if options.verbose: sys.stdout.write('[done] ') 
 		except Exception, e:
 			raise
 		else:
 			pass
 		finally:
-			if options.verbose: print '[saved]'
+			if options.verbose: sys.stdout.write('[saved]\n')
 
 
 
 def loadGameAssets():
 	global levelsDownloaded
 
-	print "retrieving game assets..."
+	sys.stdout.write("retrieving game assets...\n")
 
 	levelsDownloaded = list()
 
 	# for each level, load the assets
 	for level in gamedata:
-		print "retrieving assets for '" + level['title'] + "'..."
+		sys.stdout.write ("\nretrieving assets for '" + level['title'] + "'...\n")
 		# Thumb
-		if options.verbose: print "		downloading thumb..."
-		# loadAsset('thumbs',level['background'])
+		if options.verbose: sys.stdout.write("\tdownloading thumb...")
+		loadAsset('thumbs',level['background'])
 
-		if options.verbose: print "		downloading map data"
+		if options.verbose: sys.stdout.write( "\tdownloading map data\n")
 		if level['id'] not in levelsDownloaded:
 			loadLevelAssets(level['id'])
-
 
 		
 
@@ -118,16 +133,19 @@ def loadLevelAssets(mapId):
 			inetFH = urllib.urlopen(args[1] + GET_MAP_API_STRING + `mapId`)
 			levelData = json.load(inetFH)
 			localFH = open(localFilePath, 'w')
-			localFH.write(inetFH.read())
+			localFH.write(json.dumps(levelData))
 
 			# Load custom bg music
+			if options.verbose: sys.stdout.write('\n\t[Background music]\n')
 			for music in levelData['sprites']['background_music']:
 				loadAsset('music', music['url'])
 				
 
 			# Load backgrounds
+			if options.verbose: sys.stdout.write('\n\t[Backgrounds]\n')
 			loadAsset('backgrounds', (args[1] + GET_BACKGROUND_URL + levelData['meta']['background']['image']))
 
+			if options.verbose: sys.stdout.write('\n\t[Spritesheets]\n')
 			# Load custom spritesheets
 			# Load enemies
 
@@ -153,18 +171,23 @@ def loadLevelAssets(mapId):
 			loadAsset('characters', args[1] + GET_CHARACTER_URL + sheetName)
 
 			# Load custom SFX
+			if options.verbose: sys.stdout.write('\n\t[SFX]\n')
 			for sfx in levelData['sprites']['sounds']:
 				loadAsset('sfx', sfx['url']);
 			
 
 			# Load custom weapon spritesheets
+			if options.verbose: sys.stdout.write('\n\t[Custom Weapon spritesheets]\n')
 			for weapon in levelData['sprites']['weapons']:
 				loadAsset('weapons', weapon['file'])
 			
 
 			# Load custom tilesets
+			if options.verbose: sys.stdout.write('\n\t[Tiles]\n')
 			# print args[1] + GET_TILES_API_STRING + `mapId`
-			# loadAsset('tiles', args[1] + GET_TILES_API_STRING + mapId)
+			loadAsset('tiles', args[1] + GET_TILES_API_STRING + `mapId`, `mapId` + '.png')
+
+			if options.verbose: sys.stdout.write('\n\t[Checking for additional levels]\n')
 
 			levelsDownloaded.append(mapId)
 			connectedLevels = list()
@@ -180,10 +203,11 @@ def loadLevelAssets(mapId):
 			# If not already downloaded, recursively load attached levels
 			for l in connectedLevels:
 				if l not in levelsDownloaded:
+					if options.verbose: sys.stdout.write('\nLoading connected level...\n')
 					loadLevelAssets(int(l))
 
 		except Exception, e:
-			print "An error as occured downloading one or more assets [Failwhale]"
+			sys.stdout.write("An error as occured downloading one or more assets [Failwhale]")
 			raise
 		else:
 			pass
@@ -191,13 +215,11 @@ def loadLevelAssets(mapId):
 			pass
 
 			
-		
-
 
 def createDirectoryStructure():
 	if(os.path.exists(args[2])):
 		# Create directories
-		print "creating bundle directory structure..."
+		sys.stdout.write("creating bundle directory structure...\n")
 		try:
 			os.chdir(args[2])
 			os.mkdir(BUNDLE_FOLDER_NAME)
@@ -212,10 +234,10 @@ def createDirectoryStructure():
 			os.mkdir("levels")
 
 		except Exception, e:
-			print "There was an error creating bundle directories at the specifed path [Failwhale]"
+			sys.stdout.write("There was an error creating bundle directories at the specifed path [Failwhale]")
 		
 	else :
-		print 'specified path does not exist [Failwhale]'
+		sys.stdout.write('specified path does not exist [Failwhale]')
 
 
 def writePackageReceipt():
@@ -227,22 +249,20 @@ def writePackageReceipt():
 		metadataFilename = args[2] + BUNDLE_FOLDER_NAME + "/metadata.json"
 		metaDataFH = open(metadataFilename, 'w')
 		metaDataFH.write(json.dumps(packageJSON))
-		metaDataFH.close()
 	except Exception, e:
-		print "unable to wite package metadata [Failwhale]"
+		sys.stdout.write("unable to wite package metadata [Failwhale]")
 		raise
 	else:
 		pass
 	finally:
 		pass
-	open()
 
 
 def main ():
 
 	global options, args
 
-	print 'Bundlenator - The Gamefroot IAP packaging tool'
+	sys.stdout.write('Bundlenator - The Gamefroot IAP packaging tool\n\n')
 
 	# print 'Getting list of games from server ... ';
 	
@@ -255,7 +275,7 @@ def main ():
 		writePackageReceipt()
 
 	else:
-		print "USAGE: bundlenator [-h] [-v,--verbose] [--version] category_name endpoint_url bundle_output_path"
+		sys.stdout.write( "USAGE: bundlenator [-h] [-v,--verbose] [--version] category_name endpoint_url bundle_output_path")
 
 
 
@@ -266,7 +286,7 @@ if __name__ == '__main__':
         parser = optparse.OptionParser(
                 formatter=optparse.TitledHelpFormatter(),
                 usage=globals()['__doc__'],
-                version='$Id: py.tpl 332 2008-10-21 22:24:52Z root $')
+                version='1.0 - newbaby!')
         parser.add_option ('-v', '--verbose', action='store_true',
                 default=False, help='verbose output')
         (options, args) = parser.parse_args()
