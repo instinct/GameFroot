@@ -5,7 +5,7 @@
 # By Sam Win-Mason (sam@albedogames.com)
 # Copyright (c) 2012 Instinct Entertainment
 # 
-# Tested on Python 2.7
+# Tested on Python 2.7 on a Mac
 #  
 # Bundlenator takes a GameFroot wp category name and fetches all
 # resources and data for the games in that category. It bundles the
@@ -23,7 +23,7 @@ DESCRIPTION
 
 EXAMPLES
 
-    bundlenator feb_issue http://gamefroot.com ~/Desktop
+    bundlenator feb_issue http://gamefroot.com ~/Desktop/
 
 AUTHOR
 
@@ -46,7 +46,6 @@ import optparse
 import time
 import urllib
 import json
-import hashlib
 
 # Some global config strings, change as required
 
@@ -88,17 +87,17 @@ def loadAsset(dirName, urlString, filename=None):
 
 	if(filename):
 		localFilePath = args[2] + BUNDLE_FOLDER_NAME + "/" + dirName + "/" + filename
-		bundleRelativePath = BUNDLE_FOLDER_NAME + "/" + dirName + "/" + filename
+		bundleRelativePath =  dirName + "/" + filename
 	else:
 		localFilePath = args[2] + BUNDLE_FOLDER_NAME + "/" + dirName + "/" + os.path.split(urlString)[1]
-		bundleRelativePath = BUNDLE_FOLDER_NAME + "/" + dirName + "/" + os.path.split(urlString)[1]
+		bundleRelativePath =  dirName + "/" + os.path.split(urlString)[1]
 	
 	if(not os.path.exists(localFilePath)):
 
 		# Check in existing supplied bindle paths to see if the assets exist
 		assetExists = False
 		for bPath in existingBundles:
-			if os.path.exists(bpath + bundleRelativePath) :
+			if os.path.exists(bPath + bundleRelativePath) :
 				assetExists = True
 
 		if not assetExists :
@@ -281,9 +280,13 @@ def main ():
 	if(len(args) >= 3):
 		
 		if(len(args) > 3):
-			existingBundles = args[4:]
+			existingBundles = args[3:]
 		else:
 			existingBundles = []
+
+		# add trailing slash to directory if missing
+		if not args[2].endswith('/'):
+			args[2].append('/')
 		
 		createDirectoryStructure()
 		loadGameData()
