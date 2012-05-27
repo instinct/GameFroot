@@ -56,7 +56,7 @@ GET_BACKGROUND_URL = '/wp-content/plugins/game_data/backgrounds/user/'
 GET_CHARACTER_URL = '/wp-content/characters/'
 BUNDLE_FOLDER_NAME = 'iap_bundle'
 
-DEFAULT_BUNDLE_INFO = str('{ "product_id":0, "name":"", "release_date":"", "size":0 "description":""}')
+DEFAULT_BUNDLE_INFO = str('{ "product_id":0, "name":"", "release_date":"", "size":0, "description":""}')
 
 
 def loadGameData():
