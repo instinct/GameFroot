@@ -41,7 +41,7 @@ enum GameControlType{
     controlProSwipe
 };
 
-#define SAVE_FOLDER NSCachesDirectory
+#define SAVE_FOLDER NSDocumentDirectory
 
 //#define HORIZONTAL_SPEED	5.0f // Should be defined on the level data
 #define VERTICAL_SPEED		10.0f

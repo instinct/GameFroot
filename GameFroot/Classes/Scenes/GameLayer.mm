@@ -240,16 +240,19 @@ GameLayer *instance;
 		instance = self;
 		
         // Check what server to use, if staging or live
+        /*
         NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
         if([Shared isBetaMode]) {
             serverUsed = [prefs integerForKey:@"server"];
         } else {
             serverUsed = 1;
         }
+        */
         
 		// Check if we need to download the level data or use cache
 		ignoreCache = YES;		
-		NSFileManager *fileManager = [NSFileManager defaultManager];
+		/*
+        NSFileManager *fileManager = [NSFileManager defaultManager];
 		NSArray *paths = NSSearchPathForDirectoriesInDomains(SAVE_FOLDER, NSUserDomainMask, YES);
 		NSString *documentsDirectory = [paths objectAtIndex:0];
 		NSString *resource = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"cachedLevel%i",[Shared getLevelID]]];
@@ -262,6 +265,7 @@ GameLayer *instance;
                 ignoreCache = NO;
 			}
 		}
+        */
 		
 		// Initialise properties dictionary
 		NSString *mainBundlePath = [[NSBundle mainBundle] bundlePath];
@@ -638,11 +642,21 @@ GameLayer *instance;
 	data = [[NSMutableDictionary dictionary] retain];
 	[data setObject:[NSNumber numberWithInt:gameID] forKey:@"gameID"];
 	
-	NSString *gameURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=json&map_id=%d", [self returnServer], gameID];
-	CCLOG(@"Load level: %@, ignore cache: %i", gameURL, ignoreCache);
+	// NSString *gameURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=json&map_id=%d", [self returnServer], gameID];
+	//CCLOG(@"Load level: %@, ignore cache: %i", gameURL, ignoreCache);
 	
-	NSString *stringData = [Shared stringWithContentsOfURL:gameURL ignoreCache:ignoreCache];
-	NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
+    NSString *stringData;
+    
+	// NSString *stringData = [Shared stringWithContentsOfURL:gameURL ignoreCache:ignoreCache];
+	if([[Shared getCurrentGameBundle] isEqualToString:@"default_bundle"]) {
+        NSBundle *resourceBundle = [NSBundle mainBundle];
+        NSString *mapName = [NSString stringWithFormat:@"%@",[data objectForKey:@"gameID"]];
+        stringData = [NSString stringWithContentsOfFile:[resourceBundle pathForResource:mapName ofType:@"map" ] encoding:NSUTF8StringEncoding error:nil];
+    } else {
+        // TODO: Look in correct external bundle for map file
+    }
+    
+    NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
 	NSDictionary *jsonData = [[CJSONDeserializer deserializer] deserializeAsDictionary:rawData error:nil];
     
     if (!jsonData || ([jsonData objectForKey:@"map"] == nil) || [[jsonData objectForKey:@"map"] isMemberOfClass:[NSNull class]]) {
@@ -655,9 +669,7 @@ GameLayer *instance;
                                                        otherButtonTitles: nil] autorelease];
             [alertView show];
             return;
-            
         } else {
-        
             [[CCDirector sharedDirector] replaceScene:[HomeLayer scene]];
             return;
         }
@@ -670,6 +682,8 @@ GameLayer *instance;
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	NSDictionary *headerData = [jsonData objectForKey:@"meta"];
 	if (headerData) {
+        
+        /*
         NSArray *musicArray = [[jsonData objectForKey:@"sprites"] objectForKey:@"background_music"];
         //CCLOG(@"%@", [musicArray description]);
         
@@ -682,7 +696,7 @@ GameLayer *instance;
                 
                 // now set the default music
                 [data setObject:[musicData objectForKey:@"default"] forKey:@"bgmusic"];
-                
+            
             } else {
                 [data setObject:@"" forKey:@"bgmusic"];
             }
@@ -691,7 +705,15 @@ GameLayer *instance;
 		} else {
 			[data setObject:@"" forKey:@"bgmusic"];
 		}
-		
+        */
+        
+        NSDictionary *defaultMusicURL = [[headerData objectForKey:@"background"] objectForKey:@"default_music"];
+        if ([defaultMusicURL isKindOfClass:[NSDictionary class]]) {
+            [data setObject:[defaultMusicURL objectForKey:@"id"] forKey:@"bgmusic"];
+        } else {
+            [data setObject:@"" forKey:@"bgmusic"];
+        }
+        
 		CCLOG(@"Level music '%@'", [data objectForKey:@"bgmusic"]);
 		
 		int width = [[headerData objectForKey:@"width"] intValue];
@@ -959,7 +981,18 @@ GameLayer *instance;
     
     NSString *backgroundFilename = [data objectForKey:@"mapBackground"];
     
-	CCSprite *bg;
+    NSString *assetPath = [Shared findAsset:backgroundFilename withType:@"backgrounds"];
+    
+    if(assetPath) {
+        CCSprite *bg = [CCSprite spriteWithFile:assetPath];
+        [background addChild:bg];
+        
+        // PNG is 768x512
+        bg.scale = 0.625 * CC_CONTENT_SCALE_FACTOR();
+        [bg setPosition:ccp(size.width/2, size.height/2)];
+    }
+    
+    /*
     
     if ( ([backgroundFilename rangeOfString:@".png"].location != NSNotFound) ||
          ([backgroundFilename rangeOfString:@".jpg"].location != NSNotFound) ||
@@ -986,17 +1019,49 @@ GameLayer *instance;
         // Load embedded background
         bg = [CCSprite spriteWithFile:[NSString stringWithFormat:@"%@.png", backgroundFilename]];
     }
+     */
     
-    [background addChild:bg];
     
-    // PNG is 768x512
-    bg.scale = 0.625 * CC_CONTENT_SCALE_FACTOR();
-    [bg setPosition:ccp(size.width/2, size.height/2)];
 }
+
 
 -(void) loadTilesLevel
 {	
-	// Load tiles
+	
+    NSString *assetFN = [NSString stringWithFormat:@"%@.png", [data objectForKey:@"gameID"]];
+    NSString *assetPath = [Shared findAsset:assetFN withType:@"tiles"];
+    
+    if(assetPath) {
+        spriteSheet = [CCSpriteBatchNode batchNodeWithFile:assetPath];
+        if (REDUCE_FACTOR != 1.0f) [spriteSheet.textureAtlas.texture setAntiAliasTexParameters];
+		else [spriteSheet.textureAtlas.texture setAliasTexParameters];
+		
+		[objects addChild:spriteSheet z:LAYER_TILES];
+        
+        teleportSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"teleporter.png"];
+        [objects addChild:teleportSpriteSheet z:LAYER_TILES+1];
+        
+        // Add telepoter hardcoded animation
+        id animation = [[CCAnimationCache sharedAnimationCache] animationByName:@"teleport"];
+        if (animation == nil) {
+            
+            CCLOG(@"Load spritesheet teleport");
+            
+            float speed = 0.1f;
+            
+            NSMutableArray *frameList = [NSMutableArray array];
+            for (int i=0; i < 5; i++) {
+                CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:teleportSpriteSheet.textureAtlas.texture rect:CGRectMake(i * MAP_TILE_WIDTH,0,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+                [frameList addObject:frame];
+            }
+            animation = [CCAnimation animationWithFrames:frameList delay:speed];
+            
+            [[CCAnimationCache sharedAnimationCache] addAnimation:animation name:@"teleport"];
+        }
+    }
+    
+    // Load tiles
+    /*
 	@try
 	{
 		if (customTiles) {
@@ -1046,6 +1111,7 @@ GameLayer *instance;
 		CCLOG(@"Failed loading tiles");
 		return;
 	}
+     */
 }
 
 /* DEPRECATED!!

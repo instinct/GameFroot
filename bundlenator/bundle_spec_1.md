@@ -5,7 +5,7 @@ By Sam Win-Mason
 
 ## Folder structure ##
 
-	[Top_Level_Folder]
+	[Top_Level_Folder] (named after product_id/bundle id)
 
 		* [backgrounds folder]
 		* [characters folder]

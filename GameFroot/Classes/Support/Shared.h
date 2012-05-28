@@ -52,9 +52,11 @@
 +(NSString*) replaceAccents:(NSString*)a;
 +(BOOL) getWelcomeShown;
 +(void) setWelcomeShown:(BOOL)val;
++(NSString*) getCurrentGameBundle;
++(void) setCurrentGameBundle:(NSString *)gbName;
 
 #pragma mark -
-#pragma mark Remote Data Loading
+#pragma mark Remote Data Loading (all this is currently depreciated)
 
 +(NSString*)stringWithContentsOfPostURL:(NSString*)url post:(NSString *)post;
 +(NSString*)stringWithContentsOfURL:(NSString*)url ignoreCache:(BOOL)ignoreCache;
@@ -65,5 +67,11 @@
 +(BOOL) existEmbeddedFile:(NSString *)name;
 
 +(ccColor4B) colorForHex:(NSString *)hexColor withTransparency:(float)alpha;
+
+#pragma mark -
+#pragma mark IAP Bundle and asset management
+
++(NSString*) findAsset:(NSString *)fileName withType:(NSString *)type;
++(NSString*) findAssetInDefaultBundle:(NSString *)filename;
 
 @end

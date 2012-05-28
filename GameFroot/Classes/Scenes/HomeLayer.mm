@@ -1021,68 +1021,32 @@
 -(void) _loadFeatured {
 	
     //BOOL refreshInBackground = NO;
+    [Shared setCurrentGameBundle:@"default_bundle"];
     
 	if (jsonDataFeatured == nil) {
         
         featuredPage = 1;
         
-        NSString *levelsURL;
+        // This is a temporary line as at the moment we only have 1 game bundle.
+        [Shared setCurrentGameBundle:@"default_bundle"];
+          
+        // Load levels from the default bundle
+        NSBundle* myBundle = [NSBundle mainBundle];
+        NSString *defaultBundlelevels = [NSString stringWithContentsOfFile: [myBundle pathForResource:@"games" ofType:@"json"] encoding:NSUTF8StringEncoding error:nil];
+        //CCLOG(@"default bundle levels: %@", defaultBundlelevels);
+        NSData *rawData = [defaultBundlelevels dataUsingEncoding:NSUTF8StringEncoding];
+        jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] mutableCopy];
+        //CCLOG(@"Levels: %@", [jsonDataFeatured description]);
         
-        if([Shared isBetaMode]) {
-            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=featured&page=%i", [self returnServer], featuredPage];
-        } else {
-            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=ios-featured&page=%i", [self returnServer], featuredPage];
+        if(!jsonDataFeatured) {
+            return;
         }
-
-		CCLOG(@"Load levels: %@",levelsURL);
-        
-        /*
-        // Try to load cached version first, if not load online
-        
-        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];        
-        if ([prefs objectForKey:@"featured"] != nil) {
-            jsonDataFeatured = [[prefs objectForKey:@"featured"] mutableCopy];
-            
-            CCLOG(@"Loaded cached levels");
-            refreshInBackground = YES;
-            
-        } else {
-            // Cache not found, load online
-        */
-            NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
-            
-            NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
-            jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] mutableCopy];
-            //CCLOG(@"Levels: %@", [jsonDataFeatured description]);
-            
-            if(!jsonDataFeatured)
-            {
-                return;
-            }
-        
-        /*
-            // Save locally for next time
-            [prefs setObject:jsonDataFeatured forKey:@"featured"];
-            [prefs synchronize];
-        }*/
+    
 	}
 	
     [Loader hideAsynchronousLoader];
     
 	CGSize size = [[CCDirector sharedDirector] winSize];
-	
-	// Featured panel
-	CCMenuItemSprite *featured1Button = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"young-isaac-icon.png"] selectedSprite:[CCSprite spriteWithFile:@"young-isaac-icon.png"] target:self selector:@selector(featured1:)];
-    /*
-	CCMenuItemSprite *featured2Button = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"feature-icon.png"] selectedSprite:[CCSprite spriteWithFile:@"feature-icon.png"] target:self selector:@selector(featured2:)];
-     */
-    
-	CCMenu *menuFeatured = [CCMenu menuWithItems:featured1Button, /*featured2Button,*/ nil];
-	menuFeatured.position = ccp(size.width/2, size.height - 44 - featured1Button.contentSize.height/2 - 10);
-    //menuFeatured.position = ccp(featured1Button.contentSize.width/2 + 10, size.height - 44 - featured1Button.contentSize.height/2 - 5);
-	
-    [menuFeatured alignItemsHorizontally];
-	[featured addChild:menuFeatured z:4];
     
     // Filter array
 	NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
@@ -1107,60 +1071,10 @@
 	loading = NO;
 	featured.visible = YES;
     
-    /*
-    if (refreshInBackground) {
-        // Now load in the background online levels
-        NSString *levelsURL;
-        
-        if([Shared isBetaMode]) {
-            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=featured&page=%i", [self returnServer], 1];
-        } else {
-            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=ios-featured&page=%i", [self returnServer], 1];
-        }
-
-        [self asynchronousContentsOfURL:levelsURL];
-    }
-	*/
 }
 
 -(void) _loadMoreFeatured {
-    featuredPage++;
-    NSString *levelsURL;
-    
-    if([Shared isBetaMode]) {
-        levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=featured&page=%i", [self returnServer], featuredPage];
-    } else {
-        levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=ios-featured&page=%i", [self returnServer], featuredPage];
-    }
 
-    CCLOG(@"Load levels: %@",levelsURL);
-    
-    NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
-    
-    NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
-    NSArray *jsonDataMoreFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] retain];
-    //CCLOG(@"Levels: %@", [jsonDataMoreFeatured description]);
-    
-    if(!jsonDataMoreFeatured)
-    {
-        return;
-    }
-    
-    [jsonDataFeatured addObjectsFromArray:jsonDataMoreFeatured];
-    
-    // Filter array
-	NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
-	if (filteredArray != nil) [filteredArray release];
-	filteredArray = [[jsonDataFeatured filteredArrayUsingPredicate:predicate] retain];
-	tableData = [filteredArray mutableCopy];
-	
-	loaded = ITEMS_PER_PAGE*featuredPage;
-	total = [tableData count];
-	if (total < ITEMS_PER_PAGE*featuredPage) loaded = total;
-	
-    
-    [tableView reloadData];
-    [tableView setContentOffset:ccp(0,[tableView contentOffset].y-58*([jsonDataMoreFeatured count])) animated:NO];
 }
 
 #pragma mark -
@@ -1208,146 +1122,19 @@
 #pragma mark Browse
 
 -(void) loadBrowse {
-	if ((selectedPage == browse) && !gameDetailLoaded) return;
-	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
-	selectedPage = browse;
-	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadBrowse)];
-	loading = YES;
+    return;
 }
 
 -(void) _loadBrowse {
-	[Loader hideAsynchronousLoader];
-	
-    /*
-	CGSize size = [[CCDirector sharedDirector] winSize];
-	
-	CCSprite *searchBox = [CCSprite spriteWithFile:@"search-box.png"];
-	[browse addChild:searchBox z:6];
-	searchBox.position = ccp(size.width/2,size.height - 45 - searchBox.contentSize.height/2);
-	
-	searchTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, size.width - 80, 24)];
-    [searchTextField setDelegate:self];
-    [searchTextField setText:@""];
-	
-	//searchTextField.backgroundColor = [UIColor colorWithRed:255 green:0 blue:0 alpha:1.0];
-	searchTextField.borderStyle = UITextBorderStyleNone;
-	[searchTextField setTextColor: [UIColor colorWithRed:0 green:0 blue:0 alpha:1.0]];
-	
-	searchField = [CCUIViewWrapper wrapperForUIView:searchTextField];
-	searchField.contentSize = CGSizeMake(size.width - 80, 24);
-	
-	if (CC_CONTENT_SCALE_FACTOR() == 2) searchField.position = ccp(size.width - 40, size.height - 50 - 18 - 12);
-	else searchField.position = ccp(size.width/2, size.height - 50 - 18);
-	
-	[browse addChild:searchField z:7];
-	
-	CCMenuItemSprite *clearButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"clear-search.png"] selectedSprite:[CCSprite spriteWithFile:@"clear-search.png"] target:self selector:@selector(clearSearch:)];
-	CCMenu *menu = [CCMenu menuWithItems:clearButton, nil];
-	menu.position = ccp(size.width - clearButton.contentSize.width - 5, searchBox.position.y);
-	[browse addChild:menu z:8];
-	
-	loading = NO;
-	browse.visible = YES;
-    */
-    
-    if (jsonDataBrowse == nil) {
-        
-        browsePage = 1;
-		
-        // use differnt catagory depending on wether we are in beta mode or not
-        // If beta mode use standard categories, if not beta use special ios categories
-        
-        NSString *levelsURL;
-        
-        if([Shared isBetaMode]) {
-            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], browsePage];
-        } else {
-            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=ios-browse&page=%i", [self returnServer], browsePage];
-        }
-		
-		CCLOG(@"Load levels: %@",levelsURL);
-		
-		NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
-		NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
-		jsonDataBrowse = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] mutableCopy];
-		//CCLOG(@"Levels: %@", [jsonDataBrowse description]);
-		
-		if(!jsonDataBrowse)
-		{
-			return;
-		}
-	}
-    
-    // Filter array
-	NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
-	if (filteredArray != nil) [filteredArray release];
-	filteredArray = [[jsonDataBrowse filteredArrayUsingPredicate:predicate] retain];
-	tableData = [filteredArray mutableCopy];
-	
-	CGSize size = [[CCDirector sharedDirector] winSize];
-	
-	loaded = ITEMS_PER_PAGE*browsePage;
-	total = [tableData count];
-	if (total < ITEMS_PER_PAGE*browsePage) loaded = total;
-	
-	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, size.height - (45 + 50))];
-	
-	tableView.direction = SWScrollViewDirectionVertical;
-	tableView.position = ccp(0,50);
-	tableView.delegate = self;
-	tableView.verticalFillOrder = SWTableViewFillTopDown;
-	
-	[browse addChild:tableView z:5];
-	[tableView reloadData];
-	
-	loading = NO;
-	browse.visible = YES;
+
 }
 
 -(void) _loadMoreBrowse {
-    browsePage++;
-    NSString *levelsURL;
-    
-    if([Shared isBetaMode]) {
-        levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], browsePage];
-    } else {
-        levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=ios-browse&page=%i", [self returnServer], browsePage];
-    }
 
-    CCLOG(@"Load levels: %@",levelsURL);
-    
-    NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
-    
-    NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
-    NSArray *jsonDataMoreBrowse = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] retain];
-    //CCLOG(@"Levels: %@", [jsonDataMoreBrowse description]);
-    
-    if(!jsonDataMoreBrowse)
-    {
-        return;
-    }
-    
-    [jsonDataBrowse addObjectsFromArray:jsonDataMoreBrowse];
-    
-    // Filter array
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"published == YES"];
-	if (filteredArray != nil) [filteredArray release];
-	filteredArray = [[jsonDataBrowse filteredArrayUsingPredicate:predicate] retain];
-	tableData = [filteredArray mutableCopy];
-	
-	loaded = ITEMS_PER_PAGE*browsePage;
-	total = [tableData count];
-	if (total < ITEMS_PER_PAGE*browsePage) loaded = total;
-	
-    
-    [tableView reloadData];
-    [tableView setContentOffset:ccp(0,[tableView contentOffset].y-58*([jsonDataMoreBrowse count])) animated:NO];
 }
 
 -(void) reloadBrowse {
-	if (tableView) [browse removeChild:tableView cleanup:YES];
-	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_reloadBrowse)];
-	loading = YES;
+
 }
 
 -(void) _reloadBrowse {
