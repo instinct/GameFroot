@@ -53,6 +53,7 @@ GET_LEVELS_API_STRING = '?gamemakers_api=1&type=get_all_levels&category='
 GET_TILES_API_STRING = '?gamemakers_api=1&type=get_game_animations&id='
 GET_MAP_API_STRING = '?gamemakers_api=1&type=json&map_id='
 GET_BACKGROUND_URL = '/wp-content/plugins/game_data/backgrounds/user/'
+GET_DEFAULT_BACKGROUND_URL = '/wp-content/plugins/game_data/backgrounds/full/'
 GET_CHARACTER_URL = '/wp-content/characters/'
 BUNDLE_FOLDER_NAME = 'iap_bundle'
 
@@ -152,8 +153,19 @@ def loadLevelAssets(mapId):
 				
 
 			# Load backgrounds
+			# we need to load from different locations depending on wether background file name has extension
 			if options.verbose: sys.stdout.write('\n\t[Backgrounds]\n')
-			loadAsset('backgrounds', (args[1] + GET_BACKGROUND_URL + levelData['meta']['background']['image']))
+	
+			if len(levelData['meta']['background']['image']) >= 4:
+				backgroundFileExtension = levelData['meta']['background']['image'][-4:]
+			else:
+				backgroundFileExtension = ''
+			
+
+			if (backgroundFileExtension == '.png') or (backgroundFileExtension == '.gif') or (backgroundFileExtension == '.jpg') :
+				loadAsset('backgrounds', (args[1] + GET_BACKGROUND_URL + levelData['meta']['background']['image']))
+			else :
+				loadAsset('backgrounds', (args[1] + GET_DEFAULT_BACKGROUND_URL + levelData['meta']['background']['image'] + ".png"))
 
 			if options.verbose: sys.stdout.write('\n\t[Spritesheets]\n')
 			# Load custom spritesheets
