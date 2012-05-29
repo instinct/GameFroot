@@ -298,7 +298,7 @@ def main ():
 
 		# add trailing slash to directory if missing
 		if not args[2].endswith('/'):
-			args[2].append('/')
+			args[2] = args[2] + '/'
 		
 		createDirectoryStructure()
 		loadGameData()
