@@ -721,7 +721,7 @@ GameLayer *instance;
 		}
 
         
-        CCLOG(@"musicData: %@", [musicData description]);
+        //CCLOG(@"musicData: %@", [musicData description]);
        
         
 		CCLOG(@"Level music '%@'", [data objectForKey:@"bgmusic"]);
@@ -2901,18 +2901,19 @@ GameLayer *instance;
     // so I created an intermediate scene that will simply load the game scene again.
     
     NSString *backgroundFilename = [data objectForKey:@"mapBackground"];
+    NSString *assetPath;
+    
     if ( ([backgroundFilename rangeOfString:@".png"].location != NSNotFound) ||
         ([backgroundFilename rangeOfString:@".jpg"].location != NSNotFound) ||
         ([backgroundFilename rangeOfString:@".gif"].location != NSNotFound) )
     {
-        
-        backgroundFilename = [NSString stringWithFormat:@"%@wp-content/plugins/game_data/backgrounds/user/%@", [self returnServer], backgroundFilename];
-    
+        assetPath = [Shared findAsset:backgroundFilename withType:@"backgrounds"];
     } else {
-        backgroundFilename = [NSString stringWithFormat:@"%@.png", backgroundFilename];
+        assetPath = [Shared findAsset:[backgroundFilename stringByAppendingString:@".png"] withType:@"backgrounds"];
     }
+    
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    [prefs setValue:backgroundFilename forKey:@"nextBackground"];
+    [prefs setValue:assetPath forKey:@"nextBackground"];
 	[prefs synchronize];
     
     [[CCDirector sharedDirector] replaceScene:[IntermediateLayer scene]];
