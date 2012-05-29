@@ -646,14 +646,11 @@ GameLayer *instance;
 	//CCLOG(@"Load level: %@, ignore cache: %i", gameURL, ignoreCache);
 	
     NSString *stringData;
-    
-	// NSString *stringData = [Shared stringWithContentsOfURL:gameURL ignoreCache:ignoreCache];
-	if([[Shared getCurrentGameBundle] isEqualToString:@"default_bundle"]) {
-        NSBundle *resourceBundle = [NSBundle mainBundle];
-        NSString *mapName = [NSString stringWithFormat:@"%@",[data objectForKey:@"gameID"]];
-        stringData = [NSString stringWithContentsOfFile:[resourceBundle pathForResource:mapName ofType:@"map" ] encoding:NSUTF8StringEncoding error:nil];
+    NSString *mapFilePath = [Shared findAsset:[NSString stringWithFormat:@"%@.map",[data objectForKey:@"gameID"]] withType:@"levels"];
+    if(mapFilePath) {
+        stringData = [NSString stringWithContentsOfFile:mapFilePath encoding:NSUTF8StringEncoding error:nil];
     } else {
-        // TODO: Look in correct external bundle for map file
+        CCLOG(@"Error! cannot find map data!");
     }
     
     NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
@@ -683,20 +680,37 @@ GameLayer *instance;
 	NSDictionary *headerData = [jsonData objectForKey:@"meta"];
 	if (headerData) {
         
-        /*
-        NSArray *musicArray = [[jsonData objectForKey:@"sprites"] objectForKey:@"background_music"];
-        //CCLOG(@"%@", [musicArray description]);
         
+        NSArray *musicArray = [[jsonData objectForKey:@"sprites"] objectForKey:@"background_music"];
         if ((musicArray != nil) && [musicArray isKindOfClass:[NSArray class]] && [musicArray count] > 0) {
             
             NSDictionary *defaultMusicURL = [[headerData objectForKey:@"background"] objectForKey:@"default_music"];
             
             if ([defaultMusicURL isKindOfClass:[NSDictionary class]]) {
-                musicData = [[Shared loadMusic:musicArray fromServer:[self returnServer] ignoreCache:NO withDefault:[defaultMusicURL objectForKey:@"url"]] retain];
+                
+                musicData = [[NSMutableDictionary alloc] init];
+                
+                // Take care of default music 
+                NSString *musicFileName = [NSString stringWithFormat:@"%@.mp3", [defaultMusicURL objectForKey:@"id"]];
+                NSString *musicPath = [Shared findAsset:musicFileName withType:@"music"];
+                if(musicPath) {
+                    [musicData setValue:musicPath forKey:@"default"];
+                } else {
+                    [musicData setValue:@"" forKey:@"default"];
+                }
+                
+                // Get all the paths for music
+                for (NSDictionary *music in musicArray) {
+                    musicFileName = [NSString stringWithFormat:@"%@.mp3", [defaultMusicURL objectForKey:@"id"]];
+                    musicPath = [Shared findAsset:musicFileName withType:@"music"];
+                    if(musicPath) {
+                        [musicData setValue:musicPath forKey:[NSString stringWithFormat:@"%@",[music objectForKey:@"id"]]];
+                    }
+                }
                 
                 // now set the default music
                 [data setObject:[musicData objectForKey:@"default"] forKey:@"bgmusic"];
-            
+                
             } else {
                 [data setObject:@"" forKey:@"bgmusic"];
             }
@@ -705,14 +719,10 @@ GameLayer *instance;
 		} else {
 			[data setObject:@"" forKey:@"bgmusic"];
 		}
-        */
+
         
-        NSDictionary *defaultMusicURL = [[headerData objectForKey:@"background"] objectForKey:@"default_music"];
-        if ([defaultMusicURL isKindOfClass:[NSDictionary class]]) {
-            [data setObject:[defaultMusicURL objectForKey:@"id"] forKey:@"bgmusic"];
-        } else {
-            [data setObject:@"" forKey:@"bgmusic"];
-        }
+        CCLOG(@"musicData: %@", [musicData description]);
+       
         
 		CCLOG(@"Level music '%@'", [data objectForKey:@"bgmusic"]);
 		
@@ -980,9 +990,17 @@ GameLayer *instance;
 	CGSize size = [[CCDirector sharedDirector] winSize];
     
     NSString *backgroundFilename = [data objectForKey:@"mapBackground"];
+    NSString *assetPath;
     
-    NSString *assetPath = [Shared findAsset:backgroundFilename withType:@"backgrounds"];
-    
+    if ( ([backgroundFilename rangeOfString:@".png"].location != NSNotFound) ||
+        ([backgroundFilename rangeOfString:@".jpg"].location != NSNotFound) ||
+        ([backgroundFilename rangeOfString:@".gif"].location != NSNotFound) )
+    {
+        assetPath = [Shared findAsset:backgroundFilename withType:@"backgrounds"];
+    } else {
+        assetPath = [Shared findAsset:[backgroundFilename stringByAppendingString:@".png"] withType:@"backgrounds"];
+    }
+
     if(assetPath) {
         CCSprite *bg = [CCSprite spriteWithFile:assetPath];
         [background addChild:bg];
@@ -1671,9 +1689,53 @@ GameLayer *instance;
 	int dy = [[dict objectForKey:@"positionY"] intValue];			
 	CCLOG(@"Player id: %i, initial position: %i,%i", playerID, dx, dy);
 	
-	CCSpriteBatchNode *playerSpriteSheet;
+    CCSpriteBatchNode *playerSpriteSheet;
+    NSString *playerFilename;
+    
+    if (playerID > 10) {
+        playerFilename = [Shared findAsset:[NSString stringWithFormat:@"character%d.png", playerID] withType:@"characters"];
+    } else {
+        playerFilename = [Shared findAsset:[NSString stringWithFormat:@"player_%d.png", playerID] withType:@"characters"];
+    }
+    
+    if(playerFilename) {
+        playerSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:playerFilename];
+        if (REDUCE_FACTOR != 1.0f) [playerSpriteSheet.textureAtlas.texture setAntiAliasTexParameters];
+        else [playerSpriteSheet.textureAtlas.texture setAliasTexParameters];
+        
+        [objects addChild:playerSpriteSheet z:LAYER_PLAYER];
+        
+        float spriteWidth = playerSpriteSheet.texture.contentSize.width / 8;
+        float spriteHeight = playerSpriteSheet.texture.contentSize.height / 2;
+        
+        //CCLOG(@"Player size: %f,%f", spriteWidth,spriteHeight);
+        
+        CGSize hitArea = CGSizeMake(PLAYER_WIDTH / CC_CONTENT_SCALE_FACTOR(), PLAYER_HEIGHT / CC_CONTENT_SCALE_FACTOR());
+        CGPoint pos = ccp(dx * MAP_TILE_WIDTH, ((mapHeight - dy - 1) * MAP_TILE_HEIGHT));
+        pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
+        pos.y += hitArea.height/2.0f;
+        
+        // Create player
+        player = [Player spriteWithBatchNode:playerSpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];        
+        [player setPosition:pos];
+        [player setAnchorPoint:ccp(PLAYER_ANCHOR_X,PLAYER_ANCHOR_Y)];
+        [player setupPlayer:playerID properties:dict];
+        [player createBox2dObject:world size:hitArea];
+        [playerSpriteSheet addChild:player z:LAYER_PLAYER];
+        
+        player.autoSafepoint = !checkpoints;
+        if (player.autoSafepoint) CCLOG(@"Player uses auto-safe points!");
+        
+        [controls setPlayer:player];
+    } else {
+        CCLOG(@"Error could not find player spritesheet!");
+    }
+
+    
+    /*
+	
 	BOOL custom = NO;
-	NSString *playerFilename;
+	
 	if (playerID > 10) {
 		playerFilename = [NSString stringWithFormat:@"%@wp-content/characters/character%d.png", [self returnServer], playerID];
 		
@@ -1701,34 +1763,9 @@ GameLayer *instance;
 		CCLOG(@"Player spritesheet: %@", [NSString stringWithFormat:@"player_%i.png", playerID]);
 		playerSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"player_%i.png", playerID]];
 	}
+     
+     */
 	
-	if (REDUCE_FACTOR != 1.0f) [playerSpriteSheet.textureAtlas.texture setAntiAliasTexParameters];
-	else [playerSpriteSheet.textureAtlas.texture setAliasTexParameters];
-	
-	[objects addChild:playerSpriteSheet z:LAYER_PLAYER];
-	
-	float spriteWidth = playerSpriteSheet.texture.contentSize.width / 8;
-	float spriteHeight = playerSpriteSheet.texture.contentSize.height / 2;
-	
-	//CCLOG(@"Player size: %f,%f", spriteWidth,spriteHeight);
-	
-    CGSize hitArea = CGSizeMake(PLAYER_WIDTH / CC_CONTENT_SCALE_FACTOR(), PLAYER_HEIGHT / CC_CONTENT_SCALE_FACTOR());
-	CGPoint pos = ccp(dx * MAP_TILE_WIDTH, ((mapHeight - dy - 1) * MAP_TILE_HEIGHT));
-	pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
-	pos.y += hitArea.height/2.0f;
-    
-	// Create player
-	player = [Player spriteWithBatchNode:playerSpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];        
-	[player setPosition:pos];
-	[player setAnchorPoint:ccp(PLAYER_ANCHOR_X,PLAYER_ANCHOR_Y)];
-	[player setupPlayer:playerID properties:dict];
-    [player createBox2dObject:world size:hitArea];
-	[playerSpriteSheet addChild:player z:LAYER_PLAYER];
-    
-    player.autoSafepoint = !checkpoints;
-    if (player.autoSafepoint) CCLOG(@"Player uses auto-safe points!");
-    
-    [controls setPlayer:player];
 }
 
 -(void) loadEnemies
@@ -1743,6 +1780,49 @@ GameLayer *instance;
 		int dy = [[dict objectForKey:@"positionY"] intValue];
 		CCLOG(@"Enemy id: %i, initial position: %i,%i", enemyID, dx, dy);
 		
+        CCSpriteBatchNode *enemySpriteSheet;
+		NSString *enemyFilename;        
+        
+        if (enemyID > 10) {
+            enemyFilename = [Shared findAsset:[NSString stringWithFormat:@"enemy%d.png", enemyID] withType:@"characters"];
+        } else {
+            enemyFilename = [Shared findAsset:[NSString stringWithFormat:@"enemy_sheet%d.png", enemyID] withType:@"characters"];
+        }
+        
+        if(enemyFilename) {
+            enemySpriteSheet = [CCSpriteBatchNode batchNodeWithFile:enemyFilename];
+            
+            if (REDUCE_FACTOR != 1.0f) [enemySpriteSheet.textureAtlas.texture setAntiAliasTexParameters];
+            else [enemySpriteSheet.textureAtlas.texture setAliasTexParameters];
+            
+            [objects addChild:enemySpriteSheet z:LAYER_PLAYER];
+            
+            float spriteWidth = enemySpriteSheet.texture.contentSize.width / 8;
+            float spriteHeight = enemySpriteSheet.texture.contentSize.height / 2;
+            
+            CGSize hitArea = CGSizeMake(ENEMY_WIDTH / CC_CONTENT_SCALE_FACTOR(), ENEMY_HEIGHT / CC_CONTENT_SCALE_FACTOR());
+            CGPoint pos = ccp(dx * MAP_TILE_WIDTH, ((mapHeight - dy - 1) * MAP_TILE_HEIGHT));
+            pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
+            pos.y += hitArea.height/2.0f;
+            
+            // Create player		
+            Enemy *enemy = [Enemy spriteWithBatchNode:enemySpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];        
+            [enemy setPosition:pos];
+            [enemy setAnchorPoint:ccp(ENEMY_ANCHOR_X,ENEMY_ANCHOR_Y)];
+            [enemy setupEnemy:enemyID properties:dict player:player];
+            [enemy createBox2dObject:world size:hitArea];
+            [enemySpriteSheet addChild:enemy z:LAYER_PLAYER];
+            
+            [enemies addObject:enemy];
+
+            
+            
+        } else {
+            CCLOG(@"Could not load enemy: %i spritesheet", i);
+        }
+        
+        /*
+        
 		CCSpriteBatchNode *enemySpriteSheet;
 		BOOL custom = NO;
 		NSString *enemyFilename;
@@ -1773,30 +1853,9 @@ GameLayer *instance;
 			CCLOG(@"Enemy spritesheet: %@", [NSString stringWithFormat:@"enemy_sheet%i.png", enemyID]);
 			enemySpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"enemy_sheet%i.png", enemyID]];
 		}
-		
-		if (REDUCE_FACTOR != 1.0f) [enemySpriteSheet.textureAtlas.texture setAntiAliasTexParameters];
-		else [enemySpriteSheet.textureAtlas.texture setAliasTexParameters];
-		
-		[objects addChild:enemySpriteSheet z:LAYER_PLAYER];
-		
-		float spriteWidth = enemySpriteSheet.texture.contentSize.width / 8;
-		float spriteHeight = enemySpriteSheet.texture.contentSize.height / 2;
-		
-        CGSize hitArea = CGSizeMake(ENEMY_WIDTH / CC_CONTENT_SCALE_FACTOR(), ENEMY_HEIGHT / CC_CONTENT_SCALE_FACTOR());
-        CGPoint pos = ccp(dx * MAP_TILE_WIDTH, ((mapHeight - dy - 1) * MAP_TILE_HEIGHT));
-        pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
-        pos.y += hitArea.height/2.0f;
-		
-		// Create player		
-		Enemy *enemy = [Enemy spriteWithBatchNode:enemySpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];        
-		[enemy setPosition:pos];
-		[enemy setAnchorPoint:ccp(ENEMY_ANCHOR_X,ENEMY_ANCHOR_Y)];
-		[enemy setupEnemy:enemyID properties:dict player:player];
-		[enemy createBox2dObject:world size:hitArea];
-		[enemySpriteSheet addChild:enemy z:LAYER_PLAYER];
-		
-		[enemies addObject:enemy];
-	}
+         
+        */
+    }
 }
 
 -(void) spawnEnemy:(CGPoint) pos
@@ -1821,6 +1880,42 @@ GameLayer *instance;
 
     CCLOG(@"GameLayer.spawnEnemy: %f,%f", pos.x, pos.y);
     
+    
+    CCSpriteBatchNode *enemySpriteSheet;
+    NSString *enemyFilename;        
+    
+    if (enemyID > 10) {
+        enemyFilename = [Shared findAsset:[NSString stringWithFormat:@"enemy%d.png", enemyID] withType:@"characters"];
+    } else {
+        enemyFilename = [Shared findAsset:[NSString stringWithFormat:@"enemy_sheet%d.png", enemyID] withType:@"characters"];
+    }
+    
+    if(enemyFilename) {
+        enemySpriteSheet = [CCSpriteBatchNode batchNodeWithFile:enemyFilename];
+        if (REDUCE_FACTOR != 1.0f) [enemySpriteSheet.textureAtlas.texture setAntiAliasTexParameters];
+        else [enemySpriteSheet.textureAtlas.texture setAliasTexParameters];
+        
+        [objects addChild:enemySpriteSheet z:LAYER_PLAYER];
+        
+        float spriteWidth = enemySpriteSheet.texture.contentSize.width / 8;
+        float spriteHeight = enemySpriteSheet.texture.contentSize.height / 2;
+        
+        CGSize hitArea = CGSizeMake(ENEMY_WIDTH / CC_CONTENT_SCALE_FACTOR(), ENEMY_HEIGHT / CC_CONTENT_SCALE_FACTOR());
+        
+        Enemy *enemy = [Enemy spriteWithBatchNode:enemySpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];
+        [enemy setPosition:pos];
+        [enemy setAnchorPoint:ccp(ENEMY_ANCHOR_X,ENEMY_ANCHOR_Y)];
+        enemy.spawned = YES;
+        [enemy setupEnemy:enemyID properties:dict player:player];
+        [enemy createBox2dObject:world size:hitArea];
+        [enemySpriteSheet addChild:enemy z:LAYER_PLAYER];
+        
+        [enemies addObject:enemy];
+    } else {
+        CCLOG(@"_spawn enemy unable to load spritesheet");
+    }
+    
+    /*
     CCSpriteBatchNode *enemySpriteSheet;
     BOOL custom = NO;
     NSString *enemyFilename;
@@ -1861,14 +1956,16 @@ GameLayer *instance;
     float spriteHeight = enemySpriteSheet.texture.contentSize.height / 2;
     
     CGSize hitArea = CGSizeMake(ENEMY_WIDTH / CC_CONTENT_SCALE_FACTOR(), ENEMY_HEIGHT / CC_CONTENT_SCALE_FACTOR());
-    
+    */
+     
     /*
     CGPoint pos = ccp(mapPos.x * MAP_TILE_WIDTH, ((mapHeight - mapPos.y - 1) * MAP_TILE_HEIGHT));
     pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
     pos.y += hitArea.height/2.0f;
     */
     
-    // Create player		
+    // Create player
+    /*
     Enemy *enemy = [Enemy spriteWithBatchNode:enemySpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];
     [enemy setPosition:pos];
     [enemy setAnchorPoint:ccp(ENEMY_ANCHOR_X,ENEMY_ANCHOR_Y)];
@@ -1879,6 +1976,7 @@ GameLayer *instance;
    
     
     [enemies addObject:enemy];
+     */
 }
 
 -(void) spawnRobot:(CGRect) rect data:(NSDictionary *) originalData pos:(CGPoint) pos direction:(float)direction speed:(float)speed;
