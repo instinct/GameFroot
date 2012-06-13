@@ -46,6 +46,8 @@
             CCLOG(@"IntermediateLayer: Error, loading default one");
             bg = [CCSprite spriteWithFile:@"loading-bg.png"];
         }
+        
+        /*
         else if ( ([background rangeOfString:@"http://"].location != NSNotFound) ||
             ([background rangeOfString:@"https://"].location != NSNotFound) )
         {
@@ -68,6 +70,7 @@
             CCLOG(@"IntermediateLayer: Load embedded background: %@", [NSString stringWithFormat:@"%@.png", background]);
             bg = [CCSprite spriteWithFile:[NSString stringWithFormat:@"%@.png", background]];
         }
+         */
         
         // PNG is 768x512
         bg.scale = 0.625 * CC_CONTENT_SCALE_FACTOR();

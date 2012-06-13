@@ -17,6 +17,7 @@
 
 static NSString *osVersion = @"";
 static NSString *device = @"";
+static NSString *currentGameBundle = @"";
 static NSMutableDictionary *levelData = nil;
 static int nextLevelID = 0;
 static BOOL playing = NO;
@@ -123,6 +124,14 @@ static BOOL betaMode = NO;
 
 +(NSString *) getOSVersion {
 	return osVersion;
+}
+
++(NSString *) getCurrentGameBundle {
+    return currentGameBundle;
+}
+
++(void) setCurrentGameBundle:(NSString *)gbName {
+    currentGameBundle = gbName;
 }
 
 +(void) detectOSVersion {
@@ -806,5 +815,85 @@ has been previously downloaded, return a path to the file otherwise load the ass
 				(float) b,
 				alpha);
 }
+
+
+#pragma mark -
+#pragma mark IAP Bundle and asset management
+
+/*
+ This function is a localised way to get a path to an asset, given
+ the asset's file name. The function first checks the following locations
+ in this order:
+ 
+ * Current game bundle
+ * the default_bundle (internal resource folder)
+ * all other game bundles
+ 
+ The function returns the full path to the asset or nil if the asset was not found
+ 
+ the type string refers to the standed IAP bundle directory where the asset would be
+ found, for example 'music' for music assets. See the Gamefroot IAP bundle specification
+ for a list of these standard folder names.
+ 
+*/
+
++(NSString*) findAsset:(NSString *)fileName withType:(NSString *)type {
+
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSString *path;
+    
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(SAVE_FOLDER, NSUserDomainMask, YES);
+    NSString *documentsDirectoryPath = [paths objectAtIndex:0];    
+    
+    // First look in the default bundle
+    if([[Shared getCurrentGameBundle] isEqualToString:@"default_bundle"]) {
+        path = [Shared findAssetInDefaultBundle:fileName];
+    } else {
+        path = [[[documentsDirectoryPath 
+                 stringByAppendingPathComponent:[Shared getCurrentGameBundle]] 
+                stringByAppendingPathComponent:type] 
+                stringByAppendingPathComponent:fileName];
+        path = ([fm fileExistsAtPath:path]) ? path : nil;
+    }
+    
+    if (!path) {
+        // Look in the other bundles
+        if(![[Shared getCurrentGameBundle] isEqualToString:@"default_bundle"]) {
+            // if we havn't already looked in the resource bundle, do that
+            path = [Shared findAssetInDefaultBundle:fileName];
+        }
+            
+        if (!path) {
+            // look in all other external bundles
+            // enumerate dirs in Documents
+            NSArray *IAPBundles = [fm contentsOfDirectoryAtPath:documentsDirectoryPath error:nil];
+            for (NSString *bundle in IAPBundles) {
+                path = [[[documentsDirectoryPath 
+                            stringByAppendingPathComponent:bundle] 
+                        stringByAppendingPathComponent:type] 
+                    stringByAppendingPathComponent:fileName];
+                path = ([fm fileExistsAtPath:path]) ? path : nil;
+                if (path != nil) break;
+            }
+        }
+    }
+    return path;
+}
+
+
++(NSString*) findAssetInDefaultBundle:(NSString *)filename {
+    // break into name plus extension for bundle check
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    NSString *path;
+    NSArray *fnameComps = [filename componentsSeparatedByString:@"."];
+    if([fnameComps count] == 1) {
+        path = [mainBundle pathForResource:[fnameComps objectAtIndex:0] ofType:NULL];
+    } else {
+        path = [mainBundle pathForResource:[fnameComps objectAtIndex:0] ofType:[fnameComps objectAtIndex:1]];
+    }
+    return path;
+}
+
+
 
 @end
