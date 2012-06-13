@@ -1029,7 +1029,7 @@
         
         // This is a temporary line as at the moment we only have 1 game bundle.
         [Shared setCurrentGameBundle:@"default_bundle"];
-          
+
         // Load levels from the default bundle
         NSBundle* myBundle = [NSBundle mainBundle];
         NSString *defaultBundlelevels = [NSString stringWithContentsOfFile: [myBundle pathForResource:@"games" ofType:@"json"] encoding:NSUTF8StringEncoding error:nil];
@@ -1037,9 +1037,9 @@
         NSData *rawData = [defaultBundlelevels dataUsingEncoding:NSUTF8StringEncoding];
         jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] mutableCopy];
         //CCLOG(@"Levels: %@", [jsonDataFeatured description]);
-        
+
         if(!jsonDataFeatured) {
-            return;
+            jsonDataFeatured = [[NSMutableArray alloc] init];
         }
     
 	}
