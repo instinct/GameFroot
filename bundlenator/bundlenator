@@ -243,17 +243,15 @@ def createDirectoryStructure():
 		# Create directories
 		sys.stdout.write("creating bundle directory structure...\n")
 		try:
-			os.chdir(args[2])
-			os.mkdir(BUNDLE_FOLDER_NAME)
-			os.chdir(BUNDLE_FOLDER_NAME)
-			os.mkdir("thumbs")
-			os.mkdir("backgrounds")
-			os.mkdir("characters")
-			os.mkdir("tiles")
-			os.mkdir("sfx")
-			os.mkdir("music")
-			os.mkdir("weapons")
-			os.mkdir("levels")
+			os.mkdir(args[2] + BUNDLE_FOLDER_NAME)
+			os.mkdir(args[2] + BUNDLE_FOLDER_NAME + "/thumbs")
+			os.mkdir(args[2] + BUNDLE_FOLDER_NAME + "/backgrounds")
+			os.mkdir(args[2] + BUNDLE_FOLDER_NAME + "/characters")
+			os.mkdir(args[2] + BUNDLE_FOLDER_NAME + "/tiles")
+			os.mkdir(args[2] + BUNDLE_FOLDER_NAME + "/sfx")
+			os.mkdir(args[2] + BUNDLE_FOLDER_NAME + "/music")
+			os.mkdir(args[2] + BUNDLE_FOLDER_NAME + "/weapons")
+			os.mkdir(args[2] + BUNDLE_FOLDER_NAME + "/levels")
 
 		except Exception, e:
 			sys.stdout.write("There was an error creating bundle directories at the specifed path [Failwhale]")
