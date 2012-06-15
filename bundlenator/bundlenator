@@ -304,7 +304,7 @@ def main ():
 		writePackageReceipt()
 
 	else:
-		sys.stdout.write( "USAGE: bundlenator [-h] [-v,--verbose] [--version] category_name endpoint_url bundle_output_path [existing bundle paths...]")
+		sys.stdout.write( "USAGE: bundlenator [-h] [-v,--verbose] [--version] category_name endpoint_url bundle_output_path [existing bundle paths...]\n")
 
 
 
