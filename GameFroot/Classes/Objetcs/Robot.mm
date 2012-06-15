@@ -720,10 +720,10 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     CGPoint position = self.position;
     
 	NSMutableArray *pos = [NSMutableArray arrayWithCapacity:2];
-	[pos addObject:[NSNumber numberWithFloat:position.x]];
-	[pos addObject:[NSNumber numberWithFloat:position.y]];
+	[pos addObject:[NSNumber numberWithFloat:position.x - MAP_TILE_WIDTH]];
+	[pos addObject:[NSNumber numberWithFloat:position.y - MAP_TILE_HEIGHT]];
     
-    if (TRACE_COMMANDS) CCLOG(@"Robot.thisLocation: %f,%f", position.x, position.y);
+    if (TRACE_COMMANDS) CCLOG(@"Robot.thisLocation: %f,%f", position.x - MAP_TILE_WIDTH/2, position.y - MAP_TILE_HEIGHT);
     
 	return pos;
 }
@@ -748,6 +748,9 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 		x += [[obj objectForKey:@"xMod"] floatValue] / CC_CONTENT_SCALE_FACTOR();
 	}
 	
+    if (x > ([GameLayer getInstance].mapWidth * MAP_TILE_WIDTH)) x = [GameLayer getInstance].mapWidth * MAP_TILE_WIDTH;
+    if (x < MAP_TILE_WIDTH) x = MAP_TILE_WIDTH;
+        
 	if ([[obj objectForKey:@"yMod"] isKindOfClass:[NSDictionary class]]) {
 		
 		NSString *token = [[obj objectForKey:@"yMod"] objectForKey:@"token"];
@@ -758,7 +761,9 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 		y -= [[obj objectForKey:@"yMod"] floatValue] / CC_CONTENT_SCALE_FACTOR();
 	}		
 	
-	//node.y += int(obj.yMod) * -1;
+    if (y > ([GameLayer getInstance].mapHeight * MAP_TILE_HEIGHT)) x = [GameLayer getInstance].mapHeight * MAP_TILE_HEIGHT;
+    if (y < MAP_TILE_HEIGHT + MAP_TILE_HEIGHT/2) y = MAP_TILE_HEIGHT + MAP_TILE_HEIGHT/2;
+    
 	
 	NSMutableArray *pos = [NSMutableArray arrayWithCapacity:2];
 	[pos addObject:[NSNumber numberWithFloat:x]];
