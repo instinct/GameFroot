@@ -19,6 +19,13 @@
 #import "GB2ShapeCache.h"
 #import "SimpleAudioEngine.h"
 
+#import "ZipFile.h"
+#import "ZipException.h"
+#import "FileInZipInfo.h"
+#import "ZipWriteStream.h"
+//#import "ZipReadStream.h"
+
+
 @implementation AppDelegate
 
 @synthesize window;
@@ -231,7 +238,39 @@
 	[[CCDirector sharedDirector] purgeCachedData];
 }
 
+
+void dumpFiles(){
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+
+    NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    NSString *filePath= [docDir stringByAppendingPathComponent:@"CachedGames.zip"];
+    ZipFile *zipFile= [[ZipFile alloc] initWithFileName:filePath mode:ZipFileModeCreate];
+	
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(SAVE_FOLDER, NSUserDomainMask, YES);
+	NSString *cacheDirectory = [paths objectAtIndex:0];
+    NSDirectoryEnumerator *myFiles = [fileManager enumeratorAtPath:cacheDirectory];
+    
+    while (NSString *fname = [myFiles nextObject]){
+        NSDictionary *attr = [myFiles fileAttributes];
+        NSString *typ = [attr objectForKey: NSFileType];
+        if ([typ isEqualToString:NSFileTypeDirectory]){
+            [myFiles skipDescendants];
+        } else {
+            CCLOG(@"BGH cache contains %@\n", fname);
+            NSString *fileInCache = [cacheDirectory stringByAppendingPathComponent:fname];
+            NSData *data = [NSData dataWithContentsOfFile:fileInCache];
+            ZipWriteStream *stream= [zipFile writeFileInZipWithName:fname fileDate:[NSDate date] compressionLevel:ZipCompressionLevelBest];
+            [stream writeData:data];
+            [stream finishedWriting];
+        }
+    }
+
+    [zipFile close];
+    [zipFile release];
+}
+
 -(void) applicationDidEnterBackground:(UIApplication*)application {
+	dumpFiles();
 	[[CCDirector sharedDirector] stopAnimation];
 }
 
@@ -245,7 +284,7 @@
 	[[director openGLView] removeFromSuperview];
 	[viewController release];
 	[window release];
-	[director end];	
+	[director end];
 }
 
 - (void)applicationSignificantTimeChange:(UIApplication *)application {
