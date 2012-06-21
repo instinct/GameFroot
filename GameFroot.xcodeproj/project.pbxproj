@@ -540,6 +540,7 @@
 		328AF6BE15930F630004B9DA /* ZipReadStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 328AF6B415930F630004B9DA /* ZipReadStream.m */; };
 		328AF6BF15930F630004B9DA /* ZipWriteStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 328AF6B615930F630004B9DA /* ZipWriteStream.m */; };
 		328AF6D5159327300004B9DA /* LICENSE_Objective-Zip_MiniZip.txt in Resources */ = {isa = PBXBuildFile; fileRef = 328AF6D4159327300004B9DA /* LICENSE_Objective-Zip_MiniZip.txt */; };
+		328AF6D81593294E0004B9DA /* CachedGames.zip in Resources */ = {isa = PBXBuildFile; fileRef = 328AF6D71593294E0004B9DA /* CachedGames.zip */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1329,6 +1330,7 @@
 		328AF6B515930F630004B9DA /* ZipWriteStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZipWriteStream.h; sourceTree = "<group>"; };
 		328AF6B615930F630004B9DA /* ZipWriteStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZipWriteStream.m; sourceTree = "<group>"; };
 		328AF6D4159327300004B9DA /* LICENSE_Objective-Zip_MiniZip.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "LICENSE_Objective-Zip_MiniZip.txt"; path = "libs/LICENSE_Objective-Zip_MiniZip.txt"; sourceTree = "<group>"; };
+		328AF6D71593294E0004B9DA /* CachedGames.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = CachedGames.zip; path = Resources/CachedGames.zip; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1436,6 +1438,7 @@
 				167016E514FC343D006E90A4 /* Chicpix2-hd.png */,
 				167016E614FC343D006E90A4 /* Chicpix2.fnt */,
 				167016E714FC343D006E90A4 /* Chicpix2.png */,
+				328AF6D71593294E0004B9DA /* CachedGames.zip */,
 				1643B4E014D9B0BC00A67057 /* Default-hd.png */,
 				1643B4E114D9B0BC00A67057 /* Default.png */,
 				1643B4E214D9B0BC00A67057 /* Default@2x.png */,
@@ -3043,6 +3046,7 @@
 				16543767152A207000808D67 /* mask-avatar-hd.png in Resources */,
 				16543768152A207000808D67 /* mask-avatar.png in Resources */,
 				328AF6D5159327300004B9DA /* LICENSE_Objective-Zip_MiniZip.txt in Resources */,
+				328AF6D81593294E0004B9DA /* CachedGames.zip in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
