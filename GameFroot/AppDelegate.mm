@@ -256,10 +256,11 @@ void dumpFiles(){
         if ([typ isEqualToString:NSFileTypeDirectory]){
             [myFiles skipDescendants];
         } else {
-            CCLOG(@"BGH cache contains %@\n", fname);
+            NSDate *fileDate = [attr fileModificationDate];
+            CCLOG(@"BGH cache contains %@ %@\n", fname, fileDate);
             NSString *fileInCache = [cacheDirectory stringByAppendingPathComponent:fname];
             NSData *data = [NSData dataWithContentsOfFile:fileInCache];
-            ZipWriteStream *stream= [zipFile writeFileInZipWithName:fname fileDate:[NSDate date] compressionLevel:ZipCompressionLevelBest];
+            ZipWriteStream *stream= [zipFile writeFileInZipWithName:fname fileDate:fileDate compressionLevel:ZipCompressionLevelBest];
             [stream writeData:data];
             [stream finishedWriting];
         }
