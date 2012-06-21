@@ -19,6 +19,13 @@
 #import "GB2ShapeCache.h"
 #import "SimpleAudioEngine.h"
 
+#import "ZipFile.h"
+#import "ZipException.h"
+#import "FileInZipInfo.h"
+//#import "ZipWriteStream.h"
+#import "ZipReadStream.h"
+
+
 @implementation AppDelegate
 
 @synthesize window;
@@ -47,8 +54,51 @@
 #endif // GAME_AUTOROTATION == kGameAutorotationUIViewController	
 }
 
+
+// check for our built in game resources in the cache and unzip if required
+void EnsureCachedResourcesExist()
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    NSString *appDir = [[NSBundle mainBundle] resourcePath];
+    NSString *filePath= [appDir stringByAppendingPathComponent:@"CachedGames.zip"];
+    ZipFile *zipFile= [[ZipFile alloc] initWithFileName:filePath mode:ZipFileModeUnzip];
+	
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(SAVE_FOLDER, NSUserDomainMask, YES);
+	NSString *cacheDirectory = [paths objectAtIndex:0];
+
+    int nFiles = [zipFile numFilesInZip];
+    for (int i=0; i<nFiles; ++i){
+        if (i == 0){
+            [zipFile goToFirstFileInZip];
+        } else {
+            [zipFile goToNextFileInZip];
+        }
+        FileInZipInfo *info = [zipFile getCurrentFileInZipInfo];
+        NSString *fileInCache = [cacheDirectory stringByAppendingPathComponent:info.name]; 
+        CCLOG(@"- %@ %d %@\n", info.name, info.size, fileInCache);
+        
+        if ([fileManager fileExistsAtPath:fileInCache]){
+            CCLOG(@"FIle exists, skipping\n");
+            continue;
+        }
+        
+        // TODO should read in a loop, in case it can't read all?
+        ZipReadStream *read = [zipFile readCurrentFileInZip];
+        NSData *data = [read readDataOfLength:info.size];
+        [data writeToFile:fileInCache atomically:YES];
+        [read finishedReading];
+    }
+
+    [zipFile close];
+    [zipFile release];
+}
+
+
 - (void) applicationDidFinishLaunching:(UIApplication*)application
 {
+    EnsureCachedResourcesExist();
+    
     // Detect device model
 	DeviceHardware *hardware = [[[DeviceHardware alloc] init] autorelease];
 	CCLOG(@"Device: %@", [hardware platformString]);
