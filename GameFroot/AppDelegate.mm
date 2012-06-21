@@ -79,15 +79,20 @@ void EnsureCachedResourcesExist()
         CCLOG(@"- %@ %d %@\n", info.name, info.size, fileInCache);
         
         if ([fileManager fileExistsAtPath:fileInCache]){
-            CCLOG(@"FIle exists, skipping\n");
+            NSDictionary *attr = [fileManager attributesOfItemAtPath:fileInCache error:NULL];
+            CCLOG(@"FIle exists, skipping %@ vs %@\n", [attr valueForKey:NSFileModificationDate], info.date);
             continue;
         }
         
         // TODO should read in a loop, in case it can't read all?
         ZipReadStream *read = [zipFile readCurrentFileInZip];
         NSData *data = [read readDataOfLength:info.size];
-        [data writeToFile:fileInCache atomically:YES];
         [read finishedReading];
+        [data writeToFile:fileInCache atomically:YES];
+        NSDictionary *attr = [[fileManager attributesOfItemAtPath:fileInCache error:NULL] mutableCopy];
+        NSDate *fileDate = info.date;
+        [attr setValue:fileDate forKey:NSFileModificationDate];
+        [fileManager setAttributes:attr ofItemAtPath:fileInCache error:NULL];
     }
 
     [zipFile close];
