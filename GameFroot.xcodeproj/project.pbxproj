@@ -539,6 +539,7 @@
 		328AF6BD15930F630004B9DA /* ZipFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 328AF6B215930F630004B9DA /* ZipFile.m */; };
 		328AF6BE15930F630004B9DA /* ZipReadStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 328AF6B415930F630004B9DA /* ZipReadStream.m */; };
 		328AF6BF15930F630004B9DA /* ZipWriteStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 328AF6B615930F630004B9DA /* ZipWriteStream.m */; };
+		328AF6D5159327300004B9DA /* LICENSE_Objective-Zip_MiniZip.txt in Resources */ = {isa = PBXBuildFile; fileRef = 328AF6D4159327300004B9DA /* LICENSE_Objective-Zip_MiniZip.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1327,6 +1328,7 @@
 		328AF6B415930F630004B9DA /* ZipReadStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZipReadStream.m; sourceTree = "<group>"; };
 		328AF6B515930F630004B9DA /* ZipWriteStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZipWriteStream.h; sourceTree = "<group>"; };
 		328AF6B615930F630004B9DA /* ZipWriteStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZipWriteStream.m; sourceTree = "<group>"; };
+		328AF6D4159327300004B9DA /* LICENSE_Objective-Zip_MiniZip.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "LICENSE_Objective-Zip_MiniZip.txt"; path = "libs/LICENSE_Objective-Zip_MiniZip.txt"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1477,6 +1479,7 @@
 				1643B35C14D9B01100A67057 /* LICENSE_cocos2d.txt */,
 				1643B36B14D9B01100A67057 /* LICENSE_CocosDenshion.txt */,
 				1643B37614D9B01100A67057 /* LICENSE_TouchJSON.txt */,
+				328AF6D4159327300004B9DA /* LICENSE_Objective-Zip_MiniZip.txt */,
 				1643B39E14D9B01200A67057 /* LICENSE_FontLabel.txt */,
 				1643B41114D9B01300A67057 /* LICENSE_Box2D.txt */,
 				1643B26414D9B00F00A67057 /* cocos2d */,
@@ -3039,6 +3042,7 @@
 				16543764152A16E900808D67 /* dark-row.png in Resources */,
 				16543767152A207000808D67 /* mask-avatar-hd.png in Resources */,
 				16543768152A207000808D67 /* mask-avatar.png in Resources */,
+				328AF6D5159327300004B9DA /* LICENSE_Objective-Zip_MiniZip.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
