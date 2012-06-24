@@ -7,7 +7,7 @@
 //
 
 @interface AGProgressBar : CCSpriteBatchNode {
-    @private
+@private
     CCSprite *pbLeftEnd;
     CCSprite *pbRightEnd;
     CCSprite *pb;
@@ -24,5 +24,7 @@
 -(void) setupWithFrameNamesLeft:(NSString *)left right:(NSString*)right middle:(NSString*)middle andBackgroundLeft:(NSString*)bgl right:(NSString *)bgr middle:(NSString *)bgm andWidth:(int)width;
 -(void) setPercent:(float)percent;
 -(float) getPercent;
+
+-(void) setColor:(ccColor3B)color;
 
 @end
