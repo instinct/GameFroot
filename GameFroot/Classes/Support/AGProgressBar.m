@@ -17,12 +17,12 @@
 }
 
 -(void) setupWithFrameNamesLeft:(NSString *)left 
-                            right:(NSString *)right 
-                            middle:(NSString *)middle 
-                            andBackgroundLeft:(NSString *)bgl 
-                            right:(NSString *)bgr 
-                            middle:(NSString *)bgm
-                            andWidth:(int)width {
+                          right:(NSString *)right 
+                         middle:(NSString *)middle 
+              andBackgroundLeft:(NSString *)bgl 
+                          right:(NSString *)bgr 
+                         middle:(NSString *)bgm
+                       andWidth:(int)width {
     
     if(!isSetup) {
         isSetup = YES;
@@ -73,6 +73,11 @@
     return percent;
 }
 
+-(void) setColor:(ccColor3B)color {
+    pbLeftEnd.color = color;
+    pb.color = color;
+    pbRightEnd.color = color;
+}
 
 
 
