@@ -447,13 +447,7 @@ CGPoint GBSub(const CGPoint v1, const CGPoint v2) {
 
 +(NSString*)stringWithContentsOfURL:(NSString*)url ignoreCache:(BOOL)ignoreCache
 {
-    // ****************************************************
-    // ****************************************************
-    // *******   HACKED value to run bundled games *******
-    ignoreCache = NO; 
-    // ****************************************************
-    // ****************************************************
-    
+    ignoreCache = NO;
 	NSString *cachedFile = [Shared md5:url];
 	
 	NSFileManager *fileManager = [NSFileManager defaultManager];

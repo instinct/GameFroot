@@ -86,7 +86,7 @@ void EnsureCachedResourcesExist()
         
         // TODO should read in a loop, in case it can't read all?
         ZipReadStream *read = [zipFile readCurrentFileInZip];
-        NSData *data = [read readDataOfLength:info.size];
+        NSData *data = [read readDataOfLength:info.length];
         [read finishedReading];
         [data writeToFile:fileInCache atomically:YES];
         NSDictionary *attr = [[fileManager attributesOfItemAtPath:fileInCache error:NULL] mutableCopy];
