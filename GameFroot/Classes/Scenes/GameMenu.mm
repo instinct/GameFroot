@@ -82,7 +82,7 @@
         NSString *loadingBarColor = @"";
         
         int gameId = [Shared getLevelID];
-        gameId = 24395; // Hardcode test
+        //gameId = 24395; // Hardcode test
         NSString *gameURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_menu&game_id=%d", [self returnServer], gameId];
         
         NSString *stringData = [Shared stringWithContentsOfURL:gameURL ignoreCache:NO];
@@ -126,7 +126,7 @@
                     {
                         if ([filename isEqualToString:@"/menueditor/img/default-play.png"]) 
                         {
-                            _playButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"play_button_03.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"play_pressed_03.png"] target:self selector:@selector(_onPlay:)];
+                            _playButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"custom_play_button_03.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"custom_play_pressed_03.png"] target:self selector:@selector(_onPlay:)];
                             
                         }
                         else 
@@ -167,7 +167,7 @@
                         
                         if ([filename isEqualToString:@"/menueditor/img/default-help.png"]) 
                         {
-                            helpButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"help_button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"help_pressed.png"] target:self selector:@selector(_onPlay:)];
+                            helpButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"custom_help_button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"custom_help_pressed.png"] target:self selector:@selector(_onPlay:)];
                             
                         }
                         else 
