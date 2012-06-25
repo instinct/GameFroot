@@ -8,10 +8,65 @@
 
 #import "GameMenu.h"
 #import "HomeLayer.h"
+#import "CJSONDeserializer.h"
 
 #define MAIN_MENU_PROGRESS_BAR_LENGTH 410
 
 @implementation GameMenu
+
++(ccColor3B) colorForHex:(NSString *)hexColor {
+	
+	NSString *cString = [[hexColor stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] uppercaseString];
+    
+	// String should be 6 or 8 characters
+	if ([cString length] < 6) return ccc3(0,0,0);
+	
+	// strip 0X if it appears
+	if ([cString hasPrefix:@"0X"]) cString = [cString substringFromIndex:2];
+	
+	// strip # if it appears
+	if ([cString hasPrefix:@"#"]) cString = [cString substringFromIndex:1];
+	
+	if ([cString length] != 6) return ccc3(0,0,0);
+	
+	// Separate into r, g, b substrings
+	NSRange range;
+	range.location = 0;
+	range.length = 2;
+	NSString *rString = [cString substringWithRange:range];
+	range.location = 2;
+	NSString *gString = [cString substringWithRange:range];
+	range.location = 4;
+	NSString *bString = [cString substringWithRange:range];
+	
+	// Scan values
+	unsigned int r, g, b;
+	[[NSScanner scannerWithString:rString] scanHexInt:&r];
+	[[NSScanner scannerWithString:gString] scanHexInt:&g];
+	[[NSScanner scannerWithString:bString] scanHexInt:&b];
+	
+	return ccc3((float) r,
+				(float) g,
+				(float) b);
+}
+
+-(NSString *) returnServer
+{
+    // Initialise properties dictionary
+    NSString *mainBundlePath = [[NSBundle mainBundle] bundlePath];
+    NSString *plistPath = [mainBundlePath stringByAppendingPathComponent:@"properties.plist"];
+    NSDictionary *properties = [[[NSDictionary alloc] initWithContentsOfFile:plistPath] retain];
+    
+    int serverUsed;
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    if([Shared isBetaMode]) {
+        serverUsed = [prefs integerForKey:@"server"];
+    } else {
+        serverUsed = 1;
+    }
+    
+    return serverUsed == 1 ? [properties objectForKey:@"server_live"] : [properties objectForKey:@"server_staging"];
+}
 
 - (id)init {
     self = [super init];
@@ -20,47 +75,206 @@
         
         playMode = NO;
         
-        // Loading base assets
+        NSString *loadingBarColor = @"";
         
-        CCSprite *bg = [CCSprite spriteWithFile:@"blue-bg.png"];
-        [bg setPosition:ccp(size.width*0.5,size.height*0.5)];
-        [self addChild:bg];
+        int gameId = [Shared getLevelID];
+        //gameId = 24395; // Hardcode test
+        NSString *gameURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_menu&game_id=%d", [self returnServer], gameId];
         
-        CCLabelBMFont *level = [CCLabelBMFont labelWithString:[Shared getLevelTitle] fntFile:@"Chicpix2.fnt"];
-        [level.textureAtlas.texture setAliasTexParameters];
-        [level setPosition:ccp(size.width*0.5,size.height*0.8)];
-        [self addChild:level];
+        NSString *stringData = [Shared stringWithContentsOfURL:gameURL ignoreCache:NO];
+        NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
+        NSDictionary *jsonData = [[CJSONDeserializer deserializer] deserializeAsDictionary:rawData error:nil];
+        CCLOG(@"%@", [jsonData description]);
         
-        NSString *authorTextPrefix = @"By ";
-        CCLabelBMFont *author = [CCLabelBMFont labelWithString:[authorTextPrefix stringByAppendingString:[[Shared getLevel] valueForKey:@"author"]] fntFile:@"Chicpix.fnt"];
-        [author.textureAtlas.texture setAliasTexParameters];
-        author.position = ccpSub(level.position, ccp(0,40));
-        [self addChild:author];
-        
-        // Loading menu items
-        
-        _playButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"play_button_03.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"play_pressed_03.png"] target:self selector:@selector(_onPlay:)];
-        
-        CCMenuItemSprite *helpButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"help_button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"help_pressed.png"] target:self selector:@selector(_onHelp:)];
-        
-        CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"back_button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"back_pressed.png"] target:self selector:@selector(backMenu:)];
-        
-        mainMenu = [CCMenu menuWithItems:backButton, _playButton, helpButton, nil];
-        mainMenu.position = ccp(size.width*0.5, size.height*0.4);
-        helpButton.position = ccpSub(helpButton.position, ccp(0,(4*CC_CONTENT_SCALE_FACTOR())));
-        [mainMenu alignItemsHorizontallyWithPadding:30];
-        [self addChild:mainMenu];
-        
-        CCSprite *inactive_play = [CCSprite spriteWithSpriteFrameName:@"play_deactived.png"];
-        inactive_play.position = ccpAdd(mainMenu.position, _playButton.position);
-        [self addChild:inactive_play];
+        if (jsonData != nil) {
+            // Custom menu
+            float scaleFactor = 0.625 * CC_CONTENT_SCALE_FACTOR();
+            
+            NSArray *assets = [jsonData objectForKey:@"assets"];
+            NSDictionary *background = [jsonData objectForKey:@"background"];
+            NSDictionary *loadingBar = [jsonData objectForKey:@"loadingBar"];
+            
+            // Background
+            CCSprite *bg = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:[background objectForKey:@"filename"] ignoreCache:NO]];
+            [bg setScale:scaleFactor];
+            [bg setPosition:ccp(size.width*0.5,size.height*0.5)];
+            [self addChild:bg];
+            
+            mainMenu = [CCMenu menuWithItems:nil];
+            
+            // Assets
+            for (int i=0; i < [assets count]; i++) {
+                NSDictionary *asset = [assets objectAtIndex:i];
+                
+                NSString *type = [asset objectForKey:@"assetType"];
+                
+                if ([type isEqualToString:@"image"]) {
+                    NSString *behaviour = [asset objectForKey:@"behaviour"];
+                    NSString *filename = [asset objectForKey:@"filename"];
+                    float width = [[asset objectForKey:@"width"] floatValue];
+                    float height = [[asset objectForKey:@"height"] floatValue];
+                    float x = [[asset objectForKey:@"x"] floatValue] * scaleFactor;
+                    float y = size.height - ([[asset objectForKey:@"y"] floatValue] * scaleFactor);
+                    int states = [[asset objectForKey:@"states"] intValue];
+                    int zIndex = [[asset objectForKey:@"z-index"] intValue];
+                    
+                    if ([behaviour isEqualToString:@"PLAY"]) 
+                    {
+                        if ([filename isEqualToString:@"/menueditor/img/default-play.png"]) 
+                        {
+                            _playButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"play_button_03.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"play_pressed_03.png"] target:self selector:@selector(_onPlay:)];
+                            
+                        }
+                        else 
+                        {
+                            CCSprite *normal;
+                            CCSprite *selected;
+                            
+                            if (states == 3)
+                            {
+                                normal = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:filename ignoreCache:NO] rect:CGRectMake(0, 0, width, height)];
+                                selected = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:filename ignoreCache:NO] rect:CGRectMake(0, height, width, height)];
+                            } 
+                            else if (states == 2)
+                            {
+                                normal = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:filename ignoreCache:NO] rect:CGRectMake(0, 0, width, height)];
+                                selected = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:filename ignoreCache:NO] rect:CGRectMake(0, height, width, height)];
+                            } 
+                            else
+                            {
+                                normal = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:filename ignoreCache:NO] rect:CGRectMake(0, 0, width, height)];
+                                selected = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:filename ignoreCache:NO] rect:CGRectMake(0, 0, width, height)];
+                            }
+                            
+                            //[normal setScale:scaleFactor];
+                            //[selected setScale:scaleFactor];
+                            
+                            _playButton = [CCMenuItemSprite itemFromNormalSprite:normal selectedSprite:selected target:self selector:@selector(_onPlay:)];
+                        }
+                        
+                        [_playButton setScale:scaleFactor];
+                        [_playButton setAnchorPoint:ccp(0,1)];
+                        [mainMenu addChild:_playButton z:zIndex];
+                        [_playButton setPosition:ccp(x, y)];
+                        
+                    } else if ([behaviour isEqualToString:@"HELP"]) 
+                    {
+                        CCMenuItemSprite *helpButton;
+                        
+                        if ([filename isEqualToString:@"/menueditor/img/default-help.png"]) 
+                        {
+                            helpButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"help_button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"help_pressed.png"] target:self selector:@selector(_onPlay:)];
+                            
+                        }
+                        else 
+                        {
+                            CCSprite *normal;
+                            CCSprite *selected;
+                            
+                            if (states == 3)
+                            {
+                                normal = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:filename ignoreCache:NO] rect:CGRectMake(0, 0, width, height)];
+                                selected = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:filename ignoreCache:NO] rect:CGRectMake(0, height, width, height)];
+                            } 
+                            else if (states == 2)
+                            {
+                                normal = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:filename ignoreCache:NO] rect:CGRectMake(0, 0, width, height)];
+                                selected = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:filename ignoreCache:NO] rect:CGRectMake(0, height, width, height)];
+                            } 
+                            else
+                            {
+                                normal = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:filename ignoreCache:NO] rect:CGRectMake(0, 0, width, height)];
+                                selected = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:filename ignoreCache:NO] rect:CGRectMake(0, 0, width, height)];
+                            }
+                            
+                            //[normal setScale:scaleFactor];
+                            //[selected setScale:scaleFactor];
+                            
+                            helpButton = [CCMenuItemSprite itemFromNormalSprite:normal selectedSprite:selected target:self selector:@selector(_onHelp:)];
+                        }
+                        
+                        [helpButton setScale:scaleFactor];
+                        [helpButton setAnchorPoint:ccp(0,1)];
+                        [mainMenu addChild:helpButton z:zIndex];
+                        [helpButton setPosition:ccp(x, y)];
+                        
+                    }
+                }
+            }
+            
+            CCSprite *back = [CCSprite spriteWithSpriteFrameName:@"back_button.png"];
+            CCSprite *backSelected = [CCSprite spriteWithSpriteFrameName:@"back_pressed.png"];
+            CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:back selectedSprite:backSelected target:self selector:@selector(backMenu:)];
+            [mainMenu addChild:backButton z:9999999];
+            [backButton setPosition: ccp(back.contentSize.width/2, size.height - back.contentSize.height/2)];
+            
+            // Setup menu
+            [mainMenu setPosition: ccp(0, 0)];
+            [self addChild:mainMenu];
+            
+            // Loading bar color
+            loadingBarColor = [loadingBar objectForKey:@"color"];
+            
+            
+        } else {
+            
+            // Loading base assets
+            
+            CCSprite *bg = [CCSprite spriteWithFile:@"blue-bg.png"];
+            [bg setPosition:ccp(size.width*0.5,size.height*0.5)];
+            [self addChild:bg];
+            
+            CCLabelBMFont *level = [CCLabelBMFont labelWithString:[Shared getLevelTitle] fntFile:@"Chicpix2.fnt"];
+            [level.textureAtlas.texture setAliasTexParameters];
+            [level setPosition:ccp(size.width*0.5,size.height*0.8)];
+            [self addChild:level];
+            
+            NSString *authorTextPrefix = @"By ";
+            CCLabelBMFont *author = [CCLabelBMFont labelWithString:[authorTextPrefix stringByAppendingString:[[Shared getLevel] valueForKey:@"author"]] fntFile:@"Chicpix.fnt"];
+            [author.textureAtlas.texture setAliasTexParameters];
+            author.position = ccpSub(level.position, ccp(0,40));
+            [self addChild:author];
+            
+            // Loading menu items
+            
+            _playButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"play_button_03.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"play_pressed_03.png"] target:self selector:@selector(_onPlay:)];
+            
+            CCMenuItemSprite *helpButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"help_button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"help_pressed.png"] target:self selector:@selector(_onHelp:)];
+            
+            CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"back_button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"back_pressed.png"] target:self selector:@selector(backMenu:)];
+            
+            mainMenu = [CCMenu menuWithItems:backButton, _playButton, helpButton, nil];
+            mainMenu.position = ccp(size.width*0.5, size.height*0.4);
+            helpButton.position = ccpSub(helpButton.position, ccp(0,(4*CC_CONTENT_SCALE_FACTOR())));
+            [mainMenu alignItemsHorizontallyWithPadding:30];
+            [self addChild:mainMenu];
+            
+            CCSprite *inactive_play = [CCSprite spriteWithSpriteFrameName:@"play_deactived.png"];
+            inactive_play.position = ccpAdd(mainMenu.position, _playButton.position);
+            [self addChild:inactive_play];
+        }
         
         // Loading progress bar assets
-        _progressBar = [AGProgressBar progressBarWithFile:@"main_menu.png"];
-		[_progressBar.textureAtlas.texture setAliasTexParameters];
-        [_progressBar setupWithFrameNamesLeft:@"bar_left.png" right:@"bar_right.png" middle:@"bar_middle.png" andBackgroundLeft:@"loading_bar_back_left.png" right:@"loading_bar_back_right.png" middle:@"loading_bar_back.png" andWidth:(MAIN_MENU_PROGRESS_BAR_LENGTH)];
+        if (![loadingBarColor isEqualToString:@""]) 
+        {
+            _progressBar = [AGProgressBar progressBarWithFile:@"custom_menu.png"];
+            [_progressBar.textureAtlas.texture setAliasTexParameters];
+            [_progressBar setupWithFrameNamesLeft:@"bar_left.png" right:@"bar_right.png" middle:@"bar_middle.png" andBackgroundLeft:@"loading_bar_back_left.png" right:@"loading_bar_back_right.png" middle:@"loading_bar_back.png" andWidth:size.width];
+            _progressBar.position = ccp(0,8);
+        } 
+        else 
+        {
+            _progressBar = [AGProgressBar progressBarWithFile:@"main_menu.png"];
+            [_progressBar.textureAtlas.texture setAliasTexParameters];
+            [_progressBar setupWithFrameNamesLeft:@"bar_left.png" right:@"bar_right.png" middle:@"bar_middle.png" andBackgroundLeft:@"loading_bar_back_left.png" right:@"loading_bar_back_right.png" middle:@"loading_bar_back.png" andWidth:(MAIN_MENU_PROGRESS_BAR_LENGTH)];
+            _progressBar.position = ccp(size.width*0.06,size.height*0.13);
+        }
         
-        _progressBar.position = ccp(size.width*0.06,size.height*0.13);
+        
+        if (![loadingBarColor isEqualToString:@""]) 
+        {
+            [_progressBar setColor:[GameMenu colorForHex:loadingBarColor]];
+        } 
         
         //[self hideProgressBar];
         [self addChild:_progressBar z:10];
