@@ -11,6 +11,6 @@
 #import "GameMenu.h"
 #import "Shared.h"
 
-@interface HelpScreen : CCLayer
+@interface HelpScreen : CCLayerColor
 
 @end

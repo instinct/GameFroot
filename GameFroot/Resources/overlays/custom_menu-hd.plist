@@ -4,7 +4,7 @@
     <dict>
         <key>frames</key>
         <dict>
-            <key>back_button.png</key>
+            <key>custom_back_button.png</key>
             <dict>
                 <key>frame</key>
                 <string>{{73,283},{188,66}}</string>
@@ -17,7 +17,7 @@
                 <key>sourceSize</key>
                 <string>{192,70}</string>
             </dict>
-            <key>back_pressed.png</key>
+            <key>custom_back_pressed.png</key>
             <dict>
                 <key>frame</key>
                 <string>{{1,283},{192,70}}</string>
@@ -30,7 +30,7 @@
                 <key>sourceSize</key>
                 <string>{192,70}</string>
             </dict>
-            <key>bar_left.png</key>
+            <key>custom_bar_left.png</key>
             <dict>
                 <key>frame</key>
                 <string>{{501,16},{4,24}}</string>
@@ -43,7 +43,7 @@
                 <key>sourceSize</key>
                 <string>{4,24}</string>
             </dict>
-            <key>bar_middle.png</key>
+            <key>custom_bar_middle.png</key>
             <dict>
                 <key>frame</key>
                 <string>{{475,22},{1,24}}</string>
@@ -56,7 +56,7 @@
                 <key>sourceSize</key>
                 <string>{1,24}</string>
             </dict>
-            <key>bar_right.png</key>
+            <key>custom_bar_right.png</key>
             <dict>
                 <key>frame</key>
                 <string>{{475,16},{4,24}}</string>
@@ -69,7 +69,7 @@
                 <key>sourceSize</key>
                 <string>{4,24}</string>
             </dict>
-            <key>help_button.png</key>
+            <key>custom_help_button.png</key>
             <dict>
                 <key>frame</key>
                 <string>{{1,209},{193,72}}</string>
@@ -82,7 +82,7 @@
                 <key>sourceSize</key>
                 <string>{197,76}</string>
             </dict>
-            <key>help_pressed.png</key>
+            <key>custom_help_pressed.png</key>
             <dict>
                 <key>frame</key>
                 <string>{{1,131},{197,76}}</string>
@@ -95,7 +95,7 @@
                 <key>sourceSize</key>
                 <string>{197,76}</string>
             </dict>
-            <key>loading_bar_back.png</key>
+            <key>custom_loading_bar_back.png</key>
             <dict>
                 <key>frame</key>
                 <string>{{475,13},{1,36}}</string>
@@ -108,7 +108,7 @@
                 <key>sourceSize</key>
                 <string>{1,36}</string>
             </dict>
-            <key>loading_bar_back_left.png</key>
+            <key>custom_loading_bar_back_left.png</key>
             <dict>
                 <key>frame</key>
                 <string>{{475,7},{4,36}}</string>
@@ -121,7 +121,7 @@
                 <key>sourceSize</key>
                 <string>{4,36}</string>
             </dict>
-            <key>loading_bar_back_right.png</key>
+            <key>custom_loading_bar_back_right.png</key>
             <dict>
                 <key>frame</key>
                 <string>{{475,1},{4,36}}</string>
@@ -134,7 +134,7 @@
                 <key>sourceSize</key>
                 <string>{4,36}</string>
             </dict>
-            <key>play_button_03.png</key>
+            <key>custom_play_button_03.png</key>
             <dict>
                 <key>frame</key>
                 <string>{{240,127},{233,124}}</string>
@@ -147,7 +147,7 @@
                 <key>sourceSize</key>
                 <string>{237,128}</string>
             </dict>
-            <key>play_deactived.png</key>
+            <key>custom_play_deactived.png</key>
             <dict>
                 <key>frame</key>
                 <string>{{240,1},{233,124}}</string>
@@ -160,7 +160,7 @@
                 <key>sourceSize</key>
                 <string>{237,128}</string>
             </dict>
-            <key>play_pressed_03.png</key>
+            <key>custom_play_pressed_03.png</key>
             <dict>
                 <key>frame</key>
                 <string>{{1,1},{237,128}}</string>

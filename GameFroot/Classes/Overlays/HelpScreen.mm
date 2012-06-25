@@ -11,14 +11,16 @@
 @implementation HelpScreen
 
 - (id)init {
-    self = [super init];
+    self = [super initWithColor:ccc4(0,0,0,200)];
     if (self) {
         CGSize size = [[CCDirector sharedDirector] winSize];
         
+        /*
         // Set up background
         CCSprite *bg = [CCSprite spriteWithFile:@"blue-bg.png"];
         [bg setPosition:ccp(size.width*0.5,size.height*0.5)];
         [self addChild:bg];
+        */
         
         // Set up heading text
         CCLabelBMFont *helpTitle = [CCLabelBMFont labelWithString:@"Help" fntFile:@"Chicpix2.fnt"];

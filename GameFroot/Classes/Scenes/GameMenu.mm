@@ -9,6 +9,7 @@
 #import "GameMenu.h"
 #import "HomeLayer.h"
 #import "CJSONDeserializer.h"
+#import "InputController.h"
 
 #define MAIN_MENU_PROGRESS_BAR_LENGTH 410
 
@@ -73,12 +74,15 @@
     if (self) {
         CGSize size = [[CCDirector sharedDirector] winSize];
         
+        self.isTouchEnabled = YES;
+		self.isAccelerometerEnabled = NO;
+        
         playMode = NO;
         
         NSString *loadingBarColor = @"";
         
         int gameId = [Shared getLevelID];
-        //gameId = 24395; // Hardcode test
+        gameId = 24395; // Hardcode test
         NSString *gameURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_menu&game_id=%d", [self returnServer], gameId];
         
         NSString *stringData = [Shared stringWithContentsOfURL:gameURL ignoreCache:NO];
@@ -202,11 +206,13 @@
                 }
             }
             
+            /*
             CCSprite *back = [CCSprite spriteWithSpriteFrameName:@"back_button.png"];
             CCSprite *backSelected = [CCSprite spriteWithSpriteFrameName:@"back_pressed.png"];
             CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:back selectedSprite:backSelected target:self selector:@selector(backMenu:)];
             [mainMenu addChild:backButton z:9999999];
             [backButton setPosition: ccp(back.contentSize.width/2, size.height - back.contentSize.height/2)];
+            */
             
             // Setup menu
             [mainMenu setPosition: ccp(0, 0)];
@@ -259,7 +265,7 @@
         {
             _progressBar = [AGProgressBar progressBarWithFile:@"custom_menu.png"];
             [_progressBar.textureAtlas.texture setAliasTexParameters];
-            [_progressBar setupWithFrameNamesLeft:@"bar_left.png" right:@"bar_right.png" middle:@"bar_middle.png" andBackgroundLeft:@"loading_bar_back_left.png" right:@"loading_bar_back_right.png" middle:@"loading_bar_back.png" andWidth:size.width];
+            [_progressBar setupWithFrameNamesLeft:@"custom_bar_left.png" right:@"custom_bar_right.png" middle:@"custom_bar_middle.png" andBackgroundLeft:@"custom_loading_bar_back_left.png" right:@"custom_loading_bar_back_right.png" middle:@"custom_loading_bar_back.png" andWidth:size.width];
             _progressBar.position = ccp(0,8);
         } 
         else 
@@ -336,5 +342,18 @@
     [_progressBar setPercent:percent];
 }
 
+-(void) ccTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+	NSEnumerator *enumerator = [touches objectEnumerator];
+	while (UITouch *touch = [enumerator nextObject]) {
+		
+		CGPoint location = [touch locationInView: [touch view]];
+		location = [[CCDirector sharedDirector] convertToGL:location];
+		
+        if (icWasSwipeLeft(touches, event)) {
+            [self backMenu:nil];
+        }
+    }
+}
 
 @end
