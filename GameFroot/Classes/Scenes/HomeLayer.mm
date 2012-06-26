@@ -1072,7 +1072,7 @@
 	CGSize size = [[CCDirector sharedDirector] winSize];
 	
 	// Featured panel
-	CCMenuItemSprite *featured1Button = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"young-isaac-icon.png"] selectedSprite:[CCSprite spriteWithFile:@"young-isaac-icon.png"] target:self selector:@selector(featured1:)];
+	CCMenuItemSprite *featured1Button = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"gamefroot-promo.png"] selectedSprite:[CCSprite spriteWithFile:@"gamefroot-promo.png"] target:self selector:@selector(more:)];
     /*
 	CCMenuItemSprite *featured2Button = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"feature-icon.png"] selectedSprite:[CCSprite spriteWithFile:@"feature-icon.png"] target:self selector:@selector(featured2:)];
      */

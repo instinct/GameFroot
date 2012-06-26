@@ -545,6 +545,7 @@
 		328AF6BF15930F630004B9DA /* ZipWriteStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 328AF6B615930F630004B9DA /* ZipWriteStream.m */; };
 		328AF6D5159327300004B9DA /* LICENSE_Objective-Zip_MiniZip.txt in Resources */ = {isa = PBXBuildFile; fileRef = 328AF6D4159327300004B9DA /* LICENSE_Objective-Zip_MiniZip.txt */; };
 		328AF6D81593294E0004B9DA /* CachedGames.zip in Resources */ = {isa = PBXBuildFile; fileRef = 328AF6D71593294E0004B9DA /* CachedGames.zip */; };
+		769C560C15996FF500FC69F8 /* gamefroot-promo.png in Resources */ = {isa = PBXBuildFile; fileRef = 769C560B15996FF500FC69F8 /* gamefroot-promo.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1339,6 +1340,7 @@
 		328AF6B615930F630004B9DA /* ZipWriteStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZipWriteStream.m; sourceTree = "<group>"; };
 		328AF6D4159327300004B9DA /* LICENSE_Objective-Zip_MiniZip.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "LICENSE_Objective-Zip_MiniZip.txt"; path = "libs/LICENSE_Objective-Zip_MiniZip.txt"; sourceTree = "<group>"; };
 		328AF6D71593294E0004B9DA /* CachedGames.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = CachedGames.zip; path = Resources/CachedGames.zip; sourceTree = "<group>"; };
+		769C560B15996FF500FC69F8 /* gamefroot-promo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "gamefroot-promo.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1971,6 +1973,7 @@
 				22FD013814F4634100E3F1E0 /* game_detail-hd.png */,
 				22FD013914F4634100E3F1E0 /* game_detail.plist */,
 				22FD013A14F4634100E3F1E0 /* game_detail.png */,
+				769C560B15996FF500FC69F8 /* gamefroot-promo.png */,
 				166977F614E280DE0081176B /* rate_controls_mockup-hd.png */,
 				22D3A6D914E2276B00EAB052 /* rate_controls_mockup.png */,
 				1643B4A114D9B0BC00A67057 /* badge-left-hd.png */,
@@ -3063,6 +3066,7 @@
 				1605706F159719DE007C9514 /* custom_menu-hd.png in Resources */,
 				16057070159719DE007C9514 /* custom_menu.plist in Resources */,
 				16057071159719DE007C9514 /* custom_menu.png in Resources */,
+				769C560C15996FF500FC69F8 /* gamefroot-promo.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
