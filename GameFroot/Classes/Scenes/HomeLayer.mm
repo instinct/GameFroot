@@ -1031,7 +1031,7 @@
         if([Shared isBetaMode]) {
             levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=featured&page=%i", [self returnServer], featuredPage];
         } else {
-            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=ios-featured&page=%i", [self returnServer], featuredPage];
+            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=issue-0&page=%i", [self returnServer], featuredPage];
         }
 
 		CCLOG(@"Load levels: %@",levelsURL);
@@ -1115,7 +1115,7 @@
         if([Shared isBetaMode]) {
             levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=featured&page=%i", [self returnServer], 1];
         } else {
-            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=ios-featured&page=%i", [self returnServer], 1];
+            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=issue-0&page=%i", [self returnServer], 1];
         }
 
         [self asynchronousContentsOfURL:levelsURL];
@@ -1130,7 +1130,7 @@
     if([Shared isBetaMode]) {
         levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=featured&page=%i", [self returnServer], featuredPage];
     } else {
-        levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=ios-featured&page=%i", [self returnServer], featuredPage];
+        levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=issue-0&page=%i", [self returnServer], featuredPage];
     }
 
     CCLOG(@"Load levels: %@",levelsURL);
