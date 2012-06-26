@@ -92,7 +92,7 @@
         
         if (jsonData != nil) {
             // Custom menu
-            float scaleFactor = 0.625 * CC_CONTENT_SCALE_FACTOR();
+            float scaleFactor = 0.625;
             
             NSArray *assets = [jsonData objectForKey:@"assets"];
             NSDictionary *background = [jsonData objectForKey:@"background"];
@@ -100,7 +100,7 @@
             
             // Background
             CCSprite *bg = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:[background objectForKey:@"filename"] ignoreCache:NO]];
-            [bg setScale:scaleFactor];
+            [bg setScale:scaleFactor * CC_CONTENT_SCALE_FACTOR()];
             [bg setPosition:ccp(size.width*0.5,size.height*0.5)];
             [self addChild:bg];
             
@@ -115,8 +115,8 @@
                 if ([type isEqualToString:@"image"]) {
                     NSString *behaviour = [asset objectForKey:@"behaviour"];
                     NSString *filename = [asset objectForKey:@"filename"];
-                    float width = [[asset objectForKey:@"width"] floatValue];
-                    float height = [[asset objectForKey:@"height"] floatValue];
+                    float width = [[asset objectForKey:@"width"] floatValue] / CC_CONTENT_SCALE_FACTOR();
+                    float height = [[asset objectForKey:@"height"] floatValue] / CC_CONTENT_SCALE_FACTOR();
                     float x = [[asset objectForKey:@"x"] floatValue] * scaleFactor;
                     float y = size.height - ([[asset objectForKey:@"y"] floatValue] * scaleFactor);
                     int states = [[asset objectForKey:@"states"] intValue];
@@ -149,14 +149,11 @@
                                 normal = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:filename ignoreCache:NO] rect:CGRectMake(0, 0, width, height)];
                                 selected = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:filename ignoreCache:NO] rect:CGRectMake(0, 0, width, height)];
                             }
-                            
-                            //[normal setScale:scaleFactor];
-                            //[selected setScale:scaleFactor];
-                            
+ 
                             _playButton = [CCMenuItemSprite itemFromNormalSprite:normal selectedSprite:selected target:self selector:@selector(_onPlay:)];
                         }
                         
-                        [_playButton setScale:scaleFactor];
+                        [_playButton setScale:scaleFactor * CC_CONTENT_SCALE_FACTOR()];
                         [_playButton setAnchorPoint:ccp(0,1)];
                         [mainMenu addChild:_playButton z:zIndex];
                         [_playButton setPosition:ccp(x, y)];
@@ -190,14 +187,11 @@
                                 normal = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:filename ignoreCache:NO] rect:CGRectMake(0, 0, width, height)];
                                 selected = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:filename ignoreCache:NO] rect:CGRectMake(0, 0, width, height)];
                             }
-                            
-                            //[normal setScale:scaleFactor];
-                            //[selected setScale:scaleFactor];
-                            
+    
                             helpButton = [CCMenuItemSprite itemFromNormalSprite:normal selectedSprite:selected target:self selector:@selector(_onHelp:)];
                         }
                         
-                        [helpButton setScale:scaleFactor];
+                        [helpButton setScale:scaleFactor * CC_CONTENT_SCALE_FACTOR()];
                         [helpButton setAnchorPoint:ccp(0,1)];
                         [mainMenu addChild:helpButton z:zIndex];
                         [helpButton setPosition:ccp(x, y)];
