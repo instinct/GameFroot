@@ -20,6 +20,7 @@
 		1616ADDF14E8098D004FF504 /* weapon_5_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADD814E8098D004FF504 /* weapon_5_single.png */; };
 		1616ADE014E8098D004FF504 /* weapon_6_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADD914E8098D004FF504 /* weapon_6_single.png */; };
 		1616ADE214E809A6004FF504 /* jetpack-single.png in Resources */ = {isa = PBXBuildFile; fileRef = 1616ADE114E809A6004FF504 /* jetpack-single.png */; };
+		161E6D1815999E9200394EA4 /* gamefroot-promo-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 161E6D1715999E9200394EA4 /* gamefroot-promo-hd.png */; };
 		1627BF7914F15DAC0036402B /* IntermediateLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1627BF7814F15DAC0036402B /* IntermediateLayer.mm */; };
 		1627BF7C14F161160036402B /* Completed.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1627BF7B14F161160036402B /* Completed.mm */; };
 		162B76A914F0640F0068C710 /* NextLevel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 162B76A814F0640F0068C710 /* NextLevel.mm */; };
@@ -563,6 +564,7 @@
 		1616ADD814E8098D004FF504 /* weapon_5_single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weapon_5_single.png; sourceTree = "<group>"; };
 		1616ADD914E8098D004FF504 /* weapon_6_single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weapon_6_single.png; sourceTree = "<group>"; };
 		1616ADE114E809A6004FF504 /* jetpack-single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "jetpack-single.png"; path = "Resources/jetpack-single.png"; sourceTree = "<group>"; };
+		161E6D1715999E9200394EA4 /* gamefroot-promo-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "gamefroot-promo-hd.png"; sourceTree = "<group>"; };
 		1627BF7714F15DAC0036402B /* IntermediateLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntermediateLayer.h; sourceTree = "<group>"; };
 		1627BF7814F15DAC0036402B /* IntermediateLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IntermediateLayer.mm; sourceTree = "<group>"; };
 		1627BF7A14F161150036402B /* Completed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Completed.h; sourceTree = "<group>"; };
@@ -1973,6 +1975,7 @@
 				22FD013814F4634100E3F1E0 /* game_detail-hd.png */,
 				22FD013914F4634100E3F1E0 /* game_detail.plist */,
 				22FD013A14F4634100E3F1E0 /* game_detail.png */,
+				161E6D1715999E9200394EA4 /* gamefroot-promo-hd.png */,
 				769C560B15996FF500FC69F8 /* gamefroot-promo.png */,
 				166977F614E280DE0081176B /* rate_controls_mockup-hd.png */,
 				22D3A6D914E2276B00EAB052 /* rate_controls_mockup.png */,
@@ -3067,6 +3070,7 @@
 				16057070159719DE007C9514 /* custom_menu.plist in Resources */,
 				16057071159719DE007C9514 /* custom_menu.png in Resources */,
 				769C560C15996FF500FC69F8 /* gamefroot-promo.png in Resources */,
+				161E6D1815999E9200394EA4 /* gamefroot-promo-hd.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

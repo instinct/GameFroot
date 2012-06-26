@@ -447,7 +447,13 @@ CGPoint GBSub(const CGPoint v1, const CGPoint v2) {
 
 +(NSString*)stringWithContentsOfURL:(NSString*)url ignoreCache:(BOOL)ignoreCache
 {
-    ignoreCache = NO;
+    // ***********************************************************
+    // ***********************************************************
+    // *******   HACKED value to run bundled games on v1.0 *******
+    ignoreCache = NO; 
+    // ***********************************************************
+    // ***********************************************************
+    
 	NSString *cachedFile = [Shared md5:url];
 	
 	NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -505,12 +511,12 @@ has been previously downloaded, return a path to the file otherwise load the ass
 
 +(NSMutableDictionary*) loadMusic:(NSArray*)urls fromServer:(NSString*)server ignoreCache:(BOOL)ignoreCache withDefault:(NSString*)d {
     
-    // ****************************************************
-    // ****************************************************
-    // *******   HACKED value to run bundled games *******
+    // ***********************************************************
+    // ***********************************************************
+    // *******   HACKED value to run bundled games on v1.0 *******
     ignoreCache = NO; 
-    // ****************************************************
-    // ****************************************************
+    // ***********************************************************
+    // ***********************************************************
     
     //CCLOG(@"**** Music loading inited");
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -675,12 +681,12 @@ has been previously downloaded, return a path to the file otherwise load the ass
 
 +(CCTexture2D*) getTexture2DFromWeb:(NSString*)url ignoreCache:(BOOL)ignoreCache
 {
-    // ****************************************************
-    // ****************************************************
-    // *******   HACKED value to run bundled games *******
+    // ***********************************************************
+    // ***********************************************************
+    // *******   HACKED value to run bundled games on v1.0 *******
     ignoreCache = NO; 
-    // ****************************************************
-    // ****************************************************
+    // ***********************************************************
+    // ***********************************************************
     
 	NSArray *urlComponents = [url componentsSeparatedByString:@"."];
 	NSString *extension = [urlComponents lastObject];

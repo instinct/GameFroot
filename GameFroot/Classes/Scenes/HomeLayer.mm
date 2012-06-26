@@ -125,6 +125,10 @@
         gameDetail = [CCNode node];
         [self addChild:gameDetail z:4];
 		
+        // *********************************************************
+        // *********************************************************
+        // ******** Removing botton navigation bar for v1.0 ********
+        /*
 		// Main tab navigation
 		CCSprite *bottom = [CCSprite spriteWithFile:@"tab-bar.png"];
 		[bottom setPosition:ccp(size.width/2, bottom.contentSize.height/2)];
@@ -224,7 +228,10 @@
 		[menuBottom reorderChild:playingButton z:browseButton.zOrder+1];
 		
 		[self addChild:menuBottom z:11];
-		
+		*/
+        // *********************************************************
+        // *********************************************************
+        
 		// Init variables
 		jsonDataFeatured = nil;
 		jsonDataBrowse = nil;
@@ -1094,10 +1101,18 @@
 	total = [tableData count];
 	if (total < ITEMS_PER_PAGE*featuredPage) loaded = total;
 	
-	tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, 270)]; // - 50 to height for iAd
-	
-	tableView.direction = SWScrollViewDirectionVertical;
-	tableView.position = ccp(0,(50)); // Add 50 to y for iAd
+    // ********************************************************
+    // ********************************************************
+    // ******************** Hack for v1.0 *********************
+	//tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, 270)]; // - 50 to height for iAd
+	//tableView.position = ccp(0,(50)); // Add 50 to y for iAd
+    
+    tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, 270 + 50)];
+	tableView.position = ccp(0,0);
+    // ********************************************************
+    // ********************************************************
+    
+    tableView.direction = SWScrollViewDirectionVertical;
 	tableView.delegate = self;
 	tableView.verticalFillOrder = SWTableViewFillTopDown;
 	
@@ -1837,6 +1852,13 @@
     moreLabel.color = ccc3(255,255,255);
     moreLabel.position = ccp(size.width/2, logo.position.y - logo.contentSize.height/2 - moreLabel.contentSize.height/2 - 10);
     [more addChild:moreLabel];
+    
+    [CCMenuItemFont setFontSize:17];
+    [CCMenuItemFont setFontName:@"HelveticaNeue"];
+    CCMenuItemFont *back = [CCMenuItemFont itemFromString:@"BACK" target:self selector:@selector(featured:)];
+    CCMenu *menuBack = [CCMenu menuWithItems:back, nil];
+    [menuBack setPosition:ccp(size.width/2, 50)];
+    [more addChild:menuBack];
     
 #if COCOS2D_DEBUG
     if ([Shared isBetaMode]) {
