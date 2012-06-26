@@ -933,9 +933,9 @@
     
     CCMenuItem *unlikeButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"dislike-button-up.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"dislike-button-down.png"] target:self selector:@selector(unlike:)];
     
-    CCMenuItem *remixButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"remix-button-up.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"remix-button-down.png"] target:self selector:@selector(gameDetailRemix:)];
+    //CCMenuItem *remixButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"remix-button-up.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"remix-button-down.png"] target:self selector:@selector(gameDetailRemix:)];
     
-    CCRadioMenu *likeMenu = [CCMenu menuWithItems:likeButton, unlikeButton,remixButton,nil];
+    CCRadioMenu *likeMenu = [CCMenu menuWithItems:likeButton, unlikeButton, /*remixButton,*/ nil];
     [likeMenu alignItemsHorizontallyWithPadding:20];
     
     CCNode *container = [CCNode node];
