@@ -46,6 +46,7 @@ import optparse
 import time
 import urllib
 import json
+import hashlib
 
 # Some global config strings, change as required
 
@@ -56,9 +57,20 @@ GET_BACKGROUND_URL = '/wp-content/plugins/game_data/backgrounds/user/'
 GET_DEFAULT_BACKGROUND_URL = '/wp-content/plugins/game_data/backgrounds/full/'
 GET_CHARACTER_URL = '/wp-content/characters/'
 BUNDLE_FOLDER_NAME = 'iap_bundle'
+ZIP_FOLDER_NAME = 'zipme'
 
 DEFAULT_BUNDLE_INFO = str('{ "product_id":0, "name":"", "release_date":"", "size":0, "description":""}')
 
+def writeFileForCache(urlstring, contents):
+	ext = ''
+	for ex in ['.png', '.jpg', '.mp3']:
+		if urlstring.endswith(ex): ext = ex
+	hash = hashlib.md5(urlstring).hexdigest()
+	sys.stdout.write("Saving to zipdir " + hash + ' ' + str(len(contents)) + ' ' + urlstring + '\n');
+	filePath = args[2] + ZIP_FOLDER_NAME + '/' + hash + ext
+	md5file = open(filePath, 'w')
+	md5file.write(contents)
+	md5file.close()
 
 def loadGameData():
 
@@ -71,8 +83,10 @@ def loadGameData():
 	gameDataFH = urllib.urlopen(requestString)
 	gamedata = json.load(gameDataFH)
 	if options.verbose: sys.stdout.write("[done]\n")
+	contents = json.dumps(gamedata)
+	writeFileForCache(requestString, contents)
 	try:
-		open(args[2] + BUNDLE_FOLDER_NAME + "/games.json", 'w').write(json.dumps(gamedata))
+		open(args[2] + BUNDLE_FOLDER_NAME + "/games.json", 'w').write(contents)
 	except Exception, e:
 		raise
 	else:
@@ -106,7 +120,9 @@ def loadAsset(dirName, urlString, filename=None):
 				if options.verbose: sys.stdout.write('\tdownloading asset ' + urlString + '...') 
 				inetFH = urllib.urlopen(urlString)
 				localFH = open(localFilePath, 'w')
-				localFH.write(inetFH.read())
+				contents = inetFH.read()
+				localFH.write(contents)
+				writeFileForCache(urlString, contents)
 				if options.verbose: sys.stdout.write('[done] ') 
 			except Exception, e:
 				raise
@@ -141,10 +157,13 @@ def loadLevelAssets(mapId):
 	localFilePath = args[2] + BUNDLE_FOLDER_NAME + "/levels/" + `mapId` + ".map"
 	if(not os.path.exists(localFilePath)):
 		try:
-			inetFH = urllib.urlopen(args[1] + GET_MAP_API_STRING + `mapId`)
+			urlString = args[1] + GET_MAP_API_STRING + `mapId`
+			inetFH = urllib.urlopen(urlString)
 			levelData = json.load(inetFH)
 			localFH = open(localFilePath, 'w')
-			localFH.write(json.dumps(levelData))
+			contents = json.dumps(levelData)
+			localFH.write(contents)
+			writeFileForCache(urlString, contents)
 
 			# Load custom bg music
 			if options.verbose: sys.stdout.write('\n\t[Background music]\n')
@@ -243,6 +262,7 @@ def createDirectoryStructure():
 		# Create directories
 		sys.stdout.write("creating bundle directory structure...\n")
 		try:
+			os.mkdir(args[2] + ZIP_FOLDER_NAME)
 			os.mkdir(args[2] + BUNDLE_FOLDER_NAME)
 			os.mkdir(args[2] + BUNDLE_FOLDER_NAME + "/thumbs")
 			os.mkdir(args[2] + BUNDLE_FOLDER_NAME + "/backgrounds")
