@@ -58,7 +58,7 @@ enum GameControlType{
 #define	LAYER_TILES		1
 #define	LAYER_PLAYER	2
 
-#define REDUCE_FACTOR	0.75f * CC_CONTENT_SCALE_FACTOR() // 0.625f is the Flash match factor, 0.75f is the value we have been using
+#define REDUCE_FACTOR	0.625f * CC_CONTENT_SCALE_FACTOR() // 0.625f is the Flash match factor, 0.75f is the value we have been using
 
 #define PLAYER_ANCHOR_X 0.41
 #define PLAYER_ANCHOR_Y 0.41
