@@ -132,6 +132,7 @@ typedef enum{
     CGPoint cameraLocation;
     float cameraXOffset;
     float cameraYOffset;
+    float cameraYOffsetFixed;
     CGPoint previousLocation;
 }
 
@@ -205,6 +206,7 @@ typedef enum{
 -(void) stopCameraMove;
 -(void) offsetCameraX:(float)offset;
 -(void) offsetCameraY:(float)offset;
+-(void) amendOffsetCameraY:(float)offset;
 -(void) panToLocation:(CGPoint)location;
 -(void) snapToLocation:(CGPoint)location;
 -(void) setViewpointCenter;

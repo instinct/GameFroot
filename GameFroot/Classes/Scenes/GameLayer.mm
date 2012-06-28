@@ -344,6 +344,7 @@ GameLayer *instance;
         cameraLocation = CGPointZero;
         cameraXOffset = 0;
         cameraYOffset = 0;
+        cameraYOffsetFixed = 0;
         
         //
 		pauseBtn = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"pause.png"] selectedSprite:[CCSprite spriteWithFile:@"pause.png"] target:self selector:@selector(pauseGame)];
@@ -1928,12 +1929,20 @@ GameLayer *instance;
 
 -(void) offsetCameraX:(float)offset
 {
+    //CCLOG(@"GameLayer.offsetCameraX: %f", offset);
     cameraXOffset = offset;
 }
 
 -(void) offsetCameraY:(float)offset
 {
-    cameraYOffset = offset;
+    //CCLOG(@"GameLayer.offsetCameraY: %f", offset);
+    cameraYOffset = cameraYOffsetFixed = offset;
+}
+
+-(void) amendOffsetCameraY:(float)offset
+{
+    cameraYOffset = cameraYOffsetFixed + offset;
+    //CCLOG(@"GameLayer.amendOffsetCameraY: %f -> %f", offset, cameraYOffset);
 }
 
 -(void) cameraOnPlayer

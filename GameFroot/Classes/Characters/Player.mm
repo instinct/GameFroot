@@ -1594,7 +1594,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             //CCLOG(@">>>>> %f, %f, %f, %f", scrollOnProne, scrollOnProneMax, winSize.height, localPoint.y);
             
 			//[[GameLayer getInstance] setViewpointCenter:ccp(point.x,point.y - scrollOnProne/CC_CONTENT_SCALE_FACTOR())];
-            [[GameLayer getInstance] offsetCameraY: -scrollOnProne/CC_CONTENT_SCALE_FACTOR()];
+            [[GameLayer getInstance] amendOffsetCameraY: -scrollOnProne/CC_CONTENT_SCALE_FACTOR()];
 			
 		} else if (scrollOnProne > 0) {
 			scrollOnProne -= 4;
@@ -1602,11 +1602,11 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             scrollOnProneDelayCount = 0;
 			
 			//[[GameLayer getInstance] setViewpointCenter:ccp(point.x,point.y - scrollOnProne/CC_CONTENT_SCALE_FACTOR())];
-            [[GameLayer getInstance] offsetCameraY: -scrollOnProne/CC_CONTENT_SCALE_FACTOR()];
+            [[GameLayer getInstance] amendOffsetCameraY: -scrollOnProne/CC_CONTENT_SCALE_FACTOR()];
 			
 		} else {
 			//[[GameLayer getInstance] setViewpointCenter:ccp(point.x,point.y)];
-            [[GameLayer getInstance] offsetCameraY: 0];
+            [[GameLayer getInstance] amendOffsetCameraY: 0];
 		}
 		
         if (hasWeapon) [weapon setPosition:point];

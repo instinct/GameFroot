@@ -92,6 +92,12 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	removed = NO;
 }
 
+-(NSString *) convertMessageNameToFunctionName:(NSString *)messageName
+{
+    messageName = [messageName stringByReplacingOccurrencesOfString:@" " withString:@"_"];
+    return [NSString stringWithFormat:@"_dynamicMessage_%@", messageName];
+    
+}
 -(void) setupRobot:(NSDictionary *)properties
 {
 	//CCLOG(@"Robot.setupRobot: %@", properties);
@@ -168,13 +174,14 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 		if ([nameEvent isEqualToString:@"onMessage"]) {
 			[msgName addObject:[event objectForKey:@"messageName"]];
 			[msgCommands addObject:[event objectForKey:@"commands"]];
-            
-            SEL sel = sel_registerName([[NSString stringWithFormat:@"%@:command:", [event objectForKey:@"messageName"]] UTF8String]);
+                        
+            SEL sel = sel_registerName([[NSString stringWithFormat:@"%@:command:", [self convertMessageNameToFunctionName:[event objectForKey:@"messageName"]]] UTF8String]);
             class_addMethod([self class], sel, (IMP)runDynamicMessage, "v@:@@");
             
-            SEL selBroadcast = sel_registerName([[NSString stringWithFormat:@"%broadcast_@:command:", [event objectForKey:@"messageName"]] UTF8String]);
+            SEL selBroadcast = sel_registerName([[NSString stringWithFormat:@"broadcast_%@:command:", [self convertMessageNameToFunctionName:[event objectForKey:@"messageName"]]] UTF8String]);
             class_addMethod([self class], selBroadcast, (IMP)runDynamicBroadcastMessage, "v@:@@");
             
+            if (TRACE_COMMANDS) CCLOG(@"Robot.setupRobo: Register dynamic method: %@", [self convertMessageNameToFunctionName:[event objectForKey:@"messageName"]]);
             
 		} else if ([nameEvent isEqualToString:@"onDie"]) {
 			onDieCommands = [event objectForKey:@"commands"];
@@ -301,7 +308,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 		return result;
 		
 	} else {
-		CCLOG(@"Robot: undeclared selector: %@", method);
+		CCLOG(@"Robot: undeclared selector: %@, %@, %@", method, nameMethod, anObject);
 		return nil;
 	}
 }
@@ -793,7 +800,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 
 -(NSMutableArray *) locationOfInstance:(NSDictionary *)obj 
 {
-    //CCLOG(@"Robot.locationOfInstance: %@", obj);
+    if (TRACE_COMMANDS) CCLOG(@"Robot.locationOfInstance: %@", obj);
     
 	NSDictionary *instance = [obj objectForKey:@"instance"];
 	NSString *token = [instance objectForKey:@"token"];
@@ -1105,6 +1112,41 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     [[GameLayer getInstance] changeInitialPlayerPositionToX:mapPos.x andY:mapPos.y];
 }
 
+-(void) xPosition:(NSDictionary *)command
+{
+    float posisiton;
+    
+    if ([[command objectForKey:@"amount"] isKindOfClass:[NSDictionary class]]) {
+		
+		NSString *token = [[command objectForKey:@"amount"] objectForKey:@"token"];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"amount"]];
+		posisiton = [num floatValue];
+		
+	} else {
+        posisiton = [[command objectForKey:@"amount"] floatValue];
+	}
+    
+    [self markToTransformBody:b2Vec2((posisiton/PTM_RATIO), self.position.y/PTM_RATIO) angle:body->GetAngle()];
+}
+
+-(void) yPosition:(NSDictionary *)command
+{
+    float posisiton;
+    
+    if ([[command objectForKey:@"amount"] isKindOfClass:[NSDictionary class]]) {
+		
+		NSString *token = [[command objectForKey:@"amount"] objectForKey:@"token"];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"amount"]];
+		posisiton = [num floatValue];
+		
+	} else {
+        posisiton = [[command objectForKey:@"amount"] floatValue];
+	}
+    
+    [self markToTransformBody:b2Vec2((self.position.x/PTM_RATIO), (([GameLayer getInstance].mapHeight*MAP_TILE_HEIGHT) - posisiton)/PTM_RATIO) angle:body->GetAngle()];
+    
+}
+
 -(void) teleport:(NSDictionary *)command 
 {
 	NSDictionary *location = [command objectForKey:@"location"];
@@ -1287,7 +1329,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	if ([[command objectForKey:@"delta"] isKindOfClass:[NSDictionary class]]) {
 		
 		NSString *token = [[command objectForKey:@"delta"] objectForKey:@"token"];
-		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"velocity"]];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"delta"]];
 		speed = [num floatValue];
 		
 	} else {
@@ -1311,7 +1353,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	if ([[command objectForKey:@"delta"] isKindOfClass:[NSDictionary class]]) {
 		
 		NSString *token = [[command objectForKey:@"delta"] objectForKey:@"token"];
-		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"velocity"]];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"delta"]];
 		speed = [num floatValue];
 		
 	} else {
@@ -1589,10 +1631,10 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     if (delay < MIN_DELAY) delay = MIN_DELAY; // Just for security in case someone sets a very low delay!!
     
     NSString *message = [command objectForKey:@"message"];
-    if (TRACE_COMMANDS) CCLOG(@"Robot.messageSelfAfterDelay: %@ (%f)", message, delay/DELAY_FACTOR);
+    if (TRACE_COMMANDS) CCLOG(@"Robot.messageSelfAfterDelay: %@ (%f)", [self convertMessageNameToFunctionName:message], delay/DELAY_FACTOR);
+     
+    SEL sel = sel_registerName([[NSString stringWithFormat:@"%@:command:", [self convertMessageNameToFunctionName:message]] UTF8String]);
     
-    SEL sel = sel_registerName([[NSString stringWithFormat:@"%@:command:", message] UTF8String]);
-                               
     id action = [CCSequence actions:
                  [CCDelayTime actionWithDuration:delay/DELAY_FACTOR],
                  [CCCallFuncND actionWithTarget:self selector:sel data:command],
@@ -1618,9 +1660,9 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     if (delay < MIN_DELAY) delay = MIN_DELAY; // Just for security in case someone sets a very low delay!!
     
     NSString *message = [command objectForKey:@"message"];
-    if (TRACE_COMMANDS) CCLOG(@"Robot.broadcastMessageAfterDelay: %@ (%f)", message, delay/DELAY_FACTOR);
+    if (TRACE_COMMANDS) CCLOG(@"Robot.broadcastMessageAfterDelay: %@ (%f)", [self convertMessageNameToFunctionName:message], delay/DELAY_FACTOR);
     
-    SEL sel = sel_registerName([[NSString stringWithFormat:@"broadcast_%@:command:", message] UTF8String]);
+    SEL sel = sel_registerName([[NSString stringWithFormat:@"broadcast_%@:command:", [self convertMessageNameToFunctionName:message]] UTF8String]);
     
     id action = [CCSequence actions:
                  [CCDelayTime actionWithDuration:delay/DELAY_FACTOR],
@@ -1765,29 +1807,29 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	return [NSNumber numberWithFloat:amount1-amount2];
 }
 
--(NSNumber *) opMultiplication:(NSDictionary *)obj
+-(NSNumber *) opMultiplication:(NSDictionary *)command
 {
 	float amount1;
 	float amount2;
 	
-	if ([[obj objectForKey:@"operand1"] isKindOfClass:[NSDictionary class]]) {
+	if ([[command objectForKey:@"operand1"] isKindOfClass:[NSDictionary class]]) {
 		
-		NSString *token = [[obj objectForKey:@"operand1"] objectForKey:@"token"];
-		NSNumber *num = [self runMethod:token withObject:[obj objectForKey:@"operand1"]];
+		NSString *token = [[command objectForKey:@"operand1"] objectForKey:@"token"];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"operand1"]];
 		amount1 = [num floatValue];
 		
 	} else {
-		amount1 = [[obj objectForKey:@"operand1"] floatValue];
+		amount1 = [[command objectForKey:@"operand1"] floatValue];
 	}
 	
-	if ([[obj objectForKey:@"operand2"] isKindOfClass:[NSDictionary class]]) {
+	if ([[command objectForKey:@"operand2"] isKindOfClass:[NSDictionary class]]) {
 		
-		NSString *token = [[obj objectForKey:@"operand2"] objectForKey:@"token"];
-		NSNumber *num = [self runMethod:token withObject:[obj objectForKey:@"operand2"]];
+		NSString *token = [[command objectForKey:@"operand2"] objectForKey:@"token"];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"operand2"]];
 		amount2 = [num floatValue];
 		
 	} else {
-		amount2 = [[obj objectForKey:@"operand2"] floatValue];
+		amount2 = [[command objectForKey:@"operand2"] floatValue];
 	}
 	
     if (TRACE_COMMANDS) CCLOG(@"Robot.opMultiplication: %f", amount1*amount2);
@@ -1795,29 +1837,29 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	return [NSNumber numberWithFloat:amount1*amount2];
 }
 
--(NSNumber *) opDivision:(id)obj
+-(NSNumber *) opDivision:(NSDictionary *)command 
 {
 	float amount1;
 	float amount2;
 	
-	if ([[obj objectForKey:@"operand1"] isKindOfClass:[NSDictionary class]]) {
+	if ([[command objectForKey:@"operand1"] isKindOfClass:[NSDictionary class]]) {
 		
-		NSString *token = [[obj objectForKey:@"operand1"] objectForKey:@"token"];
-		NSNumber *num = [self runMethod:token withObject:[obj objectForKey:@"operand1"]];
+		NSString *token = [[command objectForKey:@"operand1"] objectForKey:@"token"];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"operand1"]];
 		amount1 = [num floatValue];
 		
 	} else {
-		amount1 = [[obj objectForKey:@"operand1"] floatValue];
+		amount1 = [[command objectForKey:@"operand1"] floatValue];
 	}
 	
-	if ([[obj objectForKey:@"operand2"] isKindOfClass:[NSDictionary class]]) {
+	if ([[command objectForKey:@"operand2"] isKindOfClass:[NSDictionary class]]) {
 		
-		NSString *token = [[obj objectForKey:@"operand2"] objectForKey:@"token"];
-		NSNumber *num = [self runMethod:token withObject:[obj objectForKey:@"operand2"]];
+		NSString *token = [[command objectForKey:@"operand2"] objectForKey:@"token"];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"operand2"]];
 		amount2 = [num floatValue];
 		
 	} else {
-		amount2 = [[obj objectForKey:@"operand2"] floatValue];
+		amount2 = [[command objectForKey:@"operand2"] floatValue];
 	}
 	
     if (TRACE_COMMANDS) CCLOG(@"Robot.opDivision: %f", amount1/amount2);
@@ -2038,7 +2080,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 		amount = [[command objectForKey:@"amount"] intValue];
 	}
     
-    [[GameLayer getInstance] offsetCameraY:amount];
+    [[GameLayer getInstance] offsetCameraY:-amount];
 }
 
 -(void) offsetCameraX:(NSDictionary *)command 
@@ -2252,6 +2294,16 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     if (TRACE_COMMANDS) CCLOG(@"Robot.angleToInstance: %f", degrees);
     
 	return [NSNumber numberWithFloat:degrees];
+}
+
+-(NSNumber *) pi:(id)obj
+{
+    return [NSNumber numberWithFloat:M_PI];
+}
+
+-(void) comment:(id)obj
+{
+    
 }
 
 -(NSString *) customString:(NSDictionary *)command
