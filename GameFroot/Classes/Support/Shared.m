@@ -448,6 +448,7 @@ CGPoint GBSub(const CGPoint v1, const CGPoint v2) {
 +(NSString*)stringWithContentsOfURL:(NSString*)url ignoreCache:(BOOL)ignoreCache
 {
 	NSString *cachedFile = [Shared md5:url];
+    CCLOG(@"URLhash %@ %@", url, cachedFile);
 	
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(SAVE_FOLDER, NSUserDomainMask, YES);
@@ -455,7 +456,8 @@ CGPoint GBSub(const CGPoint v1, const CGPoint v2) {
 	NSString *resource = [documentsDirectory stringByAppendingPathComponent:cachedFile];
 	
 	NSArray *urlValues = [url componentsSeparatedByString:@"/"];
-	NSString *embeddedResource = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:[urlValues lastObject]];
+    NSString *lastBit = [urlValues lastObject];
+	NSString *embeddedResource = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:lastBit];
 	BOOL embedded = [fileManager fileExistsAtPath:embeddedResource];
 	//CCLOG(@"Shared.stringWithContentsOfURL (CHECK IF EMBEDDED): %@ exists %i", [urlValues lastObject], embedded);
 	
@@ -504,6 +506,9 @@ has been previously downloaded, return a path to the file otherwise load the ass
 
 +(NSMutableDictionary*) loadMusic:(NSArray*)urls fromServer:(NSString*)server ignoreCache:(BOOL)ignoreCache withDefault:(NSString*)d {
     CCLOG(@"**** Music loading inited");
+    if (ignoreCache){
+        CCLOG(@"Ignore cache in loadMusic");
+    }
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSMutableDictionary *musicData = [[[NSMutableDictionary alloc] init] autorelease];;
      for (NSDictionary *url in urls) {
@@ -547,7 +552,8 @@ has been previously downloaded, return a path to the file otherwise load the ass
              
              NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
              NSString *cacheDirectory = [paths objectAtIndex:0];
-             NSString *cacheFileName = [Shared generateMusicFileNameHashForUrl:[url objectForKey:@"url"] andFileName:musicFileName];
+             NSString *cacheurl = [url objectForKey:@"url"];
+             NSString *cacheFileName = nil; //[Shared generateMusicFileNameHashForUrl:cacheurl andFileName:musicFileName];
              NSString *staleCacheFileName = nil;
              
              if (cacheFileName == nil) {
@@ -586,10 +592,12 @@ has been previously downloaded, return a path to the file otherwise load the ass
                  
                  NSError *error = nil;
                  BOOL saved = NO;
-                 NSData *musicFileData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[[url objectForKey:@"url"] stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding]]options:NSDataReadingMapped error:&error];
+                 NSString *musicurl = [[url objectForKey:@"url"] stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding];
+                 NSData *musicFileData = [NSData dataWithContentsOfURL:[NSURL URLWithString:musicurl] options:NSDataReadingMapped error:&error];
                  
                  if (error == nil) {
                      CCLOG(@"MusicCache: File %@ downloaded successfullly, attempting to save to: %@", [url objectForKey:@"url"], cachedFilePath);
+                     CCLOG(@"musichash %@ %@", musicurl, cacheFileName);
                      saved = [musicFileData writeToFile:cachedFilePath atomically:YES];
                      if (saved) {
                         CCLOG(@"MusicCache: cache file %@ saved successfully!", cachedFilePath);
@@ -653,7 +661,8 @@ has been previously downloaded, return a path to the file otherwise load the ass
         if (modifiedString != nil && fileSize != nil && musicFileName != nil) { // Crash reported on next line
             // Crash reported on next line, so trying to be sure the strings are not nil
             
-            NSString *fileHash = [Shared md5:[[modifiedString stringByAppendingString:fileSize] stringByAppendingString:musicFileName]];
+            NSString *mushed = [[modifiedString stringByAppendingString:fileSize] stringByAppendingString:musicFileName];
+            NSString *fileHash = [Shared md5:mushed];
             cacheFileName = [NSString stringWithFormat:@"%@-%@", fileHash, musicFileName];
             CCLOG(@"MusicCache: generated cache filename: %@", cacheFileName);
         }
@@ -666,10 +675,14 @@ has been previously downloaded, return a path to the file otherwise load the ass
 
 +(CCTexture2D*) getTexture2DFromWeb:(NSString*)url ignoreCache:(BOOL)ignoreCache
 {
+    if (ignoreCache){
+        CCLOG(@"Ignore cache in getTexture2DFromWeb");
+    }
 	NSArray *urlComponents = [url componentsSeparatedByString:@"."];
 	NSString *extension = [urlComponents lastObject];
 	if ([extension length] > 4) extension = @"png";
 	NSString *cachedFile = [NSString stringWithFormat:@"%@.%@", [Shared md5:url], extension];
+    CCLOG(@"texturehash %@ %@", url, cachedFile);
 	
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(SAVE_FOLDER, NSUserDomainMask, YES);
