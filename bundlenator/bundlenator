@@ -97,7 +97,7 @@ def loadGameData():
 	if options.verbose: sys.stdout.write( "retrieving game list for category " + args[0] + "...")
 
 	# get game data
-	requestString = args[1] + GET_LEVELS_API_STRING + args[0]
+	requestString = args[1] + GET_LEVELS_API_STRING + args[0] + "&page=1"
 	gameDataFH = urllib.urlopen(requestString)
 	gamedata = json.load(gameDataFH)
 	gameDataFH.close()
