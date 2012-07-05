@@ -221,8 +221,8 @@ def loadLevelAssets(mapId):
 				else:
 					sheetName = 'enemy' + `enemyNum` + '.png'
 		
-			# print args[1] + GET_CHARACTER_URL + sheetName
-			loadAsset('characters', args[1] + GET_CHARACTER_URL + sheetName)	
+                                # print args[1] + GET_CHARACTER_URL + sheetName
+                                loadAsset('characters', args[1] + GET_CHARACTER_URL + sheetName)	
 
 			# Load character
 			if (int(levelData['map']['player']['num']) < 100):
