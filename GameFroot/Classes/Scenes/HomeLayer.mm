@@ -901,7 +901,7 @@
     // Game thumb
     /*
     CCSprite *gameImage;
-    NSString *urlThumb = [NSString stringWithFormat:@"%@wp-content/plugins/game_data/thumbs/%@.png", [self returnServer], [ld objectForKey:@"id"]];
+    NSString *urlThumb = [NSString stringWithFormat:@"%@/wp-content/plugins/game_data/thumbs/%@.png", [self returnServer], [ld objectForKey:@"id"]];
     CCLOG(@"Load thumb: %@", urlThumb);
     NSURLRequest* request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlThumb] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:5.0];
     NSHTTPURLResponse* response = nil;

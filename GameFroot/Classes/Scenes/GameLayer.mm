@@ -967,7 +967,7 @@ GameLayer *instance;
          ([backgroundFilename rangeOfString:@".gif"].location != NSNotFound) )
     {
         
-        NSString *urlBackground = [NSString stringWithFormat:@"%@wp-content/plugins/game_data/backgrounds/user/%@", [self returnServer], backgroundFilename];
+        NSString *urlBackground = [NSString stringWithFormat:@"%@/wp-content/plugins/game_data/backgrounds/user/%@", [self returnServer], backgroundFilename];
         CCLOG(@"Load custom background: %@", urlBackground);
         
         // Load Custom background
@@ -1610,7 +1610,7 @@ GameLayer *instance;
 	BOOL custom = NO;
 	NSString *playerFilename;
 	if (playerID > 10) {
-		playerFilename = [NSString stringWithFormat:@"%@wp-content/characters/character%d.png", [self returnServer], playerID];
+		playerFilename = [NSString stringWithFormat:@"%@/wp-content/characters/character%d.png", [self returnServer], playerID];
 		
 		custom = ignoreCache;
 		if ([cached objectForKey:playerFilename] != nil) {
@@ -1630,7 +1630,7 @@ GameLayer *instance;
 		}	
 		
 	} else {
-		//playerFilename = [NSString stringWithFormat:@"%@wp-content/characters/player_%d.png", [self returnServer], playerID];
+		//playerFilename = [NSString stringWithFormat:@"%@/wp-content/characters/player_%d.png", [self returnServer], playerID];
 		//playerSpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:playerFilename ignoreCache:custom || ignoreCache]];
 		
 		CCLOG(@"Player spritesheet: %@", [NSString stringWithFormat:@"player_%i.png", playerID]);
@@ -1682,7 +1682,7 @@ GameLayer *instance;
 		BOOL custom = NO;
 		NSString *enemyFilename;
 		if (enemyID > 10) {
-			enemyFilename = [NSString stringWithFormat:@"%@wp-content/characters/enemy%d.png", [self returnServer], enemyID];
+			enemyFilename = [NSString stringWithFormat:@"%@/wp-content/characters/enemy%d.png", [self returnServer], enemyID];
 			
 			custom = ignoreCache;
 			if ([cached objectForKey:enemyFilename] != nil) {
@@ -1702,7 +1702,7 @@ GameLayer *instance;
 			}
 			
 		} else {
-			//enemyFilename = [NSString stringWithFormat:@"%@wp-content/characters/enemy_sheet%d.png", [self returnServer], enemyID];
+			//enemyFilename = [NSString stringWithFormat:@"%@/wp-content/characters/enemy_sheet%d.png", [self returnServer], enemyID];
 			//enemySpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:enemyFilename ignoreCache:custom || ignoreCache]];
 			
 			CCLOG(@"Enemy spritesheet: %@", [NSString stringWithFormat:@"enemy_sheet%i.png", enemyID]);
@@ -1760,7 +1760,7 @@ GameLayer *instance;
     BOOL custom = NO;
     NSString *enemyFilename;
     if (enemyID > 10) {
-        enemyFilename = [NSString stringWithFormat:@"%@wp-content/characters/enemy%d.png", [self returnServer], enemyID];
+        enemyFilename = [NSString stringWithFormat:@"%@/wp-content/characters/enemy%d.png", [self returnServer], enemyID];
         
         custom = ignoreCache;
         if ([cached objectForKey:enemyFilename] != nil) {
@@ -1780,7 +1780,7 @@ GameLayer *instance;
         }
         
     } else {
-        //enemyFilename = [NSString stringWithFormat:@"%@wp-content/characters/enemy_sheet%d.png", [self returnServer], enemyID];
+        //enemyFilename = [NSString stringWithFormat:@"%@/wp-content/characters/enemy_sheet%d.png", [self returnServer], enemyID];
         //enemySpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:enemyFilename ignoreCache:custom || ignoreCache]];
         
         //CCLOG(@"Enemy spritesheet: %@", [NSString stringWithFormat:@"enemy_sheet%i.png", enemyID]);
@@ -2751,7 +2751,7 @@ GameLayer *instance;
         ([backgroundFilename rangeOfString:@".gif"].location != NSNotFound) )
     {
         
-        backgroundFilename = [NSString stringWithFormat:@"%@wp-content/plugins/game_data/backgrounds/user/%@", [self returnServer], backgroundFilename];
+        backgroundFilename = [NSString stringWithFormat:@"%@/wp-content/plugins/game_data/backgrounds/user/%@", [self returnServer], backgroundFilename];
     
     } else {
         backgroundFilename = [NSString stringWithFormat:@"%@.png", backgroundFilename];
