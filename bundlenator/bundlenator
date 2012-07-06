@@ -242,9 +242,9 @@ def loadLevelAssets(mapId):
                             menuData = json.load(inetmenuFH)
                             inetmenuFH.close()
 			    #localFH = open(localFilePath, 'w')
-                            contents = json.dumps(menuData)
-			    #localFH.write(contents)
-                            writeFileForCache('json', urlString, contents)
+                            menucontents = json.dumps(menuData)
+			    #localFH.write(menucontents)
+                            writeFileForCache('json', menuurl, menucontents)
 
                             menuBg = menuData['background']['filename']
                             loadAsset('backgrounds', menuBg)
@@ -267,9 +267,6 @@ def loadLevelAssets(mapId):
 
 			except Exception, e:
                             print "Problem loading custom menu", menuurl
-                            pass
-			else:
-                            pass
 
 
 			# Load custom SFX
