@@ -53,6 +53,7 @@ import hashlib
 GET_LEVELS_API_STRING = '?gamemakers_api=1&type=get_all_levels&category='
 GET_TILES_API_STRING = '?gamemakers_api=1&type=get_game_animations&id='
 GET_MAP_API_STRING = '?gamemakers_api=1&type=json&map_id='
+GET_CUSTOM_MENU_URL = '?gamemakers_api=1&type=get_menu&game_id='
 GET_BACKGROUND_URL = '/wp-content/plugins/game_data/backgrounds/user/'
 GET_DEFAULT_BACKGROUND_URL = '/wp-content/plugins/game_data/backgrounds/full/'
 GET_CHARACTER_URL = '/wp-content/characters/'
@@ -233,6 +234,44 @@ def loadLevelAssets(mapId):
 			# print args[1] + GET_CHARACTER_URL + sheetName
 			loadAsset('characters', args[1] + GET_CHARACTER_URL + sheetName)
 
+                        # load custom menu
+                        try:
+                            menuurl = args[1] + GET_CUSTOM_MENU_URL + `mapId`
+                            print "getting custom menu", menuurl
+                            inetmenuFH = urllib.urlopen(menuurl)
+                            menuData = json.load(inetmenuFH)
+                            inetmenuFH.close()
+			    #localFH = open(localFilePath, 'w')
+                            contents = json.dumps(menuData)
+			    #localFH.write(contents)
+                            writeFileForCache('json', urlString, contents)
+
+                            menuBg = menuData['background']['filename']
+                            loadAsset('backgrounds', menuBg)
+
+                            for ass in menuData['assets']:
+                                assType = ass['assetType']
+                                if assType == 'image':
+                                    assUrl = ass['filename']
+                                    assBehaviour = ass['behaviour']
+                                    if assBehaviour == 'PLAY':
+                                        if assUrl == '/menueditor/img/default-play.png':
+                                            print "Got special menu asset URL .. what to do?"
+                                        else:
+                                            loadAsset('buttons', assUrl)
+                                    elif assBehaviour == 'HELP':
+                                        if assUrl == '/menueditor/img/default-help.png':
+                                            print "Got special menu asset URL .. what to do?"
+                                        else:
+                                            loadAsset('buttons', assUrl)
+
+			except Exception, e:
+                            print "Problem loading custom menu", menuurl
+                            pass
+			else:
+                            pass
+
+
 			# Load custom SFX
 			if options.verbose: sys.stdout.write('\n\t[SFX]\n')
 			for sfx in levelData['sprites']['sounds']:
@@ -294,6 +333,7 @@ def createDirectoryStructure():
 			os.mkdir(args[2] + BUNDLE_FOLDER_NAME + "/music")
 			os.mkdir(args[2] + BUNDLE_FOLDER_NAME + "/weapons")
 			os.mkdir(args[2] + BUNDLE_FOLDER_NAME + "/levels")
+			os.mkdir(args[2] + BUNDLE_FOLDER_NAME + "/buttons")
 
 		except Exception, e:
 			sys.stdout.write("There was an error creating bundle directories at the specifed path [Failwhale]")
