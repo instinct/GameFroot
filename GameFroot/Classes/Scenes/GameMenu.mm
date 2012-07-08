@@ -74,7 +74,7 @@
     if (self) {
         CGSize size = [[CCDirector sharedDirector] winSize];
         
-        self.isTouchEnabled = YES;
+        self.isTouchEnabled = NO;
 		self.isAccelerometerEnabled = NO;
         
         playMode = NO;
@@ -200,13 +200,11 @@
                 }
             }
             
-            /*
-            CCSprite *back = [CCSprite spriteWithSpriteFrameName:@"back_button.png"];
-            CCSprite *backSelected = [CCSprite spriteWithSpriteFrameName:@"back_pressed.png"];
+            CCSprite *back = [CCSprite spriteWithFile:@"back.png"];
+            CCSprite *backSelected = [CCSprite spriteWithFile:@"back-pressed.png"];
             CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:back selectedSprite:backSelected target:self selector:@selector(backMenu:)];
             [mainMenu addChild:backButton z:9999999];
-            [backButton setPosition: ccp(back.contentSize.width/2, size.height - back.contentSize.height/2)];
-            */
+            [backButton setPosition: ccp(back.contentSize.width/2, size.height - back.contentSize.height/2 - 20)];
             
             // Setup menu
             [mainMenu setPosition: ccp(0, 0)];
@@ -334,20 +332,6 @@
 -(void) setProgressBar:(float)percent
 {
     [_progressBar setPercent:percent];
-}
-
--(void) ccTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
-{
-	NSEnumerator *enumerator = [touches objectEnumerator];
-	while (UITouch *touch = [enumerator nextObject]) {
-		
-		CGPoint location = [touch locationInView: [touch view]];
-		location = [[CCDirector sharedDirector] convertToGL:location];
-		
-        if (icWasSwipeLeft(touches, event)) {
-            [self backMenu:nil];
-        }
-    }
 }
 
 @end

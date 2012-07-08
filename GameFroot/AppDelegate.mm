@@ -79,8 +79,8 @@ void EnsureCachedResourcesExist()
         CCLOG(@"- %@ %d %@\n", info.name, info.size, fileInCache);
         
         if ([fileManager fileExistsAtPath:fileInCache]){
-            NSDictionary *attr = [fileManager attributesOfItemAtPath:fileInCache error:NULL];
-            CCLOG(@"FIle exists, skipping %@ vs %@\n", [attr valueForKey:NSFileModificationDate], info.date);
+            //NSDictionary *attr = [fileManager attributesOfItemAtPath:fileInCache error:NULL];
+            //CCLOG(@"File exists, skipping %@ vs %@\n", [attr valueForKey:NSFileModificationDate], info.date);
             continue;
         }
         
@@ -107,7 +107,7 @@ void EnsureCachedResourcesExist()
     // Detect device model
 	DeviceHardware *hardware = [[[DeviceHardware alloc] init] autorelease];
 	CCLOG(@"Device: %@", [hardware platformString]);
-	[Shared setSimulator:[[hardware platformString] isEqualToString:@"Simulator"]];
+	[Shared setSimulator:[[hardware platformString] isEqualToString:@"Simulator"] || [[hardware platformString] isEqualToString:@"x86_64"]];
     
     // Detect OS version
     [Shared detectOSVersion];

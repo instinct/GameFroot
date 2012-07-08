@@ -281,6 +281,7 @@
         //}
         
         
+        /*
         //  Load gravatar
         loadedAvatar = NO;
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -292,6 +293,7 @@
             [gravatarLoader loadEmail:emailAddress withSize:32*CC_CONTENT_SCALE_FACTOR()];
             loadedAvatar = YES;
         }
+        */
 	}
 	
 	return self;
@@ -354,6 +356,18 @@
     
     RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
     [rvc hideBanner];
+    
+    /*
+    NSMutableDictionary *fakeLevel = [NSMutableDictionary dictionary];
+    [fakeLevel setObject:@"Jose Gomez" forKey:@"author"];
+    [fakeLevel setObject:@"http://gamefroot.com/wp-content/plugins/game_data/backgrounds/user/small-burning_town_background-8.png" forKey:@"background"];
+    [fakeLevel setObject:@"Fake level for testing..." forKey:@"content"];
+    [fakeLevel setObject:@"10792" forKey:@"id"];
+    [fakeLevel setObject:@"1" forKey:@"published"];
+    [fakeLevel setObject:@"2012-06-26 07:37:23" forKey:@"published_date"];
+    [fakeLevel setObject:@"Fake level" forKey:@"title"];
+    [Shared setLevel:fakeLevel];
+    */
     
 	[[CCDirector sharedDirector] replaceScene:[GameLayer scene]];
 }
@@ -682,8 +696,9 @@
                           [NSString stringWithFormat:@"%@ %@", [Shared getDevice], [Shared getOSVersion]]
                           ];
     
-    NSString *result = [Shared stringWithContentsOfPostURL:url post:postData];
-    CCLOG(@"LIKE! Result: %@",  result);
+    //NSString *result = 
+    [Shared stringWithContentsOfPostURL:url post:postData];
+    //CCLOG(@"LIKE! Result: %@",  result);
     
     
     UIAlertView *alertView = [[[UIAlertView alloc] initWithTitle: @"Like!" 
@@ -707,8 +722,9 @@
                           [NSString stringWithFormat:@"%@ %@", [Shared getDevice], [Shared getOSVersion]]
                           ];
     
-    NSString *result = [Shared stringWithContentsOfPostURL:url post:postData];
-    CCLOG(@"DISLIKE! Result: %@",  result);
+    //NSString *result = 
+    [Shared stringWithContentsOfPostURL:url post:postData];
+    //CCLOG(@"DISLIKE! Result: %@",  result);
 
     
     UIAlertView *alertView = [[[UIAlertView alloc] initWithTitle: @"Dislike!" 
@@ -943,8 +959,8 @@
     
     // Calculate size of the layer
     // NOTE! cocos2d layers don't get size according to his cildren
-    CGSize sizeScroll = CGSizeMake(size.width, 18 + gameImage.contentSize.height + 20 + levelNameText.contentSize.height + 12 + sizeText.height + 12 + contentPlayButton.contentSize.height + 12 + likeButton.contentSize.height);
-    CGSize sizeView = CGSizeMake(size.width, size.height - (45 + 50)); // Screen size minus bottom and top navigation margins
+    CGSize sizeScroll = CGSizeMake(size.width, 18 + gameImage.contentSize.height + 20 + levelNameText.contentSize.height + 12 + sizeText.height + 12 + contentPlayButton.contentSize.height + 12 + likeButton.contentSize.height + authorText.contentSize.height + 12);
+    CGSize sizeView = CGSizeMake(size.width, size.height - (50)); // - (45 + 50) Screen size minus bottom and top navigation margins
     //CCLOG(@"scroll: %f,%f", sizeScroll.width, sizeScroll.height);
     //CCLOG(@"view: %f,%f", sizeView.width, sizeView.height);
     
@@ -954,8 +970,8 @@
     gameImage.position = ccp(size.width/2, sizeScroll.height - 18 - gameImage.contentSize.height/2);
     imageOverlay.position = gameImage.position;
     levelNameText.position = ccp(levelNameText.contentSize.width/2 + 12, gameImage.position.y - gameImage.contentSize.height/2 - 20);
-    authorText.position = ccp(levelNameText.contentSize.width + authorText.contentSize.width/2 + 17, levelNameText.position.y);
-    descriptionText.position = ccp(descriptionText.contentSize.width/2 + 12, levelNameText.position.y - levelNameText.contentSize.height/2 - sizeText.height/2 - 4);
+    authorText.position = ccp(authorText.contentSize.width/2 + 12, levelNameText.position.y - 18);
+    descriptionText.position = ccp(descriptionText.contentSize.width/2 + 12, levelNameText.position.y - levelNameText.contentSize.height/2 - sizeText.height/2 - 4 - 20);
     
     //contentMenu.position = ccp(size.width/2, size.height /2 - 70);
     //likeMenu.position = ccp(size.width/2, size.height/2 - 150);
@@ -987,7 +1003,7 @@
     gameDetailSV = [SWScrollView viewWithViewSize:sizeView container:container];
     gameDetailSV.contentSize = sizeScroll;
     gameDetailSV.direction = SWScrollViewDirectionVertical;
-    gameDetailSV.position = ccp(0,50); // Bottom navigation margin
+    gameDetailSV.position = ccp(0,0); // (0,50) Bottom navigation margin
 
     if(ratingsAnchorEnabled) {
         // Scroll to ratings section
@@ -1085,7 +1101,7 @@
      */
     
 	CCMenu *menuFeatured = [CCMenu menuWithItems:featured1Button, /*featured2Button,*/ nil];
-	menuFeatured.position = ccp(size.width/2, size.height - 44 - featured1Button.contentSize.height/2 - 10);
+	menuFeatured.position = ccp(size.width/2, size.height - 44 - featured1Button.contentSize.height/2);
     //menuFeatured.position = ccp(featured1Button.contentSize.width/2 + 10, size.height - 44 - featured1Button.contentSize.height/2 - 5);
 	
     [menuFeatured alignItemsHorizontally];
@@ -1107,7 +1123,7 @@
 	//tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, 270)]; // - 50 to height for iAd
 	//tableView.position = ccp(0,(50)); // Add 50 to y for iAd
     
-    tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, 270 + 50)];
+    tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, 270 + 50 + 28)];
 	tableView.position = ccp(0,0);
     // ********************************************************
     // ********************************************************
@@ -1726,11 +1742,13 @@
         myGames.visible = NO;
 	}
     
+    /*
     if (!loadedAvatar) {
         GravatarLoader *gravatarLoader = [[[GravatarLoader alloc] initWithTarget:self andHandle:@selector(setGravatarImage:)] autorelease];
         [gravatarLoader loadEmail:emailAddress withSize:32*CC_CONTENT_SCALE_FACTOR()];
         loadedAvatar = YES;
     }
+    */
 }
 
 -(void) setGravatarImage:(UIImage *)img
@@ -1853,13 +1871,6 @@
     moreLabel.position = ccp(size.width/2, logo.position.y - logo.contentSize.height/2 - moreLabel.contentSize.height/2 - 10);
     [more addChild:moreLabel];
     
-    [CCMenuItemFont setFontSize:17];
-    [CCMenuItemFont setFontName:@"HelveticaNeue"];
-    CCMenuItemFont *back = [CCMenuItemFont itemFromString:@"BACK" target:self selector:@selector(featured:)];
-    CCMenu *menuBack = [CCMenu menuWithItems:back, nil];
-    [menuBack setPosition:ccp(size.width/2, 50)];
-    [more addChild:menuBack];
-    
 #if COCOS2D_DEBUG
     if ([Shared isBetaMode]) {
         [CCMenuItemFont setFontSize:17];
@@ -1890,6 +1901,12 @@
         [menu setPosition:ccp(size.width/2, size.height - 50 - serverOptions.contentSize.height/2)];
     }
 #endif
+    
+    // Add top menu and buttons
+    CCMenuItemSprite *topNavBackButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"back-button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"back-button.png"] target:self selector:@selector(gameDetailBack:)];
+    CCMenu *topNavMenu = [CCMenu menuWithItems:topNavBackButton, nil];
+    topNavMenu.position = ccp(10 + (topNavBackButton.contentSize.width / 2) , size.height - (topNavBackButton.contentSize.height/2) - 7);
+    [more addChild:topNavMenu];
     
 	loading = NO;
 	more.visible = YES;

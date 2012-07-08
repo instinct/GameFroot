@@ -84,6 +84,10 @@ static BOOL betaMode = NO;
     nextLevelID = 0;
 }
 
++(void) replaceLevelID: (int)_levelID {
+	[levelData setValue:[NSString stringWithFormat:@"%i",_levelID] forKey:@"id"];
+}
+
 +(int) getLevelID {
 	return [[levelData objectForKey:@"id"] intValue];
 }
@@ -98,6 +102,7 @@ static BOOL betaMode = NO;
 
 +(void) setNextLevelID: (int)_value {
     nextLevelID = _value;
+    [Shared replaceLevelID:_value];
 }
 
 +(int) getNextLevelID {

@@ -24,6 +24,7 @@
 +(void) setSimulator: (BOOL)_value;
 +(NSMutableDictionary *) getLevel;
 +(void) setLevel: (NSMutableDictionary *)_value;
++(void) replaceLevelID: (int)_levelID;
 +(int) getLevelID;
 +(NSString *) getLevelDate;
 +(NSString *) getLevelTitle;

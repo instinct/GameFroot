@@ -768,10 +768,9 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 		y -= [[obj objectForKey:@"yMod"] floatValue] / CC_CONTENT_SCALE_FACTOR();
 	}		
 	
-    if (y > ([GameLayer getInstance].mapHeight * MAP_TILE_HEIGHT)) x = [GameLayer getInstance].mapHeight * MAP_TILE_HEIGHT;
-    if (y < MAP_TILE_HEIGHT + MAP_TILE_HEIGHT/2) y = MAP_TILE_HEIGHT + MAP_TILE_HEIGHT/2;
+    if (y > ([GameLayer getInstance].mapHeight * MAP_TILE_HEIGHT)) y = [GameLayer getInstance].mapHeight * MAP_TILE_HEIGHT;
+    if (y < MAP_TILE_HEIGHT) y = MAP_TILE_HEIGHT;
     
-	
 	NSMutableArray *pos = [NSMutableArray arrayWithCapacity:2];
 	[pos addObject:[NSNumber numberWithFloat:x]];
 	[pos addObject:[NSNumber numberWithFloat:y]];
@@ -1126,6 +1125,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         posisiton = [[command objectForKey:@"amount"] floatValue];
 	}
     
+    posisiton /= CC_CONTENT_SCALE_FACTOR();
+    
     [self markToTransformBody:b2Vec2((posisiton/PTM_RATIO), self.position.y/PTM_RATIO) angle:body->GetAngle()];
 }
 
@@ -1142,6 +1143,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	} else {
         posisiton = [[command objectForKey:@"amount"] floatValue];
 	}
+    
+    posisiton /= CC_CONTENT_SCALE_FACTOR();
     
     [self markToTransformBody:b2Vec2((self.position.x/PTM_RATIO), (([GameLayer getInstance].mapHeight*MAP_TILE_HEIGHT) - posisiton)/PTM_RATIO) angle:body->GetAngle()];
     
@@ -1164,6 +1167,18 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         auxX = [[position objectForKey:@"xpos"] floatValue];
         auxY = [[position objectForKey:@"ypos"] floatValue];
         
+        // *************************************************************************
+        // This is to fix an issue when someone teleports player to a solid tile position
+        [GameLayer getInstance].cameraYOffsetAdjustment = 0;
+        int dx = (int)auxX;
+        int dy = (int)auxY;
+        while ([[GameLayer getInstance] getTileAt:ccp(dx, dy)] == TILE_TYPE_SOLID) {
+            dy += 1;
+            auxY += 1;
+            [GameLayer getInstance].cameraYOffsetAdjustment += MAP_TILE_HEIGHT/2;
+        }
+        // *************************************************************************
+        
         CGPoint pos = ccp(auxX * MAP_TILE_WIDTH, ([GameLayer getInstance].mapHeight - auxY - 1) * MAP_TILE_HEIGHT);
         pos.x += MAP_TILE_WIDTH/2.0f;
         pos.y += MAP_TILE_HEIGHT/2.0f;
@@ -1177,6 +1192,18 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         NSArray *position = (NSArray *)result;
         auxX = [[position objectAtIndex:0] floatValue];
         auxY = [[position objectAtIndex:1] floatValue];
+        
+        // *************************************************************************
+        // This is to fix an issue when someone teleports player to a solid tile position
+        [GameLayer getInstance].cameraYOffsetAdjustment = 0;
+        int dx = auxX * CC_CONTENT_SCALE_FACTOR() / MAP_TILE_WIDTH * CC_CONTENT_SCALE_FACTOR();
+        int dy = [ GameLayer getInstance ].mapHeight - ( auxY * CC_CONTENT_SCALE_FACTOR() / MAP_TILE_HEIGHT * CC_CONTENT_SCALE_FACTOR() );
+        while ([[GameLayer getInstance] getTileAt:ccp(dx, dy)] == TILE_TYPE_SOLID) {
+            auxY += MAP_TILE_HEIGHT/2;
+            dy = [ GameLayer getInstance ].mapHeight - ( auxY * CC_CONTENT_SCALE_FACTOR() / MAP_TILE_HEIGHT * CC_CONTENT_SCALE_FACTOR() );
+            [GameLayer getInstance].cameraYOffsetAdjustment += MAP_TILE_HEIGHT/2;
+        }
+        // *************************************************************************
         
         if (TRACE_COMMANDS) CCLOG(@"Robot.teleport: %f, %f", auxX, auxY);
         
@@ -1203,6 +1230,18 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         auxX = [[position objectForKey:@"xpos"] floatValue];
         auxY = [[position objectForKey:@"ypos"] floatValue];
         
+        // *************************************************************************
+        // This is to fix an issue when someone teleports player to a solid tile position
+        [GameLayer getInstance].cameraYOffsetAdjustment = 0;
+        int dx = (int)auxX;
+        int dy = (int)auxY;
+        while ([[GameLayer getInstance] getTileAt:ccp(dx, dy)] == TILE_TYPE_SOLID) {
+            dy += 1;
+            auxY += 1;
+            [GameLayer getInstance].cameraYOffsetAdjustment += MAP_TILE_HEIGHT/2;
+        }
+        // *************************************************************************
+        
         if ([[[command objectForKey:@"instance"] objectForKey:@"token"] isEqualToString:@"player"]) {
             
             if (TRACE_COMMANDS) CCLOG(@"Robot.teleportInstance (map position): %f, %f", auxX, auxY);
@@ -1219,6 +1258,18 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         auxX = [[position objectAtIndex:0] floatValue];
         auxY = [[position objectAtIndex:1] floatValue];
        
+        // *************************************************************************
+        // This is to fix an issue when someone teleports player to a solid tile position
+        [GameLayer getInstance].cameraYOffsetAdjustment = 0;
+        int dx = auxX * CC_CONTENT_SCALE_FACTOR() / MAP_TILE_WIDTH * CC_CONTENT_SCALE_FACTOR();
+        int dy = [ GameLayer getInstance ].mapHeight - ( auxY * CC_CONTENT_SCALE_FACTOR() / MAP_TILE_HEIGHT * CC_CONTENT_SCALE_FACTOR() );
+        while ([[GameLayer getInstance] getTileAt:ccp(dx, dy)] == TILE_TYPE_SOLID) {
+            auxY += MAP_TILE_HEIGHT/2;
+            dy = [ GameLayer getInstance ].mapHeight - ( auxY * CC_CONTENT_SCALE_FACTOR() / MAP_TILE_HEIGHT * CC_CONTENT_SCALE_FACTOR() );
+            [GameLayer getInstance].cameraYOffsetAdjustment += MAP_TILE_HEIGHT/2;
+        }
+        // *************************************************************************
+        
         if ([[[command objectForKey:@"instance"] objectForKey:@"token"] isEqualToString:@"player"]) {
             
             if (TRACE_COMMANDS) CCLOG(@"Robot.teleportInstance (screen position): %f, %f", auxX, auxY);
@@ -2057,11 +2108,13 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 -(void) cameraLockdown:(NSDictionary *)command 
 {
     if (TRACE_COMMANDS) CCLOG(@"Robot.cameraLockdown: %@", command);
+    [[GameLayer getInstance] cameraLockdown];
 }
 
 -(void) cameraPlatformer:(NSDictionary *)command 
 {
     if (TRACE_COMMANDS) CCLOG(@"Robot.cameraPlatformer: %@", command);
+    [[GameLayer getInstance] cameraP];
 }
 
 -(void) offsetCameraY:(NSDictionary *)command 

@@ -31,6 +31,11 @@ typedef enum{
     kCameraFollowPlayer
 } CameraBehaviour;
 
+typedef enum{
+	kCameraPlatformer = 0,
+	kCameraLockOn
+} CameraType;
+
 // GameLayer
 @interface GameLayer : CCLayer
 {
@@ -134,6 +139,9 @@ typedef enum{
     float cameraYOffset;
     float cameraYOffsetFixed;
     CGPoint previousLocation;
+    float cameraYOffsetAdjustment;
+    CameraType cameraType;
+    
 }
 
 @property(nonatomic,assign) Controls *controls;
@@ -143,7 +151,7 @@ typedef enum{
 @property(nonatomic,assign) int mapHeight;
 @property(nonatomic,assign) b2World * world;
 @property(nonatomic,assign) CCSpriteBatchNode *hudSpriteSheet;
-
+@property(nonatomic,assign) float cameraYOffsetAdjustment;
 
 // returns a CCScene that contains the GameLayer as the only child
 +(CCScene *) scene;
@@ -211,6 +219,8 @@ typedef enum{
 -(void) snapToLocation:(CGPoint)location;
 -(void) setViewpointCenter;
 -(CGPoint)convertToMapCoordinates:(CGPoint)point;
+-(void) cameraLockdown;
+-(void) cameraPlatformer;
 
 -(void) setAmmo:(int)_ammo;
 -(int) getAmmo;

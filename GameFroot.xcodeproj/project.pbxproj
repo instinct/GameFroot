@@ -419,7 +419,10 @@
 		165BEB0114E2FC5100CF9A2B /* Pause.mm in Sources */ = {isa = PBXBuildFile; fileRef = 165BEB0014E2FC5100CF9A2B /* Pause.mm */; };
 		166448601524F271000CFA89 /* IG Story point page turn.caf in Resources */ = {isa = PBXBuildFile; fileRef = 1664485E1524F271000CFA89 /* IG Story point page turn.caf */; };
 		166448611524F271000CFA89 /* IG Story point.caf in Resources */ = {isa = PBXBuildFile; fileRef = 1664485F1524F271000CFA89 /* IG Story point.caf */; };
-		166977F714E280DE0081176B /* rate_controls_mockup-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 166977F614E280DE0081176B /* rate_controls_mockup-hd.png */; };
+		166F820715A85EC5005E4FA3 /* back-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 166F820315A85EC5005E4FA3 /* back-hd.png */; };
+		166F820815A85EC5005E4FA3 /* back-pressed-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 166F820415A85EC5005E4FA3 /* back-pressed-hd.png */; };
+		166F820915A85EC5005E4FA3 /* back-pressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 166F820515A85EC5005E4FA3 /* back-pressed.png */; };
+		166F820A15A85EC5005E4FA3 /* back.png in Resources */ = {isa = PBXBuildFile; fileRef = 166F820615A85EC5005E4FA3 /* back.png */; };
 		167016E214FC3430006E90A4 /* Chicpix-hd.fnt in Resources */ = {isa = PBXBuildFile; fileRef = 167016E014FC3430006E90A4 /* Chicpix-hd.fnt */; };
 		167016E314FC3430006E90A4 /* Chicpix-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 167016E114FC3430006E90A4 /* Chicpix-hd.png */; };
 		167016E814FC343D006E90A4 /* Chicpix2-hd.fnt in Resources */ = {isa = PBXBuildFile; fileRef = 167016E414FC343D006E90A4 /* Chicpix2-hd.fnt */; };
@@ -523,7 +526,6 @@
 		22D0E1F0150D4C2E00C19BFA /* Underworld Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1AA150D4C2E00C19BFA /* Underworld Theme - 8 Bit.mp3 */; };
 		22D0E1F3150D4C2E00C19BFA /* War Theme - 8 Bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1AE150D4C2E00C19BFA /* War Theme - 8 Bit.mp3 */; };
 		22D0E1F6150D4C2E00C19BFA /* Western Theme - 8 bit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 22D0E1B2150D4C2E00C19BFA /* Western Theme - 8 bit.mp3 */; };
-		22D3A6DA14E2276B00EAB052 /* rate_controls_mockup.png in Resources */ = {isa = PBXBuildFile; fileRef = 22D3A6D914E2276B00EAB052 /* rate_controls_mockup.png */; };
 		22D77A8815338AED00F2C982 /* HelpScreen.mm in Sources */ = {isa = PBXBuildFile; fileRef = 22D77A8715338AED00F2C982 /* HelpScreen.mm */; };
 		22EF3EF715216B7300A17A5C /* EnemyBehaviourState.m in Sources */ = {isa = PBXBuildFile; fileRef = 22EF3EF615216B7300A17A5C /* EnemyBehaviourState.m */; };
 		22F8D1D114F5B52600780B13 /* controls-hd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 22F8D1CD14F5B52600780B13 /* controls-hd.plist */; };
@@ -1199,7 +1201,10 @@
 		165BEB0014E2FC5100CF9A2B /* Pause.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Pause.mm; sourceTree = "<group>"; };
 		1664485E1524F271000CFA89 /* IG Story point page turn.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IG Story point page turn.caf"; sourceTree = "<group>"; };
 		1664485F1524F271000CFA89 /* IG Story point.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IG Story point.caf"; sourceTree = "<group>"; };
-		166977F614E280DE0081176B /* rate_controls_mockup-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "rate_controls_mockup-hd.png"; sourceTree = "<group>"; };
+		166F820315A85EC5005E4FA3 /* back-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "back-hd.png"; sourceTree = "<group>"; };
+		166F820415A85EC5005E4FA3 /* back-pressed-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "back-pressed-hd.png"; sourceTree = "<group>"; };
+		166F820515A85EC5005E4FA3 /* back-pressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "back-pressed.png"; sourceTree = "<group>"; };
+		166F820615A85EC5005E4FA3 /* back.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = back.png; sourceTree = "<group>"; };
 		167016E014FC3430006E90A4 /* Chicpix-hd.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "Chicpix-hd.fnt"; path = "Resources/Chicpix-hd.fnt"; sourceTree = "<group>"; };
 		167016E114FC3430006E90A4 /* Chicpix-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Chicpix-hd.png"; path = "Resources/Chicpix-hd.png"; sourceTree = "<group>"; };
 		167016E414FC343D006E90A4 /* Chicpix2-hd.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "Chicpix2-hd.fnt"; path = "Resources/Chicpix2-hd.fnt"; sourceTree = "<group>"; };
@@ -1307,7 +1312,6 @@
 		22D0E1AA150D4C2E00C19BFA /* Underworld Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Underworld Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
 		22D0E1AE150D4C2E00C19BFA /* War Theme - 8 Bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "War Theme - 8 Bit.mp3"; sourceTree = "<group>"; };
 		22D0E1B2150D4C2E00C19BFA /* Western Theme - 8 bit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Western Theme - 8 bit.mp3"; sourceTree = "<group>"; };
-		22D3A6D914E2276B00EAB052 /* rate_controls_mockup.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rate_controls_mockup.png; sourceTree = "<group>"; };
 		22D77A8615338AED00F2C982 /* HelpScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelpScreen.h; sourceTree = "<group>"; };
 		22D77A8715338AED00F2C982 /* HelpScreen.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HelpScreen.mm; sourceTree = "<group>"; };
 		22EF3EF515216B7300A17A5C /* EnemyBehaviourState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EnemyBehaviourState.h; sourceTree = "<group>"; };
@@ -1868,6 +1872,10 @@
 		1643B47B14D9B0BC00A67057 /* overlays */ = {
 			isa = PBXGroup;
 			children = (
+				166F820315A85EC5005E4FA3 /* back-hd.png */,
+				166F820415A85EC5005E4FA3 /* back-pressed-hd.png */,
+				166F820515A85EC5005E4FA3 /* back-pressed.png */,
+				166F820615A85EC5005E4FA3 /* back.png */,
 				16A8534914FF7CB900EEB19D /* blue-bg-hd.png */,
 				226838BD14FB3C0500D1EB94 /* blue-bg.png */,
 				1605706A159719DE007C9514 /* custom_menu-hd.plist */,
@@ -1977,8 +1985,6 @@
 				22FD013A14F4634100E3F1E0 /* game_detail.png */,
 				161E6D1715999E9200394EA4 /* gamefroot-promo-hd.png */,
 				769C560B15996FF500FC69F8 /* gamefroot-promo.png */,
-				166977F614E280DE0081176B /* rate_controls_mockup-hd.png */,
-				22D3A6D914E2276B00EAB052 /* rate_controls_mockup.png */,
 				1643B4A114D9B0BC00A67057 /* badge-left-hd.png */,
 				1643B4A214D9B0BC00A67057 /* badge-left.png */,
 				1643B4A314D9B0BC00A67057 /* badge-middle-hd.png */,
@@ -2936,8 +2942,6 @@
 				1643B5E614D9B0BC00A67057 /* smoke.png in Resources */,
 				1643B6A714D9B1E400A67057 /* FBConnect.bundle in Resources */,
 				1643B6A814D9B1E400A67057 /* FBDialog.bundle in Resources */,
-				22D3A6DA14E2276B00EAB052 /* rate_controls_mockup.png in Resources */,
-				166977F714E280DE0081176B /* rate_controls_mockup-hd.png in Resources */,
 				1616ADDA14E8098D004FF504 /* weapon_0_single.png in Resources */,
 				1616ADDB14E8098D004FF504 /* weapon_1_single.png in Resources */,
 				1616ADDC14E8098D004FF504 /* weapon_2_single.png in Resources */,
@@ -3071,6 +3075,10 @@
 				16057071159719DE007C9514 /* custom_menu.png in Resources */,
 				769C560C15996FF500FC69F8 /* gamefroot-promo.png in Resources */,
 				161E6D1815999E9200394EA4 /* gamefroot-promo-hd.png in Resources */,
+				166F820715A85EC5005E4FA3 /* back-hd.png in Resources */,
+				166F820815A85EC5005E4FA3 /* back-pressed-hd.png in Resources */,
+				166F820915A85EC5005E4FA3 /* back-pressed.png in Resources */,
+				166F820A15A85EC5005E4FA3 /* back.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3313,7 +3321,8 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					DEBUG,
-					"COCOS2D_DEBUG=1",
+					"COCOS2D_DEBUG=0",
+					"CD_DEBUG=0",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;

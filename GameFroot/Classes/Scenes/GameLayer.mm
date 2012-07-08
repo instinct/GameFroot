@@ -58,6 +58,7 @@ GameLayer *instance;
 @synthesize mapHeight;
 @synthesize world;
 @synthesize hudSpriteSheet;
+@synthesize cameraYOffsetAdjustment;
 
 +(CCScene *) scene
 {
@@ -345,6 +346,8 @@ GameLayer *instance;
         cameraXOffset = 0;
         cameraYOffset = 0;
         cameraYOffsetFixed = 0;
+        cameraYOffsetAdjustment = 0;
+        cameraType = kCameraPlatformer;
         
         //
 		pauseBtn = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"pause.png"] selectedSprite:[CCSprite spriteWithFile:@"pause.png"] target:self selector:@selector(pauseGame)];
@@ -1649,7 +1652,7 @@ GameLayer *instance;
 	
     CGSize hitArea = CGSizeMake(PLAYER_WIDTH / CC_CONTENT_SCALE_FACTOR(), PLAYER_HEIGHT / CC_CONTENT_SCALE_FACTOR());
 	CGPoint pos = ccp(dx * MAP_TILE_WIDTH, ((mapHeight - dy - 1) * MAP_TILE_HEIGHT));
-	pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
+	pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f + (7.0f / CC_CONTENT_SCALE_FACTOR()); // + 7.0f to match Flash initial position
 	pos.y += hitArea.height/2.0f;
     
 	// Create player
@@ -1719,7 +1722,7 @@ GameLayer *instance;
 		
         CGSize hitArea = CGSizeMake(ENEMY_WIDTH / CC_CONTENT_SCALE_FACTOR(), ENEMY_HEIGHT / CC_CONTENT_SCALE_FACTOR());
         CGPoint pos = ccp(dx * MAP_TILE_WIDTH, ((mapHeight - dy - 1) * MAP_TILE_HEIGHT));
-        pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f;
+        pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f + (7.0f / CC_CONTENT_SCALE_FACTOR());  // + 7.0f to match Flash initial position
         pos.y += hitArea.height/2.0f;
 		
 		// Create player		
@@ -1967,9 +1970,25 @@ GameLayer *instance;
     cameraBehaviour = kCameraSnapToLocation;
 }
 
+-(void) cameraLockdown
+{
+    cameraType = kCameraLockOn;
+}
+
+-(void) cameraPlatformer
+{
+    cameraType = kCameraPlatformer;
+}
+
 -(void) setViewpointCenter 
 {
     CGPoint point;
+    
+    // Add offests to match camera position on Flash version
+    float flashOffsetX = 0.0f;
+    float flashOffsetY = 0.0f;
+    
+    //CCLOG(@"%i, %i", cameraBehaviour, cameraType);
     
     if (cameraBehaviour == kCameraFixed) {
         point = previousLocation;
@@ -1977,6 +1996,14 @@ GameLayer *instance;
 	else if (cameraBehaviour == kCameraSnapToLocation) 
     {
         point = cameraLocation;
+        
+        if (cameraType == kCameraPlatformer) {
+            flashOffsetX = 6.0f;
+            flashOffsetY = -30.0f + cameraYOffsetAdjustment;
+        } else {
+            flashOffsetX = 26.0f;
+            flashOffsetY = 32.0f + cameraYOffsetAdjustment;
+        }
     }
 	else if (cameraBehaviour == kCameraPanToLocation) 
     {
@@ -1989,31 +2016,46 @@ GameLayer *instance;
             float angle = findAngle(cameraLocation, previousLocation);
             point = findPoint(previousLocation, angle, 2.0f);
         }
+        
+        if (cameraType == kCameraPlatformer) {
+            flashOffsetX = 6.0f;
+            flashOffsetY = -30.0f + cameraYOffsetAdjustment;
+        } else {
+            flashOffsetX = 26.0f;
+            flashOffsetY = 32.0f + cameraYOffsetAdjustment;
+        }
     } 
     else { //kCameraFollowPlayer
         point = player.position;
+        
+        flashOffsetX = -17.0f;
+        flashOffsetY = 8.0f;
     }
     
     previousLocation = point;
-	point = ccp((point.x + cameraXOffset) * REDUCE_FACTOR, (point.y + cameraYOffset) * REDUCE_FACTOR);
+    
+    point = ccp(flashOffsetX + (point.x + cameraXOffset) * REDUCE_FACTOR, flashOffsetY + (point.y + cameraYOffset) * REDUCE_FACTOR);
     
 	CGSize size = [[CCDirector sharedDirector] winSize];
 	CGPoint centerPoint = ccp(size.width/2, size.height/2);
 	CGPoint viewPoint = ccpSub(centerPoint, point);
 	
-	// dont scroll so far so we see anywhere outside the visible map which would show up as black bars
-	if (point.x < centerPoint.x)
-		viewPoint.x = 0;
-	if (point.y < centerPoint.y)
-		viewPoint.y = 0;
+    if ((cameraBehaviour == kCameraFollowPlayer) && (cameraType == kCameraPlatformer))
+    {
+        // dont scroll so far so we see anywhere outside the visible map which would show up as black bars
+        if (point.x < centerPoint.x)
+            viewPoint.x = 0;
+        if (point.y < centerPoint.y)
+            viewPoint.y = 0;
+        
+        //CCLOG(@"x: %f, %f - width: %f", point.x, viewPoint.x, mapWidth*MAP_TILE_WIDTH*REDUCE_FACTOR);
 	
-	//CCLOG(@"x: %f, %f - width: %f", point.x, viewPoint.x, mapWidth*MAP_TILE_WIDTH*REDUCE_FACTOR);
-	
-	if (point.x > mapWidth*MAP_TILE_WIDTH*REDUCE_FACTOR - size.width/2)
-		viewPoint.x = size.width - mapWidth*MAP_TILE_WIDTH*REDUCE_FACTOR;
-	if (point.y > mapHeight*MAP_TILE_HEIGHT*REDUCE_FACTOR - size.height/2)
-		viewPoint.y = size.height - mapHeight*MAP_TILE_HEIGHT*REDUCE_FACTOR;
-	
+        if (point.x > mapWidth*MAP_TILE_WIDTH*REDUCE_FACTOR - size.width/2)
+            viewPoint.x = size.width - mapWidth*MAP_TILE_WIDTH*REDUCE_FACTOR;
+        if (point.y > mapHeight*MAP_TILE_HEIGHT*REDUCE_FACTOR - size.height/2)
+            viewPoint.y = size.height - mapHeight*MAP_TILE_HEIGHT*REDUCE_FACTOR;
+    }
+    
 	self.position = ccp(viewPoint.x, viewPoint.y);
 }
 

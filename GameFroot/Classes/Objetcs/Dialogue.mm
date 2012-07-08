@@ -217,7 +217,7 @@
         // 1. split text at one page worth and add to result
         uint pBreak = [self getPageBreakIndexForString:t];
         if (pBreak == 0) {
-            CCLOG(@"Dialog: The break was on 0, page is one contigous word, overflow will occur");
+            //CCLOG(@"Dialog: The break was on 0, page is one contigous word, overflow will occur");
             [r addObject:t];
         } else {
             [r addObject:[t substringToIndex:pBreak]];
@@ -285,12 +285,12 @@
     
     [pageBreakText release];
     
-    CCLOG(@"Final paginated result: ");
+    //CCLOG(@"Final paginated result: ");
     int i=0;
     for (NSString *s in pages) {
         i++;
-        CCLOG(@"PAGE: %i",i);
-        CCLOG(@"%@", s);
+        //CCLOG(@"PAGE: %i",i);
+        //CCLOG(@"%@", s);
     }
 
 }
