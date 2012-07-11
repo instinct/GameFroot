@@ -99,9 +99,15 @@
 		[[logo1Normal texture] setAntiAliasTexParameters];
         [[logo1Selected texture] setAliasTexParameters];
         CCMenuItemSprite *secretButton = [CCMenuItemSprite itemFromNormalSprite:logo1Normal selectedSprite:logo1Selected target:self selector:@selector(_onBetaButtonTap:)];
-        CCMenu *secretMenu = [CCMenu menuWithItems:secretButton, nil];
-        secretMenu.position = top.position;
+        secretMenu = [CCMenu menuWithItems:secretButton, nil];
+        secretMenu.position = ccp(size.width/2 - 120, size.height - top.contentSize.height/2);
+        positionLogo = secretMenu.position;
 		[self addChild:secretMenu z:3];
+        
+        editionLabel = [CCLabelTTF labelWithString:@"Gamefroot Edition #1" fontName:@"HelveticaNeue-Bold" fontSize:16];
+        editionLabel.color = ccc3(255,255,255);
+        editionLabel.position = ccp(size.width/2, size.height - top.contentSize.height/2);
+        [self addChild:editionLabel z:4];
 		
 		// Containers
 		featured = [CCNode node];
@@ -599,7 +605,10 @@
 #pragma mark Game Detail event handlers
 
 
--(void) gameDetailBack:(id)sender {
+-(void) gameDetailBack:(id)sender 
+{
+    editionLabel.visible = YES;
+    secretMenu.position = positionLogo;
     
     welcome.visible = NO;
 	featured.visible = NO;
@@ -869,6 +878,9 @@
 
 -(void) loadGameDetail 
 {
+    editionLabel.visible = NO;
+    secretMenu.position = ccpAdd(positionLogo, ccp(120,0));
+    
     // [self cancelAsynchronousConnection];
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadGameDetail)];
@@ -900,10 +912,10 @@
     }
     
     // Text Stuff!
-    CCLabelTTF *levelNameText = [CCLabelTTF labelWithString:[ld objectForKey:@"title"] fontName:@"HelveticaNeue-Bold" fontSize:12];
-    [levelNameText setColor:ccc3(219, 138, 89)];
-    CCLabelTTF *authorText = [CCLabelTTF labelWithString:[NSString stringWithFormat:@"by %@", author] fontName:@"HelveticaNeue-Bold" fontSize:12];
-    [authorText setColor:ccc3(110, 165, 193)];
+    CCLabelTTF *levelNameText = [CCLabelTTF labelWithString:[ld objectForKey:@"title"] fontName:@"HelveticaNeue-Bold" fontSize:16];
+    [levelNameText setColor:ccc3(255, 255, 255)];
+    CCLabelTTF *authorText = [CCLabelTTF labelWithString:[NSString stringWithFormat:@"By %@", author] fontName:@"HelveticaNeue-Bold" fontSize:13];
+    [authorText setColor:ccc3(144, 144, 144)];
     
     NSString *desc = [ld objectForKey:@"content"];
     //NSString *desc = @"Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?";
@@ -911,8 +923,8 @@
     
     UIFont *fontReference = [UIFont fontWithName:@"HelveticaNeue" size:10];
     CGSize sizeText = [self calculateLabelSize:desc withFont:fontReference maxSize:CGSizeMake(size.width - 24, 1024)];
-    CCLabelTTF *descriptionText = [CCLabelTTF labelWithString:desc dimensions:sizeText alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue" fontSize:10];
-    [descriptionText setColor:ccc3(189, 189, 189)];
+    CCLabelTTF *descriptionText = [CCLabelTTF labelWithString:desc dimensions:sizeText alignment:CCTextAlignmentLeft fontName:@"HelveticaNeue" fontSize:12];
+    [descriptionText setColor:ccc3(0, 0, 0)];
     
     // Game thumb
     /*
@@ -923,7 +935,7 @@
     NSHTTPURLResponse* response = nil;
     NSError* error = nil;
     [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
-    NSLog(@"statusCode = %d", [response statusCode]);
+    CCLOG(@"statusCode = %d", [response statusCode]);
     
     if ([response statusCode] == 404) {
         gameImage = [CCSprite spriteWithFile:@"game_detail_proxy_image.png"];
@@ -957,6 +969,9 @@
     CCNode *container = [CCNode node];
     //CCLayerColor *container = [CCLayerColor layerWithColor:ccc4(255,0,0,255)];
     
+    CCLayerGradient *containerText = [CCLayerGradient layerWithColor:ccc4(158,158,158,255) fadingTo:ccc4(214,214,214,255)];
+    [container addChild:containerText];
+    
     // Calculate size of the layer
     // NOTE! cocos2d layers don't get size according to his cildren
     CGSize sizeScroll = CGSizeMake(size.width, 18 + gameImage.contentSize.height + 20 + levelNameText.contentSize.height + 12 + sizeText.height + 12 + contentPlayButton.contentSize.height + 12 + likeButton.contentSize.height + authorText.contentSize.height + 12);
@@ -965,18 +980,21 @@
     //CCLOG(@"view: %f,%f", sizeView.width, sizeView.height);
     
     // position stuff
-    topNavMenu.position = ccp(10 + (topNavBackButton.contentSize.width / 2) , size.height - (topNavBackButton.contentSize.height/2) - 7);
-    //
-    gameImage.position = ccp(size.width/2, sizeScroll.height - 18 - gameImage.contentSize.height/2);
-    imageOverlay.position = gameImage.position;
-    levelNameText.position = ccp(levelNameText.contentSize.width/2 + 12, gameImage.position.y - gameImage.contentSize.height/2 - 20);
-    authorText.position = ccp(authorText.contentSize.width/2 + 12, levelNameText.position.y - 18);
-    descriptionText.position = ccp(descriptionText.contentSize.width/2 + 12, levelNameText.position.y - levelNameText.contentSize.height/2 - sizeText.height/2 - 4 - 20);
+    topNavMenu.position = ccp((topNavBackButton.contentSize.width / 2) + 5, size.height - (topNavBackButton.contentSize.height/2) - 7);
     
-    //contentMenu.position = ccp(size.width/2, size.height /2 - 70);
-    //likeMenu.position = ccp(size.width/2, size.height/2 - 150);
-    contentMenu.position = ccp(size.width/2, descriptionText.position.y - sizeText.height/2 - contentPlayButton.contentSize.height/2 - 12);
-    likeMenu.position = ccp(size.width/2, contentMenu.position.y - 83);
+    // relative to container
+    levelNameText.position = ccp(levelNameText.contentSize.width/2 + 12, sizeScroll.height - 12);
+    authorText.position = ccp(authorText.contentSize.width/2 + 12, levelNameText.position.y - 18);
+    
+    gameImage.position = ccp(size.width/2, authorText.position.y - 14 - gameImage.contentSize.height/2);
+    imageOverlay.position = gameImage.position;
+    
+    contentMenu.position = ccp(size.width/2, gameImage.position.y - gameImage.contentSize.height/2 - contentPlayButton.contentSize.height/2 - 10);
+    
+    [containerText setContentSize:CGSizeMake(size.width, sizeText.height + 10 + likeButton.contentSize.height + 50)];
+    containerText.position = ccp(0, contentMenu.position.y - contentPlayButton.contentSize.height/2 - likeButton.contentSize.height - sizeText.height - 20 - 50);
+    descriptionText.position = ccp(sizeText.width/2 + 12, sizeText.height/2 + likeButton.contentSize.height + 50);
+    likeMenu.position = ccp(size.width/2, likeButton.contentSize.height/2 + 10);
     
     
     [gameDetail addChild:topNavMenu];
@@ -992,10 +1010,10 @@
     */
 
     [container addChild:contentMenu];
-    [container addChild:likeMenu];
     [container addChild:levelNameText];
     [container addChild:authorText];
-    [container addChild:descriptionText];
+    [containerText addChild:descriptionText];
+    [containerText addChild:likeMenu];
     [container addChild:gameImage];
     [container addChild:imageOverlay z:20];
     
@@ -1123,7 +1141,7 @@
 	//tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, 270)]; // - 50 to height for iAd
 	//tableView.position = ccp(0,(50)); // Add 50 to y for iAd
     
-    tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, 270 + 50 + 28)];
+    tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, 270 + 10)];
 	tableView.position = ccp(0,0);
     // ********************************************************
     // ********************************************************
@@ -1843,7 +1861,11 @@
 #pragma mark -
 #pragma mark More
 
--(void) loadMore {
+-(void) loadMore 
+{
+    editionLabel.visible = NO;
+    secretMenu.position = ccpAdd(positionLogo, ccp(120,0));
+    
 	if (selectedPage == more) return;
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	selectedPage = more;
@@ -1905,7 +1927,7 @@
     // Add top menu and buttons
     CCMenuItemSprite *topNavBackButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"back-button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"back-button.png"] target:self selector:@selector(gameDetailBack:)];
     CCMenu *topNavMenu = [CCMenu menuWithItems:topNavBackButton, nil];
-    topNavMenu.position = ccp(10 + (topNavBackButton.contentSize.width / 2) , size.height - (topNavBackButton.contentSize.height/2) - 7);
+    topNavMenu.position = ccp((topNavBackButton.contentSize.width / 2) + 5, size.height - (topNavBackButton.contentSize.height/2) - 7);
     [more addChild:topNavMenu];
     
 	loading = NO;

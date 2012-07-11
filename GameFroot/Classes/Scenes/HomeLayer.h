@@ -92,6 +92,10 @@
     int featuredPage;
     int browsePage;
     int myGamesPage;
+    
+    CGPoint positionLogo;
+    CCMenu *secretMenu;
+    CCLabelTTF *editionLabel;
 }
 
 // returns a CCScene that contains the HomeLayer as the only child

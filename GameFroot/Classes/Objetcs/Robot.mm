@@ -2114,7 +2114,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 -(void) cameraPlatformer:(NSDictionary *)command 
 {
     if (TRACE_COMMANDS) CCLOG(@"Robot.cameraPlatformer: %@", command);
-    [[GameLayer getInstance] cameraP];
+    [[GameLayer getInstance] cameraPlatformer];
 }
 
 -(void) offsetCameraY:(NSDictionary *)command 
