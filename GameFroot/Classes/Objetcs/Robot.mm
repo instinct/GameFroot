@@ -95,6 +95,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 -(NSString *) convertMessageNameToFunctionName:(NSString *)messageName
 {
     messageName = [messageName stringByReplacingOccurrencesOfString:@" " withString:@"_"];
+    //return [NSString stringWithFormat:@"_dynamicMessage_%d_%@", self, messageName];
     return [NSString stringWithFormat:@"_dynamicMessage_%@", messageName];
     
 }
@@ -181,7 +182,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
             SEL selBroadcast = sel_registerName([[NSString stringWithFormat:@"broadcast_%@:command:", [self convertMessageNameToFunctionName:[event objectForKey:@"messageName"]]] UTF8String]);
             class_addMethod([self class], selBroadcast, (IMP)runDynamicBroadcastMessage, "v@:@@");
             
-            if (TRACE_COMMANDS) CCLOG(@"Robot.setupRobo: Register dynamic method: %@", [self convertMessageNameToFunctionName:[event objectForKey:@"messageName"]]);
+            //if (TRACE_COMMANDS) CCLOG(@"Robot.setupRobot: Register dynamic method: %@", [self convertMessageNameToFunctionName:[event objectForKey:@"messageName"]]);
             
 		} else if ([nameEvent isEqualToString:@"onDie"]) {
 			onDieCommands = [event objectForKey:@"commands"];
@@ -660,6 +661,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	int count = [[command objectForKey:@"count"] intValue];
 	timerCommands = [command objectForKey:@"repeatedActions"];
 	
+    [CCScheduler cancelPreviousPerformRequestsWithTarget:self selector:@selector(_timeDelay) object:nil];
+    
 	id action = [CCSequence actions:
 					[CCRepeat actionWithAction:
 					 [CCCallFunc actionWithTarget:self selector:@selector(_timeDelay)]
@@ -691,9 +694,27 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 	}
 }
 
+-(void) playSfx:(NSDictionary *)command 
+{
+    //if (TRACE_COMMANDS)
+    CCLOG(@"Robot.playSfx: %@", command);
+}
+
+-(void) setScrollX:(NSDictionary *)command 
+{
+    //if (TRACE_COMMANDS)
+    CCLOG(@"Robot.setScrollX: %@", command);
+}
+
+-(void) setScrollY:(NSDictionary *)command 
+{
+    //if (TRACE_COMMANDS)
+    CCLOG(@"Robot.setScrollY: %@", command);
+}
+
 -(NSNumber *) coordinateXOfNode:(NSDictionary *)command 
 {
-    //if (TRACE_COMMANDS) CCLOG(@"Robot.coordinateXOfNode: %@", command);
+    if (TRACE_COMMANDS) CCLOG(@"Robot.coordinateXOfNode: %@", command);
     
     NSDictionary *node = [command objectForKey:@"node"];
     NSMutableArray *position = [self runMethod:[node objectForKey:@"token"] withObject:node];
@@ -755,9 +776,9 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 		x += [[obj objectForKey:@"xMod"] floatValue] / CC_CONTENT_SCALE_FACTOR();
 	}
 	
-    if (x > ([GameLayer getInstance].mapWidth * MAP_TILE_WIDTH)) x = [GameLayer getInstance].mapWidth * MAP_TILE_WIDTH;
-    if (x < MAP_TILE_WIDTH) x = MAP_TILE_WIDTH;
-        
+    //if (x > ([GameLayer getInstance].mapWidth * MAP_TILE_WIDTH)) x = [GameLayer getInstance].mapWidth * MAP_TILE_WIDTH;
+    //if (x < MAP_TILE_WIDTH) x = MAP_TILE_WIDTH;
+    
 	if ([[obj objectForKey:@"yMod"] isKindOfClass:[NSDictionary class]]) {
 		
 		NSString *token = [[obj objectForKey:@"yMod"] objectForKey:@"token"];
@@ -768,8 +789,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 		y -= [[obj objectForKey:@"yMod"] floatValue] / CC_CONTENT_SCALE_FACTOR();
 	}		
 	
-    if (y > ([GameLayer getInstance].mapHeight * MAP_TILE_HEIGHT)) y = [GameLayer getInstance].mapHeight * MAP_TILE_HEIGHT;
-    if (y < MAP_TILE_HEIGHT) y = MAP_TILE_HEIGHT;
+    //if (y > ([GameLayer getInstance].mapHeight * MAP_TILE_HEIGHT)) y = [GameLayer getInstance].mapHeight * MAP_TILE_HEIGHT;
+    //if (y < MAP_TILE_HEIGHT) y = MAP_TILE_HEIGHT;
     
 	NSMutableArray *pos = [NSMutableArray arrayWithCapacity:2];
 	[pos addObject:[NSNumber numberWithFloat:x]];
@@ -1186,7 +1207,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         if (TRACE_COMMANDS) CCLOG(@"Robot.teleport: %f, %f", pos.x, pos.y);
         
         [self markToTransformBody:b2Vec2((pos.x/PTM_RATIO), pos.y/PTM_RATIO) angle:body->GetAngle()];
-        self.position = pos;
+        //self.position = pos;
         
 	} else if ([result isKindOfClass:[NSArray class]]) {
         NSArray *position = (NSArray *)result;
@@ -1209,7 +1230,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         
         CGPoint pos = ccp(auxX, auxY);
         [self markToTransformBody:b2Vec2((pos.x/PTM_RATIO), pos.y/PTM_RATIO) angle:body->GetAngle()];
-        self.position = pos;
+        //self.position = pos;
     }
 }
 
@@ -1686,6 +1707,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
      
     SEL sel = sel_registerName([[NSString stringWithFormat:@"%@:command:", [self convertMessageNameToFunctionName:message]] UTF8String]);
     
+    [CCScheduler cancelPreviousPerformRequestsWithTarget:self selector:sel object:command];
+    
     id action = [CCSequence actions:
                  [CCDelayTime actionWithDuration:delay/DELAY_FACTOR],
                  [CCCallFuncND actionWithTarget:self selector:sel data:command],
@@ -1714,6 +1737,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     if (TRACE_COMMANDS) CCLOG(@"Robot.broadcastMessageAfterDelay: %@ (%f)", [self convertMessageNameToFunctionName:message], delay/DELAY_FACTOR);
     
     SEL sel = sel_registerName([[NSString stringWithFormat:@"broadcast_%@:command:", [self convertMessageNameToFunctionName:message]] UTF8String]);
+    
+    [CCScheduler cancelPreviousPerformRequestsWithTarget:self selector:sel object:command];
     
     id action = [CCSequence actions:
                  [CCDelayTime actionWithDuration:delay/DELAY_FACTOR],
@@ -2133,7 +2158,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 		amount = [[command objectForKey:@"amount"] intValue];
 	}
     
-    [[GameLayer getInstance] offsetCameraY:-amount];
+    [[GameLayer getInstance] offsetCameraY:-amount / CC_CONTENT_SCALE_FACTOR()];
 }
 
 -(void) offsetCameraX:(NSDictionary *)command 
@@ -2152,7 +2177,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 		amount = [[command objectForKey:@"amount"] intValue];
 	}
     
-    [[GameLayer getInstance] offsetCameraX:amount];
+    [[GameLayer getInstance] offsetCameraX:amount / CC_CONTENT_SCALE_FACTOR()];
 }
 
 -(void) createSprayWithColor:(NSString *)color amount:(int)amount frequency:(float)frequency life:(float)life velocity:(float)velocity

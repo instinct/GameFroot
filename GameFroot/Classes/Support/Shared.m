@@ -18,6 +18,7 @@
 static NSString *osVersion = @"";
 static NSString *device = @"";
 static NSMutableDictionary *levelData = nil;
+static int originalLevelID = 0;
 static int nextLevelID = 0;
 static BOOL playing = NO;
 static BOOL paused = YES;
@@ -82,10 +83,15 @@ static BOOL betaMode = NO;
 	if (levelData != nil) [levelData release];
     levelData = [_value retain];
     nextLevelID = 0;
+    originalLevelID = [Shared getLevelID];
 }
 
 +(void) replaceLevelID: (int)_levelID {
 	[levelData setValue:[NSString stringWithFormat:@"%i",_levelID] forKey:@"id"];
+}
+
++(void) restoreLevelID {
+	[levelData setValue:[NSString stringWithFormat:@"%i",originalLevelID] forKey:@"id"];
 }
 
 +(int) getLevelID {

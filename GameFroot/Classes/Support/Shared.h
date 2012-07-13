@@ -25,6 +25,7 @@
 +(NSMutableDictionary *) getLevel;
 +(void) setLevel: (NSMutableDictionary *)_value;
 +(void) replaceLevelID: (int)_levelID;
++(void) restoreLevelID;
 +(int) getLevelID;
 +(NSString *) getLevelDate;
 +(NSString *) getLevelTitle;

@@ -2100,6 +2100,9 @@ GameLayer *instance;
         CCLOG(@"GameLayer.resume");
         
         // Start updater
+        [self unscheduleUpdate];
+        [self unschedule:@selector(timer:)];
+        
         [self scheduleUpdate];
         if (timerEnabled) [self schedule:@selector(timer:) interval:1.0f];
         paused = NO;
@@ -2831,6 +2834,7 @@ GameLayer *instance;
 -(void) quitGame
 {   
     [Shared setNextLevelID:0];
+    [Shared restoreLevelID];
     
     [self restartGameFromPause];
     [self pause];

@@ -88,7 +88,7 @@
         NSString *stringData = [Shared stringWithContentsOfURL:gameURL ignoreCache:NO];
         NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *jsonData = [[CJSONDeserializer deserializer] deserializeAsDictionary:rawData error:nil];
-        CCLOG(@"%@", [jsonData description]);
+        //CCLOG(@">>>>>>> %@: %@", gameURL, [jsonData description]);
         
         if (jsonData != nil) {
             // Custom menu

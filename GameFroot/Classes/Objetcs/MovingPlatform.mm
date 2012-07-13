@@ -124,7 +124,8 @@
 	body->SetLinearVelocity(velocity);
 }
 
--(void) moveTo:(CGPoint)_pos duration:(float)_duration {
+-(void) moveTo:(CGPoint)_pos duration:(float)_duration 
+{
 	//[self unschedule:@selector(updatePlatform:)];
 	
 	translationXInPixels = _pos.x - (origPosition.x *PTM_RATIO);
