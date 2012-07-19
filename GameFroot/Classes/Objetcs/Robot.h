@@ -9,8 +9,6 @@
 #import "GameObject.h"
 
 #define ROBOT_TRACK_RANGE               0               // how much to expand track range beyond visible screen
-#define ROBOT_TRACK_ALWAYS              0               // track even if out of screen
-
 #define TRACE_COMMANDS                  0               // Traces all robot scripts commands on the terminal
 
 enum RobotTouchingType{
@@ -69,6 +67,8 @@ enum RobotTouchingType{
     
     CCParticleSystemQuad *spray;
     CCParticleSystemQuad *firework;
+    
+    BOOL delayDie;
 }
 
 @property (nonatomic, assign) BOOL solid;
@@ -89,6 +89,7 @@ enum RobotTouchingType{
 -(void) execute: (NSString *)eventType type:(GameObjectType)isType;
 
 -(void) receiveMessage:(NSString *)msg;
+-(void) broadcastedMessage:(NSString *)msg;
 
 -(void) touched:(id)sender;
 -(void) finished:(id)sender;

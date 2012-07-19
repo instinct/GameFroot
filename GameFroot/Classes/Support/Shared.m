@@ -607,11 +607,13 @@ has been previously downloaded, return a path to the file otherwise load the ass
                      }
                  }
                  
+                 BOOL saved = NO;
+                 NSError *error = nil;
+                 
+                 /*
                  // try to download the latest version of the file to the cache
                  CCLOG(@"MusicCache: downloading music file: %@", musicFileName);
                  
-                 NSError *error = nil;
-                 BOOL saved = NO;
                  NSData *musicFileData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[[url objectForKey:@"url"] stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding]]options:NSDataReadingMapped error:&error];
                  
                  if (error == nil) {
@@ -623,6 +625,7 @@ has been previously downloaded, return a path to the file otherwise load the ass
                         if(isDefault) [musicData setObject:cachedFilePath forKey:@"default"];
                      }
                  }
+                 */
                  
                  // If can't download file, then used cached version if one is availible, even if stale
                  if (!saved || error != nil) {
@@ -655,6 +658,9 @@ has been previously downloaded, return a path to the file otherwise load the ass
 
 +(NSString *) generateMusicFileNameHashForUrl:(NSString *)url andFileName:(NSString *)musicFileName {
     
+    return nil;
+    
+    /*
     NSURLResponse *response = nil;
     NSError *rerror = nil;
     NSString *cacheFileName = nil;
@@ -688,6 +694,7 @@ has been previously downloaded, return a path to the file otherwise load the ass
         CCLOG(@"MusicCache: cannot aquire file metadata for hash, no network connectivity?");
     }
     return cacheFileName;
+    */
 }
 
 +(CCTexture2D*) getTexture2DFromWeb:(NSString*)url ignoreCache:(BOOL)ignoreCache
@@ -733,8 +740,10 @@ has been previously downloaded, return a path to the file otherwise load the ass
 		}
 		
 	} else {
-		NSError *error = nil;
-		NSData *imgData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[url stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding]] options:NSDataReadingMapped error:&error];
+		
+        /*
+        NSError *error = nil;
+        NSData *imgData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[url stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding]] options:NSDataReadingMapped error:&error];
 		
 		if (error == nil) {
 			BOOL saved = [imgData writeToFile:resource atomically:YES];
@@ -752,7 +761,9 @@ has been previously downloaded, return a path to the file otherwise load the ass
 				return tex;
 			}
 			
-		} else if ([fileManager fileExistsAtPath:resource]) {
+		} else 
+        */
+        if ([fileManager fileExistsAtPath:resource]) {
 			CCTexture2D *tex = [[CCTextureCache sharedTextureCache] addImage:resource];
 			
 			if (tex != nil) {

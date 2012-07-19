@@ -103,6 +103,8 @@ enum ANIM { STAND = 0, WALK, CROUCH, PRONE, JUMPING, FALLING };
     float fixedXSpeed, fixedYSpeed;
     
     BOOL smokeOn;
+    
+    float inertia;
 }
 
 @property (nonatomic,assign) int action;

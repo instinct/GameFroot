@@ -208,7 +208,7 @@ typedef enum{
 -(void) runTeleportAnimation:(CGPoint)pos;
 -(void) changeInitialPlayerPositionToX:(int)x andY:(int)y;
 -(CGPoint) playerPosition;
--(void) broadcastMessageToRobots:(NSDictionary *)command;
+-(void) broadcastMessageToRobots:(NSDictionary *)command except:(Robot *)instance;
 
 -(void) cameraOnPlayer;
 -(void) stopCameraMove;

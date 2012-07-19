@@ -108,6 +108,7 @@
 -(BOOL) applyPendingBox2dActions
 {
     if (flagToDestroyBody) {
+        //CCLOG(@"%@.applyPendingBox2dActions: DestroyBody", [self class]);
         flagToDestroyBody = NO;
         [GameLayer getInstance].world->DestroyBody(body);
         
@@ -115,11 +116,13 @@
     }  
     
     if (flagToTransformBody) {
+        //CCLOG(@"%@.applyPendingBox2dActions: TransformBody: %f,%f", [self class], tranformPosition.x, tranformPosition.y);
         flagToTransformBody = NO;
         body->SetTransform(tranformPosition, tranformAngle);
     }
     
     if (flagToRecreateBody) {
+        //CCLOG(@"%@.applyPendingBox2dActions: RecreateBody", [self class]);
         flagToRecreateBody = NO;
         [GameLayer getInstance].world->DestroyBody(body);
         [self createBox2dObject:[GameLayer getInstance].world size:recreateSize];

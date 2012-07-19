@@ -745,7 +745,7 @@ GameLayer *instance;
 		//CCLOG(@"robot id %@ with script %@", [values objectForKey:@"id"], [values objectForKey:@"script"]);
 		[robotsIds setObject:[values objectForKey:@"script"] forKey:[values objectForKey:@"id"]];
 	}
-	//CCLOG(@"Robots: %@", [robotsIds description]);
+	CCLOG(@"Robots: %@", [robotsIds description]);
     
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Load Player
@@ -1327,7 +1327,11 @@ GameLayer *instance;
 								// Create collision body
 								[block setPosition:ccp(initialPos.x - (MAP_TILE_WIDTH/2.0f) + (MAP_TILE_WIDTH * ((float)(countTiles)/2.0f)), initialPos.y)];
 								
-                                if (initialType == 3) [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH/2 * countTiles, MAP_TILE_HEIGHT/2)];
+                                if (initialType == 3) {
+                                    if (countTiles > 2) [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH * 0.75f * 2.0f + (MAP_TILE_WIDTH * (countTiles - 2)), MAP_TILE_HEIGHT/2)];
+                                    if (countTiles == 2) [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH * 0.75f * 2.0f, MAP_TILE_HEIGHT/2)];
+                                    else [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH/2, MAP_TILE_HEIGHT/2)];
+                                }
                                 else [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH * countTiles, MAP_TILE_HEIGHT)];
 								
 								if (initialType == 2) [block setType:kGameObjectCloud];
@@ -1383,7 +1387,11 @@ GameLayer *instance;
 								// Create collision body
 								[block setPosition:ccp(initialPos.x - (MAP_TILE_WIDTH/2.0f) + (MAP_TILE_WIDTH * ((float)(countTiles)/2.0f)), initialPos.y)];
 								
-                                if (initialType == 3) [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH/2 * countTiles, MAP_TILE_HEIGHT/2)];
+                                if (initialType == 3) {
+                                    if (countTiles > 2) [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH * 0.75f * 2.0f + (MAP_TILE_WIDTH * (countTiles - 2)), MAP_TILE_HEIGHT/2)];
+                                    if (countTiles == 2) [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH * 0.75f * 2.0f, MAP_TILE_HEIGHT/2)];
+                                    else [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH/2, MAP_TILE_HEIGHT/2)];
+                                }
                                 else [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH * countTiles, MAP_TILE_HEIGHT)];
 								
 								if (initialType == 2) [block setType:kGameObjectCloud];
@@ -1437,7 +1445,11 @@ GameLayer *instance;
 				// Create collision body
 				[block setPosition:ccp(initialPos.x - (MAP_TILE_WIDTH/2.0f) + (MAP_TILE_WIDTH * ((float)(countTiles)/2.0f)), initialPos.y)];
 				
-                if (initialType == 3) [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH/2 * countTiles, MAP_TILE_HEIGHT/2)];
+                if (initialType == 3) {
+                    if (countTiles > 2) [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH * 0.75f * 2.0f + (MAP_TILE_WIDTH * (countTiles - 2)), MAP_TILE_HEIGHT/2)];
+                    if (countTiles == 2) [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH * 0.75f * 2.0f, MAP_TILE_HEIGHT/2)];
+                    else [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH/2, MAP_TILE_HEIGHT/2)];
+                }
                 else [block createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH * countTiles, MAP_TILE_HEIGHT)];
 				
 				if (initialType == 2) [block setType:kGameObjectCloud];
@@ -1966,6 +1978,7 @@ GameLayer *instance;
 
 -(void) snapToLocation:(CGPoint)location
 {
+    //CCLOG(@"GameLayer.snapToLocation: %f,%f", location.x, location.y);
     cameraLocation = location;
     cameraBehaviour = kCameraSnapToLocation;
 }
@@ -1990,6 +2003,8 @@ GameLayer *instance;
     
     //CCLOG(@"%i, %i", cameraBehaviour, cameraType);
     
+    //cameraBehaviour = kCameraFollowPlayer; // REMOVE!!
+    
     if (cameraBehaviour == kCameraFixed) {
         point = previousLocation;
     }
@@ -1998,11 +2013,11 @@ GameLayer *instance;
         point = cameraLocation;
         
         if (cameraType == kCameraPlatformer) {
-            flashOffsetX = 6.0f;
-            flashOffsetY = -30.0f + cameraYOffsetAdjustment;
+            flashOffsetX = -8.0f;
+            flashOffsetY = -48.0f*2.5 + cameraYOffsetAdjustment;
         } else {
-            flashOffsetX = 26.0f;
-            flashOffsetY = 32.0f + cameraYOffsetAdjustment;
+            flashOffsetX = 18.0f;
+            flashOffsetY = -8.0f + cameraYOffsetAdjustment;
         }
     }
 	else if (cameraBehaviour == kCameraPanToLocation) 
@@ -2018,29 +2033,32 @@ GameLayer *instance;
         }
         
         if (cameraType == kCameraPlatformer) {
-            flashOffsetX = 6.0f;
-            flashOffsetY = -30.0f + cameraYOffsetAdjustment;
+            flashOffsetX = -8.0f;
+            flashOffsetY = -48.0f*2.5 + cameraYOffsetAdjustment;
         } else {
-            flashOffsetX = 26.0f;
-            flashOffsetY = 32.0f + cameraYOffsetAdjustment;
+            flashOffsetX = 18.0f;
+            flashOffsetY = -8.0f + cameraYOffsetAdjustment;
         }
     } 
     else { //kCameraFollowPlayer
         point = player.position;
         
-        flashOffsetX = -17.0f;
-        flashOffsetY = 8.0f;
+        flashOffsetX = -26.0f;
+        flashOffsetY = 10.0f;
     }
+    
+    flashOffsetX /= CC_CONTENT_SCALE_FACTOR();
+    flashOffsetY /= CC_CONTENT_SCALE_FACTOR();
     
     previousLocation = point;
     
-    point = ccp(flashOffsetX + (point.x + cameraXOffset) * REDUCE_FACTOR, flashOffsetY + (point.y + cameraYOffset) * REDUCE_FACTOR);
+    point = ccp((point.x + cameraXOffset + flashOffsetX) * REDUCE_FACTOR, (point.y + cameraYOffset + flashOffsetY) * REDUCE_FACTOR);
     
 	CGSize size = [[CCDirector sharedDirector] winSize];
 	CGPoint centerPoint = ccp(size.width/2, size.height/2);
 	CGPoint viewPoint = ccpSub(centerPoint, point);
 	
-    if ((cameraBehaviour == kCameraFollowPlayer) && (cameraType == kCameraPlatformer))
+    if ((cameraBehaviour == kCameraFollowPlayer) || (cameraType == kCameraPlatformer))
     {
         // dont scroll so far so we see anywhere outside the visible map which would show up as black bars
         if (point.x < centerPoint.x)
@@ -2060,7 +2078,10 @@ GameLayer *instance;
 }
 
 -(CGPoint)convertToMapCoordinates:(CGPoint)point {
-	return [self convertToWorldSpace:ccp(point.x*REDUCE_FACTOR, point.y*REDUCE_FACTOR)];
+	CGPoint pos = [self convertToWorldSpace:ccp(point.x*REDUCE_FACTOR, point.y*REDUCE_FACTOR)];
+    
+    //CCLOG(@"convertToMapCoordinates: %f, %f", pos.x, pos.y);
+    return pos;
 }
 
 -(BOOL) isPaused
@@ -2266,10 +2287,10 @@ GameLayer *instance;
 	return player.position;
 }
 
--(void) broadcastMessageToRobots:(NSDictionary *)command
+-(void) broadcastMessageToRobots:(NSDictionary *)command except:(Robot *)instance
 {
 	Robot *robot; CCARRAY_FOREACH(robots, robot) {
-		[robot receiveMessage:[command objectForKey:@"message"]];
+		if (instance != robot) [robot broadcastedMessage:[command objectForKey:@"message"]];
 	}
 }
 
@@ -2824,11 +2845,35 @@ GameLayer *instance;
 -(void) loseGameWithText:(NSString *)text
 {
     [self loseGame];
+	
+	Enemy *enemy; CCARRAY_FOREACH(enemies, enemy) {
+        [enemy pause];
+	}
+    
+    Robot *robot; CCARRAY_FOREACH(robots, robot) {
+        [robot pause];
+	}
+    
+    MovingPlatform *platform; CCARRAY_FOREACH(movingPlatforms, platform) {
+		[platform pause];
+	}
 }
 
 -(void) winGameWithText:(NSString *)text
 {
     [self winGame];
+    
+    Enemy *enemy; CCARRAY_FOREACH(enemies, enemy) {
+        [enemy pause];
+	}
+    
+    Robot *robot; CCARRAY_FOREACH(robots, robot) {
+        [robot pause];
+	}
+    
+    MovingPlatform *platform; CCARRAY_FOREACH(movingPlatforms, platform) {
+		[platform pause];
+	}
 }
 
 -(void) quitGame
@@ -2930,6 +2975,11 @@ GameLayer *instance;
     cameraLocation = CGPointZero;
     cameraXOffset = 0;
     cameraYOffset = 0;
+    
+    // Trigger onSpawn on robots
+    CCARRAY_FOREACH(robots, robot) {
+		[robot triggerEvent:@"onSpawn"];
+	}
 }
 
 -(void) restartGameFromPause

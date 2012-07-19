@@ -442,6 +442,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		moving = YES;
 		direction = kDirectionRight;
 		facingLeft = NO;
+        
+        inertia = 0;
+        body->SetLinearDamping(0.0f);
 	}
 }
 
@@ -472,11 +475,15 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		moving = YES;
 		direction = kDirectionLeft;
 		facingLeft = YES;
+        
+        inertia = 0;
+        body->SetLinearDamping(0.0f);
 	}
 }
 
 -(BOOL) isMoonWalking {
     if ( dying || immortal || jumping || (action == PRONE) || (action == CROUCH)) return ( NO );
+    if (inertia != 0) return ( NO );
     
     b2Vec2 vel = body->GetLinearVelocity( );
 
@@ -519,6 +526,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     }
     
 	pressedJump = YES;
+    
+    inertia = 0;
+    body->SetLinearDamping(0.0f);
 	
 	b2Vec2 current = body->GetLinearVelocity();
 	//CCLOG(@"Player.jump: %i, %i, %i, %f, %i", canJump, dying, immortal, fabsf(roundf(current.y)), ignoreGravity);
@@ -554,6 +564,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     }
     
 	pressedJump = YES;
+    
+    inertia = 0;
+    body->SetLinearDamping(0.0f);
 	
 	b2Vec2 current = body->GetLinearVelocity();
 	//CCLOG(@"Player.jumDirection: %i, %i, %f, %i", dir, canJump, fabsf(roundf(current.y)), ignoreGravity);
@@ -731,6 +744,15 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
         if (!jetpackActivated && !jumping) [self setState:STAND];
         moving = NO;
         direction = kDirectionNone;
+        
+        // Apply some inertia
+        if (fabsf(roundf(vel.y)) == 0)
+        {
+            inertia = vel.x/0.5f;
+            b2Vec2 impulse = b2Vec2(inertia, vel.y);
+            body->ApplyLinearImpulse(impulse, body->GetWorldCenter());
+            body->SetLinearDamping(20.0f);
+        }
     }
 }
 
@@ -1347,7 +1369,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 
 -(void) changeToPosition:(CGPoint)pos
 {
-	[self stop];
+	//[self stop];
 	
     CGSize hitArea = CGSizeMake(PLAYER_WIDTH / CC_CONTENT_SCALE_FACTOR(), PLAYER_HEIGHT / CC_CONTENT_SCALE_FACTOR());
     pos.x += hitArea.width/2.0f + (MAP_TILE_WIDTH - hitArea.width)/2.0f - (MAP_TILE_WIDTH);
@@ -1501,9 +1523,10 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     
 	b2Vec2 current = body->GetLinearVelocity();
 	//CCLOG(@"%f, %i", current.y, action);
-	
+	//CCLOG(@"%f,%f", self.positionf.x, self.position.y);
+    
 	if ((fabsf(roundf(current.y)) != 0) && !ignoreGravity) {
-
+        
 		//CCLOG(@"%f, %i", current.y, ignoreGravity);
 		if ((current.y > 0) && jumping) {
 			if (!ignoreGravity) [self setState:JUMPING];
@@ -1568,6 +1591,24 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
         if ( [ self isMoonWalking ] == YES ) [ self resetForces ];
     }
     
+    
+    if (inertia != 0) {
+        if (inertia > 0) 
+        {
+            inertia -= 2.0f;
+            if (inertia < 0) inertia = 0;
+        }
+        else {
+            inertia += 2.0f;
+            if (inertia > 0) inertia = 0;
+        }
+        
+        if (inertia == 0) {
+            inertia = 0;
+            body->SetLinearDamping(0.0f);
+        }
+    }
+    
     // done
 	[super update:dt];
 }
@@ -1628,14 +1669,26 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             // Check there is a solid block under the player
             CGPoint mapPos = [self getTilePosition];
             int tileUnder = [[GameLayer getInstance] getTileAt:ccp(mapPos.x, mapPos.y + 1)];
-            //CCLOG(@">>>>> %f,%f => %i", mapPos.x, mapPos.y, tileUnder);
+            //CCLOG(@">>>>> tileUnder: %f,%f => %i", mapPos.x, mapPos.y + 1, tileUnder);
             
             if ((tileUnder == TILE_TYPE_SOLID) || (tileUnder == TILE_TYPE_CLOUD)) {
                 safePositon = self.position;
                 //CCLOG(@">>>>>>>>> Player safe position: %f,%f", safePositon.x, safePositon.y);
             }
         }
-    
+        
+        if (NO) { // Debug only!!
+            CGPoint mapPos = [self getTilePosition];
+            int tileUnder = [[GameLayer getInstance] getTileAt:ccp(mapPos.x, mapPos.y + 1)];
+            CCLOG(@">>>>> tileUnder: %f,%f => %i", mapPos.x, mapPos.y + 1, tileUnder);
+            
+            int tileFeet = [[GameLayer getInstance] getTileAt:ccp(mapPos.x, mapPos.y)];
+            CCLOG(@">>>>> tileFeet: %f,%f => %i", mapPos.x, mapPos.y, tileFeet);
+            
+            int tileHead = [[GameLayer getInstance] getTileAt:ccp(mapPos.x, mapPos.y - 1)];
+            CCLOG(@">>>>> tileHead: %f,%f => %i", mapPos.x, mapPos.y - 1, tileHead);
+        }
+        
         /*
         // Testing tile position in front of player
         CGPoint mapPos = [self getTilePosition];

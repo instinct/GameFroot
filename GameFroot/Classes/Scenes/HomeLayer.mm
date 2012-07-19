@@ -927,26 +927,23 @@
     [descriptionText setColor:ccc3(0, 0, 0)];
     
     // Game thumb
-    /*
     CCSprite *gameImage;
-    NSString *urlThumb = [NSString stringWithFormat:@"%@/wp-content/plugins/game_data/thumbs/%@.png", [self returnServer], [ld objectForKey:@"id"]];
-    CCLOG(@"Load thumb: %@", urlThumb);
-    NSURLRequest* request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlThumb] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:5.0];
-    NSHTTPURLResponse* response = nil;
-    NSError* error = nil;
-    [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
-    CCLOG(@"statusCode = %d", [response statusCode]);
+    CCSprite *imageOverlay;
     
-    if ([response statusCode] == 404) {
+    NSString *cachedFile = [NSString stringWithFormat:@"preview_%@.png", [ld objectForKey:@"id"]];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *embeddedResource = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:cachedFile];
+    CCLOG(@"Check preview filew: %@", embeddedResource);
+    BOOL embedded = [fileManager fileExistsAtPath:embeddedResource];
+    
+    if (!embedded) {
         gameImage = [CCSprite spriteWithFile:@"game_detail_proxy_image.png"];
+        imageOverlay = [CCSprite spriteWithFile:@"game_detail_image_overlay.png"];
         
     } else {
-        gameImage = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:urlThumb ignoreCache:NO]];
+        gameImage = [CCSprite spriteWithFile:cachedFile];
+        imageOverlay = [CCSprite node];
     }
-    */
-    
-    CCSprite *gameImage = [CCSprite spriteWithFile:@"game_detail_proxy_image.png"];
-    CCSprite *imageOverlay = [CCSprite spriteWithFile:@"game_detail_image_overlay.png"];
     
     // Add top menu and buttons
     CCMenuItemSprite *topNavBackButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"back-button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"back-button.png"] target:self selector:@selector(gameDetailBack:)];
