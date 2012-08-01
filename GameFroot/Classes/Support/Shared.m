@@ -741,7 +741,7 @@ has been previously downloaded, return a path to the file otherwise load the ass
 		
 	} else {
 		
-        /*
+        
         NSError *error = nil;
         NSData *imgData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[url stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding]] options:NSDataReadingMapped error:&error];
 		
@@ -762,7 +762,7 @@ has been previously downloaded, return a path to the file otherwise load the ass
 			}
 			
 		} else 
-        */
+        
         if ([fileManager fileExistsAtPath:resource]) {
 			CCTexture2D *tex = [[CCTextureCache sharedTextureCache] addImage:resource];
 			
