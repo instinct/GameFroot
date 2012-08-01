@@ -453,6 +453,9 @@
 		169E1A4215B8752C00A407B3 /* preview_53003-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 169E1A2E15B8752C00A407B3 /* preview_53003-hd.png */; };
 		169E1A4315B8752C00A407B3 /* preview_53003.png in Resources */ = {isa = PBXBuildFile; fileRef = 169E1A2F15B8752C00A407B3 /* preview_53003.png */; };
 		16A8534A14FF7CB900EEB19D /* blue-bg-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 16A8534914FF7CB900EEB19D /* blue-bg-hd.png */; };
+		16AF719015C9942900F086D4 /* bullet_ray.png in Resources */ = {isa = PBXBuildFile; fileRef = 16AF718F15C9942900F086D4 /* bullet_ray.png */; };
+		16AF719315C9943D00F086D4 /* weapon_69.png in Resources */ = {isa = PBXBuildFile; fileRef = 16AF719115C9943D00F086D4 /* weapon_69.png */; };
+		16AF719415C9943D00F086D4 /* weapon_70.png in Resources */ = {isa = PBXBuildFile; fileRef = 16AF719215C9943D00F086D4 /* weapon_70.png */; };
 		16C8AC7A151FE95B00864ED0 /* funsplosion-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 16C8AC78151FE95B00864ED0 /* funsplosion-hd.png */; };
 		16C8AC7B151FE95B00864ED0 /* funsplosion.png in Resources */ = {isa = PBXBuildFile; fileRef = 16C8AC79151FE95B00864ED0 /* funsplosion.png */; };
 		16CC8281151BD256004FEEEB /* arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 16CC8280151BD255004FEEEB /* arrow.png */; };
@@ -1249,6 +1252,9 @@
 		169E1A2E15B8752C00A407B3 /* preview_53003-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "preview_53003-hd.png"; sourceTree = "<group>"; };
 		169E1A2F15B8752C00A407B3 /* preview_53003.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = preview_53003.png; sourceTree = "<group>"; };
 		16A8534914FF7CB900EEB19D /* blue-bg-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "blue-bg-hd.png"; sourceTree = "<group>"; };
+		16AF718F15C9942900F086D4 /* bullet_ray.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bullet_ray.png; sourceTree = "<group>"; };
+		16AF719115C9943D00F086D4 /* weapon_69.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weapon_69.png; sourceTree = "<group>"; };
+		16AF719215C9943D00F086D4 /* weapon_70.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weapon_70.png; sourceTree = "<group>"; };
 		16C8AC78151FE95B00864ED0 /* funsplosion-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "funsplosion-hd.png"; sourceTree = "<group>"; };
 		16C8AC79151FE95B00864ED0 /* funsplosion.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = funsplosion.png; sourceTree = "<group>"; };
 		16CC8280151BD255004FEEEB /* arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = arrow.png; path = Resources/arrow.png; sourceTree = "<group>"; };
@@ -1999,6 +2005,8 @@
 				1616ADD714E8098D004FF504 /* weapon_4_single.png */,
 				1616ADD814E8098D004FF504 /* weapon_5_single.png */,
 				1616ADD914E8098D004FF504 /* weapon_6_single.png */,
+				16AF719115C9943D00F086D4 /* weapon_69.png */,
+				16AF719215C9943D00F086D4 /* weapon_70.png */,
 			);
 			name = weapons;
 			path = Resources/weapons;
@@ -2009,6 +2017,7 @@
 			children = (
 				1643B49614D9B0BC00A67057 /* bullet1.png */,
 				1643B49714D9B0BC00A67057 /* bullet_laser.png */,
+				16AF718F15C9942900F086D4 /* bullet_ray.png */,
 				1643B49814D9B0BC00A67057 /* rocketsheet.png */,
 			);
 			path = bullets;
@@ -3140,6 +3149,9 @@
 				169E1A4115B8752C00A407B3 /* preview_41266.png in Resources */,
 				169E1A4215B8752C00A407B3 /* preview_53003-hd.png in Resources */,
 				169E1A4315B8752C00A407B3 /* preview_53003.png in Resources */,
+				16AF719015C9942900F086D4 /* bullet_ray.png in Resources */,
+				16AF719315C9943D00F086D4 /* weapon_69.png in Resources */,
+				16AF719415C9943D00F086D4 /* weapon_70.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -2620,6 +2620,13 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     return [NSNumber numberWithBool:tile];
 }
 
+-(void) giveCustomWeapon:(NSDictionary *)command
+{
+    NSString *weapon = [command objectForKey:@"weapon"];
+    
+    [[GameLayer getInstance] changeWeapon:[weapon intValue]];
+}
+
 #pragma mark -
 #pragma mark Events
 

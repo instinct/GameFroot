@@ -160,7 +160,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 
 -(void) changeWeapon:(int)_weaponID
 {
-	//CCLOG(@"Player.changeWeapon: %i", _weaponID);
+	CCLOG(@"Player.changeWeapon: %i", _weaponID);
 
 	[self removeWeapon];
     
@@ -175,7 +175,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			shootDamage = 25;
 			shootDelay= 0.5f;
 			bulletOffsetY = (-2-7)/CC_CONTENT_SCALE_FACTOR();
-			
+			weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i_single.png",weaponID]];
+            
 			break;
 			
 		case 1: // Auto shotgun
@@ -183,7 +184,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			shootDamage = 25;
 			shootDelay = 0.2f;
 			bulletOffsetY = (-5-7)/CC_CONTENT_SCALE_FACTOR();
-			
+			weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i_single.png",weaponID]];
+            
 			break;
 			
 		case 2: // Laser
@@ -191,7 +193,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			shootDamage = 50;
 			shootDelay = 0.1f;
 			bulletOffsetY = (-5-9)/CC_CONTENT_SCALE_FACTOR();
-			
+			weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i_single.png",weaponID]];
+            
 			break;
 			
 		case 3: // Musket
@@ -199,7 +202,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			shootDamage = 150;
 			shootDelay = 1.0f;
 			bulletOffsetY = (0-9)/CC_CONTENT_SCALE_FACTOR();
-			
+			weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i_single.png",weaponID]];
+            
 			break;
 			
 		case 4: // AK 47
@@ -207,7 +211,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			shootDamage = 70;
 			shootDelay = 0.05f;
 			bulletOffsetY = (-5-9)/CC_CONTENT_SCALE_FACTOR();
-			
+			weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i_single.png",weaponID]];
+            
 			break;
 			
 		case 5: // M60
@@ -215,7 +220,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			shootDamage = 120;
 			shootDelay = 0.05f;
 			bulletOffsetY = (-5-9)/CC_CONTENT_SCALE_FACTOR();
-			
+			weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i_single.png",weaponID]];
+            
 			break;
 			
 		case 6: // Rocket Launcher
@@ -223,12 +229,37 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			shootDamage = 400;
 			shootDelay = 1.2f;
 			bulletOffsetY = (5-7)/CC_CONTENT_SCALE_FACTOR();
+			weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i_single.png",weaponID]];
+            
+			break;
+            
+        case 69: //
 			
+			shootDamage = 50;
+			shootDelay = 0.1f;
+			bulletOffsetY = (-5-9)/CC_CONTENT_SCALE_FACTOR();
+			weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i_single.png",weaponID]];
+            
+			break;
+            
+        case 70: //
+			
+			shootDamage = 50;
+			shootDelay = 0.1f;
+			bulletOffsetY = (-5-9)/CC_CONTENT_SCALE_FACTOR();
+			weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i_single.png",weaponID]];
+            
+			break;
+            
+        default: // Custom weapon
+			
+			shootDamage = 50;
+			shootDelay = 0.1f;
+			bulletOffsetY = (-5-9)/CC_CONTENT_SCALE_FACTOR();
+			weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"%i.png",weaponID]];
+            
 			break;
 	}
-	
-	//weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i.png",weaponID]];
-    weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i_single.png",weaponID]];
 	
 	if (REDUCE_FACTOR != 1.0f) [weaponSpriteSheet.textureAtlas.texture setAntiAliasTexParameters];
 	else [weaponSpriteSheet.textureAtlas.texture setAliasTexParameters];
@@ -1063,6 +1094,18 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
                     
                 case 6: // Rocket Launcher
                     [[SimpleAudioEngine sharedEngine] playEffect:@"W Rocket launcher launch.caf"];
+                    break;
+                
+                case 69: //
+                    [[SimpleAudioEngine sharedEngine] playEffect:@"W Lasergun.caf"];                                  
+                    break;
+                    
+                case 70: //
+                    [[SimpleAudioEngine sharedEngine] playEffect:@"W Lasergun.caf"];                                  
+                    break;
+                    
+                default:
+                    [[SimpleAudioEngine sharedEngine] playEffect:@"W Lasergun.caf"];                                  
                     break;
             }
 

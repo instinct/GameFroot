@@ -745,7 +745,7 @@ GameLayer *instance;
 		//CCLOG(@"robot id %@ with script %@", [values objectForKey:@"id"], [values objectForKey:@"script"]);
 		[robotsIds setObject:[values objectForKey:@"script"] forKey:[values objectForKey:@"id"]];
 	}
-	CCLOG(@"Robots: %@", [robotsIds description]);
+	//CCLOG(@"Robots: %@", [robotsIds description]);
     
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Load Player
