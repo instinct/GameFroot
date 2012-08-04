@@ -271,8 +271,8 @@
         */    
             [featuredButton selected]; // Only select navigation button if no welcome screen
             
-            RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
-            [rvc showBanner];
+            //RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
+            //[rvc showBanner];
         
             // If we have come from a game, go to that games' detail page
             if(![Shared getLevel]) {
@@ -360,8 +360,8 @@
 -(void) selectedLevel:(id)sender {
     [Loader hideAsynchronousLoader];
     
-    RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
-    [rvc hideBanner];
+    //RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
+    //[rvc hideBanner];
     
     /*
     NSMutableDictionary *fakeLevel = [NSMutableDictionary dictionary];
@@ -473,7 +473,7 @@
 
 // Main navigation
 -(void) featured:(id)sender {
-	if (loading) {
+	/*if (loading) {
 		if (selectedPage != featured) [featuredButton unselected];
 		return;
 	}
@@ -483,17 +483,18 @@
 	[browseButton unselected];
 	[myGamesButton unselected];
 	[moreButton unselected];
-	
+	*/
+    
     welcome.visible = NO;
 	if (selectedPage != featured) featured.visible = NO;
-	playing.visible = NO;
-	browse.visible = NO;
-	myGames.visible = NO;
+	//playing.visible = NO;
+	//browse.visible = NO;
+	//myGames.visible = NO;
 	more.visible = NO;
     gameDetail.visible = NO;
     
-    RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
-    [rvc showBanner];
+    //RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
+    //[rvc showBanner];
 	
 	[self loadFeatured];
 }
@@ -518,9 +519,8 @@
 	more.visible = NO;
     gameDetail.visible = NO;
     
-    RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
-    [rvc showBanner];
-	
+    //RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
+    //[rvc showBanner];
 	
 	[self loadPlaying];
 }
@@ -545,9 +545,8 @@
 	more.visible = NO;
     gameDetail.visible = NO;
     
-    RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
-    [rvc showBanner];
-	
+    //RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
+    //[rvc showBanner];
 	
 	[self loadBrowse];
 }
@@ -572,14 +571,14 @@
 	more.visible = NO;
     gameDetail.visible = NO;
     
-    RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
-    [rvc showBanner];
+    //RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
+    //[rvc showBanner];
 	
 	[self loadMyGames];
 }
 
 -(void) more:(id)sender {
-	if (loading) {
+	/*if (loading) {
 		if (selectedPage != more) [moreButton unselected];
 		return;
 	}
@@ -589,12 +588,13 @@
 	[browseButton unselected];
 	[myGamesButton unselected];
 	[moreButton selected];
-	
+	*/
+    
     welcome.visible = NO;
 	featured.visible = NO;
-	playing.visible = NO;
-	browse.visible = NO;
-	myGames.visible = NO;
+	//playing.visible = NO;
+	//browse.visible = NO;
+	//myGames.visible = NO;
 	if (selectedPage != more) more.visible = NO;
     gameDetail.visible = NO;
     
@@ -1864,11 +1864,11 @@
     secretMenu.position = ccpAdd(positionLogo, ccp(120,0));
     
 	if (selectedPage == more) return;
-	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
+	if (more != nil) [more removeAllChildrenWithCleanup:YES];
 	selectedPage = more;
     
-    RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
-    [rvc hideBanner];
+    //RootViewController *rvc = [((AppDelegate*)[UIApplication sharedApplication].delegate) viewController];
+    //[rvc hideBanner];
     
 	[Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadMore)];
 	loading = YES;

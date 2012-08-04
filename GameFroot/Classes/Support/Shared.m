@@ -461,7 +461,7 @@ CGPoint GBSub(const CGPoint v1, const CGPoint v2) {
     // ***********************************************************
     // ***********************************************************
     // *******   HACKED value to run bundled games on v1.0 *******
-    ignoreCache = NO; 
+    if (![Shared isBetaMode]) ignoreCache = NO; 
     // ***********************************************************
     // ***********************************************************
     
@@ -525,7 +525,7 @@ has been previously downloaded, return a path to the file otherwise load the ass
     // ***********************************************************
     // ***********************************************************
     // *******   HACKED value to run bundled games on v1.0 *******
-    ignoreCache = NO; 
+    if (![Shared isBetaMode]) ignoreCache = NO; 
     // ***********************************************************
     // ***********************************************************
     
@@ -702,7 +702,7 @@ has been previously downloaded, return a path to the file otherwise load the ass
     // ***********************************************************
     // ***********************************************************
     // *******   HACKED value to run bundled games on v1.0 *******
-    ignoreCache = NO; 
+    if (![Shared isBetaMode]) ignoreCache = NO; 
     // ***********************************************************
     // ***********************************************************
     
