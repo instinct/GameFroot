@@ -256,7 +256,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			shootDamage = 50;
 			shootDelay = 0.1f;
 			bulletOffsetY = (-5-9)/CC_CONTENT_SCALE_FACTOR();
-			weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"%i.png",weaponID]];
+			//weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"%i.png",weaponID]];
+            weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i_single.png",0]];
             
 			break;
 	}
