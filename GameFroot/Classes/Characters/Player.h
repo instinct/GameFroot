@@ -67,7 +67,11 @@ enum ANIM { STAND = 0, WALK, CROUCH, PRONE, JUMPING, FALLING };
 	
 	float shootDelay;
 	int shootDamage;
-	float bulletOffsetY;
+    
+    float weaponOffsetX;
+    float weaponOffsetY;
+	float bulletOffsetX;
+    float bulletOffsetY;
 	
 	BOOL jetpackCollected;
 	BOOL jetpackActivated;

@@ -48,7 +48,8 @@ typedef enum{
 	NSMutableDictionary *switches;
 	NSMutableDictionary *cached;
     NSMutableDictionary *musicData;
-	
+	NSMutableDictionary *customWeapons;
+    
 	// Containers
 	CCParallaxNode *scene;
 	CCNode *background;
@@ -209,6 +210,8 @@ typedef enum{
 -(void) changeInitialPlayerPositionToX:(int)x andY:(int)y;
 -(CGPoint) playerPosition;
 -(void) broadcastMessageToRobots:(NSDictionary *)command except:(Robot *)instance;
+
+-(NSMutableDictionary *) getCustomWeapon:(NSString *) key;
 
 -(void) cameraOnPlayer;
 -(void) stopCameraMove;

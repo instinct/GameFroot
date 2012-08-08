@@ -63,10 +63,10 @@
     if([Shared isBetaMode]) {
         serverUsed = [prefs integerForKey:@"server"];
     } else {
-        serverUsed = 1;
+        serverUsed = 0;
     }
     
-    return serverUsed == 1 ? [properties objectForKey:@"server_live"] : [properties objectForKey:@"server_staging"];
+    return serverUsed == 0 ? [properties objectForKey:@"server_live"] : [properties objectForKey:@"server_staging"];
 }
 
 - (id)init {

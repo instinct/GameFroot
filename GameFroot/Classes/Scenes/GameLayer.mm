@@ -245,7 +245,7 @@ GameLayer *instance;
         if([Shared isBetaMode]) {
             serverUsed = [prefs integerForKey:@"server"];
         } else {
-            serverUsed = 1;
+            serverUsed = 0;
         }
         
 		// Check if we need to download the level data or use cache
@@ -461,7 +461,7 @@ GameLayer *instance;
 
 -(NSString *) returnServer
 {
-    return serverUsed == 1 ? [properties objectForKey:@"server_live"] : [properties objectForKey:@"server_staging"];
+    return serverUsed == 0 ? [properties objectForKey:@"server_live"] : [properties objectForKey:@"server_staging"];
 }
 
 -(void)music: (id)sender {
@@ -720,6 +720,33 @@ GameLayer *instance;
 		
 	}
 	
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Load custom weapons
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	NSArray *arrayWeapons = [[jsonData objectForKey:@"sprites"] objectForKey:@"weapons"];
+    //CCLOG(@"Weapons: %@", [arrayWeapons description]);
+	int countWeapons = [arrayWeapons count];
+	customWeapons = [[NSMutableDictionary dictionaryWithCapacity:countWeapons] retain];
+	for (int i=0; i < countWeapons; i++) {
+		NSDictionary *values = (NSDictionary *)[arrayWeapons objectAtIndex:i];
+        
+		[customWeapons setObject:values forKey:[values objectForKey:@"id"]];
+        [Shared getTexture2DFromWeb:[values objectForKey:@"file"] ignoreCache:ignoreCache];
+	}
+    
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Load custom sounds
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	NSArray *arraySounds = [[jsonData objectForKey:@"sprites"] objectForKey:@"sounds"];
+    //CCLOG(@"Sounds: %@", [arraySounds description]);
+	int countSounds = [arraySounds count];
+	for (int i=0; i < countSounds; i++) {
+		NSDictionary *values = (NSDictionary *)[arraySounds objectAtIndex:i];
+        NSString *soundId = [values objectForKey:@"id"];
+        NSString *soundURL = [values objectForKey:@"url"];
+        CCLOG(@"Sound: %@, %@", soundId, soundURL);
+	}
+    
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Load animations
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -955,6 +982,11 @@ GameLayer *instance;
 	//CCLOG(@"Map Tiles: %@", [mapTiles description]);
 	
 	CCLOG(@"Load completed!");
+}
+
+-(NSMutableDictionary *) getCustomWeapon:(NSString *) key
+{
+    return [customWeapons objectForKey:key];
 }
 
 -(void) loadBackgroundLevel
