@@ -458,6 +458,9 @@
 		16C8AC7B151FE95B00864ED0 /* funsplosion.png in Resources */ = {isa = PBXBuildFile; fileRef = 16C8AC79151FE95B00864ED0 /* funsplosion.png */; };
 		16CC8281151BD256004FEEEB /* arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 16CC8280151BD255004FEEEB /* arrow.png */; };
 		16CC8285151BDCF6004FEEEB /* teleporter.png in Resources */ = {isa = PBXBuildFile; fileRef = 16CC8284151BDCF6004FEEEB /* teleporter.png */; };
+		16E7528015D5A7D30055FF52 /* bullet_ray_blue.png in Resources */ = {isa = PBXBuildFile; fileRef = 16E7527F15D5A7D30055FF52 /* bullet_ray_blue.png */; };
+		16E7528315D5A7DF0055FF52 /* weapon_69_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 16E7528115D5A7DF0055FF52 /* weapon_69_single.png */; };
+		16E7528415D5A7DF0055FF52 /* weapon_70_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 16E7528215D5A7DF0055FF52 /* weapon_70_single.png */; };
 		2230953914DB6CB600D7D219 /* GameMenu.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2230953814DB6CB600D7D219 /* GameMenu.mm */; };
 		22386E0914F6DF8500C81C82 /* pause_menu_template-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 22386E0814F6DF8500C81C82 /* pause_menu_template-hd.png */; };
 		22386E0F14F6E47B00C81C82 /* pause_screen-hd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 22386E0B14F6E47900C81C82 /* pause_screen-hd.plist */; };
@@ -1255,6 +1258,9 @@
 		16C8AC79151FE95B00864ED0 /* funsplosion.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = funsplosion.png; sourceTree = "<group>"; };
 		16CC8280151BD255004FEEEB /* arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = arrow.png; path = Resources/arrow.png; sourceTree = "<group>"; };
 		16CC8284151BDCF6004FEEEB /* teleporter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = teleporter.png; sourceTree = "<group>"; };
+		16E7527F15D5A7D30055FF52 /* bullet_ray_blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bullet_ray_blue.png; sourceTree = "<group>"; };
+		16E7528115D5A7DF0055FF52 /* weapon_69_single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weapon_69_single.png; sourceTree = "<group>"; };
+		16E7528215D5A7DF0055FF52 /* weapon_70_single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weapon_70_single.png; sourceTree = "<group>"; };
 		2230953414DB68DB00D7D219 /* GameMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameMenu.h; path = ../Scenes/GameMenu.h; sourceTree = "<group>"; };
 		2230953814DB6CB600D7D219 /* GameMenu.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GameMenu.mm; path = ../Scenes/GameMenu.mm; sourceTree = "<group>"; };
 		22386E0814F6DF8500C81C82 /* pause_menu_template-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pause_menu_template-hd.png"; sourceTree = "<group>"; };
@@ -2001,6 +2007,8 @@
 				1616ADD714E8098D004FF504 /* weapon_4_single.png */,
 				1616ADD814E8098D004FF504 /* weapon_5_single.png */,
 				1616ADD914E8098D004FF504 /* weapon_6_single.png */,
+				16E7528115D5A7DF0055FF52 /* weapon_69_single.png */,
+				16E7528215D5A7DF0055FF52 /* weapon_70_single.png */,
 			);
 			name = weapons;
 			path = Resources/weapons;
@@ -2012,6 +2020,7 @@
 				1643B49614D9B0BC00A67057 /* bullet1.png */,
 				1643B49714D9B0BC00A67057 /* bullet_laser.png */,
 				16AF718F15C9942900F086D4 /* bullet_ray.png */,
+				16E7527F15D5A7D30055FF52 /* bullet_ray_blue.png */,
 				1643B49814D9B0BC00A67057 /* rocketsheet.png */,
 			);
 			path = bullets;
@@ -3144,6 +3153,9 @@
 				169E1A4215B8752C00A407B3 /* preview_53003-hd.png in Resources */,
 				169E1A4315B8752C00A407B3 /* preview_53003.png in Resources */,
 				16AF719015C9942900F086D4 /* bullet_ray.png in Resources */,
+				16E7528015D5A7D30055FF52 /* bullet_ray_blue.png in Resources */,
+				16E7528315D5A7DF0055FF52 /* weapon_69_single.png in Resources */,
+				16E7528415D5A7DF0055FF52 /* weapon_70_single.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

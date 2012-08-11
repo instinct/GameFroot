@@ -109,6 +109,9 @@ enum ANIM { STAND = 0, WALK, CROUCH, PRONE, JUMPING, FALLING };
     BOOL smokeOn;
     
     float inertia;
+    
+    BOOL isCustomWeapon;
+    CGSize customWeaponSize;
 }
 
 @property (nonatomic,assign) int action;

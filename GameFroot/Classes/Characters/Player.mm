@@ -176,6 +176,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
     bulletOffsetX = 50/CC_CONTENT_SCALE_FACTOR();
     bulletOffsetY = 0;
     
+    isCustomWeapon = NO;
+    
 	switch (weaponID) {
 		case 0: // Pistol
 			
@@ -267,17 +269,22 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             NSMutableDictionary *customWeapon = [[GameLayer getInstance] getCustomWeapon:[NSString stringWithFormat:@"%i",weaponID]];
             if (customWeapon != nil)
             {
+                CCLOG(@"%@", customWeapon);
+                
                 bulletOffsetX = [[[[customWeapon objectForKey:@"data"] objectForKey:@"bullet_offset"] objectForKey:@"x_right"] floatValue]/CC_CONTENT_SCALE_FACTOR();
                 bulletOffsetY = -[[[[customWeapon objectForKey:@"data"] objectForKey:@"bullet_offset"] objectForKey:@"y"] floatValue]/CC_CONTENT_SCALE_FACTOR();
                 
                 shootDamage = [[[customWeapon objectForKey:@"data"] objectForKey:@"weapon_damage"] floatValue];
-                shootDelay = [[[customWeapon objectForKey:@"data"] objectForKey:@"weapon_delay"] floatValue];
+                shootDelay = [[[customWeapon objectForKey:@"data"] objectForKey:@"weapon_delay"] floatValue] / 1000.0f;
                 
                 weaponOffsetX = [[[[customWeapon objectForKey:@"data"] objectForKey:@"mount_point"] objectForKey:@"x_right"] floatValue]/CC_CONTENT_SCALE_FACTOR();
                 weaponOffsetY = -[[[[customWeapon objectForKey:@"data"] objectForKey:@"mount_point"] objectForKey:@"y"] floatValue]/CC_CONTENT_SCALE_FACTOR();
                 
                 CCTexture2D *texture = [Shared getTexture2DFromWeb:[customWeapon objectForKey:@"file"] ignoreCache:NO];
                 weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:texture];
+                
+                isCustomWeapon = YES;
+                customWeaponSize = texture.contentSize;
             }
             else
             {
@@ -296,19 +303,24 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	//float spriteHeight = weaponSpriteSheet.texture.contentSize.height / 2;
     float spriteWidth = weaponSpriteSheet.texture.contentSize.width;
 	float spriteHeight = weaponSpriteSheet.texture.contentSize.height;
-	
+    
 	weapon = [CCSprite spriteWithBatchNode:weaponSpriteSheet rect:CGRectMake(0,0,spriteWidth,spriteHeight)];
-	[weapon setAnchorPoint:ccp(PLAYER_ANCHOR_X,PLAYER_ANCHOR_Y)];
 	[weapon retain];
 	[weaponSpriteSheet addChild:weapon];
+    
+    if (!isCustomWeapon) [weapon setAnchorPoint:ccp(PLAYER_ANCHOR_X,PLAYER_ANCHOR_Y)];
 	
 	// Weapon animations
 	standWeapon = [[CCAnimationCache sharedAnimationCache] animationByName:[NSString stringWithFormat:@"weapon_stand_%i",weaponID]];
 	if (standWeapon == nil) {
 		NSMutableArray *frames = [NSMutableArray array];
-		for(int x = 0; x <= 0; x++) {
-			//CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(x*spriteWidth,0,spriteWidth,spriteHeight)];
-            CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake((ANIMATION_OFFSET_X[x]) / CC_CONTENT_SCALE_FACTOR(),(ANIMATION_OFFSET_Y[x]) / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
+		for(int x = 0; x <= 0; x++) 
+        {	
+            CCSpriteFrame *frame;
+            //if (isCustomWeapon) frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(0,0,spriteWidth,spriteHeight)];
+            //else 
+            frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake((ANIMATION_OFFSET_X[x]) / CC_CONTENT_SCALE_FACTOR(),(ANIMATION_OFFSET_Y[x]) / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
+            
 			[frames addObject:frame];
 		}
 		standWeapon = [CCAnimation animationWithFrames:frames delay:0.125f];
@@ -318,9 +330,13 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	walkWeapon = [[CCAnimationCache sharedAnimationCache] animationByName:[NSString stringWithFormat:@"weapon_walk_%i",weaponID]];
 	if (walkWeapon == nil) {
 		NSMutableArray *frames = [NSMutableArray array];
-		for(int x = 1; x <= 6; x++) {
-			//CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(x*spriteWidth,0,spriteWidth,spriteHeight)];
-            CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake((ANIMATION_OFFSET_X[x]) / CC_CONTENT_SCALE_FACTOR(),(ANIMATION_OFFSET_Y[x]) / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
+		for(int x = 1; x <= 6; x++) 
+        {
+            CCSpriteFrame *frame;
+            //if (isCustomWeapon) frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(0,0,spriteWidth,spriteHeight)];
+            //else 
+            frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake((ANIMATION_OFFSET_X[x]) / CC_CONTENT_SCALE_FACTOR(),(ANIMATION_OFFSET_Y[x]) / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
+            
 			[frames addObject:frame];
 		}
 		walkWeapon = [CCAnimation animationWithFrames:frames delay:0.125f];
@@ -330,9 +346,12 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	crouchWeapon = [[CCAnimationCache sharedAnimationCache] animationByName:[NSString stringWithFormat:@"weapon_crouch_%i",weaponID]];
 	if (crouchWeapon == nil) {
 		NSMutableArray *frames = [NSMutableArray array];
-		for(int x = 7; x <= 7; x++) {
-			//CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(x*spriteWidth,0,spriteWidth,spriteHeight)];
-            CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake((ANIMATION_OFFSET_X[x]) / CC_CONTENT_SCALE_FACTOR(),(ANIMATION_OFFSET_Y[x]) / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
+		for(int x = 7; x <= 7; x++) 
+        {
+			CCSpriteFrame *frame;
+            if (isCustomWeapon) frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(0,0,spriteWidth,spriteHeight)];
+            else frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake((ANIMATION_OFFSET_X[x]) / CC_CONTENT_SCALE_FACTOR(),(ANIMATION_OFFSET_Y[x]) / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
+            
 			[frames addObject:frame];
 		}
 		crouchWeapon = [CCAnimation animationWithFrames:frames delay:0.125f];
@@ -342,9 +361,12 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	proneWeapon = [[CCAnimationCache sharedAnimationCache] animationByName:[NSString stringWithFormat:@"weapon_prone_%i",weaponID]];
 	if (proneWeapon == nil) {
 		NSMutableArray *frames = [NSMutableArray array];
-		for(int x = 0; x <= 0; x++) {
-			//CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(x*spriteWidth,spriteHeight,spriteWidth,spriteHeight)];
-            CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake((ANIMATION_OFFSET_X[8+x]) / CC_CONTENT_SCALE_FACTOR(),(ANIMATION_OFFSET_Y[8+x]) / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];            
+		for(int x = 0; x <= 0; x++) 
+        {
+			CCSpriteFrame *frame;
+            if (isCustomWeapon) frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(0,0,spriteWidth,spriteHeight)];
+            else frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake((ANIMATION_OFFSET_X[8+x]) / CC_CONTENT_SCALE_FACTOR(),(ANIMATION_OFFSET_Y[8+x]) / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];            
+            
             [frames addObject:frame];
 		}
 		proneWeapon = [CCAnimation animationWithFrames:frames delay:0.125f];
@@ -354,9 +376,13 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 	jumpWeapon = [[CCAnimationCache sharedAnimationCache] animationByName:[NSString stringWithFormat:@"weapon_jump_%i",weaponID]];
 	if (jumpWeapon == nil) {
 		NSMutableArray *frames = [NSMutableArray array];
-		for(int x = 1; x <= 2; x++) {
-			//CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(x*spriteWidth,spriteHeight,spriteWidth,spriteHeight)];
-            CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake((ANIMATION_OFFSET_X[8+x]) / CC_CONTENT_SCALE_FACTOR(),(ANIMATION_OFFSET_Y[8+x]) / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
+		for(int x = 1; x <= 2; x++) 
+        {
+			CCSpriteFrame *frame;
+            //if (isCustomWeapon) frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(0,0,spriteWidth,spriteHeight)];
+            //else 
+            frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake((ANIMATION_OFFSET_X[8+x]) / CC_CONTENT_SCALE_FACTOR(),(ANIMATION_OFFSET_Y[8+x]) / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
+            
 			[frames addObject:frame];
 		}
 		jumpWeapon = [CCAnimation animationWithFrames:frames delay:0.125f];
@@ -483,7 +509,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		self.scaleX = 1;
 		
 		if (type == kGameObjectPlayer) {
-			if (hasWeapon) weapon.scaleX = 1;
+			if (hasWeapon) {
+                weapon.scaleX = 1;
+            }
             
 			if (jetpackCollected) {
 				jetpack.scaleX = 1;
@@ -516,7 +544,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		self.scaleX = -1;
 		
 		if (type == kGameObjectPlayer) {
-			if (hasWeapon) weapon.scaleX = -1;
+			if (hasWeapon) {
+                weapon.scaleX = -1;
+            }
             
 			if (jetpackCollected) {
 				jetpack.scaleX = -1;
@@ -642,7 +672,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			facingLeft = YES;
 			
 			if (type == kGameObjectPlayer) {
-				if (hasWeapon) weapon.scaleX = -1;
+				if (hasWeapon) {
+                    weapon.scaleX = -1;
+                }
                 
 				if (jetpackCollected) {
 					jetpack.scaleX = -1;
@@ -658,7 +690,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			facingLeft = NO;
 			
 			if (type == kGameObjectPlayer) {
-				if (hasWeapon) weapon.scaleX = 1;
+				if (hasWeapon) {
+                    weapon.scaleX = 1;
+                }
                 
 				if (jetpackCollected) {
 					jetpack.scaleX = 1;
@@ -689,7 +723,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			facingLeft = YES;
 			
 			if (type == kGameObjectPlayer) {
-				if (hasWeapon) weapon.scaleX = -1;
+				if (hasWeapon) {
+                    weapon.scaleX = -1;
+                }
                 
 				if (jetpackCollected) {
 					jetpack.scaleX = -1;
@@ -707,7 +743,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			facingLeft = NO;
 			
 			if (type == kGameObjectPlayer) {
-				if (hasWeapon) weapon.scaleX = 1;
+				if (hasWeapon) {
+                    weapon.scaleX = 1;
+                }
                 
 				if (jetpackCollected) {
 					jetpack.scaleX = 1;
@@ -731,7 +769,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			facingLeft = YES;
 			
 			if (type == kGameObjectPlayer) {
-				if (hasWeapon) weapon.scaleX = -1;
+				if (hasWeapon) {
+                    weapon.scaleX = -1;
+                }
                 
 				if (jetpackCollected) {
 					jetpack.scaleX = -1;
@@ -749,7 +789,9 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			facingLeft = NO;
 			
 			if (type == kGameObjectPlayer) {
-				if (hasWeapon) weapon.scaleX = 1;
+				if (hasWeapon) {
+                    weapon.scaleX = 1;
+                }
                 
 				if (jetpackCollected) {
 					jetpack.scaleX = 1;
@@ -1138,10 +1180,6 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             
 			[[GameLayer getInstance] reduceAmmo];
 			
-			CGPoint bulletOffset = ccp(0,0);
-			
-			if (facingLeft) bulletOffset = ccp(-bulletOffsetX, bulletOffsetY);
-			else bulletOffset = ccp(bulletOffsetX, bulletOffsetY);
 			
 			GameObjectDirection bulletDirection;
 			if (facingLeft) bulletDirection = kDirectionLeft;
@@ -1149,23 +1187,46 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 			
 			Bullet *bullet = [Bullet bullet:bulletDirection weapon:weaponID];
 			bullet.damage = shootDamage;
-			[bullet setPosition:ccpAdd(self.position,bulletOffset)];
+            
+            if (isCustomWeapon)
+            {
+                if (facingLeft) 
+                {
+                    [bullet setPosition:ccpAdd(self.position, ccpAdd(ccp((self.contentSize.width - bulletOffsetX), bulletOffsetY) , ccp(-self.contentSize.width*(1.0f-self.anchorPoint.x), self.contentSize.height*(1.0f-self.anchorPoint.y))))];
+                    
+                }
+                else 
+                {
+                    [bullet setPosition:ccpAdd(self.position, ccpAdd(ccp(bulletOffsetX, bulletOffsetY) , ccp(-self.contentSize.width*(self.anchorPoint.x), self.contentSize.height*(1.0f-self.anchorPoint.y))))];
+                }
+                
+            }
+            else 
+            {
+                CGPoint bulletOffset = ccp(0,0);
+                if (facingLeft) bulletOffset = ccp(-bulletOffsetX, bulletOffsetY);
+                else bulletOffset = ccp(bulletOffsetX, bulletOffsetY);
+                
+                [bullet setPosition:ccpAdd(self.position,bulletOffset)];
+                
+                if (weaponID == 1) {
+                    Bullet *bullet1 = [Bullet bullet:bulletDirection weapon:weaponID];
+                    bullet1.damage = shootDamage;
+                    [bullet1 setPosition:ccpAdd(self.position,bulletOffset)];
+                    [bullet1 createBox2dObject:[GameLayer getInstance].world];
+                    [bullet1 setAngle:1.0f];
+                    
+                    Bullet *bullet2 = [Bullet bullet:bulletDirection weapon:weaponID];
+                    bullet2.damage = shootDamage;
+                    [bullet2 setPosition:ccpAdd(self.position,bulletOffset)];
+                    [bullet2 createBox2dObject:[GameLayer getInstance].world];
+                    [bullet2 setAngle:-1.0f];
+                }
+            }
+            
+            
 			[bullet createBox2dObject:[GameLayer getInstance].world];
 			//CCLOG(@"Player position: %f,%f", self.position.x, self.position.y);
-            
-            if (weaponID == 1) {
-                Bullet *bullet1 = [Bullet bullet:bulletDirection weapon:weaponID];
-                bullet1.damage = shootDamage;
-                [bullet1 setPosition:ccpAdd(self.position,bulletOffset)];
-                [bullet1 createBox2dObject:[GameLayer getInstance].world];
-                [bullet1 setAngle:1.0f];
-                
-                Bullet *bullet2 = [Bullet bullet:bulletDirection weapon:weaponID];
-                bullet2.damage = shootDamage;
-                [bullet2 setPosition:ccpAdd(self.position,bulletOffset)];
-                [bullet2 createBox2dObject:[GameLayer getInstance].world];
-                [bullet2 setAngle:-1.0f];
-            }
 		}
 	}
 }
@@ -1719,7 +1780,32 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             [[GameLayer getInstance] amendOffsetCameraY: 0];
 		}
 		
-        if (hasWeapon) [weapon setPosition:ccpAdd(point, ccp(weaponOffsetX, weaponOffsetY))];
+        if (hasWeapon) {
+            if (isCustomWeapon && facingLeft) 
+            {
+                float proneOffsetX = 0.0f;
+                float proneOffsetY = 0.0f;
+                if (action == PRONE || action == CROUCH) {
+                    proneOffsetX = -22.0f/CC_CONTENT_SCALE_FACTOR();
+                    proneOffsetY = -25.0f/CC_CONTENT_SCALE_FACTOR();
+                }
+                [weapon setPosition:ccpAdd(point, ccpAdd(ccp(-weapon.contentSize.width/2 + (self.contentSize.width - weaponOffsetX) + proneOffsetX, -weapon.contentSize.height/2  + weaponOffsetY + proneOffsetY) , ccp(-self.contentSize.width*(1.0f-self.anchorPoint.x), self.contentSize.height*(1.0f-self.anchorPoint.y))))];
+            }
+            else if (isCustomWeapon) 
+            {
+                float proneOffsetX = 0.0f;
+                float proneOffsetY = 0.0f;
+                if (action == PRONE || action == CROUCH) {
+                    proneOffsetX = 22.0f/CC_CONTENT_SCALE_FACTOR();
+                    proneOffsetY = -25.0f/CC_CONTENT_SCALE_FACTOR();
+                }
+                [weapon setPosition:ccpAdd(point, ccpAdd(ccp(weapon.contentSize.width/2 + weaponOffsetX + proneOffsetX, -weapon.contentSize.height/2  + weaponOffsetY + proneOffsetY) , ccp(-self.contentSize.width*(self.anchorPoint.x), self.contentSize.height*(1.0f-self.anchorPoint.y))))];
+            }
+            else 
+            {
+                [weapon setPosition:ccpAdd(point, ccp(weaponOffsetX, weaponOffsetY))];
+            }
+        }
 		
 		if (jetpackCollected) {
 			[jetpack setPosition:point];
