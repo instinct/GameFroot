@@ -54,7 +54,7 @@
 		
 	} else if (itemType == kCollectableWeapon) {
         [[SimpleAudioEngine sharedEngine] playEffect:@"W Change weapon.caf" pitch:1.0f pan:0.0f gain:1.0f];
-		if (itemValue < 8) [[GameLayer getInstance] changeWeapon:itemValue-1];
+		if (itemValue <= 70) [[GameLayer getInstance] changeWeapon:itemValue-1];
 		else [[GameLayer getInstance] increaseAmmo:itemValue];
 		[super remove];
 	

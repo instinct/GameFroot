@@ -70,4 +70,4 @@ enum GameControlType{
 #define ENEMY_WIDTH     34.0
 #define ENEMY_HEIGHT    76.0
 
-#define DEBUG_WORLD		0
+#define DEBUG_WORLD		1

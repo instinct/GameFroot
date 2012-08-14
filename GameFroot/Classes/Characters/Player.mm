@@ -242,21 +242,23 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             
 			break;
             
-        case 69: //
+        case 69-1: //
 			
-			shootDamage = 50;
-			shootDelay = 0.1f;
-			bulletOffsetY = (-5-9)/CC_CONTENT_SCALE_FACTOR();
-			weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i_single.png",weaponID]];
+			shootDamage = 70;
+			shootDelay = 0.05f;
+            bulletOffsetX = 75/CC_CONTENT_SCALE_FACTOR();
+			bulletOffsetY = (-5-7)/CC_CONTENT_SCALE_FACTOR();
+			weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i_single.png",weaponID+1]];
             
 			break;
             
-        case 70: //
+        case 70-1: //
 			
-			shootDamage = 50;
-			shootDelay = 0.1f;
-			bulletOffsetY = (-5-9)/CC_CONTENT_SCALE_FACTOR();
-			weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i_single.png",weaponID]];
+			shootDamage = 70;
+			shootDelay = 0.05f;
+            bulletOffsetX = 60/CC_CONTENT_SCALE_FACTOR();
+			bulletOffsetY = (-5-7)/CC_CONTENT_SCALE_FACTOR();
+			weaponSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"weapon_%i_single.png",weaponID+1]];
             
 			break;
             
@@ -316,10 +318,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		NSMutableArray *frames = [NSMutableArray array];
 		for(int x = 0; x <= 0; x++) 
         {	
-            CCSpriteFrame *frame;
-            //if (isCustomWeapon) frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(0,0,spriteWidth,spriteHeight)];
-            //else 
-            frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake((ANIMATION_OFFSET_X[x]) / CC_CONTENT_SCALE_FACTOR(),(ANIMATION_OFFSET_Y[x]) / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
+            CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake((ANIMATION_OFFSET_X[x]) / CC_CONTENT_SCALE_FACTOR(),(ANIMATION_OFFSET_Y[x]) / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
             
 			[frames addObject:frame];
 		}
@@ -332,10 +331,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		NSMutableArray *frames = [NSMutableArray array];
 		for(int x = 1; x <= 6; x++) 
         {
-            CCSpriteFrame *frame;
-            //if (isCustomWeapon) frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(0,0,spriteWidth,spriteHeight)];
-            //else 
-            frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake((ANIMATION_OFFSET_X[x]) / CC_CONTENT_SCALE_FACTOR(),(ANIMATION_OFFSET_Y[x]) / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
+            CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake((ANIMATION_OFFSET_X[x]) / CC_CONTENT_SCALE_FACTOR(),(ANIMATION_OFFSET_Y[x]) / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
             
 			[frames addObject:frame];
 		}
@@ -378,10 +374,7 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		NSMutableArray *frames = [NSMutableArray array];
 		for(int x = 1; x <= 2; x++) 
         {
-			CCSpriteFrame *frame;
-            //if (isCustomWeapon) frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake(0,0,spriteWidth,spriteHeight)];
-            //else 
-            frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake((ANIMATION_OFFSET_X[8+x]) / CC_CONTENT_SCALE_FACTOR(),(ANIMATION_OFFSET_Y[8+x]) / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
+			CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:weaponSpriteSheet.texture rect:CGRectMake((ANIMATION_OFFSET_X[8+x]) / CC_CONTENT_SCALE_FACTOR(),(ANIMATION_OFFSET_Y[8+x]) / CC_CONTENT_SCALE_FACTOR(),spriteWidth,spriteHeight)];
             
 			[frames addObject:frame];
 		}
@@ -1192,12 +1185,12 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
             {
                 if (facingLeft) 
                 {
-                    [bullet setPosition:ccpAdd(self.position, ccpAdd(ccp((self.contentSize.width - bulletOffsetX), bulletOffsetY) , ccp(-self.contentSize.width*(1.0f-self.anchorPoint.x), self.contentSize.height*(1.0f-self.anchorPoint.y))))];
+                    [bullet setPosition:ccpAdd(self.position, ccpAdd(ccp((self.contentSize.width - bulletOffsetX + 20/CC_CONTENT_SCALE_FACTOR()), bulletOffsetY - 5/CC_CONTENT_SCALE_FACTOR()) , ccp(-self.contentSize.width*(1.0f-self.anchorPoint.x), self.contentSize.height*(1.0f-self.anchorPoint.y))))];
                     
                 }
                 else 
                 {
-                    [bullet setPosition:ccpAdd(self.position, ccpAdd(ccp(bulletOffsetX, bulletOffsetY) , ccp(-self.contentSize.width*(self.anchorPoint.x), self.contentSize.height*(1.0f-self.anchorPoint.y))))];
+                    [bullet setPosition:ccpAdd(self.position, ccpAdd(ccp(bulletOffsetX - 20/CC_CONTENT_SCALE_FACTOR(), bulletOffsetY - 5/CC_CONTENT_SCALE_FACTOR()) , ccp(-self.contentSize.width*(self.anchorPoint.x), self.contentSize.height*(1.0f-self.anchorPoint.y))))];
                 }
                 
             }

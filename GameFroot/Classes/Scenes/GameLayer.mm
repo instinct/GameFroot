@@ -1298,7 +1298,7 @@ GameLayer *instance;
 				GameObject *sprite = [GameObject spriteWithBatchNode:spriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 				[sprite setPosition:pos];
 				[sprite setAnchorPoint:ccp(0.5,0.5)];
-				[spriteSheet addChild:sprite z:zorder];
+				//[spriteSheet addChild:sprite z:zorder];
                     
                 // Set array tiles
                 if (behaviour > 0) {
