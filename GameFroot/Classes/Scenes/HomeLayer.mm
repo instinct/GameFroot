@@ -331,22 +331,36 @@
     if(secretTaps == 6) {
         secretTaps = 0;
         if ([Shared isBetaMode]) {
-            CCLOG(@"Beta mode off!");
-            [Shared setBetaMode:NO];
-            [self changeServer:1];
-            UIAlertView *av = [[[UIAlertView alloc] initWithTitle: @"Beta Mode Disabled" 
-                                                                 message: @"You have disabled Beta Mode."
+            /*CCLOG(@"Beta mode off! Admin mode on!");
+            [Shared setBetaMode:2];
+            //NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+            //[self changeServer:[prefs integerForKey:@"server"]];
+            UIAlertView *av = [[[UIAlertView alloc] initWithTitle: @"Beta Mode Disabled, Admin enabled." 
+                                                                 message: @"You have disabled Beta Mode, and enabled Admin mode. To disable Admin mode, touch the GameFroot logo 6 times."
                                                                 delegate: self 
-                                                       cancelButtonTitle: @"Refresh" 
+                                                       cancelButtonTitle: @"Login" 
                                                        otherButtonTitles: nil] autorelease];
+            [av show];
+          
+        } else if ([Shared isAdminMode]) {
+            CCLOG(@"Beta and Admin mode off!");
+        */
+            CCLOG(@"Beta mode off!");
+            [Shared setBetaMode:0];
+            [self changeServer:0];
+            UIAlertView *av = [[[UIAlertView alloc] initWithTitle: @"Beta node disabled" 
+                                                          message: @"You have disabled Beta mode."
+                                                         delegate: self 
+                                                cancelButtonTitle: @"Refresh" 
+                                                otherButtonTitles: nil] autorelease];
             [av show];
             
         } else {
             CCLOG(@"Beta mode on!");
-            NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-            [Shared setBetaMode:YES];
-            [self changeServer:[prefs integerForKey:@"server"]];;
-            UIAlertView *av = [[[UIAlertView alloc] initWithTitle: @"Beta Mode Enabled" 
+            [Shared setBetaMode:1];
+            //NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+            //[self changeServer:[prefs integerForKey:@"server"]];
+            UIAlertView *av = [[[UIAlertView alloc] initWithTitle: @"Beta mode enabled" 
                                   message: @"Beta mode is now enabled. This is for developers only. To disable Beta mode, touch the GameFroot logo 6 times."
                                   delegate: self 
                                   cancelButtonTitle: @"Refresh" 
@@ -1048,6 +1062,7 @@
 #pragma mark Featured
 
 -(void) loadFeatured {
+    CCLOG(@"Load featured games!");
 	if ((selectedPage == featured) && !gameDetailLoaded) return;
 	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
 	selectedPage = featured;
@@ -1069,11 +1084,15 @@
         if([Shared isBetaMode]) {
             //levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=featured&page=%i", [self returnServer], featuredPage];
             levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=ios-promotional&page=%i", [self returnServer], featuredPage];
+        /*    
+        } else if ([Shared isAdminMode]) {
+            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_user_levels&page=%1", [self returnServer], featuredPage];
+        */    
         } else {
             levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=issue-0&page=%i", [self returnServer], featuredPage];
         }
 
-		CCLOG(@"Load levels: %@",levelsURL);
+		CCLOG(@"Load featured levels: %@",levelsURL);
         
         /*
         // Try to load cached version first, if not load online
@@ -1092,10 +1111,12 @@
             
             NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
             jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] mutableCopy];
-            //CCLOG(@"Levels: %@", [jsonDataFeatured description]);
+            CCLOG(@"Levels: %@", [jsonDataFeatured description]);
             
             if(!jsonDataFeatured)
             {
+                featured.visible = YES;
+                [Loader hideAsynchronousLoader];
                 return;
             }
         
@@ -1106,6 +1127,7 @@
         }*/
 	}
 	
+    featured.visible = YES;
     [Loader hideAsynchronousLoader];
     
 	CGSize size = [[CCDirector sharedDirector] winSize];
@@ -1640,7 +1662,7 @@
 }
 
 -(void) fbDidLogin {
-	//CCLOG(@">>>>>>>>>>>> Facebook Connect logging succesful: %@, %@", userName, emailAddress);
+	CCLOG(@">>>>>>>>>>>> Facebook Connect logging succesful: %@, %@", userName, emailAddress);
 	
 	AppDelegate *app = (AppDelegate *)[UIApplication sharedApplication].delegate;
 	
@@ -1656,10 +1678,17 @@
 }
 
 -(void) fbDidNotLogin:(BOOL)cancelled {
-	//CCLOG(@">>>>>>>>>>>> Facebook Connect logging unsuccesful");
+	CCLOG(@">>>>>>>>>>>> Facebook Connect logging unsuccesful");
 	
 	loading = NO;
 	myGames.visible = YES;
+    
+    if ([Shared isAdminMode]) {
+        // Refresh current page
+        if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
+        selectedPage = nil;
+        [self loadFeatured];
+    }
 }
 
 -(void) fbDidLogout {
@@ -1715,31 +1744,38 @@
 
 -(BOOL) checkLogin:(NSString *)email
 {
-    if (jsonDataMyGames != nil) return YES;
+    //if (jsonDataMyGames != nil) return YES;
     
     NSString *userLoginURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=ios_login", [self returnServer]];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSString *post = [NSString stringWithFormat:@"token=%@", [defaults objectForKey:@"FBAccessTokenKey"]];
 	NSString *stringData = [Shared stringWithContentsOfPostURL:userLoginURL post:post];
 	
-	CCLOG(@"ios_login result: %@ (%@)", stringData, post);
+	CCLOG(@"ios_login result: %@ (%@) (%@)", stringData, userLoginURL, post);
 	
 	return ([stringData isEqualToString:@"success"]);
 }
 
 -(void)request:(FBRequest *)request didLoad:(id)result {
-	//CCLOG(@">>>>>>>>>>>> Facebook Connect request succesful: %@", result);
+	CCLOG(@">>>>>>>>>>>> Facebook Connect request succesful: %@", result);
 	
-	if (selectedPage != myGames) return;
+	//if (selectedPage != myGames) return;
 	
     NSString *email = [result objectForKey:@"email"];	
     
 	if ([self checkLogin:email]) {
 		userName = [[result objectForKey:@"name"] retain];
         emailAddress = [email retain];
-		[self setupMyGamesHeader];
-		[Loader showAsynchronousLoaderWithDelayedAction:0.1f target:self selector:@selector(displayMyGames)];
 		
+        //[self setupMyGamesHeader];
+		//[Loader showAsynchronousLoaderWithDelayedAction:0.1f target:self selector:@selector(displayMyGames)];
+		if ([Shared isAdminMode]) {
+            // Refresh current page
+            if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
+            selectedPage = nil;
+            [self loadFeatured];
+        }
+        
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         [defaults setObject:userName forKey:@"FBFullName"];
         [defaults setObject:emailAddress forKey:@"FBEmailAddress"];
@@ -1756,6 +1792,11 @@
         
         loading = NO;
         myGames.visible = NO;
+        
+        if ([Shared isAdminMode]) {
+            featured.visible = YES;
+            [Loader hideAsynchronousLoader];
+        }
 	}
     
     /*
@@ -1809,11 +1850,24 @@
         }
         [self loadMyGames];
      
+    } else if ([title isEqualToString:@"Login"]) {
+        featured.visible = NO;
+        [self fbLogin:nil];
+        
     } else if ([title isEqualToString:@"Refresh"]) {
         // Refresh current page
         CCNode *previousPage = selectedPage;
         if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
         selectedPage = nil;
+        
+        if (jsonDataFeatured != nil) [jsonDataFeatured release];
+        if (jsonDataBrowse != nil) [jsonDataBrowse release];
+        if (jsonDataMyGames != nil) [jsonDataMyGames release];
+        
+        jsonDataFeatured = nil;
+        jsonDataBrowse = nil;
+        jsonDataMyGames = nil;
+        
         if(previousPage == featured) {
             [self loadFeatured];
         } else if(previousPage == playing) {

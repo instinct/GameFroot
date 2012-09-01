@@ -215,6 +215,8 @@ GameLayer *instance;
     
 	world->DrawDebugData();
     
+    if (DEBUG_WORLD) [self checkQuadrantsVisibility];
+    
 	glEnable(GL_TEXTURE_2D);
 	glEnableClientState(GL_COLOR_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -308,8 +310,9 @@ GameLayer *instance;
 		movingPlatforms = [[CCArray array] retain];
 		robots = [[CCArray array] retain];
 		switches = [[NSMutableDictionary dictionary] retain];
-		bullets = [[CCArray array] retain];
 		cached = [[NSMutableDictionary dictionary] retain];
+        bulletSpritesheets = [[NSMutableDictionary dictionary] retain];
+        
         
 		// Init containers
 		scene = [CCParallaxNode node];
@@ -1033,6 +1036,10 @@ GameLayer *instance;
 -(void) loadTilesLevel
 {	
 	// Load tiles
+    
+    quadrantsX = QUADRANTS_X;
+    quadrantsY = QUADRANTS_Y;
+    
 	@try
 	{
 		if (customTiles) {
@@ -1040,20 +1047,45 @@ GameLayer *instance;
 			//NSString *tilesFilename = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_tilesheet&id=%d", [self returnServer], gameID];
 			NSString *tilesFilename = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_game_animations&id=%d", [self returnServer], gameID];
 			CCLOG(@"Load spritesheet tiles: %@", tilesFilename);
-			spriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:tilesFilename ignoreCache:ignoreCache]];
+			
+            //spriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:tilesFilename ignoreCache:ignoreCache]];
+            
+            spriteSheets = [[NSMutableArray arrayWithCapacity:quadrantsX*quadrantsY] retain];
+            CCTexture2D *texture = [Shared getTexture2DFromWeb:tilesFilename ignoreCache:ignoreCache];
+            
+            for (int i=0; i<quadrantsX*quadrantsY; i++) 
+            {
+                CCSpriteBatchNode *spriteSheet = [CCSpriteBatchNode batchNodeWithTexture:texture];
+                
+                if (REDUCE_FACTOR != 1.0f) [spriteSheet.textureAtlas.texture setAntiAliasTexParameters];
+                else [spriteSheet.textureAtlas.texture setAliasTexParameters];
+                
+                [objects addChild:spriteSheet z:LAYER_TILES];
+                [spriteSheets addObject:spriteSheet];
+            }
+            
 			
 		} else {
 			// Load embedded spritesheet
 			//CCLOG(@"Load spritesheet tiles: iphone_tiles.png");
 			//spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"iphone_tiles.png"];
 			CCLOG(@"Load spritesheet tiles: tiles.png");
-			spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"tiles.png"];
+			
+            //spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"tiles.png"];
+            
+            spriteSheets = [[NSMutableArray arrayWithCapacity:quadrantsX*quadrantsY] retain];
+            
+            for (int i=0; i<quadrantsX*quadrantsY; i++) 
+            {
+                CCSpriteBatchNode *spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"tiles.png"];
+                
+                if (REDUCE_FACTOR != 1.0f) [spriteSheet.textureAtlas.texture setAntiAliasTexParameters];
+                else [spriteSheet.textureAtlas.texture setAliasTexParameters];
+                
+                [objects addChild:spriteSheet z:LAYER_TILES];
+                [spriteSheets addObject:spriteSheet];
+            }
 		}
-		
-		if (REDUCE_FACTOR != 1.0f) [spriteSheet.textureAtlas.texture setAntiAliasTexParameters];
-		else [spriteSheet.textureAtlas.texture setAliasTexParameters];
-		
-		[objects addChild:spriteSheet z:LAYER_TILES];
         
         teleportSpriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"teleporter.png"];
         [objects addChild:teleportSpriteSheet z:LAYER_TILES+1];
@@ -1082,6 +1114,81 @@ GameLayer *instance;
 		CCLOG(@"Failed loading tiles");
 		return;
 	}
+}
+
+-(CCSpriteBatchNode *) getBatchnodeQuadrantForX:(int) x andY:(int) y
+{
+    int quadrantX = (int)floorf(x/((float)mapWidth/(float)quadrantsX));
+    int quadrantY = (int)floorf(y/((float)mapHeight/(float)quadrantsY));
+    int index = quadrantX + quadrantY*quadrantsY;
+    //CCLOG(@"%i,%i (%i,%i): %i", x, y, quadrantX, quadrantY, index);
+    return (CCSpriteBatchNode *)[spriteSheets objectAtIndex:index];
+}
+
+-(CCSpriteBatchNode *) getFixedBatchnodeQuadrant
+{
+    return (CCSpriteBatchNode *)[spriteSheets objectAtIndex:0];
+}
+
+-(void) checkQuadrantsVisibility
+{
+    //CCLOG(@"screen: %f,%f - %f,%f", -self.position.x, -self.position.y, self.contentSize.width, self.contentSize.height);
+    CGRect screen = CGRectMake(-self.position.x, -self.position.y, self.contentSize.width, self.contentSize.height);
+    
+    float gridWidth = ((float)mapWidth/(float)quadrantsX) * MAP_TILE_WIDTH * REDUCE_FACTOR;
+    float gridHeight = ((float)mapHeight/(float)quadrantsY) * MAP_TILE_HEIGHT * REDUCE_FACTOR;
+    
+    // Keep always quadrant 0 visible so we can put all mobable stuff there
+    for (int i=1; i<quadrantsX*quadrantsY; i++) 
+    {
+        CCSpriteBatchNode *spriteSheet = (CCSpriteBatchNode *)[spriteSheets objectAtIndex:i];
+        
+        int quadrantX = i%quadrantsX;
+        int quadrantY = (i - quadrantX)/quadrantsY;
+        //CCLOG(@"%i = %i,%i", i, quadrantX, quadrantY);
+        
+        float x = quadrantX * gridWidth;
+        float y = (quadrantsX - quadrantY - 1) * gridHeight;
+        //CCLOG(@"quadrat %i : %f,%f - %f,%f", i, x, y, gridWidth, gridHeight);
+        
+        CGRect quadrant = CGRectMake(x, y, gridWidth, gridHeight);
+        
+        if (DEBUG_WORLD)
+        {
+            glColor4f(1.0f,0.0f,0.0f,1.0f); //line color
+            ccDrawLine(ccp(x, y),ccp(x + gridWidth, y));
+            ccDrawLine(ccp(x + gridWidth, y),ccp(x + gridWidth, y + gridHeight));
+            ccDrawLine(ccp(x + gridWidth, y + gridHeight),ccp(x, y + gridHeight));
+            ccDrawLine(ccp(x, y + gridHeight),ccp(x, y));
+            
+        }
+                   
+        if (CGRectIntersectsRect(quadrant, screen)) 
+        {
+            spriteSheet.visible = YES;
+            //CCLOG(@"VISIBLE!!");
+        }
+        else
+        {
+            spriteSheet.visible = NO;
+            //CCLOG(@"NOT VISIBLE!!");
+        }
+    }
+    
+    if (DEBUG_WORLD)
+    {
+        float x = screen.origin.x;
+        float y = screen.origin.y;
+        float gridWidth = screen.size.width;
+        float gridHeight = screen.size.height;
+        
+        glColor4f(1.0f,1.0f,0.0f,1.0f); //line color
+        ccDrawLine(ccp(x, y),ccp(x + gridWidth, y));
+        ccDrawLine(ccp(x + gridWidth, y),ccp(x + gridWidth, y + gridHeight));
+        ccDrawLine(ccp(x + gridWidth, y + gridHeight),ccp(x, y + gridHeight));
+        ccDrawLine(ccp(x, y + gridHeight),ccp(x, y));
+        
+    }
 }
 
 /* DEPRECATED!!
@@ -1121,7 +1228,14 @@ GameLayer *instance;
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Add tiles to map
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-	[spriteSheet removeAllChildrenWithCleanup:false];
+    
+	//[spriteSheet removeAllChildrenWithCleanup:false];
+    for (int i=0; i<quadrantsX*quadrantsY; i++) 
+    {
+        CCSpriteBatchNode *spriteSheet = (CCSpriteBatchNode *)[spriteSheets objectAtIndex:i];
+        [spriteSheet removeAllChildrenWithCleanup:false];
+    }
+    
 	NSMutableArray *arTiles = [data objectForKey:@"mapTiles"];
 	
 	NSSortDescriptor *descriptorZOrder = [[NSSortDescriptor alloc] initWithKey:@"zorder" ascending:NO];
@@ -1191,11 +1305,11 @@ GameLayer *instance;
 			//CCLOG(@"x:%i y:%i - type:%i, type before: %i, count:%i", dx, dy, behaviour, initialType, countTiles);
 			
 			if (isSwitch) {
-				Switch *switchTile = [Switch spriteWithBatchNode:spriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+				Switch *switchTile = [Switch spriteWithBatchNode:[self getBatchnodeQuadrantForX:dx andY:dy] rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 				[switchTile setPosition:pos];
 				[switchTile createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
 				[switchTile setupSwitch:tileNum withKey:[NSString stringWithFormat:@"%i_%i",dx,dy] frames:frames];
-				[spriteSheet addChild:switchTile z:zorder];
+				[[self getBatchnodeQuadrantForX:dx andY:dy] addChild:switchTile z:zorder];
 				
 				if (frames > 1) {
 					float speed = 0.1f;
@@ -1208,7 +1322,7 @@ GameLayer *instance;
 							int nextTileX = ((tileNum+i) - floor((tileNum+i)/SPRITESHEETS_TILE_WIDTH)*SPRITESHEETS_TILE_WIDTH) * MAP_TILE_WIDTH;
 							int nextTileY = floor((tileNum+i)/SPRITESHEETS_TILE_WIDTH) * MAP_TILE_HEIGHT;
 							
-							CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:spriteSheet.textureAtlas.texture rect:CGRectMake(nextTileX,nextTileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+							CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:[self getBatchnodeQuadrantForX:dx andY:dy].textureAtlas.texture rect:CGRectMake(nextTileX,nextTileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 							[frameList addObject:frame];
 						}
 						animation = [CCAnimation animationWithFrames:frameList delay:speed];
@@ -1222,7 +1336,7 @@ GameLayer *instance;
 			} else if ((endx != dx) || (endy != dy)) {
 				// Moving platforms
 				
-				MovingPlatform *platform = [MovingPlatform spriteWithBatchNode:spriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+				MovingPlatform *platform = [MovingPlatform spriteWithBatchNode:[self getFixedBatchnodeQuadrant] rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 				[platform setPosition:pos];
 				[platform createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
 				[movingPlatforms addObject:platform];
@@ -1242,7 +1356,7 @@ GameLayer *instance;
 							int nextTileX = ((tileNum+i) - floor((tileNum+i)/SPRITESHEETS_TILE_WIDTH)*SPRITESHEETS_TILE_WIDTH) * MAP_TILE_WIDTH;
 							int nextTileY = floor((tileNum+i)/SPRITESHEETS_TILE_WIDTH) * MAP_TILE_HEIGHT;
 							
-							CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:spriteSheet.textureAtlas.texture rect:CGRectMake(nextTileX,nextTileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+							CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:[self getFixedBatchnodeQuadrant].textureAtlas.texture rect:CGRectMake(nextTileX,nextTileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 							[frameList addObject:frame];
 						}
 						animation = [CCAnimation animationWithFrames:frameList delay:speed];
@@ -1269,7 +1383,7 @@ GameLayer *instance;
 					[platform moveTo:endPos duration:fabsf(endPos.x - pos.x) / 100.0f]; // set 100px per second
 				}
 				
-				[spriteSheet addChild:platform z:zorder];
+				[[self getFixedBatchnodeQuadrant] addChild:platform z:zorder];
 				
 				// Check if switch controlled
 				if (isSwitchControlled) {
@@ -1295,10 +1409,10 @@ GameLayer *instance;
 				
 			} else {
 				// Tile sprite
-				GameObject *sprite = [GameObject spriteWithBatchNode:spriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+				GameObject *sprite = [GameObject spriteWithBatchNode:[self getBatchnodeQuadrantForX:dx andY:dy] rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 				[sprite setPosition:pos];
 				[sprite setAnchorPoint:ccp(0.5,0.5)];
-				//[spriteSheet addChild:sprite z:zorder];
+				[[self getBatchnodeQuadrantForX:dx andY:dy] addChild:sprite z:zorder];
                     
                 // Set array tiles
                 if (behaviour > 0) {
@@ -1318,7 +1432,7 @@ GameLayer *instance;
 							int nextTileX = ((tileNum+i) - floor((tileNum+i)/SPRITESHEETS_TILE_WIDTH)*SPRITESHEETS_TILE_WIDTH) * MAP_TILE_WIDTH;
 							int nextTileY = floor((tileNum+i)/SPRITESHEETS_TILE_WIDTH) * MAP_TILE_HEIGHT;
 							
-							CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:spriteSheet.textureAtlas.texture rect:CGRectMake(nextTileX,nextTileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+							CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:[self getBatchnodeQuadrantForX:dx andY:dy].textureAtlas.texture rect:CGRectMake(nextTileX,nextTileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 							[frameList addObject:frame];
 						}
 						animation = [CCAnimation animationWithFrames:frameList delay:speed];
@@ -1571,7 +1685,7 @@ GameLayer *instance;
 						int nextTileX = ((tileNum+i) - floor((tileNum+i)/SPRITESHEETS_ITEM_WIDTH)*SPRITESHEETS_ITEM_WIDTH) * MAP_TILE_WIDTH;
 						int nextTileY = floor((tileNum+i)/SPRITESHEETS_ITEM_WIDTH) * MAP_TILE_HEIGHT;
 						
-						CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:spriteSheet.textureAtlas.texture rect:CGRectMake(nextTileX,nextTileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+						CCSpriteFrame *frame = [CCSpriteFrame frameWithTexture:[self getBatchnodeQuadrantForX:dx andY:dy].textureAtlas.texture rect:CGRectMake(nextTileX,nextTileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 						[frameList addObject:frame];
 					}
 					animation = [CCAnimation animationWithFrames:frameList delay:speed];
@@ -1582,11 +1696,11 @@ GameLayer *instance;
 			
 			if ([robot count] > 0) {
 				// Override other functionality
-				Robot *item = [Robot spriteWithBatchNode:spriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+				Robot *item = [Robot spriteWithBatchNode:[self getBatchnodeQuadrantForX:dx andY:dy] rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 				[item setPosition:pos];
 				[item setupRobot:dict];
 				[item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
-				[spriteSheet addChild:item z:zorder];
+				[[self getBatchnodeQuadrantForX:dx andY:dy] addChild:item z:zorder];
   
                 NSRange range = [[robot description] rangeOfString: @"triggerCheckpoint"];
                 if (range.location != NSNotFound)
@@ -1598,20 +1712,20 @@ GameLayer *instance;
 				
 			} else if (type == 7) {
 				// Check point
-				CheckPoint *checkPoint = [CheckPoint spriteWithBatchNode:spriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+				CheckPoint *checkPoint = [CheckPoint spriteWithBatchNode:[self getBatchnodeQuadrantForX:dx andY:dy] rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 				[checkPoint setPosition:pos];
 				[checkPoint createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
 				[checkPoint setupCheckPointWithX:dx andY:dy tileId:tileNum frames:frames];
-				[spriteSheet addChild:checkPoint z:zorder];
+				[[self getBatchnodeQuadrantForX:dx andY:dy] addChild:checkPoint z:zorder];
                 checkpoints = YES;
 				
 			} else {
 				// Tile sprite
-				Collectable *item = [Collectable spriteWithBatchNode:spriteSheet rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+				Collectable *item = [Collectable spriteWithBatchNode:[self getBatchnodeQuadrantForX:dx andY:dy] rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 				[item setPosition:pos];
 				[item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
 				[item setType:kGameObjectCollectable];
-				[spriteSheet addChild:item z:zorder];
+				[[self getBatchnodeQuadrantForX:dx andY:dy] addChild:item z:zorder];
 				
 				if (type == 0) {
 					item.itemType = kCollectableMoney;
@@ -1715,6 +1829,8 @@ GameLayer *instance;
 
 -(void) loadEnemies
 {
+    NSMutableDictionary *enemiesSpritesheets = [NSMutableDictionary dictionary];
+    
 	NSMutableArray *enemiesList = [data objectForKey:@"characters"];
 	
 	for(uint i = 0; i < [enemiesList count]; i++)
@@ -1739,27 +1855,47 @@ GameLayer *instance;
 				[cached setObject:@"YES" forKey:enemyFilename];
 			}
 			
-			CCLOG(@"Enemy spritesheet url: %@", enemyFilename);
-			@try {
-				enemySpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:enemyFilename ignoreCache:custom]];
-				
-			} @catch (NSException * e) {
-				CCLOG(@"Enemy Spritesheet not found or error, use default one");
-				enemySpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"enemy_sheet%i.png", arc4random()%11]];
-			}
+            CCLOG(@"Enemy spritesheet url: %@", enemyFilename);
+            
+            if ((enemySpriteSheet = [enemiesSpritesheets objectForKey:enemyFilename]) == nil) 
+            {
+                @try {
+                    enemySpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:enemyFilename ignoreCache:custom]];
+                    
+                } @catch (NSException * e) {
+                    CCLOG(@"Enemy Spritesheet not found or error, use default one");
+                    enemySpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"enemy_sheet%i.png", arc4random()%11]];
+                }
+                
+                [enemiesSpritesheets setObject:enemySpriteSheet forKey:enemyFilename];
+                
+                if (REDUCE_FACTOR != 1.0f) [enemySpriteSheet.textureAtlas.texture setAntiAliasTexParameters];
+                else [enemySpriteSheet.textureAtlas.texture setAliasTexParameters];
+                
+                [objects addChild:enemySpriteSheet z:LAYER_PLAYER];
+            }
+            
+			
+			
 			
 		} else {
 			//enemyFilename = [NSString stringWithFormat:@"%@/wp-content/characters/enemy_sheet%d.png", [self returnServer], enemyID];
 			//enemySpriteSheet = [CCSpriteBatchNode batchNodeWithTexture:[Shared getTexture2DFromWeb:enemyFilename ignoreCache:custom || ignoreCache]];
 			
 			CCLOG(@"Enemy spritesheet: %@", [NSString stringWithFormat:@"enemy_sheet%i.png", enemyID]);
-			enemySpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"enemy_sheet%i.png", enemyID]];
+            
+            if ((enemySpriteSheet = [enemiesSpritesheets objectForKey:[NSString stringWithFormat:@"enemy_sheet%i.png", enemyID]]) == nil) 
+            {
+                enemySpriteSheet = [CCSpriteBatchNode batchNodeWithFile:[NSString stringWithFormat:@"enemy_sheet%i.png", enemyID]];
+                
+                [enemiesSpritesheets setObject:enemySpriteSheet forKey:[NSString stringWithFormat:@"enemy_sheet%i.png", enemyID]];
+                
+                if (REDUCE_FACTOR != 1.0f) [enemySpriteSheet.textureAtlas.texture setAntiAliasTexParameters];
+                else [enemySpriteSheet.textureAtlas.texture setAliasTexParameters];
+                
+                [objects addChild:enemySpriteSheet z:LAYER_PLAYER];
+            }
 		}
-		
-		if (REDUCE_FACTOR != 1.0f) [enemySpriteSheet.textureAtlas.texture setAntiAliasTexParameters];
-		else [enemySpriteSheet.textureAtlas.texture setAliasTexParameters];
-		
-		[objects addChild:enemySpriteSheet z:LAYER_PLAYER];
 		
 		float spriteWidth = enemySpriteSheet.texture.contentSize.width / 8;
 		float spriteHeight = enemySpriteSheet.texture.contentSize.height / 2;
@@ -1912,11 +2048,11 @@ GameLayer *instance;
     pos.y += MAP_TILE_HEIGHT/2.0f;
     */
     
-    Robot *item = [Robot spriteWithBatchNode:spriteSheet rect:rect];
+    Robot *item = [Robot spriteWithBatchNode:[self getFixedBatchnodeQuadrant] rect:rect];
     [item setPosition:pos];
     [item setupRobot:originalData];
     [item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
-    [spriteSheet addChild:item z:zorder];
+    [[self getFixedBatchnodeQuadrant] addChild:item z:zorder];
     item.spawned = YES;
     
     [robots addObject:item];
@@ -2107,6 +2243,8 @@ GameLayer *instance;
     }
     
 	self.position = ccp(viewPoint.x, viewPoint.y);
+    
+    if (!DEBUG_WORLD) [self checkQuadrantsVisibility];
 }
 
 -(CGPoint)convertToMapCoordinates:(CGPoint)point {
@@ -2188,17 +2326,19 @@ GameLayer *instance;
 #pragma mark -
 #pragma mark Interactions
 
--(void) addBullet:(CCSpriteBatchNode *)bullet
+-(CCSpriteBatchNode *) addBullet:(NSString *)skin
 {
-	[objects addChild:bullet z:LAYER_PLAYER];
-	[bullets addObject:bullet];
-}
-
--(void) removeBullet:(CCSpriteBatchNode *)bullet
-{
-    [bullet removeAllChildrenWithCleanup:YES];
-	if ([bullets containsObject:bullet]) [bullets removeObject:bullet];
-	[objects removeChild:bullet cleanup:YES];
+    CCSpriteBatchNode *bullet = [bulletSpritesheets objectForKey:skin];
+    
+    if (bullet == nil)
+    {
+        bullet = [CCSpriteBatchNode batchNodeWithFile:skin];
+        [objects addChild:bullet z:LAYER_PLAYER];
+        
+        [bulletSpritesheets setObject:bullet forKey:skin];
+    }
+    
+    return bullet;
 }
 
 -(void) addOverlay:(CCNode *)node
@@ -3059,7 +3199,6 @@ GameLayer *instance;
 	
 	[enemies release];
 	[items release];
-	[bullets release];
 	[robots release];
 	[movingPlatforms release];
 	[properties release];
@@ -3069,7 +3208,9 @@ GameLayer *instance;
 	[switches release];
 	[cached release];
     [musicData release];
-	
+    [spriteSheets release];
+	[bulletSpritesheets release];
+    
 	[self removeAllChildrenWithCleanup:YES];
 	
 	// Stop music

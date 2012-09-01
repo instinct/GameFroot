@@ -15,8 +15,9 @@
 #pragma mark -
 #pragma mark Generic functions
 
-+(void) setBetaMode:(BOOL)m;
++(void) setBetaMode:(int)m;
 +(BOOL) isBetaMode;
++(BOOL) isAdminMode;
 +(CGSize) getWinSize;
 +(NSString *) formattedStringUsingFormat:(NSString *)dateFormat;
 +(BOOL) connectedToNetwork;
