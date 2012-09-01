@@ -262,6 +262,11 @@
         gameDetailLoaded = NO;
         tableView = nil;
         
+        [self ensureJsonDataFeatured];
+        if ([jsonDataFeatured count] == 1){
+            [Shared setLevel:[[jsonDataFeatured objectAtIndex:0] mutableCopy]];
+        }
+        
 		/*if([[NSUserDefaults standardUserDefaults] boolForKey:@"firstlaunch"] && ![Shared getWelcomeShown]) {
             // Do some stuff on first launch
             [Shared setWelcomeShown:YES];
@@ -1007,9 +1012,10 @@
     descriptionText.position = ccp(sizeText.width/2 + 12, sizeText.height/2 + likeButton.contentSize.height + 50);
     likeMenu.position = ccp(size.width/2, likeButton.contentSize.height/2 + 10);
     
-    
-    [gameDetail addChild:topNavMenu];
-    
+    if ([jsonDataFeatured count] != 1){
+        [gameDetail addChild:topNavMenu];
+    }
+        
     /*
     [gameDetail addChild:contentMenu];
     [gameDetail addChild:likeMenu];
@@ -1061,6 +1067,7 @@
 #pragma mark -
 #pragma mark Featured
 
+<<<<<<< HEAD
 -(void) loadFeatured {
     CCLOG(@"Load featured games!");
 	if ((selectedPage == featured) && !gameDetailLoaded) return;
@@ -1075,6 +1082,9 @@
 	
     //BOOL refreshInBackground = NO;
     
+=======
+-(void) ensureJsonDataFeatured {
+>>>>>>> d42e315be93ff234ea6700428a154f727fa17285
 	if (jsonDataFeatured == nil) {
         
         featuredPage = 1;
@@ -1091,12 +1101,30 @@
         } else {
             levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=issue-0&page=%i", [self returnServer], featuredPage];
         }
+<<<<<<< HEAD
 
 		CCLOG(@"Load featured levels: %@",levelsURL);
+=======
+        
+		CCLOG(@"Load levels: %@",levelsURL);
+>>>>>>> d42e315be93ff234ea6700428a154f727fa17285
         
         /*
-        // Try to load cached version first, if not load online
+         // Try to load cached version first, if not load online
+         
+         NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];        
+         if ([prefs objectForKey:@"featured"] != nil) {
+         jsonDataFeatured = [[prefs objectForKey:@"featured"] mutableCopy];
+         
+         CCLOG(@"Loaded cached levels");
+         refreshInBackground = YES;
+         
+         } else {
+         // Cache not found, load online
+         */
+        NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
         
+<<<<<<< HEAD
         NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];        
         if ([prefs objectForKey:@"featured"] != nil) {
             jsonDataFeatured = [[prefs objectForKey:@"featured"] mutableCopy];
@@ -1119,13 +1147,39 @@
                 [Loader hideAsynchronousLoader];
                 return;
             }
+=======
+        NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
+        jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] mutableCopy];
+        //CCLOG(@"Levels: %@", [jsonDataFeatured description]);
+        
+        if(!jsonDataFeatured)
+        {
+            return;
+        }
+>>>>>>> d42e315be93ff234ea6700428a154f727fa17285
         
         /*
-            // Save locally for next time
-            [prefs setObject:jsonDataFeatured forKey:@"featured"];
-            [prefs synchronize];
-        }*/
-	}
+         // Save locally for next time
+         [prefs setObject:jsonDataFeatured forKey:@"featured"];
+         [prefs synchronize];
+         }*/
+	}    
+}
+
+-(void) loadFeatured {
+	if ((selectedPage == featured) && !gameDetailLoaded) return;
+	if (selectedPage != nil) [selectedPage removeAllChildrenWithCleanup:YES];
+	selectedPage = featured;
+    [Loader showAsynchronousLoaderWithDelayedAction:0.5f target:self selector:@selector(_loadFeatured)];
+    loading = YES;
+    gameDetailLoaded = NO;
+}
+
+-(void) _loadFeatured {
+	
+    //BOOL refreshInBackground = NO;
+    
+    [self ensureJsonDataFeatured];
 	
     featured.visible = YES;
     [Loader hideAsynchronousLoader];
