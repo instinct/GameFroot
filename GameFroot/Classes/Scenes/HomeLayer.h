@@ -104,6 +104,7 @@
 -(void) loadWelcome;
 -(void) loadGameDetail;
 -(void) loadFeatured;
+-(void) ensureJsonDataFeatured;
 -(void) loadPlaying;
 -(void) loadBrowse;
 -(void) loadMyGames;

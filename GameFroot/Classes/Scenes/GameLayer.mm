@@ -183,6 +183,8 @@ GameLayer *instance;
 
 -(void) timer:(ccTime)dt {
 	seconds -= dt;
+    seconds = ceilf(seconds);
+    
 	if (seconds <= 0) {
 		seconds = 0;
 	}
@@ -1036,9 +1038,12 @@ GameLayer *instance;
 -(void) loadTilesLevel
 {	
 	// Load tiles
-    
-    quadrantsX = QUADRANTS_X;
-    quadrantsY = QUADRANTS_Y;
+
+    quadrantsX = (int)ceilf(mapWidth*MAP_TILE_WIDTH / 1024);
+    quadrantsY = (int)ceilf(mapHeight*MAP_TILE_HEIGHT / 1024);
+    if (quadrantsX > 4) quadrantsX = 4;
+    if (quadrantsY > 4) quadrantsY = 4;
+    CCLOG(@"Quadrants x:%i, y:%i", quadrantsX, quadrantsY);
     
 	@try
 	{
@@ -1120,7 +1125,7 @@ GameLayer *instance;
 {
     int quadrantX = (int)floorf(x/((float)mapWidth/(float)quadrantsX));
     int quadrantY = (int)floorf(y/((float)mapHeight/(float)quadrantsY));
-    int index = quadrantX + quadrantY*quadrantsY;
+    int index = quadrantX + quadrantY*quadrantsX;
     //CCLOG(@"%i,%i (%i,%i): %i", x, y, quadrantX, quadrantY, index);
     return (CCSpriteBatchNode *)[spriteSheets objectAtIndex:index];
 }
@@ -1144,11 +1149,11 @@ GameLayer *instance;
         CCSpriteBatchNode *spriteSheet = (CCSpriteBatchNode *)[spriteSheets objectAtIndex:i];
         
         int quadrantX = i%quadrantsX;
-        int quadrantY = (i - quadrantX)/quadrantsY;
+        int quadrantY = (i - quadrantX)/quadrantsX;
         //CCLOG(@"%i = %i,%i", i, quadrantX, quadrantY);
         
         float x = quadrantX * gridWidth;
-        float y = (quadrantsX - quadrantY - 1) * gridHeight;
+        float y = (quadrantsY - quadrantY - 1) * gridHeight;
         //CCLOG(@"quadrat %i : %f,%f - %f,%f", i, x, y, gridWidth, gridHeight);
         
         CGRect quadrant = CGRectMake(x, y, gridWidth, gridHeight);
@@ -1696,11 +1701,11 @@ GameLayer *instance;
 			
 			if ([robot count] > 0) {
 				// Override other functionality
-				Robot *item = [Robot spriteWithBatchNode:[self getBatchnodeQuadrantForX:dx andY:dy] rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
+				Robot *item = [Robot spriteWithBatchNode:[self getFixedBatchnodeQuadrant] rect:CGRectMake(tileX,tileY,MAP_TILE_WIDTH,MAP_TILE_HEIGHT)];
 				[item setPosition:pos];
 				[item setupRobot:dict];
 				[item createBox2dObject:world size:CGSizeMake(MAP_TILE_WIDTH, MAP_TILE_HEIGHT)];
-				[[self getBatchnodeQuadrantForX:dx andY:dy] addChild:item z:zorder];
+				[[self getFixedBatchnodeQuadrant] addChild:item z:zorder];
   
                 NSRange range = [[robot description] rangeOfString: @"triggerCheckpoint"];
                 if (range.location != NSNotFound)
@@ -2675,7 +2680,10 @@ GameLayer *instance;
 
 -(void) pauseTimer
 {
-	if (timerEnabled) [self unschedule:@selector(timer:)];
+	if (timerEnabled) {
+        [self unschedule:@selector(timer:)];
+        timerEnabled = NO;
+    }
 }
 
 -(void) disableTimer

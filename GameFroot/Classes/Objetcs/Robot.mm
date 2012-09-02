@@ -1042,14 +1042,14 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         
     int amount;
 	
-	if ([[command objectForKey:@"amount"] isKindOfClass:[NSDictionary class]]) {
+	if ([[command objectForKey:@"time"] isKindOfClass:[NSDictionary class]]) {
 		
-		NSString *token = [[command objectForKey:@"amount"] objectForKey:@"token"];
+		NSString *token = [[command objectForKey:@"time"] objectForKey:@"token"];
 		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"amount"]];
         amount = [num intValue];
 		
 	} else {
-        amount = [[command objectForKey:@"amount"] intValue];
+        amount = [[command objectForKey:@"time"] intValue];
 	}
     
 	[[GameLayer getInstance] increaseTime:amount];

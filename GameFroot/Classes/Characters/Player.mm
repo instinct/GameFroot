@@ -386,6 +386,8 @@ static float const ANIMATION_OFFSET_Y[11] = {0.0f,-2.0f,-1.0f,0.0f,-2.0f,-1.0f,0
 		weapon.scaleX = -1;
 	}
     
+    [[GameLayer getInstance] increaseAmmo:75];
+    
     if (immortal) {
         id weaponBlinkAction = [CCSequence actions:
                                 [CCFadeOut actionWithDuration:0.2],

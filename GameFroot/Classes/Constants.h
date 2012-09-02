@@ -70,7 +70,4 @@ enum GameControlType{
 #define ENEMY_WIDTH     54.0 // Was 34.0 before, increaed to match Flash width collision area
 #define ENEMY_HEIGHT    76.0
 
-#define QUADRANTS_X     4
-#define QUADRANTS_Y     4
-
 #define DEBUG_WORLD		0
