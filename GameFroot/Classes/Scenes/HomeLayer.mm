@@ -52,6 +52,9 @@
 #pragma mark -
 #pragma mark Init
 
+NSString *defaultIssue = @"";
+
+
 // on "init" you need to initialize your instance
 -(id) init
 {
@@ -261,6 +264,21 @@
         ratingsAnchorEnabled = NO;
         gameDetailLoaded = NO;
         tableView = nil;
+        
+        // look for the default issue to load in our resources, otherwise use hard coded issue name
+        NSString *defaultIssueFileName = @"defaultIssue.txt";
+        NSString *defaultIssueFilePath =
+            [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:defaultIssueFileName];
+        NSString *defaultIssueFileContents =
+            [NSString stringWithContentsOfFile:defaultIssueFilePath encoding:NSUTF8StringEncoding error:NULL];
+        if (defaultIssueFileContents){
+            CCLOG(@"Using default issue: %@", defaultIssueFileContents);
+            defaultIssue = [defaultIssueFileContents retain];
+        } else {
+            NSString *fallbackIssue = @"issue-0";
+            CCLOG(@"Couldn't find %@, using %@", defaultIssueFileName, fallbackIssue);
+            defaultIssue = fallbackIssue;
+        }
         
         [self ensureJsonDataFeatured];
         if ([jsonDataFeatured count] == 1){
@@ -1082,7 +1100,7 @@
             levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_user_levels&page=%1", [self returnServer], featuredPage];
         */    
         } else {
-            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=issue-0&page=%i", [self returnServer], featuredPage];
+            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=%@&page=%i", [self returnServer], defaultIssue, featuredPage];
         }
         
 		CCLOG(@"Load featured levels: %@",levelsURL);
@@ -1191,7 +1209,7 @@
         if([Shared isBetaMode]) {
             levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=featured&page=%i", [self returnServer], 1];
         } else {
-            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=issue-0&page=%i", [self returnServer], 1];
+            levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=%@&page=%i", [self returnServer], defaultIssue, 1];
         }
 
         [self asynchronousContentsOfURL:levelsURL];
@@ -1206,7 +1224,7 @@
     if([Shared isBetaMode]) {
         levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=featured&page=%i", [self returnServer], featuredPage];
     } else {
-        levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=issue-0&page=%i", [self returnServer], featuredPage];
+        levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=%@&page=%i", [self returnServer], defaultIssue, featuredPage];
     }
 
     CCLOG(@"Load levels: %@",levelsURL);

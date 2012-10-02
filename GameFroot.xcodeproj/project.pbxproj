@@ -566,6 +566,7 @@
 		328AF6D5159327300004B9DA /* LICENSE_Objective-Zip_MiniZip.txt in Resources */ = {isa = PBXBuildFile; fileRef = 328AF6D4159327300004B9DA /* LICENSE_Objective-Zip_MiniZip.txt */; };
 		328AF6D81593294E0004B9DA /* CachedGames.zip in Resources */ = {isa = PBXBuildFile; fileRef = 328AF6D71593294E0004B9DA /* CachedGames.zip */; };
 		769C560C15996FF500FC69F8 /* gamefroot-promo.png in Resources */ = {isa = PBXBuildFile; fileRef = 769C560B15996FF500FC69F8 /* gamefroot-promo.png */; };
+		76FB2BEC161B0C2B00D60475 /* defaultIssue.txt in Resources */ = {isa = PBXBuildFile; fileRef = 76FB2BEB161B0C2B00D60475 /* defaultIssue.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1381,6 +1382,7 @@
 		328AF6D4159327300004B9DA /* LICENSE_Objective-Zip_MiniZip.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "LICENSE_Objective-Zip_MiniZip.txt"; path = "libs/LICENSE_Objective-Zip_MiniZip.txt"; sourceTree = "<group>"; };
 		328AF6D71593294E0004B9DA /* CachedGames.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = CachedGames.zip; path = Resources/CachedGames.zip; sourceTree = "<group>"; };
 		769C560B15996FF500FC69F8 /* gamefroot-promo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "gamefroot-promo.png"; sourceTree = "<group>"; };
+		76FB2BEB161B0C2B00D60475 /* defaultIssue.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = defaultIssue.txt; path = Resources/defaultIssue.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1521,6 +1523,7 @@
 				1643B4E014D9B0BC00A67057 /* Default-hd.png */,
 				1643B4E114D9B0BC00A67057 /* Default.png */,
 				1643B4E214D9B0BC00A67057 /* Default@2x.png */,
+				76FB2BEB161B0C2B00D60475 /* defaultIssue.txt */,
 				1643B4E314D9B0BC00A67057 /* dialogue_background-hd.png */,
 				1643B4E414D9B0BC00A67057 /* dialogue_background.png */,
 				1643B4E714D9B0BC00A67057 /* fps_images.png */,
@@ -3156,6 +3159,7 @@
 				16E7528015D5A7D30055FF52 /* bullet_ray_blue.png in Resources */,
 				16E7528315D5A7DF0055FF52 /* weapon_69_single.png in Resources */,
 				16E7528415D5A7DF0055FF52 /* weapon_70_single.png in Resources */,
+				76FB2BEC161B0C2B00D60475 /* defaultIssue.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
