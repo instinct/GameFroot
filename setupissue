@@ -1,0 +1,13 @@
+#!/bin/bash
+
+ISSUE=$1
+echo Downloading assets for issue $ISSUE
+rm -rf TEMPDIR
+mkdir TEMPDIR
+./bundlenator/bundlenator $ISSUE http://gamefroot.com TEMPDIR
+pushd TEMPDIR/zipme
+zip ../CachedGames.zip *
+popd
+cp TEMPDIR/CachedGames.zip GameFroot/Resources
+echo -n $ISSUE >GameFroot/Resources/defaultIssue.txt
+echo Sucessfully set up for issue $ISSUE

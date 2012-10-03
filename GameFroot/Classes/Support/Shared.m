@@ -24,7 +24,8 @@ static BOOL playing = NO;
 static BOOL paused = YES;
 static BOOL welcomeShown = NO;
 static BOOL simulator = NO;
-static BOOL betaMode = NO;
+static int betaMode = 0;
+static BOOL issueHasOneGame = false;
 
 #pragma mark -
 #pragma mark Generic functions
@@ -46,13 +47,17 @@ static BOOL betaMode = NO;
     return ret;
 }
 
-+(void) setBetaMode:(BOOL)m {
++(void) setBetaMode:(int)m {
     betaMode = m;
-    [CCDirector sharedDirector].displayFPS = betaMode;
+    [CCDirector sharedDirector].displayFPS = betaMode>0;
 }
 
 +(BOOL) isBetaMode {
-    return betaMode;
+    return betaMode==1;
+}
+
++(BOOL) isAdminMode {
+    return betaMode==2;
 }
 
 +(NSMutableDictionary*) getLevelData {
@@ -66,6 +71,15 @@ static BOOL betaMode = NO;
 +(void) setWelcomeShown:(BOOL)val {
     welcomeShown = val;
 }
+
++(BOOL) getIssueHasOneGame {
+    return issueHasOneGame;
+}
+
++(void) setIssueHasOneGame:(BOOL)val {
+    issueHasOneGame = val;
+}
+
 
 +(BOOL) isSimulator {
 	return simulator;
@@ -461,7 +475,7 @@ CGPoint GBSub(const CGPoint v1, const CGPoint v2) {
     // ***********************************************************
     // ***********************************************************
     // *******   HACKED value to run bundled games on v1.0 *******
-    if (![Shared isBetaMode]) ignoreCache = NO; 
+    if (![Shared isBetaMode] && ![Shared isAdminMode]) ignoreCache = NO; 
     // ***********************************************************
     // ***********************************************************
     
@@ -525,7 +539,7 @@ has been previously downloaded, return a path to the file otherwise load the ass
     // ***********************************************************
     // ***********************************************************
     // *******   HACKED value to run bundled games on v1.0 *******
-    if (![Shared isBetaMode]) ignoreCache = NO; 
+    if (![Shared isBetaMode] && ![Shared isAdminMode]) ignoreCache = NO; 
     // ***********************************************************
     // ***********************************************************
     
@@ -702,7 +716,7 @@ has been previously downloaded, return a path to the file otherwise load the ass
     // ***********************************************************
     // ***********************************************************
     // *******   HACKED value to run bundled games on v1.0 *******
-    if (![Shared isBetaMode]) ignoreCache = NO; 
+    if (![Shared isBetaMode] && ![Shared isAdminMode]) ignoreCache = NO; 
     // ***********************************************************
     // ***********************************************************
     

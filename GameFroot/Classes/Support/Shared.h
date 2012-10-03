@@ -15,8 +15,9 @@
 #pragma mark -
 #pragma mark Generic functions
 
-+(void) setBetaMode:(BOOL)m;
++(void) setBetaMode:(int)m;
 +(BOOL) isBetaMode;
++(BOOL) isAdminMode;
 +(CGSize) getWinSize;
 +(NSString *) formattedStringUsingFormat:(NSString *)dateFormat;
 +(BOOL) connectedToNetwork;
@@ -54,6 +55,8 @@
 +(NSString*) replaceAccents:(NSString*)a;
 +(BOOL) getWelcomeShown;
 +(void) setWelcomeShown:(BOOL)val;
++(BOOL) getIssueHasOneGame;
++(void) setIssueHasOneGame:(BOOL)val;
 
 #pragma mark -
 #pragma mark Remote Data Loading

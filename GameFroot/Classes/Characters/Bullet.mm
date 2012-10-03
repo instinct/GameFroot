@@ -23,48 +23,59 @@
 	CCSpriteBatchNode *spriteSheet;
 	float spriteWidth;
 	float spriteHeight;
-	
+	NSString *skin;
+    
     if (_weapon == 0) {
-        spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"bullet1.png"];
+        skin = @"bullet1.png";
+        spriteSheet = [[GameLayer getInstance] addBullet:skin];
         spriteWidth = spriteSheet.texture.contentSize.width / 8;
     
     } else if (_weapon == 1) {
-		spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"bullet1.png"];
+        skin = @"bullet1.png";
+        spriteSheet = [[GameLayer getInstance] addBullet:skin];
 		spriteWidth = spriteSheet.texture.contentSize.width / 8;
         
 	} else if (_weapon == 2) {
-		spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"bullet_laser.png"];
+        skin = @"bullet_laser.png";
+        spriteSheet = [[GameLayer getInstance] addBullet:skin];
 		spriteWidth = spriteSheet.texture.contentSize.width / 8;
 	
     } else if (_weapon == 3) {
-        spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"bullet1.png"];
+        skin = @"bullet1.png";
+        spriteSheet = [[GameLayer getInstance] addBullet:skin];
         spriteWidth = spriteSheet.texture.contentSize.width / 8;
     
     } else if (_weapon == 4) {
-        spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"bullet1.png"];
+        skin = @"bullet1.png";
+        spriteSheet = [[GameLayer getInstance] addBullet:skin];
         spriteWidth = spriteSheet.texture.contentSize.width / 8;
         
     } else if (_weapon == 5) {
-        spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"bullet1.png"];
+        skin = @"bullet1.png";
+        spriteSheet = [[GameLayer getInstance] addBullet:skin];
         spriteWidth = spriteSheet.texture.contentSize.width / 8;
         
 	} else if (_weapon == 6) {
-		spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"rocketsheet.png"];
+        skin = @"rocketsheet.png";
+        spriteSheet = [[GameLayer getInstance] addBullet:skin];
 		spriteWidth = spriteSheet.texture.contentSize.width / 13;
 	
     } else if (_weapon == 69) {
-        spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"bullet_ray.png"];
+        skin = @"bullet_ray.png";
+        spriteSheet = [[GameLayer getInstance] addBullet:skin];
 		spriteWidth = spriteSheet.texture.contentSize.width / 8;
     
     } else if (_weapon == 70) {
-        spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"bullet_ray.png"];
+        skin = @"bullet_ray.png";
+        spriteSheet = [[GameLayer getInstance] addBullet:skin];
 		spriteWidth = spriteSheet.texture.contentSize.width / 8;
         
 	} else {
-		spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"bullet_ray.png"];
+        skin = @"bullet_ray.png";
+        spriteSheet = [[GameLayer getInstance] addBullet:skin];
 		spriteWidth = spriteSheet.texture.contentSize.width / 8;
 	}
-	
+    
 	spriteHeight = spriteSheet.texture.contentSize.height;
 	//CCLOG(@"weapon size: %f,%f", spriteWidth, spriteHeight);
 	
@@ -85,7 +96,6 @@
 	if (REDUCE_FACTOR != 1.0f) [spriteSheet.textureAtlas.texture setAntiAliasTexParameters];
 	else [spriteSheet.textureAtlas.texture setAliasTexParameters];
 	
-	[[GameLayer getInstance] addBullet:spriteSheet];
 	[spriteSheet addChild:bullet];
 	
 	[bullet initWithDirection:dir weapon:_weapon];
@@ -220,12 +230,6 @@
 						nil];
 		[self runAction:dieAction];
 	}
-}
-
--(void) destroy
-{
-    [self remove];
-	[[GameLayer getInstance] removeBullet:spriteSheet];
 }
 
 // --------------------------------------------------------------

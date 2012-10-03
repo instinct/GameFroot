@@ -68,7 +68,13 @@ typedef enum{
     Controls *controls;
     
 	// Spritesheets
-	CCSpriteBatchNode *spriteSheet;
+	//CCSpriteBatchNode *spriteSheet;
+    NSMutableArray *spriteSheets;
+    int quadrantsX;
+    int quadrantsY;
+    
+    NSMutableDictionary *bulletSpritesheets;
+    
 	CCSpriteBatchNode *hudSpriteSheet;
 	CCSpriteBatchNode *teleportSpriteSheet;
     
@@ -89,7 +95,6 @@ typedef enum{
 	CCArray *items;
 	CCArray *movingPlatforms;
 	CCArray *robots;
-	CCArray *bullets;
 	
 	// HUD
 	Pause *pauseCover;
@@ -191,8 +196,7 @@ typedef enum{
 -(void) pause;
 -(void) resume;
 -(void) resetScheduledElements;
--(void) addBullet:(CCSpriteBatchNode *)bullet;
--(void) removeBullet:(CCSpriteBatchNode *)bullet;
+-(CCSpriteBatchNode *) addBullet:(NSString *)skin;
 -(void) addOverlay:(CCNode *)node;
 -(void) removeOverlay:(CCNode *)node;
 -(void) addObject:(CCNode *)node;
@@ -292,5 +296,7 @@ typedef enum{
 -(void) resumeGame;
 -(void) restartGame;
 -(void) restartGameFromPause;
+
+-(void) checkQuadrantsVisibility;
 
 @end

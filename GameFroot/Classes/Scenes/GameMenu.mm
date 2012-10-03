@@ -200,11 +200,13 @@
                 }
             }
             
-            CCSprite *back = [CCSprite spriteWithFile:@"back.png"];
-            CCSprite *backSelected = [CCSprite spriteWithFile:@"back-pressed.png"];
-            CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:back selectedSprite:backSelected target:self selector:@selector(backMenu:)];
-            [mainMenu addChild:backButton z:9999999];
-            [backButton setPosition: ccp(back.contentSize.width/2, size.height - back.contentSize.height/2 - 20)];
+            if (![Shared getIssueHasOneGame]){
+                CCSprite *back = [CCSprite spriteWithFile:@"back.png"];
+                CCSprite *backSelected = [CCSprite spriteWithFile:@"back-pressed.png"];
+                CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:back selectedSprite:backSelected target:self selector:@selector(backMenu:)];
+                [mainMenu addChild:backButton z:9999999];
+                [backButton setPosition: ccp(back.contentSize.width/2, size.height - back.contentSize.height/2 - 20)];
+            }
             
             // Setup menu
             [mainMenu setPosition: ccp(0, 0)];
@@ -240,8 +242,12 @@
             CCMenuItemSprite *helpButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"help_button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"help_pressed.png"] target:self selector:@selector(_onHelp:)];
             
             CCMenuItemSprite *backButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithSpriteFrameName:@"back_button.png"] selectedSprite:[CCSprite spriteWithSpriteFrameName:@"back_pressed.png"] target:self selector:@selector(backMenu:)];
-            
-            mainMenu = [CCMenu menuWithItems:backButton, _playButton, helpButton, nil];
+
+            if ([Shared getIssueHasOneGame]){
+                mainMenu = [CCMenu menuWithItems:_playButton, helpButton, nil];
+            } else {
+                mainMenu = [CCMenu menuWithItems:backButton, _playButton, helpButton, nil];
+            }
             mainMenu.position = ccp(size.width*0.5, size.height*0.4);
             helpButton.position = ccpSub(helpButton.position, ccp(0,(4*CC_CONTENT_SCALE_FACTOR())));
             [mainMenu alignItemsHorizontallyWithPadding:30];
