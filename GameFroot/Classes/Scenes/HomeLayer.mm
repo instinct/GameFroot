@@ -281,7 +281,9 @@ NSString *defaultIssue = @"";
         }
         
         [self ensureJsonDataFeatured];
-        if ([jsonDataFeatured count] == 1){
+        BOOL hasOneGame = [jsonDataFeatured count] == 1;
+        [Shared setIssueHasOneGame:hasOneGame];
+        if (hasOneGame){
             [Shared setLevel:[[jsonDataFeatured objectAtIndex:0] mutableCopy]];
         }
         
@@ -1029,11 +1031,11 @@ NSString *defaultIssue = @"";
     containerText.position = ccp(0, contentMenu.position.y - contentPlayButton.contentSize.height/2 - likeButton.contentSize.height - sizeText.height - 20 - 50);
     descriptionText.position = ccp(sizeText.width/2 + 12, sizeText.height/2 + likeButton.contentSize.height + 50);
     likeMenu.position = ccp(size.width/2, likeButton.contentSize.height/2 + 10);
-    
-    if ([jsonDataFeatured count] != 1){
+
+    if (![Shared getIssueHasOneGame]){
         [gameDetail addChild:topNavMenu];
     }
-        
+    
     /*
     [gameDetail addChild:contentMenu];
     [gameDetail addChild:likeMenu];
@@ -1080,6 +1082,11 @@ NSString *defaultIssue = @"";
    
 	gameDetail.visible = YES;
     gameDetailLoaded = YES;
+    
+    if ([Shared getIssueHasOneGame]){
+        [self gameDetailPlay:self];
+    }
+
 }
 
 #pragma mark -

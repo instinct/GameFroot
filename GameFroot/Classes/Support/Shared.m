@@ -25,6 +25,7 @@ static BOOL paused = YES;
 static BOOL welcomeShown = NO;
 static BOOL simulator = NO;
 static int betaMode = 0;
+static BOOL issueHasOneGame = false;
 
 #pragma mark -
 #pragma mark Generic functions
@@ -70,6 +71,15 @@ static int betaMode = 0;
 +(void) setWelcomeShown:(BOOL)val {
     welcomeShown = val;
 }
+
++(BOOL) getIssueHasOneGame {
+    return issueHasOneGame;
+}
+
++(void) setIssueHasOneGame:(BOOL)val {
+    issueHasOneGame = val;
+}
+
 
 +(BOOL) isSimulator {
 	return simulator;

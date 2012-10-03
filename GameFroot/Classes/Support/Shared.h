@@ -55,6 +55,8 @@
 +(NSString*) replaceAccents:(NSString*)a;
 +(BOOL) getWelcomeShown;
 +(void) setWelcomeShown:(BOOL)val;
++(BOOL) getIssueHasOneGame;
++(void) setIssueHasOneGame:(BOOL)val;
 
 #pragma mark -
 #pragma mark Remote Data Loading
