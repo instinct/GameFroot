@@ -2549,12 +2549,12 @@ GameLayer *instance;
 
 -(void) lockPlayerYSpeed:(float)speed
 {
-    player.fixedYSpeed = speed;
+    player.fixedYSpeed = speed/CC_CONTENT_SCALE_FACTOR();
 }
 
 -(void) lockPlayerXSpeed:(float)speed
 {
-    player.fixedXSpeed = speed;
+    player.fixedXSpeed = speed/CC_CONTENT_SCALE_FACTOR();
 }
 
 -(void) playerSmokeOn

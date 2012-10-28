@@ -53,6 +53,9 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         touching = touchingNone;
         spray = nil;
         firework = nil;
+        scrollFactorX = 0;
+        scrollFactorY = 0;
+        setScrollFactor = NO;
     }
     
     return self;
@@ -716,14 +719,58 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 
 -(void) setScrollX:(NSDictionary *)command 
 {
-    //if (TRACE_COMMANDS)
-    CCLOG(@"Robot.setScrollX: %@", command);
+    if (TRACE_COMMANDS) CCLOG(@"Robot.setScrollX: %@", command);
+    
+    int amount;
+	
+	if ([[command objectForKey:@"amount"] isKindOfClass:[NSDictionary class]]) {
+		
+		NSString *token = [[command objectForKey:@"amount"] objectForKey:@"token"];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"amount"]];
+		amount = [num intValue];
+		
+	} else {
+		amount = [[command objectForKey:@"amount"] intValue];
+	}
+    
+    scrollFactorX = amount / 100.0f;
+    
+    if (!setScrollFactor) {
+        [self markToDestroyBody];
+        [self schedule:@selector(scrollFactor:) interval:1.0f];
+    }
+    setScrollFactor = YES;
 }
 
 -(void) setScrollY:(NSDictionary *)command 
 {
-    //if (TRACE_COMMANDS)
-    CCLOG(@"Robot.setScrollY: %@", command);
+    //if (TRACE_COMMANDS) CCLOG(@"Robot.setScrollY: %@", command);
+    
+    int amount;
+	
+	if ([[command objectForKey:@"amount"] isKindOfClass:[NSDictionary class]]) {
+		
+		NSString *token = [[command objectForKey:@"amount"] objectForKey:@"token"];
+		NSNumber *num = [self runMethod:token withObject:[command objectForKey:@"amount"]];
+		amount = [num intValue];
+		
+	} else {
+		amount = [[command objectForKey:@"amount"] intValue];
+	}
+    
+    scrollFactorY = amount / 100.0f;
+    
+    if (!setScrollFactor) {
+        [self markToDestroyBody];
+        [self schedule:@selector(scrollFactor:) interval:1.0f/60.0f];
+    }
+    setScrollFactor = YES;
+}
+
+-(void) scrollFactor:(ccTime)ft
+{
+    CGPoint position = ccp(originalPosition.x, ([GameLayer getInstance].mapHeight*TILE_HEIGHT) - (originalPosition.y*CC_CONTENT_SCALE_FACTOR()) - ([GameLayer getInstance].position.y/(REDUCE_FACTOR/CC_CONTENT_SCALE_FACTOR())));
+    [self setPosition:ccp(position.x,position.y/CC_CONTENT_SCALE_FACTOR())];
 }
 
 -(NSNumber *) coordinateXOfNode:(NSDictionary *)command 
@@ -1533,8 +1580,6 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     
     if ([objClass isEqualToString:@"thisType"]) {
         NSMutableArray *node = [self runMethod:token withObject:location];
-        //float dx = roundf([[node objectAtIndex:0] floatValue] / 48.0);
-        //float dy = roundf([[node objectAtIndex:1] floatValue] / 48.0);
         float dx = [[node objectAtIndex:0] floatValue] / CC_CONTENT_SCALE_FACTOR();
         float dy = [[node objectAtIndex:1] floatValue] / CC_CONTENT_SCALE_FACTOR();
         

@@ -69,6 +69,9 @@ enum RobotTouchingType{
     CCParticleSystemQuad *firework;
     
     BOOL delayDie;
+    
+    BOOL setScrollFactor;
+    float scrollFactorX, scrollFactorY;
 }
 
 @property (nonatomic, assign) BOOL solid;
