@@ -811,8 +811,8 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
     
     if (setScrollFactor)
     {
-        //CGSize winSize = [[CCDirector sharedDirector] winSize];
-        position = ccp(originalPosition.x,([GameLayer getInstance].mapHeight*TILE_HEIGHT) - (originalPosition.y*CC_CONTENT_SCALE_FACTOR()));
+        CGSize winSize = [[CCDirector sharedDirector] winSize];
+        position = ccp(originalPosition.x, (winSize.height/(REDUCE_FACTOR/CC_CONTENT_SCALE_FACTOR())) - (([GameLayer getInstance].mapHeight*TILE_HEIGHT) - (originalPosition.y*CC_CONTENT_SCALE_FACTOR())));
     }
     
 	NSMutableArray *pos = [NSMutableArray arrayWithCapacity:2];
