@@ -485,7 +485,7 @@ CGPoint GBSub(const CGPoint v1, const CGPoint v2) {
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(SAVE_FOLDER, NSUserDomainMask, YES);
 	NSString *documentsDirectory = [paths objectAtIndex:0];
 	NSString *resource = [documentsDirectory stringByAppendingPathComponent:cachedFile];
-	
+	CCLOG(@"%@", resource);
 	NSArray *urlValues = [url componentsSeparatedByString:@"/"];
 	NSString *embeddedResource = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:[urlValues lastObject]];
 	BOOL embedded = [fileManager fileExistsAtPath:embeddedResource];

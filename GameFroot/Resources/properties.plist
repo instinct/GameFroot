@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>server_staging</key>
-	<string>http://staging.doublehappy.co.nz</string>
+	<string>http://staging.doublehappy.co.nz/</string>
 	<key>server_live</key>
-	<string>http://gamefroot.com</string>
+	<string>http://gamefroot.com/</string>
 	<key>fb_app_key</key>
 	<string>186809941380964</string>
 </dict>

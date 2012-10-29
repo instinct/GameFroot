@@ -791,7 +791,7 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 
 -(NSNumber *) coordinateYOfNode:(NSDictionary *)command 
 {
-    //if (TRACE_COMMANDS) CCLOG(@"Robot.coordinateYOfNode: %@", command);
+    if (TRACE_COMMANDS) CCLOG(@"Robot.coordinateYOfNode: %@", command);
     
     NSDictionary *node = [command objectForKey:@"node"];
     NSMutableArray *position = [self runMethod:[node objectForKey:@"token"] withObject:node];
@@ -808,6 +808,12 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
 -(NSMutableArray *) thisLocation:(NSDictionary *)obj
 {
     CGPoint position = ccp(self.position.x*CC_CONTENT_SCALE_FACTOR() - TILE_WIDTH/2, ([GameLayer getInstance].mapHeight*TILE_HEIGHT) - (self.position.y*CC_CONTENT_SCALE_FACTOR() + TILE_HEIGHT/2));
+    
+    if (setScrollFactor)
+    {
+        //CGSize winSize = [[CCDirector sharedDirector] winSize];
+        position = ccp(originalPosition.x,([GameLayer getInstance].mapHeight*TILE_HEIGHT) - (originalPosition.y*CC_CONTENT_SCALE_FACTOR()));
+    }
     
 	NSMutableArray *pos = [NSMutableArray arrayWithCapacity:2];
 	[pos addObject:[NSNumber numberWithFloat:position.x]];
@@ -1283,10 +1289,12 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         auxY = [[position objectForKey:@"ypos"] floatValue];
         
         CGPoint pos = ccp(auxX * MAP_TILE_WIDTH, ([GameLayer getInstance].mapHeight - auxY - 1) * MAP_TILE_HEIGHT);
-        pos.x += MAP_TILE_WIDTH/2.0f;
-        pos.y += MAP_TILE_HEIGHT/2.0f;
+        //pos.x += MAP_TILE_WIDTH/2.0f;
+        //pos.y += MAP_TILE_HEIGHT/2.0f;
+        pos.x += TILE_WIDTH/2;
+        pos.y -= TILE_HEIGHT/2;
         
-        if (TRACE_COMMANDS) CCLOG(@"Robot.teleport: %f, %f", pos.x, pos.y);
+        if (TRACE_COMMANDS) CCLOG(@"Robot.teleport (1): %f, %f", pos.x, pos.y);
         
         [self markToTransformBody:b2Vec2((pos.x/PTM_RATIO), pos.y/PTM_RATIO) angle:body->GetAngle()];
         
@@ -1297,7 +1305,10 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         
         auxY = ([GameLayer getInstance].mapHeight*TILE_HEIGHT) - auxY;
 
-        if (TRACE_COMMANDS) CCLOG(@"Robot.teleport: %f, %f", auxX/CC_CONTENT_SCALE_FACTOR(), auxY/CC_CONTENT_SCALE_FACTOR());
+        auxX += TILE_WIDTH/2;
+        auxY -= TILE_HEIGHT/2;
+        
+        if (TRACE_COMMANDS) CCLOG(@"Robot.teleport (2): %f, %f", auxX/CC_CONTENT_SCALE_FACTOR(), auxY/CC_CONTENT_SCALE_FACTOR());
         
         CGPoint pos = ccp(auxX/CC_CONTENT_SCALE_FACTOR(), auxY/CC_CONTENT_SCALE_FACTOR());
         [self markToTransformBody:b2Vec2((pos.x/PTM_RATIO), pos.y/PTM_RATIO) angle:body->GetAngle()];
@@ -1321,6 +1332,9 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         auxX = [[position objectForKey:@"xpos"] floatValue];
         auxY = [[position objectForKey:@"ypos"] floatValue];
         
+        auxX += TILE_WIDTH/2;
+        auxY -= TILE_HEIGHT/2;
+        
         if ([[[command objectForKey:@"instance"] objectForKey:@"token"] isEqualToString:@"player"]) {
             
             if (TRACE_COMMANDS) CCLOG(@"Robot.teleportInstance (map position): %f, %f", auxX, auxY);
@@ -1338,6 +1352,9 @@ void runDynamicBroadcastMessage(id self, SEL _cmd, id selector, NSDictionary *co
         auxY = [[position objectAtIndex:1] floatValue];
         
         auxY = ([GameLayer getInstance].mapHeight*TILE_HEIGHT) - auxY;
+        
+        auxX += TILE_WIDTH/2;
+        auxY -= TILE_HEIGHT/2;
         
         if ([[[command objectForKey:@"instance"] objectForKey:@"token"] isEqualToString:@"player"]) {
             

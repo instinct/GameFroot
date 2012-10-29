@@ -1128,8 +1128,9 @@ NSString *defaultIssue = @"";
         NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
         
         NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
+        CCLOG(@"Levels raw: %@", [rawData description]);
         jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] mutableCopy];
-        //CCLOG(@"Levels: %@", [jsonDataFeatured description]);
+        CCLOG(@"Levels: %@", [jsonDataFeatured description]);
         
         if(!jsonDataFeatured)
         {
