@@ -31,7 +31,7 @@ Usage:
 - (id)scheduleAfterDelay:(ccTime)delay block:(void(^)(ccTime dt))block {
     block = [block copy];
     [self scheduleSelector:@selector(cc_invokeBlock:) forTarget:block interval:0 paused:NO repeat:0 delay:delay];
-    return block;
+    return [block autorelease];
 }
 
 - (void)pause {
