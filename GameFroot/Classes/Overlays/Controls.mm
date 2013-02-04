@@ -51,8 +51,8 @@
         [self setControlsOpacity:CONTROLS_OPACITY];
         
         //position elements
-        aButton.position = ccp(424,56);
-        bButton.position = ccp(330,56);
+        aButton.position = ccp(size.width - 56,56); // 424
+        bButton.position = ccp(size.width - 150,56); // 330
         [self setDpadArrowPosition];
         psRight.position = dpadRight.position;
         psLeft.position = dpadLeft.position;
@@ -82,8 +82,8 @@
         eastTriangleArea = [Shared getTrianglePoints: eastMoveArea direction:@"east"];
         westTriangleArea = [Shared getTrianglePoints: westMoveArea direction:@"west"];
         
-        jumpArea = CGRectMake(480 - 100 - 1, 91 + 30, 90, 150);
-        shootArea = CGRectMake(480 - 195 - 1, 91 + 30, 90, 150);
+        jumpArea = CGRectMake(size.width - 100 - 1, 91 + 30, 90, 150);
+        shootArea = CGRectMake(size.width - 195 - 1, 91 + 30, 90, 150);
 
         // The area within which the dpad will track touches, roughly half the screen.
         dpadTouchArea = CGRectMake(0, size.height, size.width/2 + 20, size.height);

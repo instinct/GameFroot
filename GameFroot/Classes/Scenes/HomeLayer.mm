@@ -17,6 +17,11 @@
 #import "FilteredMenu.h"
 #import "OnPressMenu.h"
 #import "GravatarLoader.h"
+#import "ZipFile.h"
+#import "ZipException.h"
+#import "FileInZipInfo.h"
+//#import "ZipWriteStream.h"
+#import "ZipReadStream.h"
 #import "AppDelegate.h"
 
 #define ITEMS_PER_PAGE  20
@@ -54,6 +59,10 @@
 
 NSString *defaultIssue = @"";
 
+-(NSString *) returnServer
+{
+    return serverUsed == 0 ? [properties objectForKey:@"server_live"] : [properties objectForKey:@"server_staging"];
+}
 
 // on "init" you need to initialize your instance
 -(id) init
@@ -78,6 +87,7 @@ NSString *defaultIssue = @"";
 		CGSize size = [[CCDirector sharedDirector] winSize];
         
         CCSprite *background = [CCSprite spriteWithFile:@"background.png"];
+        if (IS_IPHONE5()) background.scaleY = 1.2;
 		[background setPosition:ccp(size.width/2, size.height/2)];
 		[self addChild:background z:1];
 			
@@ -93,7 +103,7 @@ NSString *defaultIssue = @"";
         /*
             The GameFroot Logo is a secret button that triggers beta mode.
             To trigger beta mode, tap the logo 5 times
-         */
+        */
         
         secretTaps = 0;
         
@@ -133,112 +143,233 @@ NSString *defaultIssue = @"";
         
         gameDetail = [CCNode node];
         [self addChild:gameDetail z:4];
-		
+        
+        
+        // *********************************************************************************************
+        // Check if there is any custom user games
+        // *********************************************************************************************
+        
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(SAVE_FOLDER, NSUserDomainMask, YES);
+        NSString *cacheDirectory = [paths objectAtIndex:0];
+        
+        NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=single&page=1", [self returnServer]];
+        NSString *levelsURLEncoded = [Shared md5:levelsURL];
+        NSString *levelsFileInCache = [cacheDirectory stringByAppendingPathComponent:levelsURLEncoded];
+        NSString *mergedLevels = @"";
+        CCLOG(@"Downloaded url levels: %@", levelsURL);
+        
+        paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentsDirectory = [paths objectAtIndex:0];
+        NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:documentsDirectory error:nil];
+        //CCLOG(@"%@", dirContents);
+        
+        NSPredicate *fltr = [NSPredicate predicateWithFormat:@"self ENDSWITH '.zip'"];
+        NSArray *onlyZip = [dirContents filteredArrayUsingPredicate:fltr];
+        CCLOG(@"Documents files: %@", onlyZip);
+        
+        if ([onlyZip count] > 0)
+        {
+            for (int i=0; i < [onlyZip count]; i++)
+            {
+                NSString *filePath = [documentsDirectory stringByAppendingPathComponent:[onlyZip objectAtIndex:i]];
+                
+                ZipFile *zipFile= [[ZipFile alloc] initWithFileName:filePath mode:ZipFileModeUnzip];
+                
+                int nFiles = [zipFile numFilesInZip];
+                
+                for (int j=0; j<nFiles; ++j)
+                {
+                    if (j == 0){
+                        [zipFile goToFirstFileInZip];
+                    } else {
+                        [zipFile goToNextFileInZip];
+                    }
+                    FileInZipInfo *info = [zipFile getCurrentFileInZipInfo];
+                    CCLOG(@"+++++++++ %@ %d", info.name, info.size);
+                    
+                    NSArray *values = [info.name componentsSeparatedByString:@"/"];
+                    if ([values count] > 0)
+                    {
+                        NSString *firstValue = [values objectAtIndex:0];
+                        NSString *filename = [values lastObject];
+                        
+                        if (![firstValue isEqualToString:@"__MACOSX"] && ![filename isEqualToString:@""])
+                        {
+                            CCLOG(@"++++++++ %@", filename);
+                            
+                            if ([filename isEqualToString:levelsURLEncoded])
+                            {
+                                // Level data file, we need to merge all in one and save
+                                
+                                ZipReadStream *read = [zipFile readCurrentFileInZip];
+                                NSData *data = [read readDataOfLength:info.length];
+                                [read finishedReading];
+                                
+                                NSString *levelString = [[[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] autorelease];
+                                levelString = [levelString stringByReplacingOccurrencesOfString:@"[" withString:@""];
+                                levelString = [levelString stringByReplacingOccurrencesOfString:@"]" withString:@""];
+                                
+                                CCLOG(@"---------- merge level: %@", levelString);
+                                
+                                if (i < [onlyZip count] - 1)
+                                {
+                                    levelString = [levelString stringByAppendingString:@","];
+                                    mergedLevels = [mergedLevels stringByAppendingString:levelString];
+                                }
+                                else
+                                {
+                                    mergedLevels = [mergedLevels stringByAppendingString:levelString];
+                                }
+                                
+                            }
+                            else
+                            {
+                                NSString *fileInCache = [cacheDirectory stringByAppendingPathComponent:filename];
+                                
+                                // copy to cached folder
+                                if ([fileManager fileExistsAtPath:fileInCache]){
+                                    //NSDictionary *attr = [fileManager attributesOfItemAtPath:fileInCache error:NULL];
+                                    //CCLOG(@"File exists, skipping %@ vs %@\n", [attr valueForKey:NSFileModificationDate], info.date);
+                                    //continue;
+                                }
+                                
+                                CCLOG(@"---------- copy file: %@", fileInCache);
+                                
+                                ZipReadStream *read = [zipFile readCurrentFileInZip];
+                                NSData *data = [read readDataOfLength:info.length];
+                                [read finishedReading];
+                                [data writeToFile:fileInCache atomically:YES];
+                                NSDictionary *attr = [[fileManager attributesOfItemAtPath:fileInCache error:NULL] mutableCopy];
+                                NSDate *fileDate = info.date;
+                                [attr setValue:fileDate forKey:NSFileModificationDate];
+                                [fileManager setAttributes:attr ofItemAtPath:fileInCache error:NULL];
+                            }
+                        }
+                        
+                    }
+                    
+                }
+                
+                [zipFile close];
+                [zipFile release];
+            }
+            
+            // Save merged levels
+            CCLOG(@"Cache levels file: %@", mergedLevels);
+            mergedLevels = [NSString stringWithFormat:@"[%@]", mergedLevels];
+            [mergedLevels writeToFile:levelsFileInCache atomically:YES encoding:NSUTF8StringEncoding error:nil];
+            
+            displayNavigation = YES;
+        }
+        else
+        {
+            displayNavigation = NO;
+        }
+        
         // *********************************************************
-        // *********************************************************
-        // ******** Removing botton navigation bar for v1.0 ********
-        /*
-		// Main tab navigation
-		CCSprite *bottom = [CCSprite spriteWithFile:@"tab-bar.png"];
-		[bottom setPosition:ccp(size.width/2, bottom.contentSize.height/2)];
-		[self addChild:bottom z:10];
-		
-		featuredButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"icon5.png"] selectedSprite:[CCSprite spriteWithFile:@"icon5-selected.png"] target:self selector:@selector(featured:)];
-		playingButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"icon4.png"] selectedSprite:[CCSprite spriteWithFile:@"icon4-selected.png"] target:self selector:@selector(playing:)];
-		browseButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"icon3.png"] selectedSprite:[CCSprite spriteWithFile:@"icon3-selected.png"] target:self selector:@selector(browse:)];
-		myGamesButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"icon2.png"] selectedSprite:[CCSprite spriteWithFile:@"icon2-selected.png"] target:self selector:@selector(myGames:)];
-		moreButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"icon1.png"] selectedSprite:[CCSprite spriteWithFile:@"icon1-selected.png"] target:self selector:@selector(more:)];
-		
-		CCLabelTTF *featuredLabelSelected = [CCLabelTTF labelWithString:@"Featured" dimensions:CGSizeMake(featuredButton.selectedImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
-		featuredLabelSelected.anchorPoint = ccp(0,-0.0);
-		featuredLabelSelected.color = ccc3(255,255,255);
-		[featuredButton.selectedImage addChild:featuredLabelSelected];
-		
-		CCLabelTTF *featuredLabelNormal = [CCLabelTTF labelWithString:@"Featured" dimensions:CGSizeMake(featuredButton.normalImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
-		featuredLabelNormal.anchorPoint = ccp(0,-0.0);
-		featuredLabelNormal.color = ccc3(200,200,200);
-		[featuredButton.normalImage addChild:featuredLabelNormal];
-		
-		
-		CCLabelTTF *playingLabelSelected = [CCLabelTTF labelWithString:@"Playing" dimensions:CGSizeMake(playingButton.selectedImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
-		playingLabelSelected.anchorPoint = ccp(0,-0.0);
-		playingLabelSelected.color = ccc3(255,255,255);
-		[playingButton.selectedImage addChild:playingLabelSelected];
-		
-		CCLabelTTF *playingLabelNormal = [CCLabelTTF labelWithString:@"Playing" dimensions:CGSizeMake(playingButton.normalImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
-		playingLabelNormal.anchorPoint = ccp(0,-0.0);
-		playingLabelNormal.color = ccc3(200,200,200);
-		[playingButton.normalImage addChild:playingLabelNormal];
-		
-		CCNode *badge = [CCNode node];
-		CCSprite *badgeLeft = [CCSprite spriteWithFile:@"badge-left.png"];
-		badgeMiddle = [CCSprite spriteWithFile:@"badge-middle.png"];
-		badgeRight = [CCSprite spriteWithFile:@"badge-right.png"];
-		
-		[badgeLeft setAnchorPoint:ccp(0,0)];
-		[badgeMiddle setAnchorPoint:ccp(0,0)];
-		[badgeRight setAnchorPoint:ccp(0,0)];
-		
-		[badgeLeft setPosition:ccp(playingButton.contentSize.width/2, playingButton.contentSize.height - badgeLeft.contentSize.height)];
-		[badgeMiddle setPosition:ccp(badgeLeft.position.x + badgeLeft.contentSize.width, badgeLeft.position.y)];
-		
-		[badge addChild:badgeLeft];
-		[badge addChild:badgeMiddle];
-		[badge addChild:badgeRight];
-		
-		playingLabel = [CCLabelTTF labelWithString:@"" fontName:@"HelveticaNeue-Bold" fontSize:13];
-		playingLabel.anchorPoint = ccp(0,-0.15);
-		playingLabel.color = ccc3(255,255,255);
-		[badge addChild:playingLabel];
-		[playingLabel setPosition:ccp(badgeMiddle.position.x - 3, badgeMiddle.position.y)];
-		
-		[self updatePlayedBadge];
-		
-		[playingButton addChild:badge];
-		
-		
-		CCLabelTTF *browseLabelSelected = [CCLabelTTF labelWithString:@"Browse" dimensions:CGSizeMake(browseButton.selectedImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
-		browseLabelSelected.anchorPoint = ccp(0,-0.0);
-		browseLabelSelected.color = ccc3(255,255,255);
-		[browseButton.selectedImage addChild:browseLabelSelected];
-		
-		CCLabelTTF *browseLabelNormal = [CCLabelTTF labelWithString:@"Browse" dimensions:CGSizeMake(browseButton.normalImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
-		browseLabelNormal.anchorPoint = ccp(0,-0.0);
-		browseLabelNormal.color = ccc3(200,200,200);
-		[browseButton.normalImage addChild:browseLabelNormal];
-		
-		
-		CCLabelTTF *myGamesLabelSelected = [CCLabelTTF labelWithString:@"My Games" dimensions:CGSizeMake(myGamesButton.selectedImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
-		myGamesLabelSelected.anchorPoint = ccp(0,-0.0);
-		myGamesLabelSelected.color = ccc3(255,255,255);
-		[myGamesButton.selectedImage addChild:myGamesLabelSelected];
-		
-		CCLabelTTF *myGamesLabelNormal = [CCLabelTTF labelWithString:@"My Games" dimensions:CGSizeMake(myGamesButton.normalImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
-		myGamesLabelNormal.anchorPoint = ccp(0,-0.0);
-		myGamesLabelNormal.color = ccc3(200,200,200);
-		[myGamesButton.normalImage addChild:myGamesLabelNormal];
-		
-		
-		CCLabelTTF *moreLabelSelected = [CCLabelTTF labelWithString:@"More" dimensions:CGSizeMake(moreButton.selectedImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
-		moreLabelSelected.anchorPoint = ccp(0,-0.0);
-		moreLabelSelected.color = ccc3(255,255,255);
-		[moreButton.selectedImage addChild:moreLabelSelected];
-		
-		CCLabelTTF *moreLabelNormal = [CCLabelTTF labelWithString:@"More" dimensions:CGSizeMake(moreButton.normalImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
-		moreLabelNormal.anchorPoint = ccp(0,-0.1);
-		moreLabelNormal.color = ccc3(200,200,200);
-		[moreButton.normalImage addChild:moreLabelNormal];
-		
-		
-		OnPressMenu *menuBottom = [OnPressMenu menuWithItems:featuredButton, playingButton, browseButton, myGamesButton, moreButton, nil];
-		menuBottom.position = ccp(size.width/2, bottom.contentSize.height/2 - 1);
-		[menuBottom alignItemsHorizontallyWithPadding:2];
-		
-		[menuBottom reorderChild:playingButton z:browseButton.zOrder+1];
-		
-		[self addChild:menuBottom z:11];
-		*/
-        // *********************************************************
+        if (displayNavigation)
+        {
+            // Main tab navigation
+            CCSprite *bottom = [CCSprite spriteWithFile:@"tab-bar.png"];
+            [bottom setPosition:ccp(size.width/2, bottom.contentSize.height/2)];
+            [self addChild:bottom z:10];
+            
+            featuredButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"icon5.png"] selectedSprite:[CCSprite spriteWithFile:@"icon5-selected.png"] target:self selector:@selector(featured:)];
+            //playingButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"icon4.png"] selectedSprite:[CCSprite spriteWithFile:@"icon3-selected.png"] target:self selector:@selector(playing:)];
+            browseButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"icon3.png"] selectedSprite:[CCSprite spriteWithFile:@"icon3-selected.png"] target:self selector:@selector(browse:)];
+            //myGamesButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"icon2.png"] selectedSprite:[CCSprite spriteWithFile:@"icon2-selected.png"] target:self selector:@selector(myGames:)];
+            //moreButton = [CCMenuItemSprite itemFromNormalSprite:[CCSprite spriteWithFile:@"icon1.png"] selectedSprite:[CCSprite spriteWithFile:@"icon1-selected.png"] target:self selector:@selector(more:)];
+            
+            CCLabelTTF *featuredLabelSelected = [CCLabelTTF labelWithString:@"Featured" dimensions:CGSizeMake(featuredButton.selectedImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+            featuredLabelSelected.anchorPoint = ccp(0,-0.0);
+            featuredLabelSelected.color = ccc3(255,255,255);
+            [featuredButton.selectedImage addChild:featuredLabelSelected];
+            
+            CCLabelTTF *featuredLabelNormal = [CCLabelTTF labelWithString:@"Featured" dimensions:CGSizeMake(featuredButton.normalImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+            featuredLabelNormal.anchorPoint = ccp(0,-0.0);
+            featuredLabelNormal.color = ccc3(200,200,200);
+            [featuredButton.normalImage addChild:featuredLabelNormal];
+            
+            /*
+            CCLabelTTF *playingLabelSelected = [CCLabelTTF labelWithString:@"Playing" dimensions:CGSizeMake(playingButton.selectedImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+            playingLabelSelected.anchorPoint = ccp(0,-0.0);
+            playingLabelSelected.color = ccc3(255,255,255);
+            [playingButton.selectedImage addChild:playingLabelSelected];
+            
+            CCLabelTTF *playingLabelNormal = [CCLabelTTF labelWithString:@"Playing" dimensions:CGSizeMake(playingButton.normalImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+            playingLabelNormal.anchorPoint = ccp(0,-0.0);
+            playingLabelNormal.color = ccc3(200,200,200);
+            [playingButton.normalImage addChild:playingLabelNormal];
+            
+            CCNode *badge = [CCNode node];
+            CCSprite *badgeLeft = [CCSprite spriteWithFile:@"badge-left.png"];
+            badgeMiddle = [CCSprite spriteWithFile:@"badge-middle.png"];
+            badgeRight = [CCSprite spriteWithFile:@"badge-right.png"];
+            
+            [badgeLeft setAnchorPoint:ccp(0,0)];
+            [badgeMiddle setAnchorPoint:ccp(0,0)];
+            [badgeRight setAnchorPoint:ccp(0,0)];
+            
+            [badgeLeft setPosition:ccp(playingButton.contentSize.width/2, playingButton.contentSize.height - badgeLeft.contentSize.height)];
+            [badgeMiddle setPosition:ccp(badgeLeft.position.x + badgeLeft.contentSize.width, badgeLeft.position.y)];
+            
+            [badge addChild:badgeLeft];
+            [badge addChild:badgeMiddle];
+            [badge addChild:badgeRight];
+            
+            playingLabel = [CCLabelTTF labelWithString:@"" fontName:@"HelveticaNeue-Bold" fontSize:13];
+            playingLabel.anchorPoint = ccp(0,-0.15);
+            playingLabel.color = ccc3(255,255,255);
+            [badge addChild:playingLabel];
+            [playingLabel setPosition:ccp(badgeMiddle.position.x - 3, badgeMiddle.position.y)];
+            
+            [self updatePlayedBadge];
+            
+            [playingButton addChild:badge];
+            */
+            
+            CCLabelTTF *browseLabelSelected = [CCLabelTTF labelWithString:@"Browse" dimensions:CGSizeMake(browseButton.selectedImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+            browseLabelSelected.anchorPoint = ccp(0,-0.0);
+            browseLabelSelected.color = ccc3(255,255,255);
+            [browseButton.selectedImage addChild:browseLabelSelected];
+            
+            CCLabelTTF *browseLabelNormal = [CCLabelTTF labelWithString:@"Browse" dimensions:CGSizeMake(browseButton.normalImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+            browseLabelNormal.anchorPoint = ccp(0,-0.0);
+            browseLabelNormal.color = ccc3(200,200,200);
+            [browseButton.normalImage addChild:browseLabelNormal];
+            
+            /*
+            CCLabelTTF *myGamesLabelSelected = [CCLabelTTF labelWithString:@"My Games" dimensions:CGSizeMake(myGamesButton.selectedImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+            myGamesLabelSelected.anchorPoint = ccp(0,-0.0);
+            myGamesLabelSelected.color = ccc3(255,255,255);
+            [myGamesButton.selectedImage addChild:myGamesLabelSelected];
+            
+            CCLabelTTF *myGamesLabelNormal = [CCLabelTTF labelWithString:@"My Games" dimensions:CGSizeMake(myGamesButton.normalImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+            myGamesLabelNormal.anchorPoint = ccp(0,-0.0);
+            myGamesLabelNormal.color = ccc3(200,200,200);
+            [myGamesButton.normalImage addChild:myGamesLabelNormal];
+            
+            
+            CCLabelTTF *moreLabelSelected = [CCLabelTTF labelWithString:@"More" dimensions:CGSizeMake(moreButton.selectedImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+            moreLabelSelected.anchorPoint = ccp(0,-0.0);
+            moreLabelSelected.color = ccc3(255,255,255);
+            [moreButton.selectedImage addChild:moreLabelSelected];
+            
+            CCLabelTTF *moreLabelNormal = [CCLabelTTF labelWithString:@"More" dimensions:CGSizeMake(moreButton.normalImage.contentSize.width,13) alignment:CCTextAlignmentCenter fontName:@"HelveticaNeue-Bold" fontSize:10];
+            moreLabelNormal.anchorPoint = ccp(0,-0.1);
+            moreLabelNormal.color = ccc3(200,200,200);
+            [moreButton.normalImage addChild:moreLabelNormal];
+            */
+            
+            OnPressMenu *menuBottom = [OnPressMenu menuWithItems:featuredButton, browseButton, nil]; // ,playingButton , myGamesButton, moreButton
+            menuBottom.position = ccp(size.width/2, bottom.contentSize.height/2 - 1);
+            [menuBottom alignItemsHorizontallyWithPadding:2];
+            
+            //[menuBottom reorderChild:playingButton z:browseButton.zOrder+1];
+            
+            [self addChild:menuBottom z:11];
+        }
         // *********************************************************
         
 		// Init variables
@@ -265,6 +396,8 @@ NSString *defaultIssue = @"";
         gameDetailLoaded = NO;
         tableView = nil;
         
+        
+            
         // look for the default issue to load in our resources, otherwise use hard coded issue name
         NSString *defaultIssueFileName = @"defaultIssue.txt";
         NSString *defaultIssueFilePath =
@@ -287,7 +420,7 @@ NSString *defaultIssue = @"";
             [Shared setLevel:[[jsonDataFeatured objectAtIndex:0] mutableCopy]];
         }
         
-		/*if([[NSUserDefaults standardUserDefaults] boolForKey:@"firstlaunch"] && ![Shared getWelcomeShown]) {
+        /*if([[NSUserDefaults standardUserDefaults] boolForKey:@"firstlaunch"] && ![Shared getWelcomeShown]) {
             // Do some stuff on first launch
             [Shared setWelcomeShown:YES];
             [self loadWelcome];
@@ -319,7 +452,7 @@ NSString *defaultIssue = @"";
         emailAddress = [defaults objectForKey:@"FBEmailAddress"];
         //CCLOG(@">>>> check avatar: %@", emailAddress);
         AppDelegate *app = (AppDelegate *)[UIApplication sharedApplication].delegate;
-		if ((emailAddress != nil) && [[app facebook] isSessionValid] && ([Shared connectedToNetwork])) {
+        if ((emailAddress != nil) && [[app facebook] isSessionValid] && ([Shared connectedToNetwork])) {
             GravatarLoader *gravatarLoader = [[[GravatarLoader alloc] initWithTarget:self andHandle:@selector(setGravatarImage:)] autorelease];
             [gravatarLoader loadEmail:emailAddress withSize:32*CC_CONTENT_SCALE_FACTOR()];
             loadedAvatar = YES;
@@ -328,11 +461,6 @@ NSString *defaultIssue = @"";
 	}
 	
 	return self;
-}
-
--(NSString *) returnServer
-{
-    return serverUsed == 0 ? [properties objectForKey:@"server_live"] : [properties objectForKey:@"server_staging"];
 }
 
 -(void) updatePlayedBadge {
@@ -512,7 +640,7 @@ NSString *defaultIssue = @"";
 
 // Main navigation
 -(void) featured:(id)sender {
-	/*if (loading) {
+	if (loading) {
 		if (selectedPage != featured) [featuredButton unselected];
 		return;
 	}
@@ -522,7 +650,6 @@ NSString *defaultIssue = @"";
 	[browseButton unselected];
 	[myGamesButton unselected];
 	[moreButton unselected];
-	*/
     
     welcome.visible = NO;
 	if (selectedPage != featured) featured.visible = NO;
@@ -972,7 +1099,7 @@ NSString *defaultIssue = @"";
     NSString *cachedFile = [NSString stringWithFormat:@"preview_%@.png", [ld objectForKey:@"id"]];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *embeddedResource = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:cachedFile];
-    CCLOG(@"Check preview filew: %@", embeddedResource);
+    CCLOG(@"Check preview file: %@", embeddedResource);
     BOOL embedded = [fileManager fileExistsAtPath:embeddedResource];
     
     if (!embedded) {
@@ -1128,7 +1255,7 @@ NSString *defaultIssue = @"";
         NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
         
         NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
-        CCLOG(@"Levels raw: %@", [rawData description]);
+        //CCLOG(@"Levels raw: %@", [rawData description]);
         jsonDataFeatured = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] mutableCopy];
         CCLOG(@"Levels: %@", [jsonDataFeatured description]);
         
@@ -1194,8 +1321,18 @@ NSString *defaultIssue = @"";
 	//tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, 270)]; // - 50 to height for iAd
 	//tableView.position = ccp(0,(50)); // Add 50 to y for iAd
     
-    tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, 270 + 10)];
-	tableView.position = ccp(0,0);
+    if (displayNavigation)
+    {
+        tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, (size.height-210) + 10 - 50)]; // 270 + 10
+        tableView.position = ccp(0,50);
+    }
+    else
+    {
+        tableView = [SWTableView viewWithDataSource:self size:CGSizeMake(size.width, (size.height-210) + 10)]; // 270 + 10
+        tableView.position = ccp(0,0);
+    }
+    
+	
     // ********************************************************
     // ********************************************************
     
@@ -1361,18 +1498,20 @@ NSString *defaultIssue = @"";
         
         NSString *levelsURL;
         
+        /*
         if([Shared isBetaMode]) {
             levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&page=%i", [self returnServer], browsePage];
         } else {
             levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=ios-browse&page=%i", [self returnServer], browsePage];
         }
-		
-		CCLOG(@"Load levels: %@",levelsURL);
+		*/
+        levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_all_levels&category=single&page=1", [self returnServer]];
+		CCLOG(@"Load browse levels: %@",levelsURL);
 		
 		NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];
 		NSData *rawData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
 		jsonDataBrowse = [[[CJSONDeserializer deserializer] deserializeAsArray:rawData error:nil] mutableCopy];
-		//CCLOG(@"Levels: %@", [jsonDataBrowse description]);
+		CCLOG(@"Levels: %@", [jsonDataBrowse description]);
 		
 		if(!jsonDataBrowse)
 		{
@@ -1539,7 +1678,7 @@ NSString *defaultIssue = @"";
         
         myGamesPage = 1;
 	
-		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_user_levels&page=%1", [self returnServer], myGamesPage];
+		NSString *levelsURL = [NSString stringWithFormat:@"%@?gamemakers_api=1&type=get_user_levels&page=%i", [self returnServer], myGamesPage];
 		CCLOG(@"Load levels: %@",levelsURL);
 		
 		NSString *stringData = [Shared stringWithContentsOfURL:levelsURL ignoreCache:YES];

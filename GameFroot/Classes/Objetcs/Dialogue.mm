@@ -37,6 +37,7 @@
     [background setOpacity:200];
 	[background setAnchorPoint:ccp(0,0)];
 	[background setPosition:ccp(10, 10)];
+    if (IS_IPHONE5()) background.scaleX = 1.2;
     
     arrow = [CCSprite spriteWithFile:@"arrow.png"];
     [background addChild:arrow];
@@ -400,7 +401,7 @@
 - (void) visit 
 {
 	glEnable(GL_SCISSOR_TEST);
-	glScissor(10*CC_CONTENT_SCALE_FACTOR(), 10*CC_CONTENT_SCALE_FACTOR(), background.contentSize.height*CC_CONTENT_SCALE_FACTOR(), background.contentSize.width*CC_CONTENT_SCALE_FACTOR());
+	glScissor(10*CC_CONTENT_SCALE_FACTOR(), 10*CC_CONTENT_SCALE_FACTOR(), background.contentSize.height*background.scaleY*CC_CONTENT_SCALE_FACTOR(), background.contentSize.width*background.scaleX*CC_CONTENT_SCALE_FACTOR());
 	[super visit];
 	glDisable(GL_SCISSOR_TEST);
     

@@ -45,7 +45,8 @@
                        nil];
         
         CCMenu *musicMenu = [CCMenu menuWithItems:musicButton, nil];
-        musicMenu.position = ccp(size.width*musicMenu.scaleX*0.18, size.height*musicMenu.scaleY*0.63);
+        if (IS_IPHONE5()) musicMenu.position = ccp(26 + size.width*musicMenu.scaleX*0.18, size.height*musicMenu.scaleY*0.63);
+        else musicMenu.position = ccp(size.width*musicMenu.scaleX*0.18, size.height*musicMenu.scaleY*0.63);
         [self addChild:musicMenu];
         
         //\\//\\// add controls submenu //\\//\\//

@@ -96,6 +96,8 @@
     CGPoint positionLogo;
     CCMenu *secretMenu;
     CCLabelTTF *editionLabel;
+    
+    BOOL displayNavigation;
 }
 
 // returns a CCScene that contains the HomeLayer as the only child

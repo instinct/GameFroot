@@ -71,3 +71,5 @@ enum GameControlType{
 #define ENEMY_HEIGHT    76.0
 
 #define DEBUG_WORLD		0
+
+#define IS_IPHONE5() ([[CCDirector sharedDirector] winSize].width == 568 || [[CCDirector sharedDirector] winSize].height == 568)

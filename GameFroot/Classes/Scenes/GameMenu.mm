@@ -101,7 +101,11 @@
             // Background
             CCSprite *bg = [CCSprite spriteWithTexture:[Shared getTexture2DFromWeb:[background objectForKey:@"filename"] ignoreCache:NO]];
             [bg setScale:scaleFactor * CC_CONTENT_SCALE_FACTOR()];
-            [bg setPosition:ccp(size.width*0.5,size.height*0.5)];
+            if (IS_IPHONE5()) [bg setScale:scaleFactor * CC_CONTENT_SCALE_FACTOR()*1.2];
+            
+            if (IS_IPHONE5()) [bg setPosition:ccp(size.width*0.5,size.height-(bg.contentSize.height/2)*bg.scaleY)];
+            else [bg setPosition:ccp(size.width*0.5,size.height*0.5)];
+            
             [self addChild:bg];
             
             mainMenu = [CCMenu menuWithItems:nil];
@@ -121,6 +125,9 @@
                     float y = size.height - ([[asset objectForKey:@"y"] floatValue] * scaleFactor);
                     int states = [[asset objectForKey:@"states"] intValue];
                     int zIndex = [[asset objectForKey:@"z-index"] intValue];
+                    
+                    if (IS_IPHONE5()) x += 44;
+
                     
                     if ([behaviour isEqualToString:@"PLAY"]) 
                     {
@@ -223,6 +230,7 @@
             CCSprite *bg = [CCSprite spriteWithFile:@"blue-bg.png"];
             [bg setPosition:ccp(size.width*0.5,size.height*0.5)];
             [self addChild:bg];
+            if (IS_IPHONE5()) [bg setScale:1.2];
             
             CCLabelBMFont *level = [CCLabelBMFont labelWithString:[Shared getLevelTitle] fntFile:@"Chicpix2.fnt"];
             [level.textureAtlas.texture setAliasTexParameters];
@@ -264,14 +272,16 @@
             _progressBar = [AGProgressBar progressBarWithFile:@"custom_menu.png"];
             [_progressBar.textureAtlas.texture setAliasTexParameters];
             [_progressBar setupWithFrameNamesLeft:@"custom_bar_left.png" right:@"custom_bar_right.png" middle:@"custom_bar_middle.png" andBackgroundLeft:@"custom_loading_bar_back_left.png" right:@"custom_loading_bar_back_right.png" middle:@"custom_loading_bar_back.png" andWidth:size.width];
-            _progressBar.position = ccp(0,8);
+            if (IS_IPHONE5()) _progressBar.position = ccp(0,8);
+            else _progressBar.position = ccp(0,8);
         } 
         else 
         {
             _progressBar = [AGProgressBar progressBarWithFile:@"main_menu.png"];
             [_progressBar.textureAtlas.texture setAliasTexParameters];
             [_progressBar setupWithFrameNamesLeft:@"bar_left.png" right:@"bar_right.png" middle:@"bar_middle.png" andBackgroundLeft:@"loading_bar_back_left.png" right:@"loading_bar_back_right.png" middle:@"loading_bar_back.png" andWidth:(MAIN_MENU_PROGRESS_BAR_LENGTH)];
-            _progressBar.position = ccp(size.width*0.06,size.height*0.13);
+            if (IS_IPHONE5())_progressBar.position = ccp(44 + size.width*0.06,size.height*0.13);
+            else _progressBar.position = ccp(size.width*0.06,size.height*0.13);
         }
         
         

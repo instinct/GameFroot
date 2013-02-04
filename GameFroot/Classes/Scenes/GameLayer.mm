@@ -1032,6 +1032,7 @@ GameLayer *instance;
     
     // PNG is 768x512
     bg.scale = 0.625 * CC_CONTENT_SCALE_FACTOR();
+    if (IS_IPHONE5()) bg.scale = 0.625 * CC_CONTENT_SCALE_FACTOR() * 1.2;
     [bg setPosition:ccp(size.width/2, size.height/2)];
 }
 

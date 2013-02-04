@@ -10,6 +10,7 @@
 #import "HomeLayer.h"
 #import "Loader.h"
 #import "Shared.h"
+#import "Constants.h"
 
 @implementation SplashLayer
 
@@ -37,7 +38,10 @@
 		
 		CGSize size = [[CCDirector sharedDirector] winSize];	
 		
-		CCSprite *splash = [CCSprite spriteWithFile:@"Default.png"];
+		CCSprite *splash;
+        if (IS_IPHONE5()) splash = [CCSprite spriteWithFile:@"Default-568h@2x.png"];
+        else splash = [CCSprite spriteWithFile:@"Default.png"];
+        
 		[splash setPosition:ccp(size.width/2, size.height/2)];
 		[self addChild:splash];
 		

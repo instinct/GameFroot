@@ -489,16 +489,16 @@ CGPoint GBSub(const CGPoint v1, const CGPoint v2) {
 	NSArray *urlValues = [url componentsSeparatedByString:@"/"];
 	NSString *embeddedResource = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:[urlValues lastObject]];
 	BOOL embedded = [fileManager fileExistsAtPath:embeddedResource];
-	//CCLOG(@"Shared.stringWithContentsOfURL (CHECK IF EMBEDDED): %@ exists %i", [urlValues lastObject], embedded);
+	CCLOG(@"Shared.stringWithContentsOfURL (CHECK IF EMBEDDED): %@ exists %i", [urlValues lastObject], embedded);
 	
 	if (embedded && (!ignoreCache || ![Shared connectedToNetwork])) {
 		NSString *data = [NSString stringWithContentsOfFile:embeddedResource encoding:NSASCIIStringEncoding error:nil];
-		//CCLOG(@"Shared.stringWithContentsOfURL (EMBEDDED): %@", embeddedResource);
+		CCLOG(@"Shared.stringWithContentsOfURL (EMBEDDED): %@", embeddedResource);
 		return data;
 		
 	} else if ([fileManager fileExistsAtPath:resource] && (!ignoreCache || ![Shared connectedToNetwork])) {
 		NSString *data = [NSString stringWithContentsOfFile:resource encoding:NSASCIIStringEncoding error:nil];
-		//CCLOG(@"Shared.stringWithContentsOfURL (CACHED): %@", cachedFile);
+		CCLOG(@"Shared.stringWithContentsOfURL (CACHED): %@", cachedFile);
 		return data;
 		
 	} else {
@@ -509,17 +509,17 @@ CGPoint GBSub(const CGPoint v1, const CGPoint v2) {
 		if (error == nil) {
 			BOOL saved = [data writeToFile:resource atomically:YES encoding:NSASCIIStringEncoding error:nil];
 			if (saved) {
-				//CCLOG(@"Shared.stringWithContentsOfURL (ONLINE, SAVED:%i): %@", saved, cachedFile);
+				CCLOG(@"Shared.stringWithContentsOfURL (ONLINE, SAVED:%i): %@", saved, cachedFile);
 				return data;
 				
 			} else {
-				//CCLOG(@"Shared.stringWithContentsOfURL (ONLINE, NOT SAVED:%i): %@", saved, cachedFile);
+				CCLOG(@"Shared.stringWithContentsOfURL (ONLINE, NOT SAVED:%i): %@", saved, cachedFile);
 				return data;
 			}
 		
 		} else if ([fileManager fileExistsAtPath:resource]) {
 			NSString *data = [NSString stringWithContentsOfFile:resource encoding:NSASCIIStringEncoding error:nil];
-			//CCLOG(@"Shared.stringWithContentsOfURL (ERROR, CACHED): %@", cachedFile);
+			CCLOG(@"Shared.stringWithContentsOfURL (ERROR, CACHED): %@", cachedFile);
 			return data;
 			
 		} else {
@@ -733,22 +733,22 @@ has been previously downloaded, return a path to the file otherwise load the ass
 	NSArray *urlValues = [url componentsSeparatedByString:@"/"];
 	NSString *embeddedResource = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:[urlValues lastObject]];
 	BOOL embedded = [fileManager fileExistsAtPath:embeddedResource];
-	//CCLOG(@"Shared.getTexture2DFromWeb (CHECK IF EMBEDDED): %@ exists %i", [urlValues lastObject], embedded);
+	CCLOG(@"Shared.getTexture2DFromWeb (CHECK IF EMBEDDED): %@ exists %i", [urlValues lastObject], embedded);
 	
 	if (embedded && (!ignoreCache || ![Shared connectedToNetwork])) {
 		CCTexture2D *tex = [[CCTextureCache sharedTextureCache] addImage:embeddedResource];
-		//CCLOG(@"Shared.getTexture2DFromWeb (EMBEDDED): %@", embeddedResource);
+		CCLOG(@"Shared.getTexture2DFromWeb (EMBEDDED): %@", embeddedResource);
 		return tex;
 		
 	} else if ([fileManager fileExistsAtPath:resource] && (!ignoreCache || ![Shared connectedToNetwork])) {
 		CCTexture2D *tex = [[CCTextureCache sharedTextureCache] addImage:resource];
 		
 		if (tex != nil) {
-			//CCLOG(@"Shared.getTexture2DFromWeb (CACHED): %@", cachedFile);
+			CCLOG(@"Shared.getTexture2DFromWeb (CACHED): %@", cachedFile);
 			return tex;
 			
 		} else {
-			//CCLOG(@"Shared.getTexture2DFromWeb (RE-CACHED): %@", cachedFile);
+			CCLOG(@"Shared.getTexture2DFromWeb (RE-CACHED): %@", cachedFile);
 			CCTexture2D *tex = [[CCTextureCache sharedTextureCache] addImage:resource];
 			return tex;
 		}
@@ -762,12 +762,12 @@ has been previously downloaded, return a path to the file otherwise load the ass
 		if (error == nil) {
 			BOOL saved = [imgData writeToFile:resource atomically:YES];
 			if (saved) {
-				//CCLOG(@"Shared.getTexture2DFromWeb (ONLINE, SAVED:%i): %@", saved, cachedFile);
+				CCLOG(@"Shared.getTexture2DFromWeb (ONLINE, SAVED:%i): %@", saved, cachedFile);
 				CCTexture2D *tex = [[CCTextureCache sharedTextureCache] addImage:resource];
 				return tex;
 				
 			} else {
-				//CCLOG(@"Shared.getTexture2DFromWeb (ONLINE, NOT SAVED:%i): %@", saved, cachedFile);
+				CCLOG(@"Shared.getTexture2DFromWeb (ONLINE, NOT SAVED:%i): %@", saved, cachedFile);
 				UIImage *img = [[UIImage alloc] initWithData:imgData];
 				CCTexture2D *tex;
                 if (CC_CONTENT_SCALE_FACTOR() == 2) tex = [[CCTexture2D alloc] initWithImage:img resolutionType:kCCResolutionRetinaDisplay];
@@ -781,12 +781,12 @@ has been previously downloaded, return a path to the file otherwise load the ass
 			CCTexture2D *tex = [[CCTextureCache sharedTextureCache] addImage:resource];
 			
 			if (tex != nil) {
-				//CCLOG(@"Shared.getTexture2DFromWeb (ERROR, CACHED): %@", cachedFile);
+				CCLOG(@"Shared.getTexture2DFromWeb (ERROR, CACHED): %@", cachedFile);
 				return tex;
 				
 			} else {
 				UIImage *img = [[UIImage alloc] initWithData:[NSData dataWithContentsOfFile:resource]];
-				//CCLOG(@"Shared.getTexture2DFromWeb (ERROR, NOT CACHED): %@", cachedFile);
+				CCLOG(@"Shared.getTexture2DFromWeb (ERROR, NOT CACHED): %@", cachedFile);
 				CCTexture2D *tex;
                 if (CC_CONTENT_SCALE_FACTOR() == 2) tex = [[CCTexture2D alloc] initWithImage:img resolutionType:kCCResolutionRetinaDisplay];
                 else tex = [[CCTexture2D alloc] initWithImage:img resolutionType:kCCResolutionStandard];
